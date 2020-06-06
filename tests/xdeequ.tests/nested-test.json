@@ -1,0 +1,1 @@
+{ "dc_id": "dc-101", "lang": "en-us", "source": { "sensor-igauge": { "id": 10, "ip": "68.28.91.22", "description": "Sensor attached to the container ceilings", "weblink": "http://www.testing-url.dk/", "temp": 35, "c02_level": 1475, "geo": { "lat": 38.00, "long": 97.00 } } } }

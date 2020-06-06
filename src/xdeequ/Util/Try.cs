@@ -1,0 +1,91 @@
+using System;
+
+namespace xdeequ.Util
+{
+    public class Try<T>
+    {
+        public Try(T success)
+        {
+            Success = success;
+        }
+
+        public Try(Exception failure)
+        {
+            Failure = failure;
+        }
+
+        public static implicit operator Try<T>(T value)
+        {
+            return new Try<T>(value);
+        }
+
+        public bool IsSuccess => Success.HasValue;
+
+        public Option<T> Success { get; } = Option<T>.None;
+
+        public Option<Exception> Failure { get; } = Option<Exception>.None;
+
+        public Try<T> Recover(Action<Exception> failureHandler)
+        {
+            if (Failure.HasValue)
+            {
+                try
+                {
+                    failureHandler(Failure.Value);
+                    return this;
+                }
+                catch (Exception ex)
+                {
+                    return new Try<T>(ex);
+                }
+            }
+            else
+            {
+                return this;
+            }
+        }
+
+        public static Try<T> From(Func<T> func)
+        {
+            try
+            {
+                return new Try<T>(func());
+            }
+            catch (Exception ex)
+            {
+                return new Try<T>(ex);
+            }
+        }
+
+        public Try<T> OrElse(Try<T> @default)
+        {
+            if (Success.HasValue)
+                return this;
+            else
+                return @default;
+        }
+
+        public Try<T> GetOrElse(Func<T> fallback)
+        {
+            if (Success.HasValue)
+                return Success.Value;
+
+            try
+            {
+                return fallback();
+            }
+            catch (Exception ex)
+            {
+                return new Try<T>(ex);
+            }
+        }
+
+        public T Get()
+        {
+            if (Failure.HasValue)
+                throw Failure.Value;
+
+            return Success.Value;
+        }
+    }
+}
