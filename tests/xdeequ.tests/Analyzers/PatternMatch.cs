@@ -39,10 +39,10 @@ namespace xdeequ.tests.Analyzers
 
             var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, @"\d\.\d")
                 .Calculate(df);
-            
+
             result.Value.IsSuccess.ShouldBeFalse();
         }
-        
+
         [Fact]
         public void match_integers_in_a_String_column()
         {
@@ -62,10 +62,11 @@ namespace xdeequ.tests.Analyzers
 
             var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, @"\d")
                 .Calculate(df);
-            
+
             result.Value.IsSuccess.ShouldBeTrue();
             result.Value.Get().ShouldBe(0.5);
         }
+
         [Fact]
         public void match_email_addresses()
         {
@@ -85,11 +86,11 @@ namespace xdeequ.tests.Analyzers
 
             var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, Patterns.Email.ToString())
                 .Calculate(df);
-            
+
             result.Value.IsSuccess.ShouldBeTrue();
             result.Value.Get().ShouldBe(0.5);
         }
-        
+
         [Fact]
         public void match_credit_card_numbers()
         {
@@ -117,11 +118,11 @@ namespace xdeequ.tests.Analyzers
 
             var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, Patterns.CreditCard.ToString())
                 .Calculate(df);
-            
+
             result.Value.IsSuccess.ShouldBeTrue();
-            result.Value.Get().ShouldBe(7.0/10.0);
+            result.Value.Get().ShouldBe(7.0 / 10.0);
         }
-        
+
         [Fact]
         public void match_URLS()
         {
@@ -152,12 +153,12 @@ namespace xdeequ.tests.Analyzers
 
             var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, Patterns.Url.ToString())
                 .Calculate(df);
-            
+
             result.Value.IsSuccess.ShouldBeTrue();
-            result.Value.Get().ShouldBe(10.0/13.0);
+            result.Value.Get().ShouldBe(10.0 / 13.0);
         }
-        
-        
+
+
         [Fact]
         public void match_US_SSN()
         {
@@ -181,13 +182,12 @@ namespace xdeequ.tests.Analyzers
 
             var df = _session.CreateDataFrame(elements, schema);
 
-            var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, Patterns.SocialSecurityNumberUs.ToString())
+            var result = xdeequ.Analyzers.PatternMatch
+                .Create(someColumnName, Patterns.SocialSecurityNumberUs.ToString())
                 .Calculate(df);
-            
+
             result.Value.IsSuccess.ShouldBeTrue();
             result.Value.Get().ShouldBe(2.0 / 8.0);
         }
-        
-        
     }
 }

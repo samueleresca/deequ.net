@@ -27,7 +27,7 @@ namespace xdeequ.Analyzers
             _column = column;
             _where = where;
         }
-        
+
         public static PatternMatch Create(string column, string pattern) =>
             new PatternMatch(column, new Regex(pattern), new Option<string>());
 

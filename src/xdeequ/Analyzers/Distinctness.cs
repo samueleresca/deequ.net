@@ -1,25 +1,26 @@
 using System;
 using System.Collections.Generic;
-using static Microsoft.Spark.Sql.Functions;
 using Microsoft.Spark.Sql;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
+using static Microsoft.Spark.Sql.Functions;
+
 
 namespace xdeequ.Analyzers
 {
-    public class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
+    public class Distinctness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {
         private readonly Option<string> _where;
         private IEnumerable<string> _columns;
 
-        public Uniqueness(IEnumerable<string> columns, Option<string> where) : base("Uniqueness", columns)
+        public Distinctness(IEnumerable<string> columns, Option<string> where) : base("Distinctness", columns)
         {
             _columns = columns;
             _where = where;
         }
 
-        public Uniqueness(IEnumerable<string> columns) : base("Uniqueness", columns)
+        public Distinctness(IEnumerable<string> columns) : base("Distinctness", columns)
         {
             _columns = columns;
             _where = Option<string>.None;
@@ -29,7 +30,7 @@ namespace xdeequ.Analyzers
         {
             return new[]
             {
-                Sum(Col(AnalyzersExt.COUNT_COL).EqualTo(Lit(1)).Cast("double")) / numRows
+                (Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows)
             };
         }
 

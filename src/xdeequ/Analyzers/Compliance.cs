@@ -23,13 +23,6 @@ namespace xdeequ.Analyzers
             _predicate = predicate;
         }
 
-        public static Compliance Create(string instance, string predicate, Option<string> where) =>
-            new Compliance(instance, predicate, where);
-
-        public static Compliance Create(string instance, string predicate) =>
-            new Compliance(instance, predicate, new Option<string>());
-
-
         public override IEnumerable<Column> AggregationFunctions()
         {
             var summation = Sum(AnalyzersExt.ConditionalSelection(Expr(_predicate), _where).Cast("int"));

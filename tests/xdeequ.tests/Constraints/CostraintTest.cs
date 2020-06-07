@@ -7,11 +7,10 @@ namespace xdeequ.tests.Constraints
 {
     public class ConstraintTest
     {
-
         [Fact]
         public void check_size_constraint()
         {
-           var result =  Constraint.SizeConstraint((isTest) => true, new Option<string>(), new Option<string>());
+            var result = Functions.SizeConstraint((isTest) => true, new Option<string>(), new Option<string>());
             result.ShouldNotBeNull();
         }
     }

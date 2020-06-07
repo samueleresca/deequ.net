@@ -31,18 +31,6 @@ namespace xdeequ.Analyzers
             _maxDetailBins = maxDetailBins;
         }
 
-        public static Histogram Create(string column) => new Histogram(column, new Option<string>(),
-            new Option<Func<Column, Column>>(), MaxDetailBins);
-
-        public static Histogram Create(string column, Option<string> where) =>
-            new Histogram(column, where, new Option<Func<Column, Column>>(), MaxDetailBins);
-
-        public static Histogram Create(string column, Func<Column, Column> binningFunc) =>
-            new Histogram(column, new Option<string>(), binningFunc, MaxDetailBins);
-
-        public static Histogram Create(string column, Option<string> where, int maxDetailBins) =>
-            new Histogram(column, where, new Option<Func<Column, Column>>(), maxDetailBins);
-
         public override Option<FrequenciesAndNumRows> ComputeStateFrom(DataFrame dataFrame)
         {
             var totalCount = dataFrame.Count();

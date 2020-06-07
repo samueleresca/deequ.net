@@ -27,12 +27,6 @@ namespace xdeequ.Analyzers
             _where = Option<string>.None;
         }
 
-        public static Completeness Create(Option<string> column) => new Completeness(column);
-
-        public static Completeness Create(Option<string> column, Option<string> where) =>
-            new Completeness(column, where);
-
-
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,

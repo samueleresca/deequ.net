@@ -142,7 +142,7 @@ namespace xdeequ.Extensions
         }
 
         public static DoubleMetric MetricFromEmpty<S, T>(Analyzer<S, T> analyzer, string name, string instance,
-            Entity entity = Entity.Column) where S : State<S> 
+            Entity entity = Entity.Column) where S : State<S>
         {
             var emptyState =
                 new EmptyStateException($"Empty state for analyzer {analyzer}, all input values were NULL.");

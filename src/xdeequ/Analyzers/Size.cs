@@ -29,6 +29,7 @@ namespace xdeequ.Analyzers
             return numMatches;
         }
     }
+
 //  Analyzer<NumMatches, Metric<double>> 
     public class Size : StandardScanShareableAnalyzer<NumMatches>
     {
@@ -42,10 +43,6 @@ namespace xdeequ.Analyzers
         private Size() : base("Size", "*", Entity.DataSet)
         {
         }
-
-        public static Size Create() => new Size();
-
-        public static Size Create(string where) => new Size(where);
 
         public override IEnumerable<Column> AggregationFunctions()
         {

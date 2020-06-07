@@ -2,7 +2,9 @@ using Microsoft.Spark.Sql;
 using Shouldly;
 using xdeequ.Analyzers;
 using xdeequ.Metrics;
+using xdeequ.Util;
 using Xunit;
+using static xdeequ.Analyzers.Inizializers;
 
 namespace xdeequ.tests.Analyzers
 {
@@ -21,7 +23,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
-            DoubleMetric actualMissing = Size.Create().Calculate(missing);
+            DoubleMetric actualMissing = Size(new Option<string>()).Calculate(missing);
             DoubleMetric expectedMissing = DoubleMetric.Create(Entity.DataSet, "Size", "*", missing.Count());
 
             actualMissing.Entity.ShouldBe(expectedMissing.Entity);
@@ -35,7 +37,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame full = FixtureSupport.GetDFFull(_session);
 
-            DoubleMetric actualFull = Size.Create().Calculate(full);
+            DoubleMetric actualFull = Size(new Option<string>()).Calculate(full);
             DoubleMetric expectedFull = DoubleMetric.Create(Entity.DataSet, "Size", "*", full.Count());
 
             actualFull.Entity.ShouldBe(expectedFull.Entity);

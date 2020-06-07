@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Xml.Schema;
+using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.States;
 using xdeequ.Metrics;
@@ -10,11 +8,10 @@ using xdeequ.Util;
 
 namespace xdeequ.Constraints
 {
-    public class AnalysisBasedConstraint<S, M, V> : Constraint<S, M, V>
+    public class AnalysisBasedConstraint<S, M, V> : IConstraint<S, M, V>
         where S : State<S>
-        where M : Metric<M>
     {
-        public Analyzer<S, Metric<M>> Analyzer;
+        public IAnalyzer<S, Metric<M>> Analyzer;
         private Func<V, bool> assertion;
         private Option<Func<M, V>> valuePicker;
         private Option<string> hint;
@@ -23,7 +20,7 @@ namespace xdeequ.Constraints
         private string ProblematicMetricPicker = "Can't retrieve the value to assert on";
         private string AssertionException = "Can't execute the assertion";
 
-        public AnalysisBasedConstraint(Analyzer<S, Metric<M>> analyzer,
+        public AnalysisBasedConstraint(IAnalyzer<S, Metric<M>> analyzer,
             Func<V, bool> assertion, Option<Func<M, V>> valuePicker, Option<string> hint)
         {
             Analyzer = analyzer;
@@ -32,12 +29,20 @@ namespace xdeequ.Constraints
             this.hint = hint;
         }
 
+        public AnalysisBasedConstraint(IAnalyzer<S, Metric<M>> analyzer,
+            Func<V, bool> assertion, Option<string> hint)
+        {
+            Analyzer = analyzer;
+            this.assertion = assertion;
+            this.hint = hint;
+        }
+
         private Option<ConstraintResult<S, M, V>> PickValueAndAssert(Metric<M> metric)
         {
             if (!metric.Value.IsSuccess)
             {
-                return new ConstraintResult<S,M,V>(this, ConstraintStatus.Error,
-                    new Option<string>(metric.Value.Failure.Value.Message), new Option<Metric<M>>(metric));
+                return new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure,
+                    metric.Value.Failure.Value.Message, metric);
             }
 
             try
@@ -47,41 +52,49 @@ namespace xdeequ.Constraints
 
                 if (assertionOk)
                 {
-                    return new ConstraintResult<S,M,V>(this, ConstraintStatus.Success,
+                    return new ConstraintResult<S, M, V>(this, ConstraintStatus.Success,
                         new Option<string>(), new Option<Metric<M>>(metric));
                 }
 
                 var errorMessage = $"Value: {assertOn} does not meet the constraint requirement!";
                 hint = hint.Select(err => err += hint);
 
-                return new ConstraintResult<S,M,V>(this, ConstraintStatus.Error, new Option<string>(errorMessage),
-                    new Option<Metric<M>>(metric));
+                return new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure, errorMessage,
+                    metric);
             }
             catch (Exception e)
             {
                 if (e is ConstraintAssertionException)
                 {
-                    return new ConstraintResult<S,M,V>(this, ConstraintStatus.Error,
+                    return new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure,
                         new Option<string>($"{AssertionException}: $msg!"),
                         new Option<Metric<M>>(metric));
                 }
 
                 if (e is ValuePickerException)
                 {
-                    return new ConstraintResult<S,M,V>(this, ConstraintStatus.Error,
-                        new Option<string>($"{ProblematicMetricPicker}: $msg!"),
-                        new Option<Metric<M>>(metric));
+                    return new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure,
+                        $"{ProblematicMetricPicker}: $msg!", metric);
                 }
             }
 
-            return new Option<ConstraintResult<S, M, V>>();
+            return Option<ConstraintResult<S, M, V>>.None;
         }
 
         private V RunPickerOnMetric(M metricValue)
         {
             try
             {
-                var result = valuePicker.Select(func => func(metricValue));
+                Option<V> result;
+                if (valuePicker.HasValue)
+                {
+                   result = valuePicker.Select(func => func(metricValue));
+                }
+                else
+                {
+                    result = (V) (object) metricValue;
+                }
+           
                 return result.Value;
             }
             catch (Exception e)
@@ -89,7 +102,7 @@ namespace xdeequ.Constraints
                 throw new ValuePickerException(e.Message);
             }
         }
-        
+
         private bool RunAssertion(V assertOn)
         {
             try
@@ -101,30 +114,37 @@ namespace xdeequ.Constraints
                 throw new ConstraintAssertionException(e.Message);
             }
         }
+        
+        public ConstraintResult<S, M, V> CalculateAndEvaluate(DataFrame df)
+        {
+            var metric = Analyzer.Calculate(df);
+            return Evaluate(new Dictionary<IAnalyzer<S, Metric<M>>, Metric<M>>{{Analyzer, metric}});
+        }
 
-        public override ConstraintResult<S,M,V> Evaluate(Dictionary<Analyzer<S, Metric<M>>, Metric<M>> analysisResult)
+        public override ConstraintResult<S, M, V>  Evaluate(
+            Dictionary<IAnalyzer<S, Metric<M>>, Metric<M>> analysisResult)
         {
             var metric = analysisResult[Analyzer];
 
-            return PickValueAndAssert(metric).GetOrElse(new ConstraintResult<S, M, V>(this, ConstraintStatus.Error,
-                    new Option<string>(MissingAnalysis), metric));
+            return PickValueAndAssert(metric).GetOrElse(new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure,
+                MissingAnalysis, metric));
         }
     }
-    
+
     public class ValuePickerException : Exception
     {
         private string _message;
-        
+
         public ValuePickerException(string message) : base(message)
         {
             _message = message;
         }
     }
-    
+
     public class ConstraintAssertionException : Exception
     {
         private string _message;
-        
+
         public ConstraintAssertionException(string message) : base(message)
         {
             _message = message;

@@ -8,18 +8,18 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
+    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {
         private readonly Option<string> _where;
         private IEnumerable<string> _columns;
 
-        public Uniqueness(IEnumerable<string> columns, Option<string> where) : base("Uniqueness", columns)
+        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base("UniqueValueRatio", columns)
         {
             _columns = columns;
             _where = where;
         }
 
-        public Uniqueness(IEnumerable<string> columns) : base("Uniqueness", columns)
+        public UniqueValueRatio(IEnumerable<string> columns) : base("UniqueValueRatio", columns)
         {
             _columns = columns;
             _where = Option<string>.None;
@@ -29,8 +29,16 @@ namespace xdeequ.Analyzers
         {
             return new[]
             {
-                Sum(Col(AnalyzersExt.COUNT_COL).EqualTo(Lit(1)).Cast("double")) / numRows
+                Sum(Col(AnalyzersExt.COUNT_COL).EqualTo(Lit(1)).Cast("double")), Count("*")
             };
+        }
+
+        public new DoubleMetric FromAggregationResult(Row result, int offset)
+        {
+            var numUniqueValues = (double) result[offset];
+            var numDistinctValues = (double) result[offset + 1];
+
+            return ToSuccessMetric(numUniqueValues / numDistinctValues);
         }
 
         public Option<string> FilterCondition() => _where;

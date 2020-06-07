@@ -4,11 +4,8 @@ namespace xdeequ.Analyzers.Runners
 {
     public abstract class MetricCalculationException : Exception
     {
-        public string Message { get; set; }
-
-        public MetricCalculationException(string message)
+        protected MetricCalculationException(string message) : base(message)
         {
-            Message = message;
         }
     }
 

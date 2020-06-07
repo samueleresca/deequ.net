@@ -5,6 +5,8 @@ using xdeequ.Analyzers;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
+using static xdeequ.Analyzers.Inizializers;
+
 
 namespace xdeequ.tests.Analyzers
 {
@@ -23,10 +25,10 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
-            Completeness.Create("someMissingColumn").Preconditions().Count().ShouldBe(2);
+            Completeness("someMissingColumn").Preconditions().Count().ShouldBe(2);
 
-            var attr1 = Completeness.Create("att1").Calculate(missing);
-            var attr2 = Completeness.Create("att2").Calculate(missing);
+            var attr1 = Completeness("att1").Calculate(missing);
+            var attr2 = Completeness("att2").Calculate(missing);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Completeness", "att1", 0.5);
             var expected2 = DoubleMetric.Create(Entity.Column, "Completeness", "att2", 0.75);
@@ -47,8 +49,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
-            var attr1 = Completeness
-                .Create("att1", new Option<string>("item in ('1', '2')"))
+            var attr1 = Completeness("att1", new Option<string>("item in ('1', '2')"))
                 .Calculate(missing);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Completeness", "att1", 1.0);
@@ -64,7 +65,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
-            var attr1 = Completeness.Create("someMissingColumn").Calculate(missing);
+            var attr1 = Completeness("someMissingColumn").Calculate(missing);
 
             attr1.Entity.ShouldBe(Entity.Column);
             attr1.Instance.ShouldBe("someMissingColumn");
@@ -77,7 +78,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
-            var attr1 = Completeness.Create("source").Calculate(missing);
+            var attr1 = Completeness("source").Calculate(missing);
             attr1.Value.IsSuccess.ShouldBeFalse();
         }
     }

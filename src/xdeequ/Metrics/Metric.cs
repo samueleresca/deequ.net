@@ -12,7 +12,7 @@ namespace xdeequ.Metrics
         MultiColumn = 2
     }
 
-    public abstract class Metric<T> 
+    public abstract class Metric<T>
     {
         public Entity Entity;
         public string Name;

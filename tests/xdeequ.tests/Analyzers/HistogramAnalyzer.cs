@@ -1,15 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 using static Microsoft.Spark.Sql.Functions;
 using Shouldly;
-using xdeequ.Analyzers;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
+using static xdeequ.Analyzers.Inizializers;
+
 
 namespace xdeequ.tests.Analyzers
 {
@@ -27,7 +23,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_correct_metrics_missing()
         {
             DataFrame complete = FixtureSupport.GetDFMissing(_session);
-            var histogram = Histogram.Create("att1").Calculate(complete);
+            var histogram = Histogram("att1").Calculate(complete);
 
             histogram.Value.IsSuccess.ShouldBeTrue();
             histogram.Value.Get().Values.Count.ShouldBe(3);
@@ -40,19 +36,19 @@ namespace xdeequ.tests.Analyzers
 
             keys.ShouldContain("a");
             keys.ShouldContain("b");
-            keys.ShouldContain(Histogram.NullFieldReplacement);
+            keys.ShouldContain(xdeequ.Analyzers.Histogram.NullFieldReplacement);
         }
 
         [Fact]
         public void compute_correct_metrics_on_numeric_values()
         {
             var complete = FixtureSupport.GetDfWithNumericValues(_session);
-            var histogram = Histogram.Create("att2").Calculate(complete);
+            var histogram = Histogram("att2").Calculate(complete);
 
             histogram.Value.IsSuccess.ShouldBeTrue();
 
             histogram.Value.Get().NumberOfBins.ShouldBe(4);
-            histogram.Value.Get().Values.Count().ShouldBe(4);
+            histogram.Value.Get().Values.Count.ShouldBe(4);
         }
 
         [Fact]
@@ -69,7 +65,7 @@ namespace xdeequ.tests.Analyzers
             });
 
             var complete = FixtureSupport.GetDFMissing(_session);
-            var histogram = Histogram.Create("att1", custom).Calculate(complete);
+            var histogram = Histogram("att1", custom).Calculate(complete);
 
             histogram.Value.IsSuccess.ShouldBeTrue();
 
@@ -82,22 +78,21 @@ namespace xdeequ.tests.Analyzers
         public void compute_correct_metrics_should_only_get_top_N_bins()
         {
             var complete = FixtureSupport.GetDFMissing(_session);
-            var histogram = Histogram.Create("att1", new Option<string>(), 2).Calculate(complete);
+            var histogram = Histogram("att1", new Option<string>(), 2).Calculate(complete);
 
             histogram.Value.IsSuccess.ShouldBeTrue();
 
             histogram.Value.Get().NumberOfBins.ShouldBe(3);
             histogram.Value.Get().Values.Count.ShouldBe(2);
             histogram.Value.Get().Values.Keys.ShouldContain("a");
-            histogram.Value.Get().Values.Keys.ShouldContain(Histogram.NullFieldReplacement);
+            histogram.Value.Get().Values.Keys.ShouldContain(xdeequ.Analyzers.Histogram.NullFieldReplacement);
         }
 
         [Fact]
         public void fail_for_max_detail_bins_greater_than_1000()
         {
             var complete = FixtureSupport.GetDFFull(_session);
-            var histogram = Histogram.Create("att1", new Option<string>(), 1001).Calculate(complete);
-
+            var histogram = Histogram("att1", new Option<string>(), 1002).Calculate(complete);
             histogram.Value.IsSuccess.ShouldBeFalse();
         }
     }

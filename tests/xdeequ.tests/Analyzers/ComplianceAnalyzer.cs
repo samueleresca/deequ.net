@@ -1,9 +1,10 @@
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Analyzers;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
+using static xdeequ.Analyzers.Inizializers;
+
 
 namespace xdeequ.tests.Analyzers
 {
@@ -22,8 +23,8 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
-            var attr1 = Compliance.Create("rule1", "att1 > 3").Calculate(df);
-            var attr2 = Compliance.Create("rule2", "att1 > 2").Calculate(df);
+            var attr1 = Compliance("rule1", "att1 > 3").Calculate(df);
+            var attr2 = Compliance("rule2", "att1 > 2").Calculate(df);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Compliance", "rule1", 3.0 / 6);
             var expected2 = DoubleMetric.Create(Entity.Column, "Compliance", "rule2", 4.0 / 6);
@@ -44,7 +45,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
-            var attr1 = Compliance.Create("rule1", "att2 = 0",
+            var attr1 = Compliance("rule1", "att2 = 0",
                 new Option<string>("att1 < 4")).Calculate(df);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Compliance", "rule1", 1.0);
@@ -60,7 +61,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
-            var attr1 = Compliance.Create("rule1", "attNoSuchColumn > 3").Calculate(df);
+            var attr1 = Compliance("rule1", "attNoSuchColumn > 3").Calculate(df);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Compliance", "rule1", 1.0);
 
