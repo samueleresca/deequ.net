@@ -1,23 +1,22 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
-using xdeequ.Metrics;
 using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public static class Inizializers
+    public static class Initializers
     {
         public static Size Size(Option<string> where) => new Size(where);
 
-        public static Histogram Histogram(string column) => new Histogram(column, new Option<string>(),
-            new Option<Func<Column, Column>>(), 1000);
+        public static Histogram Histogram(string column) => new Histogram(column, Option<string>.None,
+            Option<Func<Column, Column>>.None, 1000);
 
         public static Histogram Histogram(string column, Option<string> where) =>
-            new Histogram(column, where, new Option<Func<Column, Column>>(), 1000);
+            new Histogram(column, where, Option<Func<Column, Column>>.None, 1000);
 
         public static Histogram Histogram(string column, Option<Func<Column, Column>> binningFunc) =>
-            new Histogram(column, new Option<string>(), binningFunc, 1000);
+            new Histogram(column, Option<string>.None, binningFunc, 1000);
 
         public static Histogram Histogram(string column, Option<Func<Column, Column>> binningFunc,
             Option<string> where,
@@ -25,7 +24,7 @@ namespace xdeequ.Analyzers
             new Histogram(column, where, binningFunc, maxDetailBins);
 
         public static Histogram Histogram(string column, Option<string> where, int maxDetailBins) =>
-            new Histogram(column, where, new Option<Func<Column, Column>>(), maxDetailBins);
+            new Histogram(column, where, Option<Func<Column, Column>>.None, maxDetailBins);
 
         public static Completeness Completeness(Option<string> column) => new Completeness(column);
 
@@ -35,7 +34,7 @@ namespace xdeequ.Analyzers
         public static Uniqueness Uniqueness(IEnumerable<string> columns) => new Uniqueness(columns);
 
         public static Uniqueness Uniqueness(Option<string> column, Option<string> where) =>
-            new Uniqueness(new[] {column.Value}, where);
+            new Uniqueness(new[] { column.Value }, where);
 
         public static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where) =>
             new Distinctness(columns, where);
@@ -47,6 +46,46 @@ namespace xdeequ.Analyzers
             new Compliance(instance, predicate, where);
 
         public static Compliance Compliance(string instance, string predicate) =>
-            new Compliance(instance, predicate, new Option<string>());
+            new Compliance(instance, predicate, Option<string>.None);
+
+        public static MutualInformation MutualInformation(IEnumerable<string> columns) =>
+            new MutualInformation(columns);
+
+        public static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where) =>
+            new MutualInformation(columns, where);
+
+        public static MutualInformation MutualInformation(Option<string> column, Option<string> where) =>
+            new MutualInformation(new[] { column.Value }, where);
+
+        public static MaxLength MaxLength(string column) => new MaxLength(column, new Option<string>());
+
+        public static MaxLength MaxLength(string column, Option<string> where) => new MaxLength(column, where);
+
+
+        public static MinLength MinLength(string column) => new MinLength(column, Option<string>.None);
+
+        public static MinLength MinLength(string column, Option<string> where) => new MinLength(column, where);
+
+        public static Minimum Minimum(string column) => new Minimum(column, new Option<string>());
+
+        public static Minimum Minimum(string column, Option<string> where) => new Minimum(column, where);
+
+        public static Maximum Maximum(string column) => new Maximum(column, Option<string>.None);
+
+        public static Maximum Maximum(string column, Option<string> where) => new Maximum(column, where);
+
+        public static Mean Mean(string column) => new Mean(column, Option<string>.None);
+
+        public static Mean Mean(string column, Option<string> where) => new Mean(column, where);
+
+        public static Sum Sum(string column) => new Sum(column, Option<string>.None);
+
+        public static Sum Sum(string column, Option<string> where) => new Sum(column, where);
+
+        public static StandardDeviation StandardDeviation(string column) =>
+            new StandardDeviation(column, Option<string>.None);
+
+        public static StandardDeviation StandardDeviation(string column, Option<string> where) =>
+            new StandardDeviation(column, where);
     }
 }

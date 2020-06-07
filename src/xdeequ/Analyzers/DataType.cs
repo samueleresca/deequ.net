@@ -77,7 +77,7 @@ namespace xdeequ.Analyzers
             bytes.Write(BitConverter.GetBytes(numBoolean));
             bytes.Write((BitConverter.GetBytes(numString)));
 
-            var result = new MemoryStream((int) (bytes.Length - bytes.Position));
+            var result = new MemoryStream((int)(bytes.Length - bytes.Position));
             result.Write(bytes.GetBuffer());
 
             return result.GetBuffer();
@@ -169,7 +169,7 @@ namespace xdeequ.Analyzers
             => new HistogramMetric(Column, new Try<Distribution>(e));
 
         public override IEnumerable<Column> AggregationFunctions()
-            => new[] {StatefulExt.StatefulDataType(AnalyzersExt.ConditionalSelection(Column, Where))};
+            => new[] { StatefulExt.StatefulDataType(AnalyzersExt.ConditionalSelection(Column, Where)) };
 
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset)
         {

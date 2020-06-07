@@ -52,20 +52,11 @@ namespace xdeequ
             Where = where;
         }
 
-        public static StandardDeviation Create(string column)
-        {
-            return new StandardDeviation(column, new Option<string>());
-        }
-
-        public static StandardDeviation Create(string column, string where)
-        {
-            return new StandardDeviation(column, where);
-        }
 
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column col = AnalyzersExt.ConditionalSelection(Expr(Column), Where);
-            return new[] {Struct(Count(col), Avg(col), StddevPop(col))};
+            return new[] { Struct(Count(col), Avg(col), StddevPop(col)) };
         }
 
         public override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
@@ -80,13 +71,13 @@ namespace xdeequ
                 return new Option<StandardDeviationState>();
 
             return new Option<StandardDeviationState>(new StandardDeviationState(n,
-                row.GetAs<double>(1), (double) row.GetAs<double>(2)));
+                row.GetAs<double>(1), (double)row.GetAs<double>(2)));
         }
 
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
         }
 
         public Option<string> FilterCondition() => Where;

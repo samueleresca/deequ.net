@@ -3,7 +3,7 @@ using Shouldly;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
-using static xdeequ.Analyzers.Inizializers;
+using static xdeequ.Analyzers.Initializers;
 
 
 namespace xdeequ.tests.Analyzers

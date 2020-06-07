@@ -178,7 +178,7 @@ namespace xdeequ.Analyzers
                 return Double.NaN;
             }
 
-            return (double) NumMatches / Count;
+            return (double)NumMatches / Count;
         }
     }
 
@@ -201,14 +201,14 @@ namespace xdeequ.Analyzers
                 return Option<NumMatchesAndCount>.None;
             }
 
-            var state = new NumMatchesAndCount((long) result[offset], (long) result[offset + 1]);
+            var state = new NumMatchesAndCount((long)result[offset], (long)result[offset + 1]);
             return new Option<NumMatchesAndCount>(state);
         }
 
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column selection = AnalyzersExt.ConditionalSelection(Predicate, Where);
-            return new[] {selection, Count("*")}.AsEnumerable();
+            return new[] { selection, Count("*") }.AsEnumerable();
         }
     }
 

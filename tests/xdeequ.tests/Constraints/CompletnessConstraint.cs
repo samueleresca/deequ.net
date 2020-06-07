@@ -16,18 +16,21 @@ namespace xdeequ.tests.Constraints
         {
             _session = fixture.Spark;
         }
-        
+
         [Fact]
         public void assert_on_wrong_completeness()
         {
             var df = FixtureSupport.GetDFMissing(_session);
-            
+
             ConstraintUtils.Calculate(Functions.CompletenessConstraint("att1", d => d == 0.5,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
+
             ConstraintUtils.Calculate(Functions.CompletenessConstraint("att1", d => d != 0.5,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Failure);
+
             ConstraintUtils.Calculate(Functions.CompletenessConstraint("att2", d => d == 0.75,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
+
             ConstraintUtils.Calculate(Functions.CompletenessConstraint("att2", d => d != 0.75,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Failure);
         }

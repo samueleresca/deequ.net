@@ -49,7 +49,7 @@ namespace xdeequ.Analyzers
         }
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
-            new[] {PARAM_CHECK(), AnalyzersExt.HasColumn(_column)};
+            new[] { PARAM_CHECK(), AnalyzersExt.HasColumn(_column) };
 
         public override HistogramMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
@@ -63,12 +63,12 @@ namespace xdeequ.Analyzers
             var histogramDetails = topNRows
                 .Select(row =>
                 {
-                    var discreteValue = (string) row[0];
+                    var discreteValue = (string)row[0];
                     var absolute = row.GetAs<Int32>(1);
-                    var ratio = (double) absolute / state.Value.NumRows;
+                    var ratio = (double)absolute / state.Value.NumRows;
 
-                    return new KeyValuePair<string, DistributionValue>((string) discreteValue,
-                        new DistributionValue((long) absolute, ratio));
+                    return new KeyValuePair<string, DistributionValue>((string)discreteValue,
+                        new DistributionValue((long)absolute, ratio));
                 })
                 .ToDictionary(x => x.Key,
                     x => x.Value);

@@ -87,7 +87,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> Preconditions()
         {
-            return new[] {AnalyzersExt.AtLeastOne(ColumnsToGroupOn)}
+            return new[] { AnalyzersExt.AtLeastOne(ColumnsToGroupOn) }
                 .Concat(ColumnsToGroupOn.Select(AnalyzersExt.HasColumn))
                 .Concat(ColumnsToGroupOn.Select(AnalyzersExt.IsNotNested))
                 .Concat(base.Preconditions());

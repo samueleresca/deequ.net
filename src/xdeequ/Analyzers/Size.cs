@@ -30,7 +30,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-//  Analyzer<NumMatches, Metric<double>> 
+    //  Analyzer<NumMatches, Metric<double>> 
     public class Size : StandardScanShareableAnalyzer<NumMatches>
     {
         private Option<string> where;
@@ -46,7 +46,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] {AnalyzersExt.ConditionalCount(@where)}.AsEnumerable();
+            return new[] { AnalyzersExt.ConditionalCount(@where) }.AsEnumerable();
         }
 
         public override Option<NumMatches> FromAggregationResult(Row result, int offset)

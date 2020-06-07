@@ -43,7 +43,7 @@ namespace xdeequ.Analyzers
 
             var conditional = AnalyzersExt.ConditionalCount(_where);
 
-            return new[] {summarization, conditional};
+            return new[] { summarization, conditional };
         }
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()

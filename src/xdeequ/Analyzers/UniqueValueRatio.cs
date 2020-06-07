@@ -35,8 +35,8 @@ namespace xdeequ.Analyzers
 
         public new DoubleMetric FromAggregationResult(Row result, int offset)
         {
-            var numUniqueValues = (double) result[offset];
-            var numDistinctValues = (double) result[offset + 1];
+            var numUniqueValues = (double)result[offset];
+            var numDistinctValues = (double)result[offset + 1];
 
             return ToSuccessMetric(numUniqueValues / numDistinctValues);
         }

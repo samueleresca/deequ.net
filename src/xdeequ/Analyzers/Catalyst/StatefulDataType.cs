@@ -21,10 +21,10 @@ namespace xdeequ.Analyzers.Catalyst
         public static Regex INTEGRAL = new Regex(@"^(-|\+)? ?\d*$");
         public static Regex BOOLEAN = new Regex(@"^(true|false)$");
 
-        public StructType InputSchema() => new StructType(new[] {new StructField("value", new StringType())});
+        public StructType InputSchema() => new StructType(new[] { new StructField("value", new StringType()) });
         public BinaryType DataType() => new BinaryType();
         public bool Deterministic() => true;
-        public Row Initialize() => new GenericRow(new object[] {0L, 0L, 0L, 0L, 0L});
+        public Row Initialize() => new GenericRow(new object[] { 0L, 0L, 0L, 0L, 0L });
 
         public StructType BufferSchema()
         {
@@ -44,22 +44,22 @@ namespace xdeequ.Analyzers.Catalyst
 
             if (row[0] == null)
             {
-                values[NULL_POS] = (long) values[NULL_POS] + 1L;
+                values[NULL_POS] = (long)values[NULL_POS] + 1L;
                 return new GenericRow(values);
             }
 
-            string value = (string) row.GetAs<string>(0);
+            string value = (string)row.GetAs<string>(0);
 
             if (FRACTIONAL.IsMatch(value))
-                values[FRATIONAL_POS] = (long) values[FRATIONAL_POS] + 1L;
+                values[FRATIONAL_POS] = (long)values[FRATIONAL_POS] + 1L;
 
             if (INTEGRAL.IsMatch(value))
-                values[INTEGRAL_POS] = (long) values[INTEGRAL_POS] + 1L;
+                values[INTEGRAL_POS] = (long)values[INTEGRAL_POS] + 1L;
 
             if (BOOLEAN.IsMatch(value))
-                values[BOOLEAN_POS] = (long) values[BOOLEAN_POS] + 1L;
+                values[BOOLEAN_POS] = (long)values[BOOLEAN_POS] + 1L;
 
-            values[STRING_POS] = (long) values[STRING_POS] + 1L;
+            values[STRING_POS] = (long)values[STRING_POS] + 1L;
 
             return new GenericRow(values);
         }
@@ -69,11 +69,11 @@ namespace xdeequ.Analyzers.Catalyst
             object[] values1 = buffer1.Values;
             object[] values2 = buffer2.Values;
 
-            values1[NULL_POS] = (long) values1[NULL_POS] + (long) values2[NULL_POS];
-            values1[FRATIONAL_POS] = (long) values1[FRATIONAL_POS] + (long) values2[FRATIONAL_POS];
-            values1[INTEGRAL_POS] = (long) values1[INTEGRAL_POS] + (long) values2[INTEGRAL_POS];
-            values1[BOOLEAN_POS] = (long) values1[BOOLEAN_POS] + (long) values2[BOOLEAN_POS];
-            values1[STRING_POS] = (long) values1[STRING_POS] + (long) values2[STRING_POS];
+            values1[NULL_POS] = (long)values1[NULL_POS] + (long)values2[NULL_POS];
+            values1[FRATIONAL_POS] = (long)values1[FRATIONAL_POS] + (long)values2[FRATIONAL_POS];
+            values1[INTEGRAL_POS] = (long)values1[INTEGRAL_POS] + (long)values2[INTEGRAL_POS];
+            values1[BOOLEAN_POS] = (long)values1[BOOLEAN_POS] + (long)values2[BOOLEAN_POS];
+            values1[STRING_POS] = (long)values1[STRING_POS] + (long)values2[STRING_POS];
 
             return new GenericRow(values1);
         }

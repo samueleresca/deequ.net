@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
-using xdeequ.Analyzers;
 using Xunit;
+using static xdeequ.Analyzers.Initializers;
 
 namespace xdeequ.tests.Analyzers
 {
@@ -21,7 +21,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_mean_correctly_for_numeric_data()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = Mean.Create("att1").Calculate(df);
+            var result = Mean("att1").Calculate(df);
             result.Value.Get().ShouldBe(3.5);
         }
 
@@ -29,7 +29,7 @@ namespace xdeequ.tests.Analyzers
         public void fail_to_compute_mean_for_non_numeric_type()
         {
             DataFrame df = FixtureSupport.GetDFFull(_session);
-            var result = Mean.Create("att1").Calculate(df);
+            var result = Mean("att1").Calculate(df);
             result.Value.IsSuccess.ShouldBeFalse();
         }
 
@@ -37,7 +37,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_mean_correctly_for_numeric_data_with_where_predicate()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = Mean.Create("att1", where: "item != '6'").Calculate(df);
+            var result = Mean("att1", where: "item != '6'").Calculate(df);
             result.Value.Get().ShouldBe(3.0);
         }
 
@@ -45,7 +45,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_standard_deviation_correctly_for_numeric_data()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = StandardDeviation.Create("att1").Calculate(df).Value;
+            var result = StandardDeviation("att1").Calculate(df).Value;
 
             result.Get().ShouldBe(1.707825127659933);
         }
@@ -54,7 +54,7 @@ namespace xdeequ.tests.Analyzers
         public void fail_to_compute_standard_deviation_for_non_numeric_type()
         {
             DataFrame df = FixtureSupport.GetDFFull(_session);
-            var result = StandardDeviation.Create("att1").Calculate(df).Value;
+            var result = StandardDeviation("att1").Calculate(df).Value;
             result.IsSuccess.ShouldBeFalse();
         }
 
@@ -62,7 +62,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_minimum_correctly_for_numeric_data()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = Minimum.Create("att1").Calculate(df).Value;
+            var result = Minimum("att1").Calculate(df).Value;
             result.Get().ShouldBe(1.0);
         }
 
@@ -70,7 +70,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_minimum_correctly_for_numeric_data_with_filtering()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = Minimum.Create("att1", "item != '1'").Calculate(df).Value;
+            var result = Minimum("att1", "item != '1'").Calculate(df).Value;
             result.Get().ShouldBe(2.0);
         }
 
@@ -78,7 +78,7 @@ namespace xdeequ.tests.Analyzers
         public void fail_to_compute_minimum_for_non_numeric_type()
         {
             DataFrame df = FixtureSupport.GetDFFull(_session);
-            var result = Minimum.Create("att1").Calculate(df).Value;
+            var result = Minimum("att1").Calculate(df).Value;
             result.IsSuccess.ShouldBeFalse();
         }
 
@@ -98,7 +98,7 @@ namespace xdeequ.tests.Analyzers
             };
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
-            var result = Minimum.Create("num").Calculate(df).Value;
+            var result = Minimum("num").Calculate(df).Value;
 
             result.IsSuccess.ShouldBeTrue();
             result.Get().ShouldBe(99.0);
@@ -108,7 +108,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_maximum_correctly_for_numeric_data()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = Maximum.Create("att1").Calculate(df).Value;
+            var result = Maximum("att1").Calculate(df).Value;
             result.Get().ShouldBe(6.0);
         }
 
@@ -116,7 +116,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_maximum_correctly_for_numeric_data_with_filtering()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = Maximum.Create("att1", "item != '6'").Calculate(df).Value;
+            var result = Maximum("att1", "item != '6'").Calculate(df).Value;
             result.Get().ShouldBe(5.0);
         }
 
@@ -124,7 +124,7 @@ namespace xdeequ.tests.Analyzers
         public void fail_to_compute_maximum_for_non_numeric_type()
         {
             DataFrame df = FixtureSupport.GetDFFull(_session);
-            var result = Maximum.Create("att1").Calculate(df).Value;
+            var result = Maximum("att1").Calculate(df).Value;
             result.IsSuccess.ShouldBeFalse();
         }
 
@@ -132,21 +132,21 @@ namespace xdeequ.tests.Analyzers
         public void compute_sum_correctly_for_numeric_data()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
-            Sum.Create("att1").Calculate(df).Value.Get().ShouldBe(21);
+            Sum("att1").Calculate(df).Value.Get().ShouldBe(21);
         }
 
         [Fact]
         public void fail_to_compute_sum_for_non_numeric_type()
         {
             var df = FixtureSupport.GetDFFull(_session);
-            Sum.Create("att1").Calculate(df).Value.IsSuccess.ShouldBeFalse();
+            Sum("att1").Calculate(df).Value.IsSuccess.ShouldBeFalse();
         }
 
         [Fact]
         public void compute_minlength_correctly_for_numeric_data()
         {
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            var result = MinLength.Create("att1").Calculate(df).Value;
+            var result = MinLength("att1").Calculate(df).Value;
             result.Get().ShouldBe(0.0);
         }
 
@@ -154,7 +154,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_minlength_correctly_for_numeric_data_with_filtering()
         {
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            var result = MinLength.Create("att1", "att1 != ''").Calculate(df).Value;
+            var result = MinLength("att1", "att1 != ''").Calculate(df).Value;
             result.Get().ShouldBe(1.0);
         }
 
@@ -162,7 +162,7 @@ namespace xdeequ.tests.Analyzers
         public void fail_to_compute_minlength_for_non_numeric_type()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = MinLength.Create("att1").Calculate(df).Value;
+            var result = MinLength("att1").Calculate(df).Value;
             result.IsSuccess.ShouldBeFalse();
         }
 
@@ -170,7 +170,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_maxlength_correctly_for_numeric_data()
         {
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            var result = MaxLength.Create("att1").Calculate(df).Value;
+            var result = MaxLength("att1").Calculate(df).Value;
             result.Get().ShouldBe(4.0);
         }
 
@@ -178,7 +178,7 @@ namespace xdeequ.tests.Analyzers
         public void compute_maxlength_correctly_for_numeric_data_with_filtering()
         {
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            var result = MaxLength.Create("att1", "att1 != 'dddd'").Calculate(df).Value;
+            var result = MaxLength("att1", "att1 != 'dddd'").Calculate(df).Value;
             result.Get().ShouldBe(3.0);
         }
 
@@ -186,7 +186,7 @@ namespace xdeequ.tests.Analyzers
         public void fail_to_compute_maxlength_for_non_numeric_type()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            var result = MinLength.Create("att1").Calculate(df).Value;
+            var result = MinLength("att1").Calculate(df).Value;
             result.IsSuccess.ShouldBeFalse();
         }
     }

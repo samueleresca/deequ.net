@@ -11,7 +11,7 @@ namespace xdeequ.Extensions
         {
             var statefulDataType = new StatefulDataType();
 
-            statefulDataType.Update(new GenericRow(new[] {column}));
+            statefulDataType.Update(new GenericRow(new[] { column }));
             return column;
         }
     }

@@ -27,10 +27,6 @@ namespace xdeequ.Analyzers
             _columns = columnsToGroupOn;
         }
 
-        public static MutualInformation Create(IEnumerable<string> columns) => new MutualInformation(columns);
-
-        public static MutualInformation Create(Option<string> column, Option<string> where) =>
-            new MutualInformation(new[] {column.Value}, where);
 
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {

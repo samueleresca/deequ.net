@@ -27,7 +27,7 @@ namespace xdeequ.Analyzers
         {
             var summation = Sum(AnalyzersExt.ConditionalSelection(Expr(_predicate), _where).Cast("int"));
 
-            return new[] {summation, AnalyzersExt.ConditionalCount(_where)};
+            return new[] { summation, AnalyzersExt.ConditionalCount(_where) };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)

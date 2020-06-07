@@ -5,7 +5,7 @@ using xdeequ.Analyzers;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
-using static xdeequ.Analyzers.Inizializers;
+using static xdeequ.Analyzers.Initializers;
 
 
 namespace xdeequ.tests.Analyzers
@@ -25,8 +25,8 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
-            var attr1 = Uniqueness(new[] {"att1"}).Calculate(missing);
-            var attr2 = Uniqueness(new[] {"att2"}).Calculate(missing);
+            var attr1 = Uniqueness(new[] { "att1" }).Calculate(missing);
+            var attr2 = Uniqueness(new[] { "att2" }).Calculate(missing);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Uniqueness", "att1", 0.0);
             var expected2 = DoubleMetric.Create(Entity.Column, "Uniqueness", "att2", 0.0);
@@ -47,8 +47,8 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame complete = FixtureSupport.GetDFFull(_session);
 
-            var attr1 = Uniqueness(new[] {"att1"}).Calculate(complete);
-            var attr2 = Uniqueness(new[] {"att2"}).Calculate(complete);
+            var attr1 = Uniqueness(new[] { "att1" }).Calculate(complete);
+            var attr2 = Uniqueness(new[] { "att2" }).Calculate(complete);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Uniqueness", "att1", 0.25);
             var expected2 = DoubleMetric.Create(Entity.Column, "Uniqueness", "att2", 0.25);
@@ -69,8 +69,8 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame complete = FixtureSupport.GetDFWithUniqueColumns(_session);
 
-            var attr1 = Uniqueness(new[] {"unique"}).Calculate(complete);
-            var attr2 = Uniqueness(new[] {"uniqueWithNulls"}).Calculate(complete);
+            var attr1 = Uniqueness(new[] { "unique" }).Calculate(complete);
+            var attr2 = Uniqueness(new[] { "uniqueWithNulls" }).Calculate(complete);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Uniqueness", "unique", 1.0);
             var expected2 = DoubleMetric.Create(Entity.Column, "Uniqueness", "uniqueWithNulls", 1.0);
@@ -91,8 +91,8 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame complete = FixtureSupport.GetDFMissing(_session);
 
-            var attr1 = Uniqueness(new[] {"nonExistingColumn"}).Calculate(complete);
-            var attr2 = Uniqueness(new[] {"nonExistingColumn", "unique"}).Calculate(complete);
+            var attr1 = Uniqueness(new[] { "nonExistingColumn" }).Calculate(complete);
+            var attr2 = Uniqueness(new[] { "nonExistingColumn", "unique" }).Calculate(complete);
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Uniqueness", "nonExistingColumn",
                 new Try<double>(new Exception()));

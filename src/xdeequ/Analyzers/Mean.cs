@@ -46,16 +46,6 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public static Mean Create(string column)
-        {
-            return new Mean(column, new Option<string>());
-        }
-
-        public static Mean Create(string column, string where)
-        {
-            return new Mean(column, where);
-        }
-
         public override IEnumerable<Column> AggregationFunctions()
         {
             return new[]
@@ -68,15 +58,15 @@ namespace xdeequ.Analyzers
         public override Option<MeanState> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
-                () => new MeanState((double) result.Get(offset),
-                    (int) result.Get(offset + 1)), 2);
+                () => new MeanState((double)result.Get(offset),
+                    (int)result.Get(offset + 1)), 2);
         }
 
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
         }
     }
 }

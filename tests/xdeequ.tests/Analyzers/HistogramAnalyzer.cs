@@ -4,7 +4,7 @@ using static Microsoft.Spark.Sql.Functions;
 using Shouldly;
 using xdeequ.Util;
 using Xunit;
-using static xdeequ.Analyzers.Inizializers;
+using static xdeequ.Analyzers.Initializers;
 
 
 namespace xdeequ.tests.Analyzers

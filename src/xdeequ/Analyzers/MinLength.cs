@@ -22,19 +22,9 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public static MinLength Create(string column)
-        {
-            return new MinLength(column, new Option<string>());
-        }
-
-        public static MinLength Create(string column, string where)
-        {
-            return new MinLength(column, where);
-        }
-
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] {Min(Length(AnalyzersExt.ConditionalSelection(Column, Where))).Cast("double")};
+            return new[] { Min(Length(AnalyzersExt.ConditionalSelection(Column, Where))).Cast("double") };
         }
 
         public override Option<MinState> FromAggregationResult(Row result, int offset)
@@ -44,7 +34,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
         }
 
         public Option<string> FilterCondition() => Where;
