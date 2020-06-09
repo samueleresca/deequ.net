@@ -26,8 +26,11 @@ namespace xdeequ.Metrics
             Values = values;
             NumberOfBins = numberOfBins;
         }
-
-        public DistributionValue Apply(string key) => Values[key];
+        public DistributionValue this[string key]
+        {
+            get => Values[key];
+            set { Values[key] = value; }
+        }
     }
 
     public class HistogramMetric : Metric<Distribution>

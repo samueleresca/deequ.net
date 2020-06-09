@@ -1,16 +1,16 @@
 using System;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using static Microsoft.Spark.Sql.Functions;
 
 
 namespace xdeequ.Analyzers.Catalyst
 {
+    [Serializable]
     public class StatefulDataType
     {
-        const int SIZE_IN_BITES = 40;
+        const int SIZE_IN_BITES = 5;
         const int NULL_POS = 0;
         const int FRATIONAL_POS = 1;
         const int INTEGRAL_POS = 2;
@@ -30,59 +30,45 @@ namespace xdeequ.Analyzers.Catalyst
         {
             return new StructType(new[]
             {
-                new StructField("null", new LongType()),
-                new StructField("fractional", new LongType()),
-                new StructField("integral", new LongType()),
-                new StructField("boolean", new LongType()),
-                new StructField("string", new LongType())
+                new StructField("nullCount", new LongType()),
+                new StructField("fractionalCount", new LongType()),
+                new StructField("integralCount", new LongType()),
+                new StructField("booleanCount", new LongType()),
+                new StructField("stringCount", new LongType())
             });
         }
 
-        public Row Update(Row row)
+        public string GetAggregatedColumn() => "arrayDataTypeCount";
+        public string[] ColumnNames() => new[]
         {
-            object[] values = new object[SIZE_IN_BITES];
+            "nullCount",
+            "fractionalCount",
+            "integralCount",
+            "booleanCount",
+            "stringCount",
+        };
 
-            if (row[0] == null)
+        public int[] Update(string columnValue)
+        {
+            int[] values = new int[SIZE_IN_BITES];
+
+            if (columnValue == null)
             {
-                values[NULL_POS] = (long)values[NULL_POS] + 1L;
-                return new GenericRow(values);
+                values[NULL_POS] = values[NULL_POS] + 1;
+                return values;
             }
 
-            string value = (string)row.GetAs<string>(0);
+            string value = columnValue;
 
             if (FRACTIONAL.IsMatch(value))
-                values[FRATIONAL_POS] = (long)values[FRATIONAL_POS] + 1L;
+                values[FRATIONAL_POS] = values[FRATIONAL_POS] + 1;
+            else if (INTEGRAL.IsMatch(value))
+                values[INTEGRAL_POS] = values[INTEGRAL_POS] + 1;
+            else if (BOOLEAN.IsMatch(value))
+                values[BOOLEAN_POS] = values[BOOLEAN_POS] + 1;
+            else values[STRING_POS] = values[STRING_POS] + 1;
 
-            if (INTEGRAL.IsMatch(value))
-                values[INTEGRAL_POS] = (long)values[INTEGRAL_POS] + 1L;
-
-            if (BOOLEAN.IsMatch(value))
-                values[BOOLEAN_POS] = (long)values[BOOLEAN_POS] + 1L;
-
-            values[STRING_POS] = (long)values[STRING_POS] + 1L;
-
-            return new GenericRow(values);
-        }
-
-        public Row Merge(Row buffer1, Row buffer2)
-        {
-            object[] values1 = buffer1.Values;
-            object[] values2 = buffer2.Values;
-
-            values1[NULL_POS] = (long)values1[NULL_POS] + (long)values2[NULL_POS];
-            values1[FRATIONAL_POS] = (long)values1[FRATIONAL_POS] + (long)values2[FRATIONAL_POS];
-            values1[INTEGRAL_POS] = (long)values1[INTEGRAL_POS] + (long)values2[INTEGRAL_POS];
-            values1[BOOLEAN_POS] = (long)values1[BOOLEAN_POS] + (long)values2[BOOLEAN_POS];
-            values1[STRING_POS] = (long)values1[STRING_POS] + (long)values2[STRING_POS];
-
-            return new GenericRow(values1);
-        }
-
-        public ReadOnlySpan<byte> Evaluate(Row buffer)
-        {
-            return DataTypeHistogram.ToBytes(buffer.GetAs<long>(NULL_POS),
-                buffer.GetAs<long>(FRATIONAL_POS), buffer.GetAs<long>(INTEGRAL_POS), buffer.GetAs<long>(BOOLEAN_POS),
-                buffer.GetAs<long>(STRING_POS));
+            return values;
         }
     }
 }

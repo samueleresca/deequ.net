@@ -380,7 +380,7 @@ namespace xdeequ.Constraints
         }
 
         public static IConstraint<StandardDeviationState, double, double> DataTypeConstraint(
-            string columnA,
+            string column,
             string columnB,
             Func<double, bool> assertion,
             Option<string> where,

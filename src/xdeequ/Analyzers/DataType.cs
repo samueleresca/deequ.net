@@ -5,11 +5,14 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Schema;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
+using xdeequ.Analyzers.Catalyst;
 using xdeequ.Analyzers.Runners;
 using xdeequ.Analyzers.States;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
@@ -31,7 +34,7 @@ namespace xdeequ.Analyzers
         public long NumBoolean { get; set; }
         public long NumString { get; set; }
 
-        const int SIZE_IN_BITES = 40;
+        const int SIZE_IN_BITES = 5;
         const int NULL_POS = 0;
         const int FRATIONAL_POS = 1;
         const int INTEGRAL_POS = 2;
@@ -53,34 +56,17 @@ namespace xdeequ.Analyzers
                 NumIntegral + other.NumIntegral, NumBoolean + other.NumBoolean, NumString + other.NumString);
         }
 
-        public static DataTypeHistogram FromBytes(ReadOnlySpan<byte> bytes)
+        public static DataTypeHistogram FromArray(int[] typesCount)
         {
-            if (bytes.Length != SIZE_IN_BITES) throw new Exception();
+            if (typesCount.Length != SIZE_IN_BITES) throw new Exception();
 
-            var numNull = bytes[NULL_POS];
-            var numFractional = bytes[FRATIONAL_POS];
-            var numIntegral = bytes[INTEGRAL_POS];
-            var numBoolean = bytes[BOOLEAN_POS];
-            var numString = bytes[STRING_POS];
+            var numNull = typesCount[NULL_POS];
+            var numFractional = typesCount[FRATIONAL_POS];
+            var numIntegral = typesCount[INTEGRAL_POS];
+            var numBoolean = typesCount[BOOLEAN_POS];
+            var numString = typesCount[STRING_POS];
 
             return new DataTypeHistogram(numNull, numFractional, numIntegral, numBoolean, numString);
-        }
-
-
-        public static ReadOnlySpan<byte> ToBytes(long nonNull, long numFractional, long numIntegral, long numBoolean,
-            long numString)
-        {
-            var bytes = new MemoryStream(SIZE_IN_BITES);
-
-            bytes.Write(BitConverter.GetBytes(nonNull));
-            bytes.Write(BitConverter.GetBytes(numFractional));
-            bytes.Write(BitConverter.GetBytes(numBoolean));
-            bytes.Write((BitConverter.GetBytes(numString)));
-
-            var result = new MemoryStream((int)(bytes.Length - bytes.Position));
-            result.Write(bytes.GetBuffer());
-
-            return result.GetBuffer();
         }
 
         public static Distribution ToDistribution(DataTypeHistogram hist)
@@ -112,34 +98,7 @@ namespace xdeequ.Analyzers
                 },
             }, 5);
         }
-
-        public static DataTypeInstances DetermineType(Distribution dist)
-        {
-            if (RatioOf(DataTypeInstances.Unknown, dist) == 1.0)
-                return DataTypeInstances.Unknown;
-
-            if (RatioOf(DataTypeInstances.String, dist) > 0.0 ||
-                RatioOf(DataTypeInstances.Boolean, dist) > 0.0 &&
-                (RatioOf(DataTypeInstances.Integral, dist) > 0.0 || RatioOf(DataTypeInstances.Fractional, dist) > 0.0))
-                return DataTypeInstances.String;
-
-            if (RatioOf(DataTypeInstances.Boolean, dist) > 0.0)
-                return DataTypeInstances.Boolean;
-
-            if (RatioOf(DataTypeInstances.Fractional, dist) > 0.0)
-                return DataTypeInstances.Fractional;
-
-            return DataTypeInstances.Integral;
-        }
-
-        private static double RatioOf(DataTypeInstances key, Distribution distribution)
-        {
-            return distribution.Values
-                .GetValueOrDefault<string, DistributionValue>(key.ToString(), new DistributionValue(0L, 0.0))
-                .Ratio;
-        }
     }
-
 
     public class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
     {
@@ -152,10 +111,6 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public static DataType Create(string column) => new DataType(column, new Option<string>());
-
-        public static DataType Create(string column, string where) => new DataType(column, where);
-
         public override HistogramMetric ComputeMetricFrom(Option<DataTypeHistogram> state)
         {
             //TODO: Empty message as exception
@@ -165,15 +120,53 @@ namespace xdeequ.Analyzers
             return new HistogramMetric(Column, new Try<Distribution>(DataTypeHistogram.ToDistribution(state.Value)));
         }
 
+
+        public override Option<DataTypeHistogram> ComputeStateFrom(DataFrame dataFrame)
+        {
+            var statefulDataType = new StatefulDataType();
+            var aggregations = AggregationFunctions();
+            var arrayDataTypeCountUdf = Udf<string, int[]>(value => statefulDataType.Update(value));
+
+            var listOfColumns = statefulDataType.ColumnNames();
+            var aggregatedColumn = statefulDataType.GetAggregatedColumn();
+
+            var result = dataFrame
+                .WithColumn(aggregatedColumn, arrayDataTypeCountUdf(aggregations.First().Cast("string")))
+                .WithColumn(listOfColumns[0], Column(aggregatedColumn).GetItem(0))
+                .WithColumn(listOfColumns[1], Column(aggregatedColumn).GetItem(1))
+                .WithColumn(listOfColumns[2], Column(aggregatedColumn).GetItem(2))
+                .WithColumn(listOfColumns[3], Column(aggregatedColumn).GetItem(3))
+                .WithColumn(listOfColumns[4], Column(aggregatedColumn).GetItem(4))
+                .GroupBy()
+                .Sum(listOfColumns)
+                .Collect()
+                .FirstOrDefault();
+
+            return FromAggregationResult(result, 0);
+        }
+
         public override HistogramMetric ToFailureMetric(Exception e)
             => new HistogramMetric(Column, new Try<Distribution>(e));
 
         public override IEnumerable<Column> AggregationFunctions()
-            => new[] { StatefulExt.StatefulDataType(AnalyzersExt.ConditionalSelection(Column, Where)) };
+        {
+            return new[]
+            {
+               AnalyzersExt.ConditionalSelection(Column, Where)
+            };
+        }
 
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset)
         {
-            throw new NotImplementedException();
+            return AnalyzersExt.IfNoNullsIn(result, offset, () =>
+            {
+                return DataTypeHistogram.FromArray(result.Values.Select(x => (int)x).ToArray());
+            });
+        }
+
+        public override IEnumerable<Action<StructType>> Preconditions()
+        {
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) }.Concat(base.Preconditions());
         }
 
         public Option<string> FilterCondition() => Where;

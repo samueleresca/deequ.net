@@ -10,7 +10,6 @@ using xdeequ.Metrics;
 using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 using Column = Microsoft.Spark.Sql.Column;
-using DataType = xdeequ.Analyzers.DataType;
 
 namespace xdeequ.Extensions
 {

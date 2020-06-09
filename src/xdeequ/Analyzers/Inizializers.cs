@@ -87,5 +87,9 @@ namespace xdeequ.Analyzers
 
         public static StandardDeviation StandardDeviation(string column, Option<string> where) =>
             new StandardDeviation(column, where);
+
+        public static DataType DataType(string column) => new DataType(column, Option<string>.None);
+
+        public static DataType DataType(string column, Option<string> where) => new DataType(column, where);
     }
 }

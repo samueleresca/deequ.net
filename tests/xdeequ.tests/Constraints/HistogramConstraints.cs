@@ -37,7 +37,7 @@ namespace xdeequ.tests.Constraints
             var df = FixtureSupport.GetDFMissing(_session);
 
             var metric = ConstraintUtils.Calculate(HistogramConstraint("att1",
-                _ => _.Apply("non-existent-column-value").Ratio == 3, Option<Func<Column, Column>>.None,
+                _ => _["non-existent-column-value"].Ratio == 3, Option<Func<Column, Column>>.None,
                 Option<string>.None,
                 Option<string>.None), df);
 

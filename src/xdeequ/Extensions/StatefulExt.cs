@@ -1,6 +1,8 @@
+using Apache.Arrow;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers.Catalyst;
 using Column = Microsoft.Spark.Sql.Column;
+using static Microsoft.Spark.Sql.Functions;
 
 
 namespace xdeequ.Extensions
@@ -11,8 +13,8 @@ namespace xdeequ.Extensions
         {
             var statefulDataType = new StatefulDataType();
 
-            statefulDataType.Update(new GenericRow(new[] { column }));
-            return column;
+
+            return Column("");
         }
     }
 }

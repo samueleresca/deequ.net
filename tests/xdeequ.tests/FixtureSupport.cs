@@ -57,6 +57,27 @@ namespace xdeequ.tests
             return sparkSession.CreateDataFrame(elements, schema);
         }
 
+        public static DataFrame GetDFWithNegativeNumbers(SparkSession sparkSession)
+        {
+            List<GenericRow> elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"1", "-1", "-1.0"}),
+                new GenericRow(new object[] {"2", "-2", "-2.0"}),
+                new GenericRow(new object[] {"3", "-3", "-3.0"}),
+                new GenericRow(new object[] {"4", "-4", "-4.0"})
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("item", new StringType()),
+                    new StructField("att1", new StringType()),
+                    new StructField("att2", new StringType())
+                });
+
+            return sparkSession.CreateDataFrame(elements, schema);
+        }
+
         public static DataFrame GetDFWithUniqueColumns(SparkSession sparkSession)
         {
             List<GenericRow> elements = new List<GenericRow>
@@ -102,6 +123,42 @@ namespace xdeequ.tests
             return sparkSession.CreateDataFrame(elements, schema);
         }
 
+        public static DataFrame GetDfFractionalIntegralTypes(SparkSession sparkSession)
+        {
+            List<GenericRow> elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"1","1.0"}),
+                new GenericRow(new object[] {"2", "1"}),
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("item", new StringType()),
+                    new StructField("att1", new StringType()),
+                });
+
+            return sparkSession.CreateDataFrame(elements, schema);
+        }
+
+        public static DataFrame GetDfFractionalStringTypes(SparkSession sparkSession)
+        {
+            List<GenericRow> elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"1","1.0"}),
+                new GenericRow(new object[] {"2", "a"}),
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("item", new StringType()),
+                    new StructField("att1", new StringType()),
+                });
+
+            return sparkSession.CreateDataFrame(elements, schema);
+        }
+
         public static DataFrame GetDfWithNumericValues(SparkSession sparkSession)
         {
             List<GenericRow> elements = new List<GenericRow>
@@ -121,6 +178,29 @@ namespace xdeequ.tests
                     new StructField("att1", new IntegerType()),
                     new StructField("att2", new IntegerType()),
                     new StructField("att3", new IntegerType()),
+                });
+
+            return sparkSession.CreateDataFrame(elements, schema);
+        }
+
+        public static DataFrame GetDfWithNumericFractionalValues(SparkSession sparkSession)
+        {
+            List<GenericRow> elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"1", 1.0, 0.0}),
+                new GenericRow(new object[] {"2", 2.0, 0.0}),
+                new GenericRow(new object[] {"3", 3.0, 0.0}),
+                new GenericRow(new object[] {"4", 4.0, 0.0}),
+                new GenericRow(new object[] {"5", 5.0, 0.0}),
+                new GenericRow(new object[] {"6", 6.0, 0.0}),
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("item", new StringType()),
+                    new StructField("att1", new IntegerType()),
+                    new StructField("att2", new IntegerType())
                 });
 
             return sparkSession.CreateDataFrame(elements, schema);
