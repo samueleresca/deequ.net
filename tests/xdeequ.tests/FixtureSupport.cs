@@ -231,5 +231,11 @@ namespace xdeequ.tests
             DataFrameReader dfr = session.Read().Format("json");
             return dfr.Json("nested-test.json");
         }
+        
+        public static DataFrame DataFrameWithColumn(string name, DataType sparkDt, SparkSession session, GenericRow[] values)
+        {
+            return session.CreateDataFrame(values, 
+                new StructType(new[] {new StructField(name, sparkDt)})).ToDF(name);
+        }
     }
 }

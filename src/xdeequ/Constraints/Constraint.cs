@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Schema;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using static xdeequ.Analyzers.Initializers;
@@ -379,15 +380,56 @@ namespace xdeequ.Constraints
             throw new NotImplementedException();
         }
 
-        public static IConstraint<StandardDeviationState, double, double> DataTypeConstraint(
+        public static IConstraint<DataTypeHistogram, Distribution, double> DataTypeConstraint(
             string column,
-            string columnB,
+            ConstrainableDataTypes dataType,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            throw new NotImplementedException();
+            var valuePicker = dataType == ConstrainableDataTypes.Numeric ? 
+                (d) =>  RatioTypes(true, DataTypeInstances.Fractional, d) + RatioTypes(true, DataTypeInstances.Integral, d)
+                : new Func<Distribution, double>(distribution =>
+            {
+                var pure = new Func<DataTypeInstances, double>(keyType => RatioTypes(true, keyType, distribution));
+                return dataType switch
+                {
+                    ConstrainableDataTypes.Null => RatioTypes(false, DataTypeInstances.Unknown, distribution),
+                    ConstrainableDataTypes.Fractional => pure(DataTypeInstances.Fractional),
+                    ConstrainableDataTypes.Integral => pure(DataTypeInstances.Integral),
+                    ConstrainableDataTypes.Boolean => pure(DataTypeInstances.Boolean),
+                    ConstrainableDataTypes.String => pure(DataTypeInstances.String)
+                };
+            });
+            
+            return new AnalysisBasedConstraint<DataTypeHistogram, Distribution, double>(DataType(column, where), assertion,
+                    valuePicker, hint);
+        }
+
+
+        private static double RatioTypes(bool ignoreUnknown, DataTypeInstances keyType, Distribution distribution)
+        {
+            if (!ignoreUnknown)
+                return distribution
+                    .Values[keyType.ToString()]?
+                    .Ratio ?? 0.0;
+            
+            
+            var absoluteCount = distribution
+                                    .Values[keyType.ToString()]?
+                                    .Absolute ?? 0L;
+
+            if (absoluteCount == 0L)
+                return 0;
+
+            var numValues = distribution.Values.Sum(x => x.Value.Absolute);
+            var numUnknown = distribution
+                .Values[DataTypeInstances.Unknown.ToString()]?
+                .Absolute ?? 0L;
+
+            var sumOfNonNull = numValues - numUnknown;
+            return (double) absoluteCount / sumOfNonNull;
         }
     }
 }
