@@ -32,7 +32,7 @@ namespace xdeequ.tests.Constraints
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
 
         }
-        
+
         [Fact]
         public void assert_fractional_type_for_StringType_column()
         {
@@ -47,7 +47,7 @@ namespace xdeequ.tests.Constraints
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
 
         }
-        
+
         [Fact]
         public void assert_numeric_type_as_sum_over_fractional_and_integral()
         {

@@ -388,8 +388,8 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var valuePicker = dataType == ConstrainableDataTypes.Numeric ? 
-                (d) =>  RatioTypes(true, DataTypeInstances.Fractional, d) + RatioTypes(true, DataTypeInstances.Integral, d)
+            var valuePicker = dataType == ConstrainableDataTypes.Numeric ?
+                (d) => RatioTypes(true, DataTypeInstances.Fractional, d) + RatioTypes(true, DataTypeInstances.Integral, d)
                 : new Func<Distribution, double>(distribution =>
             {
                 var pure = new Func<DataTypeInstances, double>(keyType => RatioTypes(true, keyType, distribution));
@@ -402,7 +402,7 @@ namespace xdeequ.Constraints
                     ConstrainableDataTypes.String => pure(DataTypeInstances.String)
                 };
             });
-            
+
             return new AnalysisBasedConstraint<DataTypeHistogram, Distribution, double>(DataType(column, where), assertion,
                     valuePicker, hint);
         }
@@ -414,8 +414,8 @@ namespace xdeequ.Constraints
                 return distribution
                     .Values[keyType.ToString()]?
                     .Ratio ?? 0.0;
-            
-            
+
+
             var absoluteCount = distribution
                                     .Values[keyType.ToString()]?
                                     .Absolute ?? 0L;
@@ -429,7 +429,7 @@ namespace xdeequ.Constraints
                 .Absolute ?? 0L;
 
             var sumOfNonNull = numValues - numUnknown;
-            return (double) absoluteCount / sumOfNonNull;
+            return (double)absoluteCount / sumOfNonNull;
         }
     }
 }
