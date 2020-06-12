@@ -41,7 +41,8 @@ namespace xdeequ
         }
     }
 
-    public class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
+    public class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer,
+        IAnalyzer<DoubleMetric>
     {
         public string Column;
         public Option<string> Where;

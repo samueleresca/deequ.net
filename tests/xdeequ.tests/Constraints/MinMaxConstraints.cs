@@ -1,5 +1,6 @@
 using Microsoft.Spark.Sql;
 using Shouldly;
+using xdeequ.Analyzers;
 using xdeequ.Constraints;
 using xdeequ.Util;
 using Xunit;
@@ -21,7 +22,7 @@ namespace xdeequ.tests.Constraints
         public void assert_on_min_length()
         {
             var df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            var result = ConstraintUtils.Calculate(
+            var result = ConstraintUtils.Calculate<MinState, double, double>(
                 MinLengthConstraint("att1", _ => _ == 0.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
@@ -30,7 +31,7 @@ namespace xdeequ.tests.Constraints
         public void assert_on_max_length()
         {
             var df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            var result = ConstraintUtils.Calculate(
+            var result = ConstraintUtils.Calculate<MaxState, double, double>(
                 MaxLengthConstraint("att1", _ => _ == 4.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }

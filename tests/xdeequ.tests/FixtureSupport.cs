@@ -127,7 +127,7 @@ namespace xdeequ.tests
         {
             List<GenericRow> elements = new List<GenericRow>
             {
-                new GenericRow(new object[] {"1","1.0"}),
+                new GenericRow(new object[] {"1", "1.0"}),
                 new GenericRow(new object[] {"2", "1"}),
             };
 
@@ -145,7 +145,7 @@ namespace xdeequ.tests
         {
             List<GenericRow> elements = new List<GenericRow>
             {
-                new GenericRow(new object[] {"1","1.0"}),
+                new GenericRow(new object[] {"1", "1.0"}),
                 new GenericRow(new object[] {"2", "a"}),
             };
 
@@ -232,7 +232,8 @@ namespace xdeequ.tests
             return dfr.Json("nested-test.json");
         }
 
-        public static DataFrame DataFrameWithColumn(string name, DataType sparkDt, SparkSession session, GenericRow[] values)
+        public static DataFrame DataFrameWithColumn(string name, DataType sparkDt, SparkSession session,
+            GenericRow[] values)
         {
             return session.CreateDataFrame(values,
                 new StructType(new[] { new StructField(name, sparkDt) })).ToDF(name);

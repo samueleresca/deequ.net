@@ -34,7 +34,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer
+    public class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         public string Column;
         public Option<string> Where;

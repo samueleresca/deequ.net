@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class Entropy : ScanShareableFrequencyBasedAnalyzer
+    public class Entropy : ScanShareableFrequencyBasedAnalyzer, IAnalyzer<DoubleMetric>
     {
         private readonly Option<string> _where;
         private Option<string> _column;

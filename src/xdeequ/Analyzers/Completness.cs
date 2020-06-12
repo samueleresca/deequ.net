@@ -9,7 +9,8 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    public class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
+        IAnalyzer<DoubleMetric>
     {
         private readonly Option<string> _where;
         private Option<string> _column;

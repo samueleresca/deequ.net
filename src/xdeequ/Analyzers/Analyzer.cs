@@ -12,16 +12,12 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public interface IAnalyzer<S, out M>
+    public interface IAnalyzer<out M>
     {
-        public Option<S> ComputeStateFrom(DataFrame dataFrame);
-        public M ComputeMetricFrom(Option<S> state);
-        public abstract M ToFailureMetric(Exception e);
-        public M Calculate(DataFrame data, Option<IStateLoader> aggregateWith, Option<IStatePersister> saveStateWith);
         public M Calculate(DataFrame data);
     }
 
-    public abstract class Analyzer<S, M> : IAnalyzer<S, M> where S : State<S>
+    public abstract class Analyzer<S, M> where S : State<S>
     {
         public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
         public abstract M ComputeMetricFrom(Option<S> state);
@@ -139,7 +135,7 @@ namespace xdeequ.Analyzers
             {
                 true => AnalyzersExt.MetricFromValue(new Try<double>(state.Value.MetricValue()), Name, Instance,
                     Entity),
-                _ => AnalyzersExt.MetricFromEmpty(this, Name, Instance, Entity)
+                _ => AnalyzersExt.MetricFromEmpty<S, DoubleMetric>(this, Name, Instance, Entity)
             };
 
             return metric;

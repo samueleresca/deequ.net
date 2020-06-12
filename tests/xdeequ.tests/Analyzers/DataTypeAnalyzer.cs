@@ -50,8 +50,10 @@ namespace xdeequ.tests.Analyzers
             expected1[DataTypeInstances.String.ToString()] = new DistributionValue(4, 1.0);
 
             result.Value.Get().NumberOfBins.ShouldBe(expected1.NumberOfBins);
-            result.Value.Get()[DataTypeInstances.String.ToString()].Absolute.ShouldBe(expected1[DataTypeInstances.String.ToString()].Absolute);
-            result.Value.Get()[DataTypeInstances.String.ToString()].Ratio.ShouldBe(expected1[DataTypeInstances.String.ToString()].Ratio);
+            result.Value.Get()[DataTypeInstances.String.ToString()].Absolute
+                .ShouldBe(expected1[DataTypeInstances.String.ToString()].Absolute);
+            result.Value.Get()[DataTypeInstances.String.ToString()].Ratio
+                .ShouldBe(expected1[DataTypeInstances.String.ToString()].Ratio);
         }
 
         [Fact]
@@ -65,8 +67,10 @@ namespace xdeequ.tests.Analyzers
             expected1[DataTypeInstances.Integral.ToString()] = new DistributionValue(6, 1.0);
 
             result.Value.Get().NumberOfBins.ShouldBe(expected1.NumberOfBins);
-            result.Value.Get()[DataTypeInstances.Integral.ToString()].Absolute.ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Absolute);
-            result.Value.Get()[DataTypeInstances.Integral.ToString()].Ratio.ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Ratio);
+            result.Value.Get()[DataTypeInstances.Integral.ToString()].Absolute
+                .ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Absolute);
+            result.Value.Get()[DataTypeInstances.Integral.ToString()].Ratio
+                .ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Ratio);
         }
 
         [Fact]
@@ -80,8 +84,10 @@ namespace xdeequ.tests.Analyzers
             expected1[DataTypeInstances.Integral.ToString()] = new DistributionValue(4, 1.0);
 
             result.Value.Get().NumberOfBins.ShouldBe(expected1.NumberOfBins);
-            result.Value.Get()[DataTypeInstances.Integral.ToString()].Absolute.ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Absolute);
-            result.Value.Get()[DataTypeInstances.Integral.ToString()].Ratio.ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Ratio);
+            result.Value.Get()[DataTypeInstances.Integral.ToString()].Absolute
+                .ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Absolute);
+            result.Value.Get()[DataTypeInstances.Integral.ToString()].Ratio
+                .ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Ratio);
         }
 
         [Fact]
@@ -95,8 +101,10 @@ namespace xdeequ.tests.Analyzers
             expected1[DataTypeInstances.Fractional.ToString()] = new DistributionValue(4, 1.0);
 
             result.Value.Get().NumberOfBins.ShouldBe(expected1.NumberOfBins);
-            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Absolute.ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Absolute);
-            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Ratio.ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Ratio);
+            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Absolute
+                .ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Absolute);
+            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Ratio
+                .ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Ratio);
         }
 
         [Fact]
@@ -111,8 +119,10 @@ namespace xdeequ.tests.Analyzers
             expected1[DataTypeInstances.Fractional.ToString()] = new DistributionValue(6, 1.0);
 
             result.Value.Get().NumberOfBins.ShouldBe(expected1.NumberOfBins);
-            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Absolute.ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Absolute);
-            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Ratio.ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Ratio);
+            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Absolute
+                .ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Absolute);
+            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Ratio
+                .ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Ratio);
         }
 
         [Fact]
@@ -127,8 +137,10 @@ namespace xdeequ.tests.Analyzers
             expected1[DataTypeInstances.Integral.ToString()] = new DistributionValue(6, 1.0);
 
             result.Value.Get().NumberOfBins.ShouldBe(expected1.NumberOfBins);
-            result.Value.Get()[DataTypeInstances.Integral.ToString()].Absolute.ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Absolute);
-            result.Value.Get()[DataTypeInstances.Integral.ToString()].Ratio.ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Ratio);
+            result.Value.Get()[DataTypeInstances.Integral.ToString()].Absolute
+                .ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Absolute);
+            result.Value.Get()[DataTypeInstances.Integral.ToString()].Ratio
+                .ShouldBe(expected1[DataTypeInstances.Integral.ToString()].Ratio);
         }
 
         [Fact]
@@ -143,8 +155,10 @@ namespace xdeequ.tests.Analyzers
             expected1[DataTypeInstances.Fractional.ToString()] = new DistributionValue(6, 1.0);
 
             result.Value.Get().NumberOfBins.ShouldBe(expected1.NumberOfBins);
-            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Absolute.ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Absolute);
-            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Ratio.ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Ratio);
+            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Absolute
+                .ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Absolute);
+            result.Value.Get()[DataTypeInstances.Fractional.ToString()].Ratio
+                .ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Ratio);
         }
     }
 }

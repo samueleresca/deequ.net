@@ -31,7 +31,7 @@ namespace xdeequ.Analyzers
     }
 
     //  Analyzer<NumMatches, Metric<double>> 
-    public class Size : StandardScanShareableAnalyzer<NumMatches>
+    public class Size : StandardScanShareableAnalyzer<NumMatches>, IAnalyzer<DoubleMetric>
     {
         private Option<string> where;
 

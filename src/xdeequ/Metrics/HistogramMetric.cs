@@ -26,6 +26,7 @@ namespace xdeequ.Metrics
             Values = values;
             NumberOfBins = numberOfBins;
         }
+
         public DistributionValue this[string key]
         {
             get => Values[key];

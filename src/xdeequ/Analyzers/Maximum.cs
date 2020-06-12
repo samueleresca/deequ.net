@@ -30,7 +30,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer
+    public class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         public string Column;
         public Option<string> Where;

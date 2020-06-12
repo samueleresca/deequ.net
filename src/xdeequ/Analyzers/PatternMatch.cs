@@ -14,7 +14,8 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    public class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
+        IAnalyzer<DoubleMetric>
     {
         private readonly Option<string> _where;
         private readonly string _column;

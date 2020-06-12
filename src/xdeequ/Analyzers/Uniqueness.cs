@@ -8,7 +8,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
+    public class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         private readonly Option<string> _where;
         private IEnumerable<string> _columns;

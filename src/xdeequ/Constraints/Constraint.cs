@@ -1,7 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Schema;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using static xdeequ.Analyzers.Initializers;
@@ -11,23 +11,23 @@ using xdeequ.Util;
 
 namespace xdeequ.Constraints
 {
-    public abstract class IConstraint<S, M, V> where S : State<S>
+    public abstract class IConstraint
     {
-        public abstract ConstraintResult<S, M, V> Evaluate(
-            Dictionary<IAnalyzer<S, Metric<M>>, Metric<M>> analysisResult);
+        public abstract ConstraintResult Evaluate(
+            Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult);
     }
 
-    public class ConstraintResult<S, M, V> where S : State<S>
+    public class ConstraintResult
     {
-        public IConstraint<S, M, V> Constraint { get; set; }
+        public IConstraint Constraint { get; set; }
         public ConstraintStatus Status { get; set; }
         public Option<string> Message { get; set; }
 
-        public Option<Metric<M>> Metric = new Option<Metric<M>>();
+        public Option<IMetric> Metric = new Option<IMetric>();
 
 
-        public ConstraintResult(IConstraint<S, M, V> constraint, ConstraintStatus status, Option<string> message,
-            Option<Metric<M>> metric)
+        public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message,
+            Option<IMetric> metric)
         {
             Constraint = constraint;
             Status = status;
@@ -43,28 +43,28 @@ namespace xdeequ.Constraints
     }
 
 
-    public class ConstraintDecorator<S, M, V> : IConstraint<S, M, V> where S : State<S>
+    public class ConstraintDecorator : IConstraint
     {
-        private IConstraint<S, M, V> _inner;
+        private IConstraint _inner;
 
-        public IConstraint<S, M, V> Inner
+        public IConstraint Inner
         {
             get
             {
-                var dc = _inner is ConstraintDecorator<S, M, V>;
+                var dc = _inner is ConstraintDecorator;
                 if (!dc) return _inner;
-                var result = (ConstraintDecorator<S, M, V>)_inner;
+                var result = (ConstraintDecorator)_inner;
                 return result.Inner;
             }
         }
 
-        public ConstraintDecorator(IConstraint<S, M, V> constraint)
+        public ConstraintDecorator(IConstraint constraint)
         {
             _inner = constraint;
         }
 
-        public override ConstraintResult<S, M, V> Evaluate(
-            Dictionary<IAnalyzer<S, Metric<M>>, Metric<M>> analysisResult)
+        public override ConstraintResult Evaluate(
+            Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
         {
             return _inner.Evaluate(analysisResult);
         }
@@ -76,11 +76,11 @@ namespace xdeequ.Constraints
   * @param constraint Delegate
   * @param name       Name (Detailed message) for the constraint
   */
-    public class NamedConstraint<S, M, V> : ConstraintDecorator<S, M, V> where S : State<S>
+    public class NamedConstraint : ConstraintDecorator
     {
         private string _name { get; set; }
 
-        public NamedConstraint(IConstraint<S, M, V> constraint, string name) : base(constraint)
+        public NamedConstraint(IConstraint constraint, string name) : base(constraint)
         {
             _name = name;
         }
@@ -90,17 +90,17 @@ namespace xdeequ.Constraints
 
     public static class Functions
     {
-        public static IConstraint<NumMatches, double, long> SizeConstraint(Func<long, bool> assertion,
+        public static IConstraint SizeConstraint(Func<long, bool> assertion,
             Option<string> where, Option<string> hint)
         {
-            IAnalyzer<NumMatches, Metric<double>> size = Size(where);
+            IAnalyzer<IMetric> size = Size(where) as IAnalyzer<IMetric>;
             AnalysisBasedConstraint<NumMatches, double, long> constraint =
                 new AnalysisBasedConstraint<NumMatches, double, long>(size, assertion, Option<Func<double, long>>.None,
                     hint);
-            return new NamedConstraint<NumMatches, double, long>(constraint, $"SizeConstraint{size}");
+            return new NamedConstraint(constraint, $"SizeConstraint{size}");
         }
 
-        public static IConstraint<FrequenciesAndNumRows, Distribution, Distribution> HistogramConstraint(
+        public static IConstraint HistogramConstraint(
             string column,
             Func<Distribution, bool> assertion,
             Option<Func<Column, Column>> binningFunc,
@@ -109,18 +109,18 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            var histogram = Histogram(column, binningFunc, where, maxBins);
+            IAnalyzer<IMetric> histogram = Histogram(column, binningFunc, @where, maxBins);
 
             AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, Distribution> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, Distribution>(histogram, assertion,
                     Option<Func<Distribution, Distribution>>.None, hint);
 
 
-            return new NamedConstraint<FrequenciesAndNumRows, Distribution, Distribution>(constraint,
+            return new NamedConstraint(constraint,
                 $"HistogramConstraint{histogram}");
         }
 
-        public static IConstraint<FrequenciesAndNumRows, Distribution, long> HistogramBinConstraint(
+        public static IConstraint HistogramBinConstraint(
             string column,
             Func<long, bool> assertion,
             Option<Func<Column, Column>> binningFunc,
@@ -129,7 +129,7 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            var histogram = Histogram(column, binningFunc, where, maxBins);
+            IAnalyzer<IMetric> histogram = Histogram(column, binningFunc, @where, maxBins) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long>(histogram, assertion,
@@ -137,73 +137,90 @@ namespace xdeequ.Constraints
                     hint);
 
 
-            return new NamedConstraint<FrequenciesAndNumRows, Distribution, long>(constraint,
+            return new NamedConstraint(constraint,
                 $"HistogramBinConstraint{histogram}");
         }
 
-        public static IConstraint<NumMatchesAndCount, double, double> CompletenessConstraint(
+        public static IConstraint CompletenessConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var completeness = Completeness(column, where);
+            IAnalyzer<IMetric> completeness = Completeness(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<NumMatchesAndCount, double, double> constraint =
                 new AnalysisBasedConstraint<NumMatchesAndCount, double, double>(completeness, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<NumMatchesAndCount, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"CompletenessConstraint{completeness}");
         }
 
-        public static IConstraint<S, Double, Double> AnomalyConstraint<S>(
-            IAnalyzer<S, Metric<Double>> analyzer,
+        public static IConstraint AnomalyConstraint<S>(
+            IAnalyzer<IMetric> analyzer,
             Func<double, bool> anomalyAssertion,
             Option<string> hint
         ) where S : State<S>
         {
             var constraint = new AnalysisBasedConstraint<S, Double, Double>(analyzer, anomalyAssertion, hint);
-            return new NamedConstraint<S, Double, Double>(constraint, $"AnomalyConstraint{analyzer}");
+            return new NamedConstraint(constraint, $"AnomalyConstraint{analyzer}");
         }
 
-        public static IConstraint<FrequenciesAndNumRows, double, double> UniquenessConstraint(
+        public static IConstraint UniquenessConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var uniqueness = Uniqueness(column, where);
+            IAnalyzer<IMetric> uniqueness = Uniqueness(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(uniqueness, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<FrequenciesAndNumRows, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"HistogramConstraint{uniqueness}");
         }
 
-        public static IConstraint<FrequenciesAndNumRows, double, double> DistinctnessConstraint(
+        public static IConstraint UniquenessConstraint(
             IEnumerable<string> columns,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var distinctness = Distinctness(columns, where);
+            IAnalyzer<IMetric> uniqueness = Uniqueness(columns, where) as IAnalyzer<IMetric>;
+
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
+                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(uniqueness, assertion,
+                    Option<Func<double, double>>.None, hint);
+
+            return new NamedConstraint(constraint,
+                $"HistogramConstraint{uniqueness}");
+        }
+
+        public static IConstraint DistinctnessConstraint(
+            IEnumerable<string> columns,
+            Func<double, bool> assertion,
+            Option<string> where,
+            Option<string> hint
+        )
+        {
+            IAnalyzer<IMetric> distinctness = Distinctness(columns, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(distinctness, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<FrequenciesAndNumRows, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"DistinctnessConstraint{distinctness}");
         }
 
 
-        public static IConstraint<NumMatchesAndCount, double, double> ComplianceConstraint(
+        public static IConstraint ComplianceConstraint(
             string name,
             Option<string> column,
             Func<double, bool> assertion,
@@ -211,17 +228,17 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var compliance = Compliance(name, column.Value, where);
+            IAnalyzer<IMetric> compliance = Compliance(name, column.Value, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<NumMatchesAndCount, double, double> constraint =
                 new AnalysisBasedConstraint<NumMatchesAndCount, double, double>(compliance, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<NumMatchesAndCount, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"ComplianceConstraint{constraint}");
         }
 
-        public static IConstraint<FrequenciesAndNumRows, double, double> MutualInformationConstraint(
+        public static IConstraint MutualInformationConstraint(
             string columnA,
             string columnB,
             Func<double, bool> assertion,
@@ -229,137 +246,138 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var mutualInformation = MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where);
+            IAnalyzer<IMetric> mutualInformation =
+                MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(mutualInformation, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<FrequenciesAndNumRows, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"MutualInformationConstraint{constraint}");
         }
 
 
-        public static IConstraint<MaxState, double, double> MaxLengthConstraint(
+        public static IConstraint MaxLengthConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var maxLength = MaxLength(column, where);
+            IAnalyzer<IMetric> maxLength = MaxLength(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<MaxState, double, double> constraint =
                 new AnalysisBasedConstraint<MaxState, double, double>(maxLength, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<MaxState, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"MaxLengthConstraint{constraint}");
         }
 
-        public static IConstraint<MinState, double, double> MinLengthConstraint(
+        public static IConstraint MinLengthConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var minLength = MinLength(column, where);
+            IAnalyzer<IMetric> minLength = MinLength(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<MinState, double, double> constraint =
                 new AnalysisBasedConstraint<MinState, double, double>(minLength, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<MinState, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"MinLengthConstraint{constraint}");
         }
 
-        public static IConstraint<MinState, double, double> MinConstraint(
+        public static IConstraint MinConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var min = Minimum(column, where);
+            IAnalyzer<IMetric> min = Minimum(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<MinState, double, double> constraint =
                 new AnalysisBasedConstraint<MinState, double, double>(min, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<MinState, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"MinConstraint{constraint}");
         }
 
-        public static IConstraint<MaxState, double, double> MaxConstraint(
+        public static IConstraint MaxConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var min = Maximum(column, where);
+            IAnalyzer<IMetric> min = Maximum(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<MaxState, double, double> constraint =
                 new AnalysisBasedConstraint<MaxState, double, double>(min, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<MaxState, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"MaxConstraint{constraint}");
         }
 
-        public static IConstraint<MeanState, double, double> MeanConstraint(
+        public static IConstraint MeanConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var min = Mean(column, where);
+            IAnalyzer<IMetric> min = Mean(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<MeanState, double, double> constraint =
                 new AnalysisBasedConstraint<MeanState, double, double>(min, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<MeanState, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"MeanConstraint{constraint}");
         }
 
-        public static IConstraint<SumState, double, double> SumConstraint(
+        public static IConstraint SumConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var sum = Sum(column, where);
+            IAnalyzer<IMetric> sum = Sum(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<SumState, double, double> constraint =
                 new AnalysisBasedConstraint<SumState, double, double>(sum, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<SumState, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"SumConstraint{constraint}");
         }
 
-        public static IConstraint<StandardDeviationState, double, double> StandardDeviationConstraint(
+        public static IConstraint StandardDeviationConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            var sum = StandardDeviation(column, where);
+            IAnalyzer<IMetric> sum = StandardDeviation(column, where) as IAnalyzer<IMetric>;
 
             AnalysisBasedConstraint<StandardDeviationState, double, double> constraint =
                 new AnalysisBasedConstraint<StandardDeviationState, double, double>(sum, assertion,
                     Option<Func<double, double>>.None, hint);
 
-            return new NamedConstraint<StandardDeviationState, double, double>(constraint,
+            return new NamedConstraint(constraint,
                 $"StandardDeviationConstraint{constraint}");
         }
 
-        public static IConstraint<StandardDeviationState, double, double> ApproxCountDistinctConstraint(
+        public static IConstraint ApproxCountDistinctConstraint(
             string column,
             Func<double, bool> assertion,
             Option<string> where,
@@ -369,7 +387,7 @@ namespace xdeequ.Constraints
             throw new NotImplementedException();
         }
 
-        public static IConstraint<StandardDeviationState, double, double> CorrelationConstraint(
+        public static IConstraint CorrelationConstraint(
             string columnA,
             string columnB,
             Func<double, bool> assertion,
@@ -380,7 +398,7 @@ namespace xdeequ.Constraints
             throw new NotImplementedException();
         }
 
-        public static IConstraint<DataTypeHistogram, Distribution, double> DataTypeConstraint(
+        public static IConstraint DataTypeConstraint(
             string column,
             ConstrainableDataTypes dataType,
             Func<double, bool> assertion,
@@ -388,23 +406,26 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var valuePicker = dataType == ConstrainableDataTypes.Numeric ?
-                (d) => RatioTypes(true, DataTypeInstances.Fractional, d) + RatioTypes(true, DataTypeInstances.Integral, d)
+            var valuePicker = dataType == ConstrainableDataTypes.Numeric
+                ? (d) => RatioTypes(true, DataTypeInstances.Fractional, d) +
+                         RatioTypes(true, DataTypeInstances.Integral, d)
                 : new Func<Distribution, double>(distribution =>
-            {
-                var pure = new Func<DataTypeInstances, double>(keyType => RatioTypes(true, keyType, distribution));
-                return dataType switch
                 {
-                    ConstrainableDataTypes.Null => RatioTypes(false, DataTypeInstances.Unknown, distribution),
-                    ConstrainableDataTypes.Fractional => pure(DataTypeInstances.Fractional),
-                    ConstrainableDataTypes.Integral => pure(DataTypeInstances.Integral),
-                    ConstrainableDataTypes.Boolean => pure(DataTypeInstances.Boolean),
-                    ConstrainableDataTypes.String => pure(DataTypeInstances.String)
-                };
-            });
+                    var pure = new Func<DataTypeInstances, double>(keyType => RatioTypes(true, keyType, distribution));
+                    return dataType switch
+                    {
+                        ConstrainableDataTypes.Null => RatioTypes(false, DataTypeInstances.Unknown, distribution),
+                        ConstrainableDataTypes.Fractional => pure(DataTypeInstances.Fractional),
+                        ConstrainableDataTypes.Integral => pure(DataTypeInstances.Integral),
+                        ConstrainableDataTypes.Boolean => pure(DataTypeInstances.Boolean),
+                        ConstrainableDataTypes.String => pure(DataTypeInstances.String)
+                    };
+                });
 
-            return new AnalysisBasedConstraint<DataTypeHistogram, Distribution, double>(DataType(column, where), assertion,
-                    valuePicker, hint);
+            IAnalyzer<IMetric> dataTypeResult = DataType(column, where) as IAnalyzer<IMetric>;
+
+            return new AnalysisBasedConstraint<DataTypeHistogram, Distribution, double>(dataTypeResult, assertion,
+                valuePicker, hint);
         }
 
 
@@ -417,8 +438,8 @@ namespace xdeequ.Constraints
 
 
             var absoluteCount = distribution
-                                    .Values[keyType.ToString()]?
-                                    .Absolute ?? 0L;
+                .Values[keyType.ToString()]?
+                .Absolute ?? 0L;
 
             if (absoluteCount == 0L)
                 return 0;

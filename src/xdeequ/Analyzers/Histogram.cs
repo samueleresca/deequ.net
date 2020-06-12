@@ -11,7 +11,8 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public class Histogram : Analyzer<FrequenciesAndNumRows, HistogramMetric>, IFilterableAnalyzer
+    public class Histogram : Analyzer<FrequenciesAndNumRows, HistogramMetric>, IFilterableAnalyzer,
+        IAnalyzer<HistogramMetric>
     {
         private readonly string _column;
         private readonly Option<string> _where;
@@ -111,6 +112,11 @@ namespace xdeequ.Analyzers
                 true => dataFrame.Filter(where.Value),
                 false => dataFrame
             };
+        }
+
+        public new HistogramMetric Calculate(DataFrame data)
+        {
+            return base.Calculate(data);
         }
     }
 }

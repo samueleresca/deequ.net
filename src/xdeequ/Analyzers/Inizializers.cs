@@ -33,6 +33,9 @@ namespace xdeequ.Analyzers
 
         public static Uniqueness Uniqueness(IEnumerable<string> columns) => new Uniqueness(columns);
 
+        public static Uniqueness Uniqueness(IEnumerable<string> columns, Option<string> where) =>
+            new Uniqueness(columns, where);
+
         public static Uniqueness Uniqueness(Option<string> column, Option<string> where) =>
             new Uniqueness(new[] { column.Value }, where);
 

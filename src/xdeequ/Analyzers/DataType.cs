@@ -100,7 +100,8 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
+    public class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer,
+        IAnalyzer<HistogramMetric>
     {
         public string Column;
         public Option<string> Where;
@@ -152,21 +153,20 @@ namespace xdeequ.Analyzers
         {
             return new[]
             {
-               AnalyzersExt.ConditionalSelection(Column, Where)
+                AnalyzersExt.ConditionalSelection(Column, Where)
             };
         }
 
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset)
         {
-            return AnalyzersExt.IfNoNullsIn(result, offset, () =>
-            {
-                return DataTypeHistogram.FromArray(result.Values.Select(x => (int)x).ToArray());
-            });
+            return AnalyzersExt.IfNoNullsIn(result, offset,
+                () => { return DataTypeHistogram.FromArray(result.Values.Select(x => (int)x).ToArray()); });
         }
 
         public override IEnumerable<Action<StructType>> Preconditions()
         {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) }.Concat(base.Preconditions());
+            return new[]
+                {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column)}.Concat(base.Preconditions());
         }
 
         public Option<string> FilterCondition() => Where;

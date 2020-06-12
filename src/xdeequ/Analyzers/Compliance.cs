@@ -11,7 +11,8 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    public class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
+        IAnalyzer<DoubleMetric>
     {
         private readonly Option<string> _where;
         private readonly string _predicate;

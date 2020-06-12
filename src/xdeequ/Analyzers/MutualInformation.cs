@@ -9,7 +9,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
+    public class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         private readonly Option<string> _where;
         private IEnumerable<string> _columns;

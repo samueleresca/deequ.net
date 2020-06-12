@@ -30,7 +30,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public class Minimum : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
+    public class Minimum : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         public string Column;
         public Option<string> Where;

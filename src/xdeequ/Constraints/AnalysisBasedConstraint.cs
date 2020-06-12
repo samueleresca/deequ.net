@@ -8,10 +8,10 @@ using xdeequ.Util;
 
 namespace xdeequ.Constraints
 {
-    public class AnalysisBasedConstraint<S, M, V> : IConstraint<S, M, V>
+    public class AnalysisBasedConstraint<S, M, V> : IConstraint
         where S : State<S>
     {
-        public IAnalyzer<S, Metric<M>> Analyzer;
+        public IAnalyzer<IMetric> Analyzer;
         private Func<V, bool> assertion;
         private Option<Func<M, V>> valuePicker;
         private Option<string> hint;
@@ -20,7 +20,7 @@ namespace xdeequ.Constraints
         public string ProblematicMetricPicker = "Can't retrieve the value to assert on";
         public string AssertionException = "Can't execute the assertion";
 
-        public AnalysisBasedConstraint(IAnalyzer<S, Metric<M>> analyzer,
+        public AnalysisBasedConstraint(IAnalyzer<IMetric> analyzer,
             Func<V, bool> assertion, Option<Func<M, V>> valuePicker, Option<string> hint)
         {
             Analyzer = analyzer;
@@ -29,7 +29,7 @@ namespace xdeequ.Constraints
             this.hint = hint;
         }
 
-        public AnalysisBasedConstraint(IAnalyzer<S, Metric<M>> analyzer,
+        public AnalysisBasedConstraint(IAnalyzer<IMetric> analyzer,
             Func<V, bool> assertion, Option<string> hint)
         {
             Analyzer = analyzer;
@@ -37,11 +37,11 @@ namespace xdeequ.Constraints
             this.hint = hint;
         }
 
-        private Option<ConstraintResult<S, M, V>> PickValueAndAssert(Metric<M> metric)
+        private Option<ConstraintResult> PickValueAndAssert(Metric<M> metric)
         {
             if (!metric.Value.IsSuccess)
             {
-                return new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure,
+                return new ConstraintResult(this, ConstraintStatus.Failure,
                     metric.Value.Failure.Value.Message, metric);
             }
 
@@ -52,28 +52,28 @@ namespace xdeequ.Constraints
 
                 if (assertionOk)
                 {
-                    return new ConstraintResult<S, M, V>(this, ConstraintStatus.Success, Option<string>.None, metric);
+                    return new ConstraintResult(this, ConstraintStatus.Success, Option<string>.None, metric);
                 }
 
                 var errorMessage = $"Value: {assertOn} does not meet the constraint requirement!";
                 hint = hint.Select(err => err += hint);
 
-                return new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure, errorMessage, metric);
+                return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage, metric);
             }
             catch (Exception e)
             {
                 switch (e)
                 {
                     case ConstraintAssertionException _:
-                        return new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure,
+                        return new ConstraintResult(this, ConstraintStatus.Failure,
                             $"{AssertionException}: $msg!", metric);
                     case ValuePickerException _:
-                        return new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure,
+                        return new ConstraintResult(this, ConstraintStatus.Failure,
                             $"{ProblematicMetricPicker}: $msg!", metric);
                 }
             }
 
-            return Option<ConstraintResult<S, M, V>>.None;
+            return Option<ConstraintResult>.None;
         }
 
         private V RunPickerOnMetric(M metricValue)
@@ -104,18 +104,17 @@ namespace xdeequ.Constraints
             }
         }
 
-        public ConstraintResult<S, M, V> CalculateAndEvaluate(DataFrame df)
+        public ConstraintResult CalculateAndEvaluate(DataFrame df)
         {
-            var metric = Analyzer.Calculate(df);
-            return Evaluate(new Dictionary<IAnalyzer<S, Metric<M>>, Metric<M>> { { Analyzer, metric } });
+            Metric<M> metric = Analyzer.Calculate(df) as Metric<M>;
+            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> { { Analyzer, metric } });
         }
 
-        public override ConstraintResult<S, M, V> Evaluate(
-            Dictionary<IAnalyzer<S, Metric<M>>, Metric<M>> analysisResult)
+        public override ConstraintResult Evaluate(Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
         {
-            var metric = analysisResult[Analyzer];
+            var metric = analysisResult[Analyzer] as Metric<M>;
 
-            return PickValueAndAssert(metric).GetOrElse(new ConstraintResult<S, M, V>(this, ConstraintStatus.Failure,
+            return PickValueAndAssert(metric).GetOrElse(new ConstraintResult(this, ConstraintStatus.Failure,
                 MissingAnalysis, metric));
         }
     }

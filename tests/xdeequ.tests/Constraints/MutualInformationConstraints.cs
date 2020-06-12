@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Spark.Sql;
 using Shouldly;
+using xdeequ.Analyzers;
 using xdeequ.Constraints;
 using xdeequ.Util;
 using Xunit;
@@ -23,7 +24,8 @@ namespace xdeequ.tests.Constraints
         {
             var df = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
 
-            ConstraintUtils.Calculate(MutualInformationConstraint("att1", "att2", _ => _ == 0,
+            ConstraintUtils.Calculate<FrequenciesAndNumRows, double, double>(MutualInformationConstraint("att1", "att2",
+                    _ => _ == 0,
                     Option<string>.None, Option<string>.None), df)
                 .Status.ShouldBe(ConstraintStatus.Success);
         }

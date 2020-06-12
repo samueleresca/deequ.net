@@ -8,7 +8,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
+    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         private readonly Option<string> _where;
         private IEnumerable<string> _columns;

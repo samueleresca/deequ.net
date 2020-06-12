@@ -1,5 +1,6 @@
 using Microsoft.Spark.Sql;
 using Shouldly;
+using xdeequ.Analyzers;
 using xdeequ.Constraints;
 using xdeequ.Util;
 using Xunit;
@@ -22,16 +23,20 @@ namespace xdeequ.tests.Constraints
         {
             var df = FixtureSupport.GetDFMissing(_session);
 
-            ConstraintUtils.Calculate(Functions.CompletenessConstraint("att1", d => d == 0.5,
+            ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att1",
+                d => d == 0.5,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
 
-            ConstraintUtils.Calculate(Functions.CompletenessConstraint("att1", d => d != 0.5,
+            ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att1",
+                d => d != 0.5,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Failure);
 
-            ConstraintUtils.Calculate(Functions.CompletenessConstraint("att2", d => d == 0.75,
+            ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att2",
+                d => d == 0.75,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
 
-            ConstraintUtils.Calculate(Functions.CompletenessConstraint("att2", d => d != 0.75,
+            ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att2",
+                d => d != 0.75,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Failure);
         }
     }

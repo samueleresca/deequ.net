@@ -39,6 +39,7 @@ namespace xdeequ.Analyzers.Catalyst
         }
 
         public string GetAggregatedColumn() => "arrayDataTypeCount";
+
         public string[] ColumnNames() => new[]
         {
             "nullCount",

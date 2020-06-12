@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class MaxLength : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer
+    public class MaxLength : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         public string Column;
         public Option<string> Where;

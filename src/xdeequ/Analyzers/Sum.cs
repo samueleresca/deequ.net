@@ -30,7 +30,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer
+    public class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         public string Column;
         public Option<string> Where;
@@ -67,5 +67,10 @@ namespace xdeequ.Analyzers
         }
 
         public Option<string> FilterCondition() => Where;
+
+        public new DoubleMetric Calculate(DataFrame data)
+        {
+            return base.Calculate(data);
+        }
     }
 }

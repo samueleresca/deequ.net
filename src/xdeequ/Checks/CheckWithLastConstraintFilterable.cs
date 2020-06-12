@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Constraint = xdeequ.Constraints.Constraint;
+using xdeequ.Constraints;
 
 namespace xdeequ.Checks
 {
     public class CheckWithLastConstraintFilterable : Check
     {
-        public Func<string, Constraint> CreateReplacement { get; set; }
+        public Func<string, IConstraint> CreateReplacement { get; set; }
 
         public CheckWithLastConstraintFilterable(CheckLevel level, string description,
-            IEnumerable<Constraint> constraints)
+            IEnumerable<IConstraint> constraints)
             : base(level, description, constraints)
         {
         }

@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public abstract class ScanShareableFrequencyBasedAnalyzer : FrequencyBasedAnalyzer
+    public abstract class ScanShareableFrequencyBasedAnalyzer : FrequencyBasedAnalyzer, IAnalyzer<DoubleMetric>
     {
         protected ScanShareableFrequencyBasedAnalyzer(string name, IEnumerable<string> columnsToGroupOn) : base(name,
             columnsToGroupOn)

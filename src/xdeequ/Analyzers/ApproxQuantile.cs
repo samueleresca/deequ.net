@@ -18,11 +18,6 @@ namespace xdeequ.Analyzers
             _column = column;
         }
 
-        public override Option<NumMatchesAndCount> ComputeStateFrom(DataFrame dataFrame)
-        {
-            return base.ComputeStateFrom(dataFrame);
-        }
-
         public override IEnumerable<Column> AggregationFunctions()
         {
             throw new System.NotImplementedException();

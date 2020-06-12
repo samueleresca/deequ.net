@@ -1,7 +1,9 @@
 using System;
 using Microsoft.Spark.Sql;
 using Shouldly;
+using xdeequ.Analyzers;
 using xdeequ.Constraints;
+using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
 using static xdeequ.Constraints.Functions;
@@ -23,10 +25,12 @@ namespace xdeequ.tests.Constraints
         {
             var df = FixtureSupport.GetDFMissing(_session);
 
-            ConstraintUtils.Calculate(HistogramBinConstraint("att1", d => d == 3,
+            ConstraintUtils.Calculate<FrequenciesAndNumRows, Distribution, long>(HistogramBinConstraint("att1",
+                    d => d == 3,
                     Option<Func<Column, Column>>.None, Option<string>.None, Option<string>.None), df)
                 .Status.ShouldBe(ConstraintStatus.Success);
-            ConstraintUtils.Calculate(HistogramBinConstraint("att1", d => d != 3,
+            ConstraintUtils.Calculate<FrequenciesAndNumRows, Distribution, long>(HistogramBinConstraint("att1",
+                    d => d != 3,
                     Option<Func<Column, Column>>.None, Option<string>.None, Option<string>.None), df)
                 .Status.ShouldBe(ConstraintStatus.Failure);
         }
@@ -36,10 +40,11 @@ namespace xdeequ.tests.Constraints
         {
             var df = FixtureSupport.GetDFMissing(_session);
 
-            var metric = ConstraintUtils.Calculate(HistogramConstraint("att1",
-                _ => _["non-existent-column-value"].Ratio == 3, Option<Func<Column, Column>>.None,
-                Option<string>.None,
-                Option<string>.None), df);
+            var metric = ConstraintUtils.Calculate<FrequenciesAndNumRows, Distribution, Distribution>(
+                HistogramConstraint("att1",
+                    _ => _["non-existent-column-value"].Ratio == 3, Option<Func<Column, Column>>.None,
+                    Option<string>.None,
+                    Option<string>.None), df);
 
             metric.Status.ShouldBe(ConstraintStatus.Failure);
             metric.Message.ShouldNotBeNull();

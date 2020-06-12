@@ -1,7 +1,9 @@
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
+using xdeequ.Analyzers;
 using xdeequ.Constraints;
+using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
 using Functions = xdeequ.Constraints.Functions;
@@ -27,10 +29,9 @@ namespace xdeequ.tests.Constraints
                 new GenericRow(new object[] {2.0})
             });
 
-            ConstraintUtils.Calculate(
+            ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, _ => _ == 1.0,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
-
         }
 
         [Fact]
@@ -42,10 +43,9 @@ namespace xdeequ.tests.Constraints
                 new GenericRow(new object[] {"2.0"})
             });
 
-            ConstraintUtils.Calculate(
+            ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, _ => _ == 0.5,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
-
         }
 
         [Fact]
@@ -57,10 +57,9 @@ namespace xdeequ.tests.Constraints
                 new GenericRow(new object[] {"2.0"})
             });
 
-            ConstraintUtils.Calculate(
+            ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Numeric, _ => _ == 1.0,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
-
         }
     }
 }

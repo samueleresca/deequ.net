@@ -12,11 +12,15 @@ namespace xdeequ.Metrics
         MultiColumn = 2
     }
 
-    public abstract class Metric<T>
+    public interface IMetric
     {
-        public Entity Entity;
-        public string Name;
-        public string Instance;
+        public Entity Entity { get; }
+        public string Name { get; }
+        public string Instance { get; }
+    }
+
+    public abstract class Metric<T> : IMetric
+    {
         public Try<T> Value;
 
         protected Metric(Entity entity, string name, string instance, Try<T> value)
@@ -28,6 +32,9 @@ namespace xdeequ.Metrics
         }
 
         public abstract IEnumerable<DoubleMetric> Flatten();
+        public Entity Entity { get; }
+        public string Name { get; }
+        public string Instance { get; }
     }
 
     public class DoubleMetric : Metric<double>
