@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class SumState : DoubleValuedState<SumState>
+    public class SumState : DoubleValuedState<SumState>, IState
     {
         private double _sum;
 
@@ -27,6 +27,12 @@ namespace xdeequ.Analyzers
         public override double MetricValue()
         {
             return _sum;
+        }
+
+        public IState Sum(IState other)
+        {
+            var sumStateOther = (SumState)other;
+            return new SumState(_sum + sumStateOther._sum);
         }
     }
 

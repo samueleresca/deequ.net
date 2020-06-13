@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Sql;
 using xdeequ.Metrics;
 using xdeequ.Util;

@@ -9,7 +9,7 @@ using xdeequ.Util;
 namespace xdeequ.Constraints
 {
     public class AnalysisBasedConstraint<S, M, V> : IConstraint
-        where S : State<S>
+        where S : IState
     {
         public IAnalyzer<IMetric> Analyzer;
         private Func<V, bool> assertion;

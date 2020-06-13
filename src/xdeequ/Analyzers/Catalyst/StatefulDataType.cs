@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;

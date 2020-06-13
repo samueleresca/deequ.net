@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class MinState : DoubleValuedState<MinState>
+    public class MinState : DoubleValuedState<MinState>, IState
     {
         private double _minValue;
 
@@ -27,6 +27,12 @@ namespace xdeequ.Analyzers
         public override double MetricValue()
         {
             return _minValue;
+        }
+
+        public IState Sum(IState other)
+        {
+            var otherMin = (MinState)other;
+            return new MinState(Math.Min(_minValue, otherMin._minValue));
         }
     }
 

@@ -132,7 +132,7 @@ namespace xdeequ.Analyzers
     }
 
 
-    public class FrequenciesAndNumRows : State<FrequenciesAndNumRows>
+    public class FrequenciesAndNumRows : State<FrequenciesAndNumRows>, IState
     {
         public DataFrame Frequencies;
         public long NumRows;
@@ -173,6 +173,12 @@ namespace xdeequ.Analyzers
         private Column NullSafeEq(string column)
         {
             return Col($"this.{column}") == Col($"other.{column}");
+        }
+
+        public IState Sum(IState other)
+        {
+            var frequencies = (FrequenciesAndNumRows)other;
+            return this.Sum(frequencies);
         }
     }
 }

@@ -15,9 +15,11 @@ namespace xdeequ.Analyzers
     public interface IAnalyzer<out M>
     {
         public M Calculate(DataFrame data);
+        public IEnumerable<Action<StructType>> Preconditions();
+        public M ToFailureMetric(Exception e);
     }
 
-    public abstract class Analyzer<S, M> where S : State<S>
+    public abstract class Analyzer<S, M> where S : State<S>, IState
     {
         public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
         public abstract M ComputeMetricFrom(Option<S> state);
@@ -88,7 +90,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M> where S : State<S>
+    public abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M> where S : State<S>, IState
     {
         public abstract IEnumerable<Column> AggregationFunctions();
         public abstract Option<S> FromAggregationResult(Row result, int offset);
@@ -113,7 +115,7 @@ namespace xdeequ.Analyzers
     }
 
     public abstract class StandardScanShareableAnalyzer<S> : ScanShareableAnalyzer<S, DoubleMetric>
-        where S : DoubleValuedState<S>
+        where S : DoubleValuedState<S>, IState
     {
         public string Name { get; set; }
         public string Instance { get; set; }
@@ -151,7 +153,7 @@ namespace xdeequ.Analyzers
     }
 
 
-    public class NumMatchesAndCount : DoubleValuedState<NumMatchesAndCount>
+    public class NumMatchesAndCount : DoubleValuedState<NumMatchesAndCount>, IState
     {
         public long NumMatches;
         public long Count;
@@ -175,6 +177,11 @@ namespace xdeequ.Analyzers
             }
 
             return (double)NumMatches / Count;
+        }
+
+        public IState Sum(IState other)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -208,7 +215,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M> where S : State<S>
+    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M> where S : State<S>, IState
     {
         public abstract IEnumerable<string> GroupingColumns();
 

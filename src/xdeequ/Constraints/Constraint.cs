@@ -1,7 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using static xdeequ.Analyzers.Initializers;
@@ -162,7 +162,7 @@ namespace xdeequ.Constraints
             IAnalyzer<IMetric> analyzer,
             Func<double, bool> anomalyAssertion,
             Option<string> hint
-        ) where S : State<S>
+        ) where S : State<S>, IState
         {
             var constraint = new AnalysisBasedConstraint<S, Double, Double>(analyzer, anomalyAssertion, hint);
             return new NamedConstraint(constraint, $"AnomalyConstraint{analyzer}");
@@ -220,6 +220,24 @@ namespace xdeequ.Constraints
         }
 
 
+        public static IConstraint UniqueValueRatioConstraint(
+            IEnumerable<string> columns,
+            Func<double, bool> assertion,
+            Option<string> where,
+            Option<string> hint
+        )
+        {
+            IAnalyzer<IMetric> distinctness = UniqueValueRatio(columns, where);
+
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
+                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(distinctness, assertion,
+                    Option<Func<double, double>>.None, hint);
+
+            return new NamedConstraint(constraint,
+                $"UniqueValueRatioConstraint{distinctness}");
+        }
+
+
         public static IConstraint ComplianceConstraint(
             string name,
             Option<string> column,
@@ -257,6 +275,41 @@ namespace xdeequ.Constraints
                 $"MutualInformationConstraint{constraint}");
         }
 
+        public static IConstraint EntropyConstraint(
+            string column,
+            Func<double, bool> assertion,
+            Option<string> where,
+            Option<string> hint
+        )
+        {
+            IAnalyzer<IMetric> entropy = Entropy(column, where) as IAnalyzer<IMetric>;
+
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
+                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(entropy, assertion,
+                    Option<Func<double, double>>.None, hint);
+
+            return new NamedConstraint(constraint,
+                $"EntropyConstraint{constraint}");
+        }
+
+        public static IConstraint PatternMatchConstraint(
+            string column,
+            Regex pattern,
+            Func<double, bool> assertion,
+            Option<string> where,
+            Option<string> name,
+            Option<string> hint
+        )
+        {
+            IAnalyzer<IMetric> patternMatch = PatternMatch(column, pattern, where) as IAnalyzer<IMetric>;
+
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
+                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(patternMatch, assertion,
+                    Option<Func<double, double>>.None, hint);
+
+            return new NamedConstraint(constraint,
+                $"PatternMatchConstraint{constraint}");
+        }
 
         public static IConstraint MaxLengthConstraint(
             string column,

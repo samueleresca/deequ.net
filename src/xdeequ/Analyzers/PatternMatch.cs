@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Xml;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Extensions;
@@ -29,11 +26,6 @@ namespace xdeequ.Analyzers
             _where = where;
         }
 
-        public static PatternMatch Create(string column, string pattern) =>
-            new PatternMatch(column, new Regex(pattern), new Option<string>());
-
-        public static PatternMatch Create(string column, string pattern, Option<string> where) =>
-            new PatternMatch(column, new Regex(pattern), where);
 
         public override IEnumerable<Column> AggregationFunctions()
         {

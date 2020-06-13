@@ -141,7 +141,7 @@ namespace xdeequ.Extensions
         }
 
         public static DoubleMetric MetricFromEmpty<S, T>(Analyzer<S, T> analyzer, string name, string instance,
-            Entity entity = Entity.Column) where S : State<S>
+            Entity entity = Entity.Column) where S : State<S>, IState
         {
             var emptyState =
                 new EmptyStateException($"Empty state for analyzer {analyzer}, all input values were NULL.");
@@ -154,6 +154,15 @@ namespace xdeequ.Extensions
             return where
                 .Select(filter => Sum(Expr(where.Value).Cast("long")))
                 .GetOrElse(Count("*"));
+        }
+
+        public static void Merge<K, V>(this IDictionary<K, V> target, IDictionary<K, V> source, bool overwrite = false)
+        {
+            source.ToList().ForEach(_ =>
+            {
+                if ((!target.ContainsKey(_.Key)) || overwrite)
+                    target[_.Key] = _.Value;
+            });
         }
 
         public static Column ConditionalSelection(Option<string> column, Option<string> where) =>

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using xdeequ.Extensions;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Checks

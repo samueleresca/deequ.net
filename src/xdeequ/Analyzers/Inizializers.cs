@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using xdeequ.Util;
 
@@ -90,6 +91,17 @@ namespace xdeequ.Analyzers
 
         public static StandardDeviation StandardDeviation(string column, Option<string> where) =>
             new StandardDeviation(column, where);
+
+        public static Entropy Entropy(Option<string> column) => new Entropy(column);
+
+        public static Entropy Entropy(Option<string> column, Option<string> where) =>
+            new Entropy(column, where);
+
+        public static PatternMatch PatternMatch(string column, Regex pattern) =>
+            new PatternMatch(column, pattern, new Option<string>());
+
+        public static PatternMatch PatternMatch(string column, Regex pattern, Option<string> where) =>
+            new PatternMatch(column, pattern, where);
 
         public static DataType DataType(string column) => new DataType(column, Option<string>.None);
 

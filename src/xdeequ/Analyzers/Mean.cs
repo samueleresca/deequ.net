@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Apache.Arrow.Types;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers.States;
 using xdeequ.Extensions;
@@ -11,7 +10,7 @@ using StructType = Microsoft.Spark.Sql.Types.StructType;
 
 namespace xdeequ.Analyzers
 {
-    public class MeanState : DoubleValuedState<MeanState>
+    public class MeanState : DoubleValuedState<MeanState>, IState
     {
         private double _sum;
         private long _count;
@@ -31,6 +30,11 @@ namespace xdeequ.Analyzers
         {
             if (_count == 0L) return double.NaN;
             return _sum / _count;
+        }
+
+        public IState Sum(IState other)
+        {
+            throw new NotImplementedException();
         }
     }
 

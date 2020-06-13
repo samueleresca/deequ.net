@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;

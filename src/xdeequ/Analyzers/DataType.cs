@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Xml.Schema;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers.Catalyst;
@@ -26,7 +23,7 @@ namespace xdeequ.Analyzers
     }
 
 
-    public class DataTypeHistogram : State<DataTypeHistogram>
+    public class DataTypeHistogram : State<DataTypeHistogram>, IState
     {
         public long NonNull { get; set; }
         public long NumFractional { get; set; }
@@ -97,6 +94,11 @@ namespace xdeequ.Analyzers
                     new DistributionValue(hist.NumString, (double) hist.NumString / totalObservations)
                 },
             }, 5);
+        }
+
+        public IState Sum(IState other)
+        {
+            throw new NotImplementedException();
         }
     }
 

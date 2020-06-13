@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Spark.Sql;
 using Shouldly;
 using xdeequ.Analyzers;

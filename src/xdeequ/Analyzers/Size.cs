@@ -10,7 +10,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public class NumMatches : DoubleValuedState<NumMatches>
+    public class NumMatches : DoubleValuedState<NumMatches>, IState
     {
         private long numMatches { get; set; }
 
@@ -27,6 +27,12 @@ namespace xdeequ.Analyzers
         public override double MetricValue()
         {
             return numMatches;
+        }
+
+        public IState Sum(IState other)
+        {
+            NumMatches specific = (NumMatches)other;
+            return new NumMatches(numMatches + specific.numMatches);
         }
     }
 

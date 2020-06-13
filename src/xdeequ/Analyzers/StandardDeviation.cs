@@ -2,16 +2,15 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ.Analyzers;
 using xdeequ.Analyzers.States;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace xdeequ
+namespace xdeequ.Analyzers
 {
-    public class StandardDeviationState : DoubleValuedState<StandardDeviationState>
+    public class StandardDeviationState : DoubleValuedState<StandardDeviationState>, IState
     {
         public double N;
         public double Avg;
@@ -38,6 +37,11 @@ namespace xdeequ
         public override double MetricValue()
         {
             return StdDevPop;
+        }
+
+        public IState Sum(IState other)
+        {
+            throw new NotImplementedException();
         }
     }
 

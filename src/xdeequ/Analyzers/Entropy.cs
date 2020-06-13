@@ -28,10 +28,6 @@ namespace xdeequ.Analyzers
             _where = Option<string>.None;
         }
 
-        public static Entropy Create(Option<string> column) => new Entropy(column);
-
-        public static Entropy Create(Option<string> column, Option<string> where) =>
-            new Entropy(column, where);
 
         public override IEnumerable<Column> AggregationFunctions(long numRows)
         {

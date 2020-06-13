@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Analyzers;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
+using static xdeequ.Analyzers.Initializers;
 
 namespace xdeequ.tests.Analyzers
 {
@@ -23,8 +23,8 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame complete = FixtureSupport.GetDFFull(_session);
 
-            var attr1 = Entropy.Create("att1").Calculate(complete);
-            var attr2 = Entropy.Create("att2").Calculate(complete);
+            var attr1 = Entropy("att1").Calculate(complete);
+            var attr2 = Entropy("att2").Calculate(complete);
 
 
             var expected1 = DoubleMetric.Create(Entity.Column, "Entropy", "att1", new Try<double>(0));

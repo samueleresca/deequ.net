@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using xdeequ.Analyzers;
 using Xunit;
+using static xdeequ.Analyzers.Initializers;
 
 namespace xdeequ.tests.Analyzers
 {
@@ -37,7 +39,7 @@ namespace xdeequ.tests.Analyzers
 
             var df = _session.CreateDataFrame(elements, schema);
 
-            var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, @"\d\.\d")
+            var result = PatternMatch(someColumnName, new Regex(@"\d\.\d"))
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeFalse();
@@ -60,7 +62,7 @@ namespace xdeequ.tests.Analyzers
 
             var df = _session.CreateDataFrame(elements, schema);
 
-            var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, @"\d")
+            var result = PatternMatch(someColumnName, new Regex(@"\d"))
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -84,7 +86,7 @@ namespace xdeequ.tests.Analyzers
 
             var df = _session.CreateDataFrame(elements, schema);
 
-            var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, Patterns.Email.ToString())
+            var result = PatternMatch(someColumnName, Patterns.Email)
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -116,7 +118,7 @@ namespace xdeequ.tests.Analyzers
 
             var df = _session.CreateDataFrame(elements, schema);
 
-            var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, Patterns.CreditCard.ToString())
+            var result = PatternMatch(someColumnName, Patterns.CreditCard)
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -151,7 +153,7 @@ namespace xdeequ.tests.Analyzers
 
             var df = _session.CreateDataFrame(elements, schema);
 
-            var result = xdeequ.Analyzers.PatternMatch.Create(someColumnName, Patterns.Url.ToString())
+            var result = PatternMatch(someColumnName, Patterns.Url)
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -182,8 +184,7 @@ namespace xdeequ.tests.Analyzers
 
             var df = _session.CreateDataFrame(elements, schema);
 
-            var result = xdeequ.Analyzers.PatternMatch
-                .Create(someColumnName, Patterns.SocialSecurityNumberUs.ToString())
+            var result = PatternMatch(someColumnName, Patterns.SocialSecurityNumberUs)
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();

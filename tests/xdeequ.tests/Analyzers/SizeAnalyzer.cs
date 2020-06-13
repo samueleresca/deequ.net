@@ -1,6 +1,5 @@
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Analyzers;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;

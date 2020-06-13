@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Analyzers;
 using xdeequ.Metrics;
 using Xunit;
 using static xdeequ.Analyzers.Initializers;
@@ -40,7 +39,7 @@ namespace xdeequ.tests.Analyzers
             DataFrame complete = FixtureSupport.GetDFFull(_session);
 
             var entropyViaMI = MutualInformation(new[] { "att1", "att2" }).Calculate(complete);
-            var entropy = Entropy.Create("att1").Calculate(complete);
+            var entropy = Entropy("att1").Calculate(complete);
 
             entropyViaMI.Value.IsSuccess.ShouldBeTrue();
             entropy.Value.IsSuccess.ShouldBeTrue();

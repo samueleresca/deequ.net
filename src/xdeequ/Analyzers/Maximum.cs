@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class MaxState : DoubleValuedState<MaxState>
+    public class MaxState : DoubleValuedState<MaxState>, IState
     {
         private double _maxValue;
 
@@ -27,6 +27,12 @@ namespace xdeequ.Analyzers
         public override double MetricValue()
         {
             return _maxValue;
+        }
+
+        public IState Sum(IState other)
+        {
+            var maxState = (MaxState)other;
+            return new MaxState(Math.Max(_maxValue, maxState._maxValue));
         }
     }
 
