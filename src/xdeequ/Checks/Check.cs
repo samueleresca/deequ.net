@@ -541,9 +541,8 @@ namespace xdeequ.Checks
                     var nc = cons as ConstraintDecorator;
                     return nc.Inner;
                 })
-                .Select(x => x as AnalysisBasedConstraint<IState, IMetric, IMetric>)
-                .Where(x => x != null)
-                .Select(x => x?.Analyzer);
+                .OfType<IAnalysisBasedConstraint>()
+                .Select(x => x.Analyzer);
         }
 
     }

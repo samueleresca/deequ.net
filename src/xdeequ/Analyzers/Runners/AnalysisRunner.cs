@@ -20,8 +20,8 @@ namespace xdeequ.Analyzers.Runners
             Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStatesWith,
             StorageLevel storageLevelOfGroupedDataForMultiplePasses,
-            AnalysisRunnerRepositoryOptions metricsRepositoryOptions = default(AnalysisRunnerRepositoryOptions),
-            AnalysisRunnerFileOutputOptions fileOutputOptions = default(AnalysisRunnerFileOutputOptions))
+            AnalysisRunnerRepositoryOptions metricsRepositoryOptions = default,
+            AnalysisRunnerFileOutputOptions fileOutputOptions = default)
 
         {
             if (!analyzers.Any())
@@ -34,10 +34,10 @@ namespace xdeequ.Analyzers.Runners
             var distinctAnalyzers = enumerable.Distinct();
 
 
-            var resultComputedPreviously = (metricsRepositoryOptions.metricRepository.HasValue,
-                    metricsRepositoryOptions.reuseExistingResultsForKey.HasValue) switch
+            var resultComputedPreviously = (metricsRepositoryOptions?.metricRepository.HasValue,
+                     metricsRepositoryOptions?.reuseExistingResultsForKey.HasValue) switch
             {
-                (true, true) => metricsRepositoryOptions.metricRepository.Value
+                (true, true) => metricsRepositoryOptions?.metricRepository.Value
                     .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value).GetOrElse(AnalyzerContext.Empty()),
                 _ => AnalyzerContext.Empty()
             };

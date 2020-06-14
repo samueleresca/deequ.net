@@ -11,10 +11,15 @@ using xdeequ.Util;
 
 namespace xdeequ.Constraints
 {
-    public abstract class IConstraint
+    public interface IConstraint
     {
-        public abstract ConstraintResult Evaluate(
+        public ConstraintResult Evaluate(
             Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult);
+    }
+
+    public interface IAnalysisBasedConstraint : IConstraint
+    {
+        public IAnalyzer<IMetric> Analyzer { get; }
     }
 
     public class ConstraintResult
@@ -63,7 +68,7 @@ namespace xdeequ.Constraints
             _inner = constraint;
         }
 
-        public override ConstraintResult Evaluate(
+        public ConstraintResult Evaluate(
             Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
         {
             return _inner.Evaluate(analysisResult);

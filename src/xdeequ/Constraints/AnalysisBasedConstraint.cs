@@ -8,10 +8,11 @@ using xdeequ.Util;
 
 namespace xdeequ.Constraints
 {
-    public class AnalysisBasedConstraint<S, M, V> : IConstraint
+
+    public class AnalysisBasedConstraint<S, M, V> : IAnalysisBasedConstraint
         where S : IState
     {
-        public IAnalyzer<IMetric> Analyzer;
+        public IAnalyzer<IMetric> Analyzer { get; }
         private Func<V, bool> assertion;
         private Option<Func<M, V>> valuePicker;
         private Option<string> hint;
@@ -110,13 +111,14 @@ namespace xdeequ.Constraints
             return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> { { Analyzer, metric } });
         }
 
-        public override ConstraintResult Evaluate(Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
+        public ConstraintResult Evaluate(Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
         {
             var metric = analysisResult[Analyzer] as Metric<M>;
 
             return PickValueAndAssert(metric).GetOrElse(new ConstraintResult(this, ConstraintStatus.Failure,
                 MissingAnalysis, metric));
         }
+
     }
 
     public class ValuePickerException : Exception

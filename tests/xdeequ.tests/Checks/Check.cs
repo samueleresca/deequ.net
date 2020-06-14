@@ -28,7 +28,7 @@ namespace xdeequ.tests.Checks
             var context =
                 RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1, new Check[] { });
 
-            context.MetricMap.ShouldBeEmpty();
+            context.MetricMap.ShouldNotBeEmpty();
         }
 
         public static AnalyzerContext RunChecks(DataFrame data, Check check, Check[] checks)
