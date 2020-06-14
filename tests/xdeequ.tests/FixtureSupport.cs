@@ -225,6 +225,29 @@ namespace xdeequ.tests
             return sparkSession.CreateDataFrame(elements, schema);
         }
 
+        public static DataFrame GetDfCompleteAndInCompleteColumns(SparkSession sparkSession)
+        {
+            List<GenericRow> elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"1", "a", "f"}),
+                new GenericRow(new object[] {"2", "b", "d"}),
+                new GenericRow(new object[] {"3", "a", null}),
+                new GenericRow(new object[] {"4", "a", "f"}),
+                new GenericRow(new object[] {"5", "b", null}),
+                new GenericRow(new object[] {"6", "a", "f"}),
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("item", new StringType()),
+                    new StructField("att1", new StringType()),
+                    new StructField("att2", new StringType()),
+                });
+
+            return sparkSession.CreateDataFrame(elements, schema);
+        }
+
         public static DataFrame GetDfWithNestedColumn(SparkSession session)
         {
             DataFrameReader dfr = session.Read().Format("json");

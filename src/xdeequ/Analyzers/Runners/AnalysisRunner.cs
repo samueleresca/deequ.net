@@ -20,8 +20,8 @@ namespace xdeequ.Analyzers.Runners
             Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStatesWith,
             StorageLevel storageLevelOfGroupedDataForMultiplePasses,
-            AnalysisRunnerRepositoryOptions metricsRepositoryOptions,
-            AnalysisRunnerFileOutputOptions fileOutputOptions)
+            AnalysisRunnerRepositoryOptions metricsRepositoryOptions = default(AnalysisRunnerRepositoryOptions),
+            AnalysisRunnerFileOutputOptions fileOutputOptions = default(AnalysisRunnerFileOutputOptions))
 
         {
             if (!analyzers.Any())
@@ -362,15 +362,20 @@ namespace xdeequ.Analyzers.Runners
             }
         }
 
+
     }
     public class AnalysisRunnerRepositoryOptions
     {
 
-        public Option<IMetricsRepository> metricRepository;
-        public Option<ResultKey> reuseExistingResultsForKey;
-        public Option<ResultKey> saveOrAppendResultsWithKey;
-        public bool failIfResultsForReusingMissing;
+        public Option<IMetricsRepository> metricRepository = Option<IMetricsRepository>.None;
+        public Option<ResultKey> reuseExistingResultsForKey = Option<ResultKey>.None;
+        public Option<ResultKey> saveOrAppendResultsWithKey = Option<ResultKey>.None;
+        public bool failIfResultsForReusingMissing = false;
 
+        public AnalysisRunnerRepositoryOptions()
+        {
+
+        }
 
         public AnalysisRunnerRepositoryOptions(
             Option<IMetricsRepository> metricRepository,
@@ -388,10 +393,14 @@ namespace xdeequ.Analyzers.Runners
 
     public class AnalysisRunnerFileOutputOptions
     {
-        public Option<SparkSession> sparkSession;
-        public Option<string> saveSuccessMetricsJsonToPath;
-        public Option<string> overwriteOutputFiles;
+        public Option<SparkSession> sparkSession = Option<SparkSession>.None;
+        public Option<string> saveSuccessMetricsJsonToPath = Option<string>.None;
+        public Option<string> overwriteOutputFiles = Option<string>.None;
 
+        public AnalysisRunnerFileOutputOptions()
+        {
+
+        }
         public AnalysisRunnerFileOutputOptions(
             Option<SparkSession> sparkSession,
             Option<string> saveSuccessMetricsJsonToPath,
@@ -410,5 +419,6 @@ namespace xdeequ.Analyzers.Runners
 
     public class StorageLevel
     {
+
     }
 }
