@@ -19,6 +19,23 @@ namespace xdeequ.Analyzers
         public M ToFailureMetric(Exception e);
     }
 
+    public interface IGroupAnalyzer<S, out M> : IAnalyzer<M>
+    {
+        public IEnumerable<string> GroupingColumns();
+    }
+
+    public interface IScanSharableAnalyzer<S, out M> : IAnalyzer<M>
+    {
+        public IEnumerable<Column> AggregationFunctions();
+
+        public M MetricFromAggregationResult(Row result, int offset, Option<IStateLoader> aggregateWith,
+            Option<IStatePersister> saveStatesWith);
+
+        public M Calculate(DataFrame data, Option<IStateLoader> aggregateWith, Option<IStatePersister> saveStateWith);
+
+
+    }
+
     public abstract class Analyzer<S, M> where S : State<S>, IState
     {
         public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
@@ -90,7 +107,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M> where S : State<S>, IState
+    public abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M>, IScanSharableAnalyzer<S, M> where S : State<S>, IState
     {
         public abstract IEnumerable<Column> AggregationFunctions();
         public abstract Option<S> FromAggregationResult(Row result, int offset);
@@ -215,14 +232,20 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M> where S : State<S>, IState
+    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupAnalyzer<IState, M> where S : State<S>, IState
     {
         public abstract IEnumerable<string> GroupingColumns();
+
+        public new M Calculate(DataFrame data)
+        {
+            return base.Calculate(data);
+        }
 
         public override IEnumerable<Action<StructType>> Preconditions()
         {
             return GroupingColumns().Select(HasColumn).Concat(base.Preconditions());
         }
+
 
         public static Action<StructType> HasColumn(string column)
         {

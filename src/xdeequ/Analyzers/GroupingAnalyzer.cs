@@ -65,7 +65,6 @@ namespace xdeequ.Analyzers
         public string Name { get; set; }
         public IEnumerable<string> ColumnsToGroupOn { get; set; }
 
-
         public FrequencyBasedAnalyzer(string name, IEnumerable<string> columnsToGroupOn)
         {
             Name = name;
@@ -93,7 +92,7 @@ namespace xdeequ.Analyzers
                 .Concat(base.Preconditions());
         }
 
-        private static FrequenciesAndNumRows ComputeFrequencies(DataFrame data,
+        public static FrequenciesAndNumRows ComputeFrequencies(DataFrame data,
             IEnumerable<string> groupingColumns, Option<string> where)
         {
             var columnsToGroupBy = groupingColumns.Select(name => Col(name));
@@ -177,8 +176,7 @@ namespace xdeequ.Analyzers
 
         public IState Sum(IState other)
         {
-            var frequencies = (FrequenciesAndNumRows)other;
-            return this.Sum(frequencies);
+            return base.Sum((FrequenciesAndNumRows)other);
         }
     }
 }

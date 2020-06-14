@@ -7,6 +7,9 @@ namespace xdeequ.Analyzers.States
 
     public abstract class State<T> where T : State<T>
     {
-        public abstract T Sum(T other);
+        public virtual T Sum(T other)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
