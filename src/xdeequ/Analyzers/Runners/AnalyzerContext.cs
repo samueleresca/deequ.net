@@ -30,7 +30,14 @@ namespace xdeequ.Analyzers.Runners
 
         public Option<IMetric> Metric(IAnalyzer<IMetric> analyzer)
         {
-            return new Option<IMetric>(MetricMap[analyzer]);
+            try
+            {
+                return new Option<IMetric>(MetricMap[analyzer]);
+            }
+            catch (KeyNotFoundException e)
+            {
+                return Option<IMetric>.None;
+            }
         }
 
     }

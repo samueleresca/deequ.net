@@ -59,6 +59,7 @@ namespace xdeequ.tests.Analyzers
             attr1.Value.Get().ShouldBe(expected1.Value.Get());
         }
 
+
         [Fact]
         public void fail_on_wrong_column_input()
         {

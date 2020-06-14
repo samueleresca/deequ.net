@@ -9,8 +9,8 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
-        IAnalyzer<DoubleMetric>
+    public class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+
     {
         private readonly Option<string> _where;
         private Option<string> _column;
@@ -38,7 +38,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var summarization = Sum(AnalyzersExt.ConditionalSelection(_column.Value, _where)
+            var summarization = Sum(AnalyzersExt.ConditionalSelection(_column, _where)
                 .IsNotNull()
                 .Cast("int"));
 

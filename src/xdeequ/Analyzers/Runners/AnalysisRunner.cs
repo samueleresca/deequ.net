@@ -55,7 +55,7 @@ namespace xdeequ.Analyzers.Runners
 
             var groupingAnalyzers = passedAnalyzers.Where(x => x is IGroupAnalyzer<IState, IMetric>);
 
-            IEnumerable<IScanSharableAnalyzer<IState, IMetric>> allScanningAnalyzers = passedAnalyzers.Except(groupingAnalyzers).Select(x => (IScanSharableAnalyzer<IState, IMetric>)x);
+            IEnumerable<IScanSharableAnalyzer<IState, DoubleMetric>> allScanningAnalyzers = passedAnalyzers.Except(groupingAnalyzers).Select(x => (IScanSharableAnalyzer<IState, DoubleMetric>)x);
 
             var nonGroupedMetrics = RunScanningAnalyzers(data, allScanningAnalyzers, aggregateWith, saveStatesWith);
 
@@ -91,9 +91,10 @@ namespace xdeequ.Analyzers.Runners
             var resultingAnalyzerContext =
                 resultComputedPreviously + preconditionFailures + nonGroupedMetrics + groupedMetrics; //TODO: add kllMetrics
 
-            SaveOrAppendResultsIfNecessary(resultingAnalyzerContext,
-                metricsRepositoryOptions.metricRepository,
-                metricsRepositoryOptions.saveOrAppendResultsWithKey);
+            if (metricsRepositoryOptions != null)
+                SaveOrAppendResultsIfNecessary(resultingAnalyzerContext,
+                    metricsRepositoryOptions.metricRepository,
+                    metricsRepositoryOptions.saveOrAppendResultsWithKey);
 
             SaveJsonOutputsToFilesystemIfNecessary(fileOutputOptions, resultingAnalyzerContext);
 
@@ -141,7 +142,7 @@ namespace xdeequ.Analyzers.Runners
                         return new Option<Exception>(e);
                     }
                 })
-                .First(x => x.HasValue);
+                .FirstOrDefault(x => x.HasValue);
         }
 
         private static AnalyzerContext ComputePreconditionFailureMetrics(IEnumerable<IAnalyzer<IMetric>> failedAnalyzers, StructType schema)

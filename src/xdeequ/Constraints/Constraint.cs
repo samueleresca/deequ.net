@@ -153,7 +153,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            IAnalyzer<IMetric> completeness = Completeness(column, where) as IAnalyzer<IMetric>;
+            IAnalyzer<IMetric> completeness = Completeness(column, where);
 
             AnalysisBasedConstraint<NumMatchesAndCount, double, double> constraint =
                 new AnalysisBasedConstraint<NumMatchesAndCount, double, double>(completeness, assertion,

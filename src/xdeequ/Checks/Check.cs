@@ -47,7 +47,7 @@ namespace xdeequ.Checks
         protected IEnumerable<IConstraint> Constraints { get; set; }
 
 
-        private static Func<double, bool> IsOne = new Func<double, bool>(_ => _ == 1.0);
+        private static Func<double, bool> IsOne = _ => _ == 1.0;
 
         public Check(CheckLevel level, string description, IEnumerable<IConstraint> constraints)
         {
@@ -64,9 +64,9 @@ namespace xdeequ.Checks
         }
 
         private CheckWithLastConstraintFilterable AddFilterableConstraint(
-            Func<string, IConstraint> constraintDefinition)
+            Func<Option<string>, IConstraint> constraintDefinition)
         {
-            var constraintWithoutFiltering = constraintDefinition(string.Empty);
+            var constraintWithoutFiltering = constraintDefinition(Option<string>.None);
             var newConstraints = Constraints.Append(constraintWithoutFiltering);
 
             return new CheckWithLastConstraintFilterable(Level, Description, newConstraints);

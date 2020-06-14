@@ -131,7 +131,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public abstract class StandardScanShareableAnalyzer<S> : ScanShareableAnalyzer<S, DoubleMetric>
+    public abstract class StandardScanShareableAnalyzer<S> : ScanShareableAnalyzer<S, DoubleMetric>, IScanSharableAnalyzer<IState, DoubleMetric>
         where S : DoubleValuedState<S>, IState
     {
         public string Name { get; set; }
