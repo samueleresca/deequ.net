@@ -40,14 +40,14 @@ namespace xdeequ.Constraints
 
         private Option<ConstraintResult> PickValueAndAssert(Metric<M> metric)
         {
-            if (!metric.Value.IsSuccess)
-            {
-                return new ConstraintResult(this, ConstraintStatus.Failure,
-                    metric.Value.Failure.Value.Message, metric);
-            }
-
             try
             {
+                if (!metric.Value.IsSuccess)
+                {
+                    return new ConstraintResult(this, ConstraintStatus.Failure,
+                        metric.Value.Failure.Value.Message, metric);
+                }
+
                 var assertOn = RunPickerOnMetric(metric.Value.Get());
                 var assertionOk = RunAssertion(assertOn);
 
@@ -56,7 +56,7 @@ namespace xdeequ.Constraints
                     return new ConstraintResult(this, ConstraintStatus.Success, Option<string>.None, metric);
                 }
 
-                var errorMessage = $"Value: {assertOn} does not meet the constraint requirement!";
+                var errorMessage = $"Value: {assertOn.ToString()} does not meet the constraint requirement!";
                 hint = hint.Select(err => err += hint);
 
                 return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage, metric);
@@ -65,12 +65,12 @@ namespace xdeequ.Constraints
             {
                 switch (e)
                 {
-                    case ConstraintAssertionException _:
+                    case ConstraintAssertionException ec:
                         return new ConstraintResult(this, ConstraintStatus.Failure,
-                            $"{AssertionException}: $msg!", metric);
-                    case ValuePickerException _:
+                            $"{AssertionException}: {ec.Message}!", metric);
+                    case ValuePickerException vpe:
                         return new ConstraintResult(this, ConstraintStatus.Failure,
-                            $"{ProblematicMetricPicker}: $msg!", metric);
+                            $"{ProblematicMetricPicker}: {vpe.Message}!", metric);
                 }
             }
 
@@ -113,10 +113,18 @@ namespace xdeequ.Constraints
 
         public ConstraintResult Evaluate(Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
         {
-            var metric = analysisResult[Analyzer] as Metric<M>;
+            Option<Metric<M>> metric;
+            try
+            {
+                metric = analysisResult[Analyzer] as Metric<M>;
+            }
+            catch (Exception e)
+            {
+                metric = Option<Metric<M>>.None;
+            }
 
-            return PickValueAndAssert(metric).GetOrElse(new ConstraintResult(this, ConstraintStatus.Failure,
-                MissingAnalysis, metric));
+            return metric.Select(PickValueAndAssert).GetOrElse(new ConstraintResult(this, ConstraintStatus.Failure,
+                MissingAnalysis, Option<IMetric>.None)).Value;
         }
 
     }

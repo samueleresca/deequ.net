@@ -28,7 +28,7 @@ namespace xdeequ.Constraints
         public ConstraintStatus Status { get; set; }
         public Option<string> Message { get; set; }
 
-        public Option<IMetric> Metric = new Option<IMetric>();
+        public Option<IMetric> Metric;
 
 
         public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message,
