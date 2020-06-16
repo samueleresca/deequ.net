@@ -12,11 +12,17 @@ namespace xdeequ.Analyzers
 {
     public class SumState : DoubleValuedState<SumState>, IState
     {
-        private double _sum;
+        private readonly double _sum;
 
         public SumState(double sum)
         {
             _sum = sum;
+        }
+
+        public IState Sum(IState other)
+        {
+            var sumStateOther = (SumState) other;
+            return new SumState(_sum + sumStateOther._sum);
         }
 
         public override SumState Sum(SumState other)
@@ -27,12 +33,6 @@ namespace xdeequ.Analyzers
         public override double MetricValue()
         {
             return _sum;
-        }
-
-        public IState Sum(IState other)
-        {
-            var sumStateOther = (SumState)other;
-            return new SumState(_sum + sumStateOther._sum);
         }
     }
 
@@ -47,6 +47,16 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
+        public new DoubleMetric Calculate(DataFrame data)
+        {
+            return base.Calculate(data);
+        }
+
+        public Option<string> FilterCondition()
+        {
+            return Where;
+        }
+
         public static Sum Create(string column)
         {
             return new Sum(column, new Option<string>());
@@ -59,7 +69,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] { Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
+            return new[] {Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
         }
 
         public override Option<SumState> FromAggregationResult(Row result, int offset)
@@ -69,14 +79,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
-        }
-
-        public Option<string> FilterCondition() => Where;
-
-        public new DoubleMetric Calculate(DataFrame data)
-        {
-            return base.Calculate(data);
+            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
         }
     }
 }

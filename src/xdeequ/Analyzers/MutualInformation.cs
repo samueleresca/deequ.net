@@ -12,7 +12,7 @@ namespace xdeequ.Analyzers
     public class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         private readonly Option<string> _where;
-        private IEnumerable<string> _columns;
+        private readonly IEnumerable<string> _columns;
 
         public MutualInformation(IEnumerable<string> columnsToGroupOn, Option<string> where) :
             base("MutualInformation", columnsToGroupOn)
@@ -27,14 +27,28 @@ namespace xdeequ.Analyzers
             _columns = columnsToGroupOn;
         }
 
+        public override IEnumerable<Action<StructType>> Preconditions()
+        {
+            return AnalyzersExt.ExactlyNColumns(_columns, 2).Concat(base.Preconditions());
+        }
+
+        public override DoubleMetric ToFailureMetric(Exception e)
+        {
+            return AnalyzersExt.MetricFromFailure(e, "MutualInformation", string.Join(',', _columns),
+                Entity.MultiColumn);
+        }
+
+        public Option<string> FilterCondition()
+        {
+            return _where;
+        }
+
 
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)
-            {
-                return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", String.Join(',', _columns),
+                return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", string.Join(',', _columns),
                     Entity.MultiColumn);
-            }
 
             var total = state.Value.NumRows;
             var col1 = _columns.First();
@@ -72,22 +86,12 @@ namespace xdeequ.Analyzers
             var resultRow = value.First();
 
             if (resultRow[0] == null)
-            {
-                return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", String.Join(',', _columns),
+                return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", string.Join(',', _columns),
                     Entity.MultiColumn);
-            }
 
             return AnalyzersExt.MetricFromValue(resultRow.GetAs<double>(0), "MutualInformation",
-                String.Join(',', _columns),
+                string.Join(',', _columns),
                 Entity.MultiColumn);
         }
-
-        public override IEnumerable<Action<StructType>> Preconditions() =>
-            AnalyzersExt.ExactlyNColumns(_columns, 2).Concat(base.Preconditions());
-
-        public override DoubleMetric ToFailureMetric(Exception e) =>
-            AnalyzersExt.MetricFromFailure(e, "MutualInformation", String.Join(',', _columns), Entity.MultiColumn);
-
-        public Option<string> FilterCondition() => _where;
     }
 }

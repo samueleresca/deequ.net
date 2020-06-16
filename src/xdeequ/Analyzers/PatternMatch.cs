@@ -14,9 +14,9 @@ namespace xdeequ.Analyzers
     public class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
         IAnalyzer<DoubleMetric>
     {
-        private readonly Option<string> _where;
         private readonly string _column;
         private readonly Regex _regex;
+        private readonly Option<string> _where;
 
         public PatternMatch(string column, Regex regex, Option<string> where)
             : base("PatternMatch", column, Entity.Column)
@@ -24,6 +24,11 @@ namespace xdeequ.Analyzers
             _regex = regex;
             _column = column;
             _where = where;
+        }
+
+        public Option<string> FilterCondition()
+        {
+            return _where;
         }
 
 
@@ -35,21 +40,19 @@ namespace xdeequ.Analyzers
 
             var summation = Sum(AnalyzersExt.ConditionalSelection(expression, _where).Cast("integer"));
 
-            return new[] { summation, AnalyzersExt.ConditionalCount(_where) };
+            return new[] {summation, AnalyzersExt.ConditionalCount(_where)};
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
-                    (int)result.Get(offset), (int)result.Get(offset + 1)), howMany: 2);
+                    (int) result.Get(offset), (int) result.Get(offset + 1)), 2);
         }
-
-        public Option<string> FilterCondition() => _where;
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] { AnalyzersExt.HasColumn(_column), AnalyzersExt.IsString(_column) };
+            return new[] {AnalyzersExt.HasColumn(_column), AnalyzersExt.IsString(_column)};
         }
     }
 

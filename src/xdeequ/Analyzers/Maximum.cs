@@ -12,11 +12,17 @@ namespace xdeequ.Analyzers
 {
     public class MaxState : DoubleValuedState<MaxState>, IState
     {
-        private double _maxValue;
+        private readonly double _maxValue;
 
         public MaxState(double maxValue)
         {
             _maxValue = maxValue;
+        }
+
+        public IState Sum(IState other)
+        {
+            var maxState = (MaxState) other;
+            return new MaxState(Math.Max(_maxValue, maxState._maxValue));
         }
 
         public override MaxState Sum(MaxState other)
@@ -27,12 +33,6 @@ namespace xdeequ.Analyzers
         public override double MetricValue()
         {
             return _maxValue;
-        }
-
-        public IState Sum(IState other)
-        {
-            var maxState = (MaxState)other;
-            return new MaxState(Math.Max(_maxValue, maxState._maxValue));
         }
     }
 
@@ -48,10 +48,15 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
+        public Option<string> FilterCondition()
+        {
+            return Where;
+        }
+
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] { Max(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
+            return new[] {Max(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
         }
 
         public override Option<MaxState> FromAggregationResult(Row result, int offset)
@@ -61,9 +66,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
         }
-
-        public Option<string> FilterCondition() => Where;
     }
 }

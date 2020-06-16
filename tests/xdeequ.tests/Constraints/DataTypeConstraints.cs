@@ -13,12 +13,12 @@ namespace xdeequ.tests.Constraints
     [Collection("Spark instance")]
     public class DataTypeConstraints
     {
-        private readonly SparkSession _session;
-
         public DataTypeConstraints(SparkFixture fixture)
         {
             _session = fixture.Spark;
         }
+
+        private readonly SparkSession _session;
 
         [Fact]
         public void assert_fractional_type_for_DoubleType_column()

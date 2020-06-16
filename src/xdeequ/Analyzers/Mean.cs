@@ -1,24 +1,29 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers.States;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
-using StructType = Microsoft.Spark.Sql.Types.StructType;
 
 namespace xdeequ.Analyzers
 {
     public class MeanState : DoubleValuedState<MeanState>, IState
     {
-        private double _sum;
-        private long _count;
+        private readonly long _count;
+        private readonly double _sum;
 
         public MeanState(double sum, long count)
         {
             _sum = sum;
             _count = count;
+        }
+
+        public IState Sum(IState other)
+        {
+            throw new NotImplementedException();
         }
 
         public override MeanState Sum(MeanState other)
@@ -30,11 +35,6 @@ namespace xdeequ.Analyzers
         {
             if (_count == 0L) return double.NaN;
             return _sum / _count;
-        }
-
-        public IState Sum(IState other)
-        {
-            throw new NotImplementedException();
         }
     }
 
@@ -50,6 +50,11 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
+        public Option<string> FilterCondition()
+        {
+            return Where;
+        }
+
         public override IEnumerable<Column> AggregationFunctions()
         {
             return new[]
@@ -62,15 +67,13 @@ namespace xdeequ.Analyzers
         public override Option<MeanState> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
-                () => new MeanState((double)result.Get(offset),
-                    (int)result.Get(offset + 1)), 2);
+                () => new MeanState((double) result.Get(offset),
+                    (int) result.Get(offset + 1)), 2);
         }
-
-        public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
         }
     }
 }

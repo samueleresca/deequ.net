@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
-using static Microsoft.Spark.Sql.Functions;
 using Microsoft.Spark.Sql;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer,
+        IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
         private readonly Option<string> _where;
         private IEnumerable<string> _columns;
@@ -25,19 +26,22 @@ namespace xdeequ.Analyzers
             _where = Option<string>.None;
         }
 
+        public Option<string> FilterCondition()
+        {
+            return _where;
+        }
+
+        public override DoubleMetric ToFailureMetric(Exception e)
+        {
+            return base.ToFailureMetric(e);
+        }
+
         public override IEnumerable<Column> AggregationFunctions(long numRows)
         {
             return new[]
             {
                 Sum(Col(AnalyzersExt.COUNT_COL).EqualTo(Lit(1)).Cast("double")) / numRows
             };
-        }
-
-        public Option<string> FilterCondition() => _where;
-
-        public override DoubleMetric ToFailureMetric(Exception e)
-        {
-            return base.ToFailureMetric(e);
         }
     }
 }

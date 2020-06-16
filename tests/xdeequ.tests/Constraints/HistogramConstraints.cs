@@ -13,12 +13,12 @@ namespace xdeequ.tests.Constraints
     [Collection("Spark instance")]
     public class HistogramConstraints
     {
-        private readonly SparkSession _session;
-
         public HistogramConstraints(SparkFixture fixture)
         {
             _session = fixture.Spark;
         }
+
+        private readonly SparkSession _session;
 
         [Fact]
         public void assert_on_bin_number()

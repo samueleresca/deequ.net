@@ -25,18 +25,12 @@ namespace xdeequ.Analyzers
 
     public class DataTypeHistogram : State<DataTypeHistogram>, IState
     {
-        public long NonNull { get; set; }
-        public long NumFractional { get; set; }
-        public long NumIntegral { get; set; }
-        public long NumBoolean { get; set; }
-        public long NumString { get; set; }
-
-        const int SIZE_IN_BITES = 5;
-        const int NULL_POS = 0;
-        const int FRATIONAL_POS = 1;
-        const int INTEGRAL_POS = 2;
-        const int BOOLEAN_POS = 3;
-        const int STRING_POS = 4;
+        private const int SIZE_IN_BITES = 5;
+        private const int NULL_POS = 0;
+        private const int FRATIONAL_POS = 1;
+        private const int INTEGRAL_POS = 2;
+        private const int BOOLEAN_POS = 3;
+        private const int STRING_POS = 4;
 
         public DataTypeHistogram(long nonNull, long numFractional, long numIntegral, long numBoolean, long numString)
         {
@@ -45,6 +39,17 @@ namespace xdeequ.Analyzers
             NumIntegral = numIntegral;
             NumBoolean = numBoolean;
             NumString = numString;
+        }
+
+        public long NonNull { get; set; }
+        public long NumFractional { get; set; }
+        public long NumIntegral { get; set; }
+        public long NumBoolean { get; set; }
+        public long NumString { get; set; }
+
+        public IState Sum(IState other)
+        {
+            throw new NotImplementedException();
         }
 
         public override DataTypeHistogram Sum(DataTypeHistogram other)
@@ -92,13 +97,8 @@ namespace xdeequ.Analyzers
                 {
                     DataTypeInstances.String.ToString(),
                     new DistributionValue(hist.NumString, (double) hist.NumString / totalObservations)
-                },
+                }
             }, 5);
-        }
-
-        public IState Sum(IState other)
-        {
-            throw new NotImplementedException();
         }
     }
 
@@ -112,6 +112,22 @@ namespace xdeequ.Analyzers
         {
             Column = column;
             Where = where;
+        }
+
+        public override HistogramMetric ToFailureMetric(Exception e)
+        {
+            return new HistogramMetric(Column, new Try<Distribution>(e));
+        }
+
+        public override IEnumerable<Action<StructType>> Preconditions()
+        {
+            return new[]
+                {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column)}.Concat(base.Preconditions());
+        }
+
+        public Option<string> FilterCondition()
+        {
+            return Where;
         }
 
         public override HistogramMetric ComputeMetricFrom(Option<DataTypeHistogram> state)
@@ -148,9 +164,6 @@ namespace xdeequ.Analyzers
             return FromAggregationResult(result, 0);
         }
 
-        public override HistogramMetric ToFailureMetric(Exception e)
-            => new HistogramMetric(Column, new Try<Distribution>(e));
-
         public override IEnumerable<Column> AggregationFunctions()
         {
             return new[]
@@ -162,15 +175,7 @@ namespace xdeequ.Analyzers
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
-                () => { return DataTypeHistogram.FromArray(result.Values.Select(x => (int)x).ToArray()); });
+                () => { return DataTypeHistogram.FromArray(result.Values.Select(x => (int) x).ToArray()); });
         }
-
-        public override IEnumerable<Action<StructType>> Preconditions()
-        {
-            return new[]
-                {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column)}.Concat(base.Preconditions());
-        }
-
-        public Option<string> FilterCondition() => Where;
     }
 }

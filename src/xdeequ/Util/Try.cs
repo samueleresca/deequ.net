@@ -14,21 +14,20 @@ namespace xdeequ.Util
             Failure = failure;
         }
 
-        public static implicit operator Try<T>(T value)
-        {
-            return new Try<T>(value);
-        }
-
         public bool IsSuccess => Success.HasValue;
 
         public Option<T> Success { get; } = Option<T>.None;
 
         public Option<Exception> Failure { get; } = Option<Exception>.None;
 
+        public static implicit operator Try<T>(T value)
+        {
+            return new Try<T>(value);
+        }
+
         public Try<T> Recover(Action<Exception> failureHandler)
         {
             if (Failure.HasValue)
-            {
                 try
                 {
                     failureHandler(Failure.Value);
@@ -38,11 +37,8 @@ namespace xdeequ.Util
                 {
                     return new Try<T>(ex);
                 }
-            }
-            else
-            {
-                return this;
-            }
+
+            return this;
         }
 
         public static Try<T> From(Func<T> func)
@@ -61,8 +57,7 @@ namespace xdeequ.Util
         {
             if (Success.HasValue)
                 return this;
-            else
-                return @default;
+            return @default;
         }
 
         public Try<T> GetOrElse(Func<T> fallback)

@@ -26,19 +26,22 @@ namespace xdeequ.Analyzers
             _where = Option<string>.None;
         }
 
+        public override DoubleMetric ToFailureMetric(Exception e)
+        {
+            return base.ToFailureMetric(e);
+        }
+
+        public Option<string> FilterCondition()
+        {
+            return _where;
+        }
+
         public override IEnumerable<Column> AggregationFunctions(long numRows)
         {
             return new[]
             {
-                (Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows)
+                Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows
             };
-        }
-
-        public Option<string> FilterCondition() => _where;
-
-        public override DoubleMetric ToFailureMetric(Exception e)
-        {
-            return base.ToFailureMetric(e);
         }
     }
 }

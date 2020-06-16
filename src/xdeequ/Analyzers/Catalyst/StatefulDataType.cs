@@ -3,27 +3,41 @@ using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 
-
 namespace xdeequ.Analyzers.Catalyst
 {
     [Serializable]
     public class StatefulDataType
     {
-        const int SIZE_IN_BITES = 5;
-        const int NULL_POS = 0;
-        const int FRATIONAL_POS = 1;
-        const int INTEGRAL_POS = 2;
-        const int BOOLEAN_POS = 3;
-        const int STRING_POS = 4;
+        private const int SIZE_IN_BITES = 5;
+        private const int NULL_POS = 0;
+        private const int FRATIONAL_POS = 1;
+        private const int INTEGRAL_POS = 2;
+        private const int BOOLEAN_POS = 3;
+        private const int STRING_POS = 4;
 
         public static Regex FRACTIONAL = new Regex(@"^(-|\+)? ?\d*\.\d*$");
         public static Regex INTEGRAL = new Regex(@"^(-|\+)? ?\d*$");
         public static Regex BOOLEAN = new Regex(@"^(true|false)$");
 
-        public StructType InputSchema() => new StructType(new[] { new StructField("value", new StringType()) });
-        public BinaryType DataType() => new BinaryType();
-        public bool Deterministic() => true;
-        public Row Initialize() => new GenericRow(new object[] { 0L, 0L, 0L, 0L, 0L });
+        public StructType InputSchema()
+        {
+            return new StructType(new[] {new StructField("value", new StringType())});
+        }
+
+        public BinaryType DataType()
+        {
+            return new BinaryType();
+        }
+
+        public bool Deterministic()
+        {
+            return true;
+        }
+
+        public Row Initialize()
+        {
+            return new GenericRow(new object[] {0L, 0L, 0L, 0L, 0L});
+        }
 
         public StructType BufferSchema()
         {
@@ -37,20 +51,26 @@ namespace xdeequ.Analyzers.Catalyst
             });
         }
 
-        public string GetAggregatedColumn() => "arrayDataTypeCount";
-
-        public string[] ColumnNames() => new[]
+        public string GetAggregatedColumn()
         {
-            "nullCount",
-            "fractionalCount",
-            "integralCount",
-            "booleanCount",
-            "stringCount",
-        };
+            return "arrayDataTypeCount";
+        }
+
+        public string[] ColumnNames()
+        {
+            return new[]
+            {
+                "nullCount",
+                "fractionalCount",
+                "integralCount",
+                "booleanCount",
+                "stringCount"
+            };
+        }
 
         public int[] Update(string columnValue)
         {
-            int[] values = new int[SIZE_IN_BITES];
+            var values = new int[SIZE_IN_BITES];
 
             if (columnValue == null)
             {
@@ -58,7 +78,7 @@ namespace xdeequ.Analyzers.Catalyst
                 return values;
             }
 
-            string value = columnValue;
+            var value = columnValue;
 
             if (FRACTIONAL.IsMatch(value))
                 values[FRATIONAL_POS] = values[FRATIONAL_POS] + 1;

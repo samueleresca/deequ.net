@@ -1,3 +1,5 @@
+using System;
+
 namespace xdeequ.Analyzers.States
 {
     public interface IState
@@ -9,7 +11,7 @@ namespace xdeequ.Analyzers.States
     {
         public virtual T Sum(T other)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

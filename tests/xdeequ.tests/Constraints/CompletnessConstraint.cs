@@ -11,12 +11,12 @@ namespace xdeequ.tests.Constraints
     [Collection("Spark instance")]
     public class CompletenessConstraint
     {
-        private readonly SparkSession _session;
-
         public CompletenessConstraint(SparkFixture fixture)
         {
             _session = fixture.Spark;
         }
+
+        private readonly SparkSession _session;
 
         [Fact]
         public void assert_on_wrong_completeness()

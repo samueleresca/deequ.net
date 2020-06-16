@@ -21,9 +21,14 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
+        public Option<string> FilterCondition()
+        {
+            return Where;
+        }
+
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] { Min(Length(AnalyzersExt.ConditionalSelection(Column, Where))).Cast("double") };
+            return new[] {Min(Length(AnalyzersExt.ConditionalSelection(Column, Where))).Cast("double")};
         }
 
         public override Option<MinState> FromAggregationResult(Row result, int offset)
@@ -33,9 +38,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
+            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
         }
-
-        public Option<string> FilterCondition() => Where;
     }
 }

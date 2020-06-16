@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using static Microsoft.Spark.Sql.Functions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
@@ -13,7 +13,7 @@ namespace xdeequ.Analyzers
 
     {
         private readonly Option<string> _where;
-        private Option<string> _column;
+        private readonly Option<string> _column;
 
         public Completeness(Option<string> column, Option<string> where) : base("Completeness", column.Value,
             Entity.Column)
@@ -28,12 +28,17 @@ namespace xdeequ.Analyzers
             _where = Option<string>.None;
         }
 
+        public Option<string> FilterCondition()
+        {
+            return _where;
+        }
+
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
-                    result.GetAs<Int32>(offset),
-                    result.GetAs<Int32>(offset + 1)), 2);
+                    result.GetAs<int>(offset),
+                    result.GetAs<int>(offset + 1)), 2);
         }
 
         public override IEnumerable<Column> AggregationFunctions()
@@ -44,7 +49,7 @@ namespace xdeequ.Analyzers
 
             var conditional = AnalyzersExt.ConditionalCount(_where);
 
-            return new[] { summarization, conditional };
+            return new[] {summarization, conditional};
         }
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
@@ -55,7 +60,5 @@ namespace xdeequ.Analyzers
                 AnalyzersExt.IsNotNested(_column.Value)
             };
         }
-
-        public Option<string> FilterCondition() => _where;
     }
 }

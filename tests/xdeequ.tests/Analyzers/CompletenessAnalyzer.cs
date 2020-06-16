@@ -12,17 +12,17 @@ namespace xdeequ.tests.Analyzers
     [Collection("Spark instance")]
     public class CompletenessAnalyzer
     {
-        private readonly SparkSession _session;
-
         public CompletenessAnalyzer(SparkFixture fixture)
         {
             _session = fixture.Spark;
         }
 
+        private readonly SparkSession _session;
+
         [Fact]
         public void compute_correct_metrics_missing()
         {
-            DataFrame missing = FixtureSupport.GetDFMissing(_session);
+            var missing = FixtureSupport.GetDFMissing(_session);
 
             Completeness("someMissingColumn").Preconditions().Count().ShouldBe(2);
 
@@ -46,7 +46,7 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void compute_correct_metrics_missing_with_filtering()
         {
-            DataFrame missing = FixtureSupport.GetDFMissing(_session);
+            var missing = FixtureSupport.GetDFMissing(_session);
 
             var attr1 = Completeness("att1", new Option<string>("item in ('1', '2')"))
                 .Calculate(missing);
@@ -59,26 +59,26 @@ namespace xdeequ.tests.Analyzers
             attr1.Value.Get().ShouldBe(expected1.Value.Get());
         }
 
+        [Fact]
+        public void fail_on_nested_column_input()
+        {
+            var missing = FixtureSupport.GetDFMissing(_session);
+
+            var attr1 = Completeness("source").Calculate(missing);
+            attr1.Value.IsSuccess.ShouldBeFalse();
+        }
+
 
         [Fact]
         public void fail_on_wrong_column_input()
         {
-            DataFrame missing = FixtureSupport.GetDFMissing(_session);
+            var missing = FixtureSupport.GetDFMissing(_session);
 
             var attr1 = Completeness("someMissingColumn").Calculate(missing);
 
             attr1.Entity.ShouldBe(Entity.Column);
             attr1.Instance.ShouldBe("someMissingColumn");
             attr1.Name.ShouldBe("Completeness");
-            attr1.Value.IsSuccess.ShouldBeFalse();
-        }
-
-        [Fact]
-        public void fail_on_nested_column_input()
-        {
-            DataFrame missing = FixtureSupport.GetDFMissing(_session);
-
-            var attr1 = Completeness("source").Calculate(missing);
             attr1.Value.IsSuccess.ShouldBeFalse();
         }
     }

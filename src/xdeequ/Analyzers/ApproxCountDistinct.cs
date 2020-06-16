@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using xdeequ.Metrics;
@@ -7,14 +8,19 @@ namespace xdeequ.Analyzers
 {
     public class ApproxCountDistinct : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
-        private readonly Option<string> _where;
         private readonly string _column;
+        private readonly Option<string> _where;
 
         public ApproxCountDistinct(string instance, string column, Option<string> where)
             : base("ApproxCountDistinct", instance, Entity.Column)
         {
             _where = where;
             _column = column;
+        }
+
+        public Option<string> FilterCondition()
+        {
+            throw new NotImplementedException();
         }
 
         public override Option<NumMatchesAndCount> ComputeStateFrom(DataFrame dataFrame)
@@ -24,17 +30,12 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public Option<string> FilterCondition()
-        {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

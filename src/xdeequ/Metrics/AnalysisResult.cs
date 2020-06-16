@@ -4,8 +4,8 @@ namespace xdeequ.Metrics
 {
     public class AnalysisResult
     {
-        public ResultKey ResultKey;
         public AnalyzerContext AnalyzerContext;
+        public ResultKey ResultKey;
 
         public AnalysisResult(ResultKey resultKey, AnalyzerContext analyzerContext)
         {

@@ -1,7 +1,7 @@
 using Shouldly;
-using Xunit;
 using xdeequ.Constraints;
 using xdeequ.Util;
+using Xunit;
 
 namespace xdeequ.tests.Constraints
 {
@@ -10,7 +10,7 @@ namespace xdeequ.tests.Constraints
         [Fact]
         public void check_size_constraint()
         {
-            var result = Functions.SizeConstraint((isTest) => true, new Option<string>(), new Option<string>());
+            var result = Functions.SizeConstraint(isTest => true, new Option<string>(), new Option<string>());
             result.ShouldNotBeNull();
         }
     }

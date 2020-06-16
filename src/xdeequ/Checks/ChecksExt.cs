@@ -1,26 +1,24 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Checks
 {
     public static class ChecksExt
     {
-        public static string IsEachNotNull(IEnumerable<string> cols)
+        public static Column IsEachNotNull(IEnumerable<string> cols)
         {
-            cols
-                .Select(x => Col(x).IsNotNull());
-            //.All(x => x.Cast("bool"));
-            return String.Empty;
+            return cols
+                .Select(x => Col(x).IsNotNull())
+                .Aggregate((acc, x) => acc.And(x));
         }
 
-        public static string IsAnyNotNull(IEnumerable<string> cols)
+        public static Column IsAnyNotNull(IEnumerable<string> cols)
         {
-            cols
-                .Select(x => Col(x).IsNotNull());
-            //.All(x => x.Cast("bool"));
-            return String.Empty;
+            return cols
+                .Select(x => Col(x).IsNotNull())
+                .Aggregate((acc, x) => acc.Or(x));
         }
     }
 }

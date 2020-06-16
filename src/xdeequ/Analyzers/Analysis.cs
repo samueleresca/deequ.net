@@ -35,7 +35,5 @@ namespace xdeequ.Analyzers
                 data,
                 Analyzers, aggregateWith, saveStateWith, storageLevelOfGroupedDataForMultiplePasses);
         }
-
-
     }
 }

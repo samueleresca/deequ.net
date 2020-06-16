@@ -9,7 +9,6 @@ using xdeequ.Analyzers.States;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
-using Column = Microsoft.Spark.Sql.Column;
 
 namespace xdeequ.Extensions
 {
@@ -23,7 +22,7 @@ namespace xdeequ.Extensions
 
         public static Option<S> Merge<S>(Option<S> state, Option<S> anotherState) where S : State<S>
         {
-            IEnumerable<Option<S>> statesToMerge = new List<Option<S>> { state, anotherState };
+            IEnumerable<Option<S>> statesToMerge = new List<Option<S>> {state, anotherState};
 
             return statesToMerge.Aggregate((stateA, stateB) =>
             {
@@ -71,12 +70,12 @@ namespace xdeequ.Extensions
             {
                 var columnDataType = StructField(column, schema).DataType;
 
-                bool hasNumericType = columnDataType.TypeName == new ByteType().TypeName ||
-                                      columnDataType.TypeName == new ShortType().TypeName ||
-                                      columnDataType.TypeName == new IntegerType().TypeName ||
-                                      columnDataType.TypeName == new LongType().TypeName ||
-                                      columnDataType.TypeName == new FloatType().TypeName ||
-                                      columnDataType.TypeName == new DecimalType().TypeName;
+                var hasNumericType = columnDataType.TypeName == new ByteType().TypeName ||
+                                     columnDataType.TypeName == new ShortType().TypeName ||
+                                     columnDataType.TypeName == new IntegerType().TypeName ||
+                                     columnDataType.TypeName == new LongType().TypeName ||
+                                     columnDataType.TypeName == new FloatType().TypeName ||
+                                     columnDataType.TypeName == new DecimalType().TypeName;
 
                 if (!hasNumericType)
                     throw new Exception(
@@ -90,7 +89,7 @@ namespace xdeequ.Extensions
             {
                 var columnDataType = StructField(column, schema).DataType;
 
-                bool hasNumericType = columnDataType.TypeName == new StringType().TypeName;
+                var hasNumericType = columnDataType.TypeName == new StringType().TypeName;
 
                 if (!hasNumericType)
                     throw new Exception(
@@ -100,7 +99,7 @@ namespace xdeequ.Extensions
 
         public static Option<S> IfNoNullsIn<S>(Row result, int offset, Func<S> func, int howMany = 1)
         {
-            for (int i = offset; i < offset + howMany; i++)
+            for (var i = offset; i < offset + howMany; i++)
                 if (result[i] == null)
                     return Option<S>.None;
 
@@ -108,9 +107,11 @@ namespace xdeequ.Extensions
         }
 
         private static Column ConditionalSelectionFromColumns(Column selection, Option<Column> conditionColumn)
-            => conditionColumn
+        {
+            return conditionColumn
                 .Select(condition => When(condition, selection))
                 .GetOrElse(selection);
+        }
 
         public static Action<StructType> IsNotNested(string column)
         {
@@ -160,19 +161,24 @@ namespace xdeequ.Extensions
         {
             source.ToList().ForEach(_ =>
             {
-                if ((!target.ContainsKey(_.Key)) || overwrite)
+                if (!target.ContainsKey(_.Key) || overwrite)
                     target[_.Key] = _.Value;
             });
         }
 
-        public static Column ConditionalSelection(Option<string> column, Option<string> where) =>
-            ConditionalSelection(Column(column.Value), where);
+        public static Column ConditionalSelection(Option<string> column, Option<string> where)
+        {
+            return ConditionalSelection(Column(column.Value), where);
+        }
 
-        public static Column ZeroIfNull(string column) => Coalesce(Col(column), Lit(0));
+        public static Column ZeroIfNull(string column)
+        {
+            return Coalesce(Col(column), Lit(0));
+        }
 
         public static Action<StructType> AtLeastOne(IEnumerable<string> columns)
         {
-            return (type) =>
+            return type =>
             {
                 if (columns.Any(x => x == string.Empty))
                     throw new Exception("At least one column needs to be specified!");

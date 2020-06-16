@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public abstract class ScanShareableFrequencyBasedAnalyzer : FrequencyBasedAnalyzer, IAnalyzer<DoubleMetric>
+    public abstract class ScanShareableFrequencyBasedAnalyzer : FrequencyBasedAnalyzer
     {
         protected ScanShareableFrequencyBasedAnalyzer(string name, IEnumerable<string> columnsToGroupOn) : base(name,
             columnsToGroupOn)
@@ -50,11 +50,9 @@ namespace xdeequ.Analyzers
 
         public DoubleMetric FromAggregationResult(Row result, int offset)
         {
-            if (result[offset] == null)
-            {
+            if (result.Values.Length <= offset || result[offset] == null)
                 return AnalyzersExt.MetricFromEmpty(this, Name, string.Join(',', ColumnsToGroupOn),
                     AnalyzersExt.EntityFrom(ColumnsToGroupOn));
-            }
 
             return ToSuccessMetric(result.GetAs<double>(offset));
         }
@@ -62,14 +60,14 @@ namespace xdeequ.Analyzers
 
     public abstract class FrequencyBasedAnalyzer : GroupingAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
-        public string Name { get; set; }
-        public IEnumerable<string> ColumnsToGroupOn { get; set; }
-
         public FrequencyBasedAnalyzer(string name, IEnumerable<string> columnsToGroupOn)
         {
             Name = name;
             ColumnsToGroupOn = columnsToGroupOn;
         }
+
+        public string Name { get; set; }
+        public IEnumerable<string> ColumnsToGroupOn { get; set; }
 
         public override IEnumerable<string> GroupingColumns()
         {
@@ -86,7 +84,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> Preconditions()
         {
-            return new[] { AnalyzersExt.AtLeastOne(ColumnsToGroupOn) }
+            return new[] {AnalyzersExt.AtLeastOne(ColumnsToGroupOn)}
                 .Concat(ColumnsToGroupOn.Select(AnalyzersExt.HasColumn))
                 .Concat(ColumnsToGroupOn.Select(AnalyzersExt.IsNotNested))
                 .Concat(base.Preconditions());
@@ -100,10 +98,13 @@ namespace xdeequ.Analyzers
             var atLeasOneNonNullGroupingColumn = groupingColumns.Aggregate(Expr(false.ToString()),
                 (condition, name) => condition.Or(Col(name).IsNotNull()));
 
+            //TODO: Add Transoform function
+            where = where.GetOrElse("true");
+
             var frequencies = data
                 .Select(columnsToGroupBy.ToArray())
                 .Where(atLeasOneNonNullGroupingColumn)
-                //.Transform(FilterOptional(where))
+                .Filter(where.Value)
                 .GroupBy(columnsToGroupBy.ToArray())
                 .Agg(Count(Lit(1)).Alias(AnalyzersExt.COUNT_COL))
                 .Select(projectionColumns.ToArray());
@@ -111,22 +112,10 @@ namespace xdeequ.Analyzers
             var numRows = data
                 .Select(columnsToGroupBy.ToArray())
                 .Where(atLeasOneNonNullGroupingColumn)
-                //.Transform(filterOptional(where))
+                .Filter(where.Value)
                 .Count();
 
             return new FrequenciesAndNumRows(frequencies, numRows);
-        }
-
-        private static Func<DataFrame, DataFrame> FilterOptional(Option<string> where)
-        {
-            return data =>
-            {
-                return where.HasValue switch
-                {
-                    true => data.Filter(where.Value),
-                    false => data
-                };
-            };
         }
     }
 
@@ -140,6 +129,11 @@ namespace xdeequ.Analyzers
         {
             Frequencies = frequencies;
             NumRows = numRows;
+        }
+
+        public IState Sum(IState other)
+        {
+            return base.Sum((FrequenciesAndNumRows) other);
         }
 
         public override FrequenciesAndNumRows Sum(FrequenciesAndNumRows other)
@@ -172,11 +166,6 @@ namespace xdeequ.Analyzers
         private Column NullSafeEq(string column)
         {
             return Col($"this.{column}") == Col($"other.{column}");
-        }
-
-        public IState Sum(IState other)
-        {
-            return base.Sum((FrequenciesAndNumRows)other);
         }
     }
 }

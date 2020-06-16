@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using static Microsoft.Spark.Sql.Functions;
 using Microsoft.Spark.Sql;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
@@ -25,6 +25,16 @@ namespace xdeequ.Analyzers
             _where = Option<string>.None;
         }
 
+        public override DoubleMetric ToFailureMetric(Exception e)
+        {
+            return base.ToFailureMetric(e);
+        }
+
+        public Option<string> FilterCondition()
+        {
+            return _where;
+        }
+
         public override IEnumerable<Column> AggregationFunctions(long numRows)
         {
             return new[]
@@ -35,17 +45,10 @@ namespace xdeequ.Analyzers
 
         public new DoubleMetric FromAggregationResult(Row result, int offset)
         {
-            var numUniqueValues = (double)result[offset];
-            var numDistinctValues = (double)result[offset + 1];
+            var numUniqueValues = (double) result[offset];
+            var numDistinctValues = (double) result[offset + 1];
 
             return ToSuccessMetric(numUniqueValues / numDistinctValues);
-        }
-
-        public Option<string> FilterCondition() => _where;
-
-        public override DoubleMetric ToFailureMetric(Exception e)
-        {
-            return base.ToFailureMetric(e);
         }
     }
 }

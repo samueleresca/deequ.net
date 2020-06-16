@@ -30,10 +30,11 @@ namespace xdeequ.Metrics
             Value = value;
         }
 
-        public abstract IEnumerable<DoubleMetric> Flatten();
         public Entity Entity { get; }
         public string Name { get; }
         public string Instance { get; }
+
+        public abstract IEnumerable<DoubleMetric> Flatten();
     }
 
     public class DoubleMetric : Metric<double>
@@ -48,6 +49,9 @@ namespace xdeequ.Metrics
             return new DoubleMetric(entity, name, instance, value);
         }
 
-        public override IEnumerable<DoubleMetric> Flatten() => new[] { this }.AsEnumerable();
+        public override IEnumerable<DoubleMetric> Flatten()
+        {
+            return new[] {this}.AsEnumerable();
+        }
     }
 }

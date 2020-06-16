@@ -8,7 +8,7 @@ using System.IO;
 namespace xdeequ.tests
 {
     /// <summary>
-    /// TestEnvironment provides functionalities related to E2E test environment.
+    ///     TestEnvironment provides functionalities related to E2E test environment.
     /// </summary>
     internal static class TestEnvironment
     {
@@ -19,13 +19,11 @@ namespace xdeequ.tests
             get
             {
                 if (s_resourceDirectory is null)
-                {
                     s_resourceDirectory =
                         AppDomain.CurrentDomain.BaseDirectory +
                         Path.DirectorySeparatorChar +
                         "Resources" +
                         Path.DirectorySeparatorChar;
-                }
 
                 return s_resourceDirectory;
             }

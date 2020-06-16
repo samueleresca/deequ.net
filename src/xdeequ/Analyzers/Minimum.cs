@@ -12,11 +12,17 @@ namespace xdeequ.Analyzers
 {
     public class MinState : DoubleValuedState<MinState>, IState
     {
-        private double _minValue;
+        private readonly double _minValue;
 
         public MinState(double minValue)
         {
             _minValue = minValue;
+        }
+
+        public IState Sum(IState other)
+        {
+            var otherMin = (MinState) other;
+            return new MinState(Math.Min(_minValue, otherMin._minValue));
         }
 
         public override MinState Sum(MinState other)
@@ -27,12 +33,6 @@ namespace xdeequ.Analyzers
         public override double MetricValue()
         {
             return _minValue;
-        }
-
-        public IState Sum(IState other)
-        {
-            var otherMin = (MinState)other;
-            return new MinState(Math.Min(_minValue, otherMin._minValue));
         }
     }
 
@@ -48,10 +48,15 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
+        public Option<string> FilterCondition()
+        {
+            return Where;
+        }
+
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] { Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
+            return new[] {Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
         }
 
         public override Option<MinState> FromAggregationResult(Row result, int offset)
@@ -61,9 +66,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
         }
-
-        public Option<string> FilterCondition() => Where;
     }
 }

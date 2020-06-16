@@ -11,17 +11,17 @@ namespace xdeequ.tests.Analyzers
     [Collection("Spark instance")]
     public class EntropyAnalyzer
     {
-        private readonly SparkSession _session;
-
         public EntropyAnalyzer(SparkFixture fixture)
         {
             _session = fixture.Spark;
         }
 
+        private readonly SparkSession _session;
+
         [Fact]
         public void compute_correct_metrics_missing()
         {
-            DataFrame complete = FixtureSupport.GetDFFull(_session);
+            var complete = FixtureSupport.GetDFFull(_session);
 
             var attr1 = Entropy("att1").Calculate(complete);
             var attr2 = Entropy("att2").Calculate(complete);

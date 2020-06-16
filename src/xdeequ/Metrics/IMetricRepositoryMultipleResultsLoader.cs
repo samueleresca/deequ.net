@@ -5,7 +5,6 @@ namespace xdeequ.Metrics
 {
     public interface IMetricRepositoryMultipleResultsLoader
     {
-
         public IMetricRepositoryMultipleResultsLoader WithTagValues(Dictionary<string, string> tagValues);
         public IMetricRepositoryMultipleResultsLoader ForAnalyzers(IEnumerable<IAnalyzer<IMetric>> analyzers);
         public IMetricRepositoryMultipleResultsLoader After(long dateTime);

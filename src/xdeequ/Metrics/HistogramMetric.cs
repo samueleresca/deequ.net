@@ -30,7 +30,7 @@ namespace xdeequ.Metrics
         public DistributionValue this[string key]
         {
             get => Values[key];
-            set { Values[key] = value; }
+            set => Values[key] = value;
         }
     }
 
@@ -49,20 +49,18 @@ namespace xdeequ.Metrics
         public override IEnumerable<DoubleMetric> Flatten()
         {
             if (!Value.IsSuccess)
-            {
                 return new[]
                 {
                     new DoubleMetric(Entity, $"${Name}.bins", Instance, new Try<double>(Value.Failure.Value))
                 };
-            }
 
-            DoubleMetric[] numberOfBins = new[]
+            DoubleMetric[] numberOfBins =
             {
                 new DoubleMetric(Entity,
                     $"{Name}.bins", Instance, Value.Get().NumberOfBins)
             };
 
-            IEnumerable<DoubleMetric> details = Value
+            var details = Value
                 .Get()
                 .Values
                 .SelectMany(element =>
@@ -71,7 +69,7 @@ namespace xdeequ.Metrics
                     return new[]
                     {
                         new DoubleMetric(Entity, $"{Name}.abs.{key}", Instance, value.Absolute),
-                        new DoubleMetric(Entity, $"{Name}.ratio.{key}", Instance, value.Ratio),
+                        new DoubleMetric(Entity, $"{Name}.ratio.{key}", Instance, value.Ratio)
                     };
                 });
 

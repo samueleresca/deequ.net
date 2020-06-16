@@ -8,16 +8,11 @@ using System.IO;
 namespace xdeequ.tests
 {
     /// <summary>
-    /// Creates a temporary folder that is automatically cleaned up when disposed.
+    ///     Creates a temporary folder that is automatically cleaned up when disposed.
     /// </summary>
     internal sealed class TemporaryDirectory : IDisposable
     {
-        private bool disposed = false;
-
-        /// <summary>
-        /// Path to temporary folder.
-        /// </summary>
-        public string Path { get; }
+        private bool disposed;
 
         public TemporaryDirectory()
         {
@@ -26,6 +21,11 @@ namespace xdeequ.tests
             Directory.CreateDirectory(Path);
             Path = $"{Path}{System.IO.Path.DirectorySeparatorChar}";
         }
+
+        /// <summary>
+        ///     Path to temporary folder.
+        /// </summary>
+        public string Path { get; }
 
         public void Dispose()
         {
@@ -36,26 +36,15 @@ namespace xdeequ.tests
         private void Cleanup()
         {
             if (File.Exists(Path))
-            {
                 File.Delete(Path);
-            }
-            else if (Directory.Exists(Path))
-            {
-                Directory.Delete(Path, true);
-            }
+            else if (Directory.Exists(Path)) Directory.Delete(Path, true);
         }
 
         private void Dispose(bool disposing)
         {
-            if (disposed)
-            {
-                return;
-            }
+            if (disposed) return;
 
-            if (disposing)
-            {
-                Cleanup();
-            }
+            if (disposing) Cleanup();
 
             disposed = true;
         }

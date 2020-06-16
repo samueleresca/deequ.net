@@ -11,12 +11,12 @@ namespace xdeequ.tests.Constraints
     [Collection("Spark instance")]
     public class MutualInformationConstraints
     {
-        private readonly SparkSession _session;
-
         public MutualInformationConstraints(SparkFixture fixture)
         {
             _session = fixture.Spark;
         }
+
+        private readonly SparkSession _session;
 
         [Fact]
         public void yield_a_mutual_information_of_0_for_conditionally_uninformative_columns()

@@ -12,11 +12,17 @@ namespace xdeequ.Analyzers
 {
     public class NumMatches : DoubleValuedState<NumMatches>, IState
     {
-        private long numMatches { get; set; }
-
         public NumMatches(long numMatches)
         {
             this.numMatches = numMatches;
+        }
+
+        private long numMatches { get; }
+
+        public IState Sum(IState other)
+        {
+            var specific = (NumMatches) other;
+            return new NumMatches(numMatches + specific.numMatches);
         }
 
         public override NumMatches Sum(NumMatches other)
@@ -28,18 +34,12 @@ namespace xdeequ.Analyzers
         {
             return numMatches;
         }
-
-        public IState Sum(IState other)
-        {
-            NumMatches specific = (NumMatches)other;
-            return new NumMatches(numMatches + specific.numMatches);
-        }
     }
 
     //  Analyzer<NumMatches, Metric<double>> 
     public class Size : StandardScanShareableAnalyzer<NumMatches>, IAnalyzer<DoubleMetric>
     {
-        private Option<string> where;
+        private readonly Option<string> where;
 
         public Size(Option<string> where) : base("Size", "*", Entity.DataSet)
         {
@@ -52,16 +52,18 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] { AnalyzersExt.ConditionalCount(@where) }.AsEnumerable();
+            return new[] {AnalyzersExt.ConditionalCount(where)}.AsEnumerable();
         }
 
         public override Option<NumMatches> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
-                () => { return new NumMatches(result.GetAs<Int32>(offset)); });
+                () => { return new NumMatches(result.GetAs<int>(offset)); });
         }
 
-        public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            Enumerable.Empty<Action<StructType>>();
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
+        {
+            return Enumerable.Empty<Action<StructType>>();
+        }
     }
 }

@@ -5,26 +5,26 @@ using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
-using xdeequ.Analyzers.States;
 using xdeequ.Constraints;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using static xdeequ.Constraints.Functions;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Checks
 {
     public class CheckResult
     {
-        public Check Check { get; set; }
-        public CheckStatus Status { get; set; }
-        public IEnumerable<ConstraintResult> ConstraintResults { get; set; }
-
         public CheckResult(Check check, CheckStatus status, IEnumerable<ConstraintResult> constraintResult)
         {
             Check = check;
             Status = status;
             ConstraintResults = constraintResult;
         }
+
+        public Check Check { get; set; }
+        public CheckStatus Status { get; set; }
+        public IEnumerable<ConstraintResult> ConstraintResults { get; set; }
     }
 
     public enum CheckLevel
@@ -42,12 +42,7 @@ namespace xdeequ.Checks
 
     public class Check
     {
-        public CheckLevel Level { get; set; }
-        public string Description { get; set; }
-        protected IEnumerable<IConstraint> Constraints { get; set; }
-
-
-        private static Func<double, bool> IsOne = _ => _ == 1.0;
+        private static readonly Func<double, bool> IsOne = _ => _ == 1.0;
 
         public Check(CheckLevel level, string description, IEnumerable<IConstraint> constraints)
         {
@@ -63,13 +58,17 @@ namespace xdeequ.Checks
             Constraints = new List<IConstraint>();
         }
 
+        public CheckLevel Level { get; set; }
+        public string Description { get; set; }
+        protected IEnumerable<IConstraint> Constraints { get; set; }
+
         private CheckWithLastConstraintFilterable AddFilterableConstraint(
             Func<Option<string>, IConstraint> constraintDefinition)
         {
             var constraintWithoutFiltering = constraintDefinition(Option<string>.None);
             var newConstraints = Constraints.Append(constraintWithoutFiltering);
 
-            return new CheckWithLastConstraintFilterable(Level, Description, newConstraints);
+            return new CheckWithLastConstraintFilterable(Level, Description, newConstraints, constraintDefinition);
         }
 
         public Check AddConstraint(IConstraint constraint)
@@ -124,14 +123,14 @@ namespace xdeequ.Checks
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, IEnumerable<string> columns)
         {
             return AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, Option<string>.None));
+                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, Option<string>.None));
         }
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, Option<string> hint,
             IEnumerable<string> columns)
         {
             return AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, hint));
+                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, hint));
         }
 
         public CheckWithLastConstraintFilterable HasUniqueness(IEnumerable<string> columns,
@@ -322,18 +321,18 @@ namespace xdeequ.Checks
         }
 
 
-        public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
+        public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
             Func<double, bool> assertion, Option<string> hint)
         {
             return AddFilterableConstraint(filter =>
                 ComplianceConstraint(constraintName, columnCondition, assertion, filter, hint));
         }
 
-        public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
+        public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
             Option<string> hint)
         {
             return AddFilterableConstraint(filter =>
-                ComplianceConstraint(constraintName, columnCondition, Check.IsOne, filter, hint));
+                ComplianceConstraint(constraintName, columnCondition, IsOne, filter, hint));
         }
 
         public CheckWithLastConstraintFilterable HasPattern(
@@ -400,7 +399,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return Satisfies($"COALESCE({column}, 0.0) >= 0", $"{column} is non-negative", assertion, hint);
+            return Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", assertion, hint);
         }
 
         public CheckWithLastConstraintFilterable IsPositive(
@@ -409,7 +408,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return Satisfies($"COALESCE({column}, 1.0) >= 0", $"{column} is positive", assertion, hint);
+            return Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", assertion, hint);
         }
 
         public CheckWithLastConstraintFilterable IsLessThan(
@@ -419,7 +418,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return Satisfies($"{columnA} < {columnB}", $"{columnA} is less than {columnB}", assertion, hint);
+            return Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", assertion, hint);
         }
 
         public CheckWithLastConstraintFilterable IsLessThanOrEqualTo(
@@ -429,7 +428,8 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return Satisfies($"{columnA} =< {columnB}", $"{columnA} is less than or equal to {columnB}", assertion,
+            return Satisfies(Expr($"{columnA} =< {columnB}"), $"{columnA} is less than or equal to {columnB}",
+                assertion,
                 hint);
         }
 
@@ -440,7 +440,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return Satisfies($"{columnA} > {columnB}", $"{columnA} is greater than {columnB}", assertion, hint);
+            return Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", assertion, hint);
         }
 
         public CheckWithLastConstraintFilterable IsGreaterOrEqualTo(
@@ -450,7 +450,8 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return Satisfies($"{columnA} >= {columnB}", $"{columnA} is greater than or equal to {columnB}", assertion,
+            return Satisfies(Expr($"{columnA} >= {columnB}"), $"{columnA} is greater than or equal to {columnB}",
+                assertion,
                 hint);
         }
 
@@ -459,7 +460,7 @@ namespace xdeequ.Checks
             IEnumerable<string> allowedValues
         )
         {
-            return IsContainedIn(column, allowedValues, Check.IsOne, Option<string>.None);
+            return IsContainedIn(column, allowedValues, IsOne, Option<string>.None);
         }
 
         public CheckWithLastConstraintFilterable IsContainedIn(
@@ -468,7 +469,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return IsContainedIn(column, allowedValues, Check.IsOne, hint);
+            return IsContainedIn(column, allowedValues, IsOne, hint);
         }
 
         public CheckWithLastConstraintFilterable IsContainedIn(
@@ -495,7 +496,7 @@ namespace xdeequ.Checks
             var predictate = $"{column} IS NULL OR" +
                              $"(`{column}` {leftOperand} {lowerBound} AND {column} {rightOperand} {upperBound} )";
 
-            return Satisfies(predictate, $"{column} between {lowerBound} and {upperBound}", hint);
+            return Satisfies(Expr(predictate), $"{column} between {lowerBound} and {upperBound}", hint);
         }
 
         public CheckWithLastConstraintFilterable IsContainedIn(
@@ -511,7 +512,7 @@ namespace xdeequ.Checks
             var predictate = $"{column} IS NULL OR" +
                              $"(`{column}` IN ({valueList}) )";
 
-            return Satisfies(predictate, $"{column} contained in {string.Join(",", allowedValues)}", hint);
+            return Satisfies(Expr(predictate), $"{column} contained in {string.Join(",", allowedValues)}", hint);
         }
 
 
@@ -525,7 +526,6 @@ namespace xdeequ.Checks
                 (true, CheckLevel.Error) => CheckStatus.Error,
                 (true, CheckLevel.Warning) => CheckStatus.Warning,
                 _ => CheckStatus.Success
-
             };
 
             return new CheckResult(this, checkStatus, constraintResults);
@@ -544,6 +544,5 @@ namespace xdeequ.Checks
                 .OfType<IAnalysisBasedConstraint>()
                 .Select(x => x.Analyzer);
         }
-
     }
 }

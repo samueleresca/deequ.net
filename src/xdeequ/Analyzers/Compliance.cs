@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using xdeequ.Extensions;
@@ -12,29 +11,32 @@ namespace xdeequ.Analyzers
     public class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
         IAnalyzer<DoubleMetric>
     {
+        private readonly Column _predicate;
         private readonly Option<string> _where;
-        private readonly string _predicate;
 
-        public Compliance(string instance, string predicate, Option<string> @where) : base("Compliance", instance,
+        public Compliance(string instance, Column predicate, Option<string> where) : base("Compliance", instance,
             Entity.Column)
         {
             _where = where;
             _predicate = predicate;
         }
 
+        public Option<string> FilterCondition()
+        {
+            return _where;
+        }
+
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var summation = Sum(AnalyzersExt.ConditionalSelection(Expr(_predicate), _where).Cast("int"));
+            var summation = Sum(AnalyzersExt.ConditionalSelection(_predicate, _where).Cast("int"));
 
-            return new[] { summation, AnalyzersExt.ConditionalCount(_where) };
+            return new[] {summation, AnalyzersExt.ConditionalCount(_where)};
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset, () =>
-                new NumMatchesAndCount(result.GetAs<Int32>(offset), result.GetAs<Int32>(offset + 1)), howMany: 2);
+                new NumMatchesAndCount(result.GetAs<int>(offset), result.GetAs<int>(offset + 1)), 2);
         }
-
-        public Option<string> FilterCondition() => _where;
     }
 }
