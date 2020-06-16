@@ -8,7 +8,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer, IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
         private readonly Option<string> _where;
         private IEnumerable<string> _columns;
@@ -43,10 +43,10 @@ namespace xdeequ.Analyzers
             };
         }
 
-        public new DoubleMetric FromAggregationResult(Row result, int offset)
+        public override DoubleMetric FromAggregationResult(Row result, int offset)
         {
-            var numUniqueValues = (double) result[offset];
-            var numDistinctValues = (double) result[offset + 1];
+            var numUniqueValues = (double)result[offset];
+            var numDistinctValues = (Int32)result[offset + 1];
 
             return ToSuccessMetric(numUniqueValues / numDistinctValues);
         }

@@ -48,7 +48,7 @@ namespace xdeequ.Analyzers
                 AnalyzersExt.EntityFrom(ColumnsToGroupOn));
         }
 
-        public DoubleMetric FromAggregationResult(Row result, int offset)
+        public virtual DoubleMetric FromAggregationResult(Row result, int offset)
         {
             if (result.Values.Length <= offset || result[offset] == null)
                 return AnalyzersExt.MetricFromEmpty(this, Name, string.Join(',', ColumnsToGroupOn),
@@ -84,7 +84,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> Preconditions()
         {
-            return new[] {AnalyzersExt.AtLeastOne(ColumnsToGroupOn)}
+            return new[] { AnalyzersExt.AtLeastOne(ColumnsToGroupOn) }
                 .Concat(ColumnsToGroupOn.Select(AnalyzersExt.HasColumn))
                 .Concat(ColumnsToGroupOn.Select(AnalyzersExt.IsNotNested))
                 .Concat(base.Preconditions());
@@ -133,7 +133,7 @@ namespace xdeequ.Analyzers
 
         public IState Sum(IState other)
         {
-            return base.Sum((FrequenciesAndNumRows) other);
+            return base.Sum((FrequenciesAndNumRows)other);
         }
 
         public override FrequenciesAndNumRows Sum(FrequenciesAndNumRows other)

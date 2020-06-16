@@ -175,7 +175,7 @@ namespace xdeequ.Analyzers
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
-                () => { return DataTypeHistogram.FromArray(result.Values.Select(x => (int) x).ToArray()); });
+                () => { return DataTypeHistogram.FromArray(result.Values.Select(x => (int)x).ToArray()); });
         }
     }
 }

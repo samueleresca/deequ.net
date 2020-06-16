@@ -44,7 +44,7 @@ namespace xdeequ.Util
         {
             if (ReferenceEquals(null, obj))
                 return false;
-            return obj is Option<T> && Equals((Option<T>) obj);
+            return obj is Option<T> && Equals((Option<T>)obj);
         }
 
         public override int GetHashCode()

@@ -280,7 +280,7 @@ namespace xdeequ.tests
             GenericRow[] values)
         {
             return session.CreateDataFrame(values,
-                new StructType(new[] {new StructField(name, sparkDt)})).ToDF(name);
+                new StructType(new[] { new StructField(name, sparkDt) })).ToDF(name);
         }
     }
 }

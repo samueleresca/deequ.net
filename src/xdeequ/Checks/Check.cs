@@ -42,7 +42,7 @@ namespace xdeequ.Checks
 
     public class Check
     {
-        private static readonly Func<double, bool> IsOne = _ => _ == 1.0;
+        public static readonly Func<double, bool> IsOne = _ => _ == 1.0;
 
         public Check(CheckLevel level, string description, IEnumerable<IConstraint> constraints)
         {
@@ -123,14 +123,14 @@ namespace xdeequ.Checks
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, IEnumerable<string> columns)
         {
             return AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, Option<string>.None));
+                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, Option<string>.None));
         }
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, Option<string> hint,
             IEnumerable<string> columns)
         {
             return AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, hint));
+                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, hint));
         }
 
         public CheckWithLastConstraintFilterable HasUniqueness(IEnumerable<string> columns,

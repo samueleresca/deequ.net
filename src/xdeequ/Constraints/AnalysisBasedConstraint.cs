@@ -95,7 +95,7 @@ namespace xdeequ.Constraints
             {
                 Option<V> result;
                 if (valuePicker.HasValue) result = valuePicker.Select(func => func(metricValue));
-                else result = (V) (object) metricValue;
+                else result = (V)(object)metricValue;
 
                 return result.Value;
             }
@@ -120,7 +120,7 @@ namespace xdeequ.Constraints
         public ConstraintResult CalculateAndEvaluate(DataFrame df)
         {
             var metric = Analyzer.Calculate(df) as Metric<M>;
-            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> {{Analyzer, metric}});
+            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> { { Analyzer, metric } });
         }
     }
 

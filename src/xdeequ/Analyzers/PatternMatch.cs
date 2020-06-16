@@ -40,19 +40,19 @@ namespace xdeequ.Analyzers
 
             var summation = Sum(AnalyzersExt.ConditionalSelection(expression, _where).Cast("integer"));
 
-            return new[] {summation, AnalyzersExt.ConditionalCount(_where)};
+            return new[] { summation, AnalyzersExt.ConditionalCount(_where) };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
-                    (int) result.Get(offset), (int) result.Get(offset + 1)), 2);
+                    (int)result.Get(offset), (int)result.Get(offset + 1)), 2);
         }
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(_column), AnalyzersExt.IsString(_column)};
+            return new[] { AnalyzersExt.HasColumn(_column), AnalyzersExt.IsString(_column) };
         }
     }
 

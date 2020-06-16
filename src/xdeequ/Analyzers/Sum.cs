@@ -21,7 +21,7 @@ namespace xdeequ.Analyzers
 
         public IState Sum(IState other)
         {
-            var sumStateOther = (SumState) other;
+            var sumStateOther = (SumState)other;
             return new SumState(_sum + sumStateOther._sum);
         }
 
@@ -69,7 +69,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] {Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
+            return new[] { Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
         }
 
         public override Option<SumState> FromAggregationResult(Row result, int offset)
@@ -79,7 +79,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
         }
     }
 }

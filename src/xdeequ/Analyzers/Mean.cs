@@ -67,13 +67,13 @@ namespace xdeequ.Analyzers
         public override Option<MeanState> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
-                () => new MeanState((double) result.Get(offset),
-                    (int) result.Get(offset + 1)), 2);
+                () => new MeanState((double)result.Get(offset),
+                    (int)result.Get(offset + 1)), 2);
         }
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
         }
     }
 }

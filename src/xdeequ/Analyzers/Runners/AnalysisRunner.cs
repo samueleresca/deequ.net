@@ -31,12 +31,12 @@ namespace xdeequ.Analyzers.Runners
 
             var resultComputedPreviously = (metricsRepositoryOptions?.metricRepository.HasValue,
                     metricsRepositoryOptions?.reuseExistingResultsForKey.HasValue) switch
-                {
-                    (true, true) => metricsRepositoryOptions?.metricRepository.Value
-                        .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
-                        .GetOrElse(AnalyzerContext.Empty()),
-                    _ => AnalyzerContext.Empty()
-                };
+            {
+                (true, true) => metricsRepositoryOptions?.metricRepository.Value
+                    .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
+                    .GetOrElse(AnalyzerContext.Empty()),
+                _ => AnalyzerContext.Empty()
+            };
 
 
             var analyzersAlreadyRan = resultComputedPreviously.MetricMap.Keys.AsEnumerable();
@@ -67,7 +67,7 @@ namespace xdeequ.Analyzers.Runners
             var groupedMetrics = AnalyzerContext.Empty();
 
             var sortedAndFilteredGroupingAnalyzers = groupingAnalyzers
-                .Select(x => (IGroupAnalyzer<IState, IMetric>) x)
+                .Select(x => (IGroupAnalyzer<IState, IMetric>)x)
                 .GroupBy(x => (x.GroupingColumns().OrderBy(x => x), GetFilterCondition(x)));
 
             foreach (var analyzerGroup in sortedAndFilteredGroupingAnalyzers)
@@ -241,7 +241,7 @@ namespace xdeequ.Analyzers.Runners
 
             if (previousFrequenciesAndNumRows.HasValue)
                 frequenciesAndNumRows =
-                    (FrequenciesAndNumRows) frequenciesAndNumRows.Sum(previousFrequenciesAndNumRows.Value);
+                    (FrequenciesAndNumRows)frequenciesAndNumRows.Sum(previousFrequenciesAndNumRows.Value);
 
 
             var results = RunAnalyzersForParticularGrouping(frequenciesAndNumRows, analyzers, saveStateTo,
@@ -310,7 +310,7 @@ namespace xdeequ.Analyzers.Runners
             try
             {
                 otherMetrics = others
-                    .Select(x => (FrequencyBasedAnalyzer) x)
+                    .Select(x => (FrequencyBasedAnalyzer)x)
                     .Select(x => new KeyValuePair<IAnalyzer<IMetric>, IMetric>(x,
                         x.ComputeMetricFrom(new Option<FrequenciesAndNumRows>(frequenciesAndNumRows))));
             }
@@ -321,7 +321,7 @@ namespace xdeequ.Analyzers.Runners
             }
 
             saveStatesTo.Select(_ =>
-                _.Persist<FrequenciesAndNumRows, IMetric>((Analyzer<FrequenciesAndNumRows, IMetric>) analyzers.First(),
+                _.Persist<FrequenciesAndNumRows, IMetric>((Analyzer<FrequenciesAndNumRows, IMetric>)analyzers.First(),
                     frequenciesAndNumRows));
             frequenciesAndNumRows.Frequencies.Unpersist();
 

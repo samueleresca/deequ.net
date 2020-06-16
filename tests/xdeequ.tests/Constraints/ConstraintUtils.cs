@@ -12,11 +12,11 @@ namespace xdeequ.tests.Constraints
             var analysisBasedConstraint = constraint;
             if (analysisBasedConstraint is ConstraintDecorator)
             {
-                var cd = (ConstraintDecorator) constraint;
+                var cd = (ConstraintDecorator)constraint;
                 analysisBasedConstraint = cd.Inner;
             }
 
-            var constraintCasted = (AnalysisBasedConstraint<S, M, V>) analysisBasedConstraint;
+            var constraintCasted = (AnalysisBasedConstraint<S, M, V>)analysisBasedConstraint;
             return constraintCasted.CalculateAndEvaluate(dataFrame);
         }
     }

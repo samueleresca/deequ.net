@@ -66,7 +66,7 @@ namespace xdeequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions()
         {
             var col = AnalyzersExt.ConditionalSelection(Expr(Column), Where);
-            return new[] {Struct(Count(col), Avg(col), StddevPop(col))};
+            return new[] { Struct(Count(col), Avg(col), StddevPop(col)) };
         }
 
         public override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
@@ -87,7 +87,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
         }
     }
 }

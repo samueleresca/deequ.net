@@ -21,7 +21,7 @@ namespace xdeequ.Analyzers
 
         public IState Sum(IState other)
         {
-            var otherMin = (MinState) other;
+            var otherMin = (MinState)other;
             return new MinState(Math.Min(_minValue, otherMin._minValue));
         }
 
@@ -56,7 +56,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] {Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
+            return new[] { Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
         }
 
         public override Option<MinState> FromAggregationResult(Row result, int offset)
@@ -66,7 +66,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
         }
     }
 }

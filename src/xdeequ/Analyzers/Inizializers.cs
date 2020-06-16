@@ -63,7 +63,7 @@ namespace xdeequ.Analyzers
 
         public static Uniqueness Uniqueness(Option<string> column, Option<string> where)
         {
-            return new Uniqueness(new[] {column.Value}, where);
+            return new Uniqueness(new[] { column.Value }, where);
         }
 
         public static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where)
@@ -98,7 +98,7 @@ namespace xdeequ.Analyzers
 
         public static MutualInformation MutualInformation(Option<string> column, Option<string> where)
         {
-            return new MutualInformation(new[] {column.Value}, where);
+            return new MutualInformation(new[] { column.Value }, where);
         }
 
         public static MaxLength MaxLength(string column)

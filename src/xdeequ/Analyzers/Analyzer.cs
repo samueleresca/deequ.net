@@ -206,7 +206,7 @@ namespace xdeequ.Analyzers
         {
             if (Count == 0L) return double.NaN;
 
-            return (double) NumMatches / Count;
+            return (double)NumMatches / Count;
         }
     }
 
@@ -226,14 +226,14 @@ namespace xdeequ.Analyzers
         {
             if (result[offset] == null || result[offset + 1] == null) return Option<NumMatchesAndCount>.None;
 
-            var state = new NumMatchesAndCount((long) result[offset], (long) result[offset + 1]);
+            var state = new NumMatchesAndCount((long)result[offset], (long)result[offset + 1]);
             return new Option<NumMatchesAndCount>(state);
         }
 
         public override IEnumerable<Column> AggregationFunctions()
         {
             var selection = AnalyzersExt.ConditionalSelection(Predicate, Where);
-            return new[] {selection, Count("*")}.AsEnumerable();
+            return new[] { selection, Count("*") }.AsEnumerable();
         }
     }
 

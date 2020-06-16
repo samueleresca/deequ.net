@@ -63,7 +63,7 @@ namespace xdeequ.Constraints
             {
                 var dc = _inner is ConstraintDecorator;
                 if (!dc) return _inner;
-                var result = (ConstraintDecorator) _inner;
+                var result = (ConstraintDecorator)_inner;
                 return result.Inner;
             }
         }
@@ -273,7 +273,7 @@ namespace xdeequ.Constraints
         )
         {
             var mutualInformation =
-                MutualInformation(new[] {columnA, columnB}.AsEnumerable(), where) as IAnalyzer<IMetric>;
+                MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where) as IAnalyzer<IMetric>;
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(mutualInformation, assertion,
@@ -511,7 +511,7 @@ namespace xdeequ.Constraints
                 .Absolute ?? 0L;
 
             var sumOfNonNull = numValues - numUnknown;
-            return (double) absoluteCount / sumOfNonNull;
+            return (double)absoluteCount / sumOfNonNull;
         }
     }
 }

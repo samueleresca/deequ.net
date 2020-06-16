@@ -32,7 +32,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> Preconditions()
         {
-            return new[] {PARAM_CHECK(), AnalyzersExt.HasColumn(_column)};
+            return new[] { PARAM_CHECK(), AnalyzersExt.HasColumn(_column) };
         }
 
         public override HistogramMetric ToFailureMetric(Exception e)
@@ -79,9 +79,9 @@ namespace xdeequ.Analyzers
             var histogramDetails = topNRows
                 .Select(row =>
                 {
-                    var discreteValue = (string) row[0];
+                    var discreteValue = (string)row[0];
                     var absolute = row.GetAs<int>(1);
-                    var ratio = (double) absolute / state.Value.NumRows;
+                    var ratio = (double)absolute / state.Value.NumRows;
 
                     return new KeyValuePair<string, DistributionValue>(discreteValue,
                         new DistributionValue(absolute, ratio));

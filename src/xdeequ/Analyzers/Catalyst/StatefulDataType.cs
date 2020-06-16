@@ -21,7 +21,7 @@ namespace xdeequ.Analyzers.Catalyst
 
         public StructType InputSchema()
         {
-            return new StructType(new[] {new StructField("value", new StringType())});
+            return new StructType(new[] { new StructField("value", new StringType()) });
         }
 
         public BinaryType DataType()
@@ -36,7 +36,7 @@ namespace xdeequ.Analyzers.Catalyst
 
         public Row Initialize()
         {
-            return new GenericRow(new object[] {0L, 0L, 0L, 0L, 0L});
+            return new GenericRow(new object[] { 0L, 0L, 0L, 0L, 0L });
         }
 
         public StructType BufferSchema()

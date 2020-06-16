@@ -51,7 +51,7 @@ namespace xdeequ.Metrics
 
         public override IEnumerable<DoubleMetric> Flatten()
         {
-            return new[] {this}.AsEnumerable();
+            return new[] { this }.AsEnumerable();
         }
     }
 }

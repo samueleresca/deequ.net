@@ -37,18 +37,18 @@ namespace xdeequ.tests.Checks
         public void Check_should_return_the_correct_check_status_for_any_completeness()
         {
             var check1 = new Check(CheckLevel.Error, "group-1")
-                .AreAnyComplete(new[] {"item", "att1"}, Option<string>.None)
-                .HaveAnyCompleteness(new[] {"item", "att1"}, _ => _ == 1.0, Option<string>.None);
+                .AreAnyComplete(new[] { "item", "att1" }, Option<string>.None)
+                .HaveAnyCompleteness(new[] { "item", "att1" }, _ => _ == 1.0, Option<string>.None);
 
             var check2 = new Check(CheckLevel.Error, "group-2-E")
-                .HaveAnyCompleteness(new[] {"att1", "att2"}, _ => _ > 0.917, Option<string>.None);
+                .HaveAnyCompleteness(new[] { "att1", "att2" }, _ => _ > 0.917, Option<string>.None);
 
             var check3 = new Check(CheckLevel.Warning, "group-2-W")
-                .HaveAnyCompleteness(new[] {"att1", "att2"}, _ => _ > 0.917, Option<string>.None);
+                .HaveAnyCompleteness(new[] { "att1", "att2" }, _ => _ > 0.917, Option<string>.None);
 
 
             var context =
-                RunChecks(FixtureSupport.GetDFMissing(_session), check1, new Check[] {check2, check3});
+                RunChecks(FixtureSupport.GetDFMissing(_session), check1, new Check[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -59,19 +59,19 @@ namespace xdeequ.tests.Checks
         public void Check_should_return_the_correct_check_status_for_combined_completeness()
         {
             var check1 = new Check(CheckLevel.Error, "group-1")
-                .AreComplete(new[] {"item", "att1"}, Option<string>.None)
-                .HaveCompleteness(new[] {"item", "att1"}, _ => _ == 1.0, Option<string>.None);
+                .AreComplete(new[] { "item", "att1" }, Option<string>.None)
+                .HaveCompleteness(new[] { "item", "att1" }, _ => _ == 1.0, Option<string>.None);
 
             var check2 = new Check(CheckLevel.Error, "group-2-E")
-                .HaveCompleteness(new[] {"item", "att1", "att2"}, _ => _ > 0.8, Option<string>.None);
+                .HaveCompleteness(new[] { "item", "att1", "att2" }, _ => _ > 0.8, Option<string>.None);
 
             var check3 = new Check(CheckLevel.Warning, "group-2-W")
-                .HaveCompleteness(new[] {"item", "att1", "att2"}, _ => _ > 0.8, Option<string>.None);
+                .HaveCompleteness(new[] { "item", "att1", "att2" }, _ => _ > 0.8, Option<string>.None);
 
 
             var context =
                 RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1,
-                    new Check[] {check2, check3});
+                    new Check[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -94,7 +94,7 @@ namespace xdeequ.tests.Checks
 
             var context =
                 RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1,
-                    new Check[] {check2, check3});
+                    new Check[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -105,10 +105,10 @@ namespace xdeequ.tests.Checks
         public void Check_should_return_the_correct_check_status_for_distinctness()
         {
             var check1 = new Check(CheckLevel.Error, "distinctness-check")
-                .HasDistinctness(new[] {"att1"}, _ => _ == 3.0 / 5, Option<string>.None)
-                .HasDistinctness(new[] {"att1"}, _ => _ == 2.0 / 3, Option<string>.None).Where("att2 is not null")
-                .HasDistinctness(new[] {"att1", "att2"}, _ => _ == 4.0 / 6, Option<string>.None)
-                .HasDistinctness(new[] {"att2"}, _ => _ == 1.0, Option<string>.None);
+                .HasDistinctness(new[] { "att1" }, _ => _ == 3.0 / 5, Option<string>.None)
+                .HasDistinctness(new[] { "att1" }, _ => _ == 2.0 / 3, Option<string>.None).Where("att2 is not null")
+                .HasDistinctness(new[] { "att1", "att2" }, _ => _ == 4.0 / 6, Option<string>.None)
+                .HasDistinctness(new[] { "att2" }, _ => _ == 1.0, Option<string>.None);
 
             var context =
                 RunChecks(FixtureSupport.GetDfWithDistinctValues(_session), check1, new Check[] { });
@@ -127,12 +127,12 @@ namespace xdeequ.tests.Checks
         {
             var check1 = new Check(CheckLevel.Error, "primary-key-check")
                 .IsPrimaryKey("unique", new string[] { })
-                .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new[] {"onlyUniqueWithOtherNonUnique"})
+                .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new[] { "onlyUniqueWithOtherNonUnique" })
                 .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new string[] { }).Where("nonUnique > 0")
-                .IsPrimaryKey("nonUnique", new Option<string>("hint"), new[] {"halfUniqueCombinedWithNonUnique"})
+                .IsPrimaryKey("nonUnique", new Option<string>("hint"), new[] { "halfUniqueCombinedWithNonUnique" })
                 .Where("nonUnique > 0 ")
                 .IsPrimaryKey("nonUnique", new string[] { })
-                .IsPrimaryKey("nonUnique", new[] {"nonUniqueWithNulls"});
+                .IsPrimaryKey("nonUnique", new[] { "nonUniqueWithNulls" });
 
             var context =
                 RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1, new Check[] { });
@@ -171,6 +171,74 @@ namespace xdeequ.tests.Checks
 
             constraintStatuses.Skip(3).First().ShouldBe(ConstraintStatus.Failure);
             constraintStatuses.Skip(4).First().ShouldBe(ConstraintStatus.Failure);
+        }
+
+        [Fact]
+        public void Check_should_return_the_correct_check_status_for_has_uniqueness()
+        {
+            var check1 = new Check(CheckLevel.Error, "group-1-u")
+                .HasUniqueness("nonUnique", fraction => fraction == .5)
+                .HasUniqueness("nonUnique", fraction => fraction < .6)
+                .HasUniqueness(new[] { "halfUniqueCombinedWithNonUnique", "nonUnique" }, fraction => fraction == .5)
+                .HasUniqueness(new[] { "onlyUniqueWithOtherNonUnique", "nonUnique" }, Check.IsOne)
+                .HasUniqueness("unique", Check.IsOne)
+                .HasUniqueness("uniqueWithNulls", Check.IsOne)
+                .HasUniqueness(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, Check.IsOne)
+                .Where("nonUnique > 0")
+                .HasUniqueness(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, Check.IsOne,
+                    new Option<string>("hint"))
+                .Where("nonUnique > 0")
+                .HasUniqueness("halfUniqueCombinedWithNonUnique", Check.IsOne).Where("nonUnique > 0")
+                .HasUniqueness("halfUniqueCombinedWithNonUnique", Check.IsOne, new Option<string>("hint"))
+                .Where("nonUnique > 0");
+
+            var context =
+                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1, new Check[] { });
+
+            var result = check1.Evaluate(context);
+            result.Status.ShouldBe(CheckStatus.Success);
+            var constraintStatuses = result.ConstraintResults.Select(x => x.Status);
+            // Half of nonUnique column are duplicates
+            constraintStatuses.First().ShouldBe(ConstraintStatus.Success);
+            constraintStatuses.Skip(1).First().ShouldBe(ConstraintStatus.Success);
+            // Half of the 2 columns are duplicates as well.
+            constraintStatuses.Skip(2).First().ShouldBe(ConstraintStatus.Success);
+            // Both next 2 cases are actually unique so should meet threshold
+            constraintStatuses.Skip(3).First().ShouldBe(ConstraintStatus.Success);
+            constraintStatuses.Skip(4).First().ShouldBe(ConstraintStatus.Success);
+            // Nulls are duplicated so this will not be unique
+            constraintStatuses.Skip(5).First().ShouldBe(ConstraintStatus.Success);
+            // Multi-column uniqueness, duplicates filtered out
+            constraintStatuses.Skip(6).First().ShouldBe(ConstraintStatus.Success);
+            // Multi-column uniqueness with hint, duplicates filtered out
+            constraintStatuses.Skip(7).First().ShouldBe(ConstraintStatus.Success);
+            // Single-column uniqueness, duplicates filtered out
+            constraintStatuses.Skip(8).First().ShouldBe(ConstraintStatus.Success);
+            // Single-column uniqueness with hint, duplicates filtered out
+            constraintStatuses.Skip(9).First().ShouldBe(ConstraintStatus.Success);
+        }
+
+        [Fact]
+        public void Check_should_return_the_correct_check_status_for_hasUniqueValueRatio()
+        {
+            var check1 = new Check(CheckLevel.Error, "unique-value-ratio-check")
+                .HasUniqueValueRatio(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, _ => _ == .75,
+                    Option<string>.None)
+                .HasUniqueValueRatio(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, Check.IsOne,
+                    Option<string>.None)
+                .Where("nonUnique > 0")
+                .HasUniqueValueRatio(new[] { "nonUnique" }, Check.IsOne, new Option<string>("hint"))
+                .Where("nonUnique > 0");
+
+            var context =
+                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1, new Check[] { });
+
+            var result = check1.Evaluate(context);
+            result.Status.ShouldBe(CheckStatus.Success);
+            var constraintStatuses = result.ConstraintResults.Select(x => x.Status);
+            constraintStatuses.First().ShouldBe(ConstraintStatus.Success);
+            constraintStatuses.Skip(1).First().ShouldBe(ConstraintStatus.Success);
+            constraintStatuses.Skip(2).First().ShouldBe(ConstraintStatus.Success);
         }
     }
 }

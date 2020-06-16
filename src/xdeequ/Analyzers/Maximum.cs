@@ -21,7 +21,7 @@ namespace xdeequ.Analyzers
 
         public IState Sum(IState other)
         {
-            var maxState = (MaxState) other;
+            var maxState = (MaxState)other;
             return new MaxState(Math.Max(_maxValue, maxState._maxValue));
         }
 
@@ -56,7 +56,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] {Max(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
+            return new[] { Max(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
         }
 
         public override Option<MaxState> FromAggregationResult(Row result, int offset)
@@ -66,7 +66,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
         }
     }
 }
