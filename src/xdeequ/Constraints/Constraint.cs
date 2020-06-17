@@ -98,12 +98,12 @@ namespace xdeequ.Constraints
 
     public static class Functions
     {
-        public static IConstraint SizeConstraint(Func<long, bool> assertion,
+        public static IConstraint SizeConstraint(Func<double, bool> assertion,
             Option<string> where, Option<string> hint)
         {
             var size = Size(where);
             var constraint =
-                new AnalysisBasedConstraint<NumMatches, double, long>(size, assertion, Option<Func<double, long>>.None,
+                new AnalysisBasedConstraint<NumMatches, double, double>(size, assertion, Option<Func<double, double>>.None,
                     hint);
             return new NamedConstraint(constraint, $"SizeConstraint{size}");
         }
@@ -137,7 +137,7 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            var histogram = Histogram(column, binningFunc, where, maxBins) as IAnalyzer<IMetric>;
+            var histogram = Histogram(column, binningFunc, where, maxBins);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long>(histogram, assertion,
@@ -183,7 +183,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var uniqueness = Uniqueness(column, where) as IAnalyzer<IMetric>;
+            var uniqueness = Uniqueness(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(uniqueness, assertion,
@@ -200,7 +200,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var uniqueness = Uniqueness(columns, where) as IAnalyzer<IMetric>;
+            var uniqueness = Uniqueness(columns, where);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(uniqueness, assertion,
@@ -217,7 +217,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var distinctness = Distinctness(columns, where) as IAnalyzer<IMetric>;
+            var distinctness = Distinctness(columns, where);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(distinctness, assertion,
@@ -254,7 +254,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var compliance = Compliance(name, column.Value, where) as IAnalyzer<IMetric>;
+            var compliance = Compliance(name, column.Value, where);
 
             var constraint =
                 new AnalysisBasedConstraint<NumMatchesAndCount, double, double>(compliance, assertion,
@@ -273,7 +273,7 @@ namespace xdeequ.Constraints
         )
         {
             var mutualInformation =
-                MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where) as IAnalyzer<IMetric>;
+                MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(mutualInformation, assertion,
@@ -290,7 +290,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var entropy = Entropy(column, where) as IAnalyzer<IMetric>;
+            var entropy = Entropy(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(entropy, assertion,
@@ -309,7 +309,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var patternMatch = PatternMatch(column, pattern, where) as IAnalyzer<IMetric>;
+            var patternMatch = PatternMatch(column, pattern, where);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(patternMatch, assertion,
@@ -326,7 +326,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var maxLength = MaxLength(column, where) as IAnalyzer<IMetric>;
+            var maxLength = MaxLength(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<MaxState, double, double>(maxLength, assertion,
@@ -343,7 +343,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var minLength = MinLength(column, where) as IAnalyzer<IMetric>;
+            var minLength = MinLength(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<MinState, double, double>(minLength, assertion,
@@ -360,7 +360,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var min = Minimum(column, where) as IAnalyzer<IMetric>;
+            var min = Minimum(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<MinState, double, double>(min, assertion,
@@ -377,7 +377,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var min = Maximum(column, where) as IAnalyzer<IMetric>;
+            var min = Maximum(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<MaxState, double, double>(min, assertion,
@@ -394,7 +394,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var min = Mean(column, where) as IAnalyzer<IMetric>;
+            var min = Mean(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<MeanState, double, double>(min, assertion,
@@ -411,7 +411,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var sum = Sum(column, where) as IAnalyzer<IMetric>;
+            var sum = Sum(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<SumState, double, double>(sum, assertion,
@@ -428,7 +428,7 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var sum = StandardDeviation(column, where) as IAnalyzer<IMetric>;
+            var sum = StandardDeviation(column, where);
 
             var constraint =
                 new AnalysisBasedConstraint<StandardDeviationState, double, double>(sum, assertion,
@@ -483,7 +483,7 @@ namespace xdeequ.Constraints
                     };
                 });
 
-            var dataTypeResult = DataType(column, where) as IAnalyzer<IMetric>;
+            var dataTypeResult = DataType(column, where);
 
             return new AnalysisBasedConstraint<DataTypeHistogram, Distribution, double>(dataTypeResult, assertion,
                 valuePicker, hint);

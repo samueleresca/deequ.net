@@ -8,8 +8,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
-        IAnalyzer<DoubleMetric>
+    public class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         private readonly Column _predicate;
         private readonly Option<string> _where;

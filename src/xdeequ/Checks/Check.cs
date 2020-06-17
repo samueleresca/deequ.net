@@ -77,7 +77,7 @@ namespace xdeequ.Checks
             return this;
         }
 
-        public CheckWithLastConstraintFilterable HasSize(Func<long, bool> assertion, Option<string> hint)
+        public CheckWithLastConstraintFilterable HasSize(Func<double, bool> assertion, Option<string> hint)
         {
             return AddFilterableConstraint(filter => SizeConstraint(assertion, filter, hint));
         }
@@ -320,6 +320,16 @@ namespace xdeequ.Checks
             return AddFilterableConstraint(filter => CorrelationConstraint(columnA, columnB, assertion, filter, hint));
         }
 
+        public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
+            Func<double, bool> assertion, Option<string> hint)
+        {
+            return Satisfies(Expr(columnCondition), constraintName, assertion, hint);
+        }
+
+        public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName, Option<string> hint)
+        {
+            return Satisfies(Expr(columnCondition), constraintName, hint);
+        }
 
         public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
             Func<double, bool> assertion, Option<string> hint)

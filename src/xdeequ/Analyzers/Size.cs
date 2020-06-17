@@ -36,14 +36,13 @@ namespace xdeequ.Analyzers
         }
     }
 
-    //  Analyzer<NumMatches, Metric<double>> 
-    public class Size : StandardScanShareableAnalyzer<NumMatches>, IAnalyzer<DoubleMetric>
+    public class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
     {
-        private readonly Option<string> where;
+        private readonly Option<string> _where;
 
         public Size(Option<string> where) : base("Size", "*", Entity.DataSet)
         {
-            this.where = where;
+            _where = where;
         }
 
         private Size() : base("Size", "*", Entity.DataSet)
@@ -52,18 +51,20 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] { AnalyzersExt.ConditionalCount(where) }.AsEnumerable();
+            return new[] { AnalyzersExt.ConditionalCount(_where) }.AsEnumerable();
         }
 
         public override Option<NumMatches> FromAggregationResult(Row result, int offset)
         {
             return AnalyzersExt.IfNoNullsIn(result, offset,
-                () => { return new NumMatches(result.GetAs<int>(offset)); });
+                () => new NumMatches(result.GetAs<int>(offset)));
         }
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
             return Enumerable.Empty<Action<StructType>>();
         }
+
+        public Option<string> FilterCondition() => _where;
     }
 }
