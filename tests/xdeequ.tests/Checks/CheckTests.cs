@@ -36,7 +36,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_any_completeness()
+        public void should_return_the_correct_status_for_any_completeness()
         {
             var check1 = new Check(CheckLevel.Error, "group-1")
                 .AreAnyComplete(new[] { "item", "att1" }, Option<string>.None)
@@ -58,7 +58,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_combined_completeness()
+        public void should_return_the_correct_status_for_combined_completeness()
         {
             var check1 = new Check(CheckLevel.Error, "group-1")
                 .AreComplete(new[] { "item", "att1" }, Option<string>.None)
@@ -81,7 +81,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_completness()
+        public void should_return_the_correct_status_for_completness()
         {
             var check1 = new Check(CheckLevel.Error, "group-1")
                 .IsComplete("att1", Option<string>.None)
@@ -104,7 +104,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_distinctness()
+        public void should_return_the_correct_status_for_distinctness()
         {
             var check1 = new Check(CheckLevel.Error, "distinctness-check")
                 .HasDistinctness(new[] { "att1" }, _ => _ == 3.0 / 5, Option<string>.None)
@@ -125,7 +125,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_primary_key()
+        public void should_return_the_correct_status_for_primary_key()
         {
             var check1 = new Check(CheckLevel.Error, "primary-key-check")
                 .IsPrimaryKey("unique", new string[] { })
@@ -152,7 +152,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_uniqueness()
+        public void should_return_the_correct_status_for_uniqueness()
         {
             var check1 = new Check(CheckLevel.Error, "group-1")
                 .IsUnique("unique", Option<string>.None)
@@ -176,7 +176,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_has_uniqueness()
+        public void should_return_the_correct_status_for_has_uniqueness()
         {
             var check1 = new Check(CheckLevel.Error, "group-1-u")
                 .HasUniqueness("nonUnique", fraction => fraction == .5)
@@ -221,7 +221,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_hasUniqueValueRatio()
+        public void should_return_the_correct_status_for_hasUniqueValueRatio()
         {
             var check1 = new Check(CheckLevel.Error, "unique-value-ratio-check")
                 .HasUniqueValueRatio(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, _ => _ == .75,
@@ -244,7 +244,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_size()
+        public void should_return_the_correct_status_for_size()
         {
             var df = FixtureSupport.GetDfCompleteAndInCompleteColumns(_session);
             var numberOfRows = df.Count();
@@ -271,7 +271,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_constraints()
+        public void should_return_the_correct_status_for_constraints()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
             var numberOfRows = df.Count();
@@ -294,7 +294,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_conditional_column_constraints()
+        public void should_return_the_correct_status_for_conditional_column_constraints()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
 
@@ -316,7 +316,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_correctly_evaluate_less_than_constraints()
+        public void should_correctly_evaluate_less_than_constraints()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
 
@@ -344,7 +344,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_correctly_evaluate_less_than_or_equal_constraints()
+        public void should_correctly_evaluate_less_than_or_equal_constraints()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
 
@@ -371,7 +371,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_correctly_evaluate_greater_than_constraints()
+        public void should_correctly_evaluate_greater_than_constraints()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
 
@@ -399,7 +399,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_correctly_evaluate_greater_than_or_equal_constraints()
+        public void should_correctly_evaluate_greater_than_or_equal_constraints()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
 
@@ -427,7 +427,7 @@ namespace xdeequ.tests.Checks
 
 
         [Fact]
-        public void Check_should_correctly_evaluate_non_negative_and_positive_constraints()
+        public void should_correctly_evaluate_non_negative_and_positive_constraints()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
 
@@ -445,7 +445,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_correctly_evaluate_range_constraints()
+        public void should_correctly_evaluate_range_constraints()
         {
             var df = FixtureSupport.GetDfWithDistinctValues(_session);
 
@@ -512,7 +512,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void Check_should_return_the_correct_check_status_for_histogram_constraints()
+        public void should_return_the_correct_status_for_histogram_constraints()
         {
             var df = FixtureSupport.GetDfCompleteAndInCompleteColumns(_session);
 
