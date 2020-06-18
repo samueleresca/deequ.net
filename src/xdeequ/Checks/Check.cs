@@ -184,6 +184,8 @@ namespace xdeequ.Checks
                 HistogramBinConstraint(column, assertion, binningFunc, filter, hint, maxBins));
         }
 
+
+
         public CheckWithLastConstraintFilterable HasHistogramValues(string column,
             Func<Distribution, bool> assertion,
             Option<Func<Column, Column>> binningFunc,
@@ -412,6 +414,14 @@ namespace xdeequ.Checks
             return Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", assertion, hint);
         }
 
+        public CheckWithLastConstraintFilterable IsNonNegative(
+            string column,
+            Option<string> hint
+        )
+        {
+            return Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", hint);
+        }
+
         public CheckWithLastConstraintFilterable IsPositive(
             string column,
             Func<double, bool> assertion,
@@ -419,6 +429,14 @@ namespace xdeequ.Checks
         )
         {
             return Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", assertion, hint);
+        }
+
+        public CheckWithLastConstraintFilterable IsPositive(
+            string column,
+            Option<string> hint
+        )
+        {
+            return Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", hint);
         }
 
         public CheckWithLastConstraintFilterable IsLessThan(
@@ -474,6 +492,15 @@ namespace xdeequ.Checks
             return Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", assertion, hint);
         }
 
+        public CheckWithLastConstraintFilterable IsGreaterThan(
+            string columnA,
+            string columnB,
+            Option<string> hint
+        )
+        {
+            return Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", hint);
+        }
+
         public CheckWithLastConstraintFilterable IsGreaterOrEqualTo(
             string columnA,
             string columnB,
@@ -483,6 +510,16 @@ namespace xdeequ.Checks
         {
             return Satisfies(Expr($"{columnA} >= {columnB}"), $"{columnA} is greater than or equal to {columnB}",
                 assertion,
+                hint);
+        }
+
+        public CheckWithLastConstraintFilterable IsGreaterOrEqualTo(
+            string columnA,
+            string columnB,
+            Option<string> hint
+        )
+        {
+            return Satisfies(Expr($"{columnA} >= {columnB}"), $"{columnA} is greater than or equal to {columnB}",
                 hint);
         }
 
@@ -537,13 +574,17 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            //TODO: valueList is wrong
-            var valueList = allowedValues.Select(x => x.Replace("'", "''"));
+
+            var valueList = "'" + string.Join("', '", allowedValues) + "'";
 
             var predictate = $"{column} IS NULL OR" +
                              $"(`{column}` IN ({valueList}) )";
 
-            return Satisfies(Expr(predictate), $"{column} contained in {string.Join(",", allowedValues)}", hint);
+            if (assertion == null) return Satisfies(Expr(predictate),
+                 $"{column} contained in {string.Join(",", allowedValues)}", hint);
+
+            return Satisfies(Expr(predictate),
+                $"{column} contained in {string.Join(",", allowedValues)}", assertion, hint);
         }
 
 
