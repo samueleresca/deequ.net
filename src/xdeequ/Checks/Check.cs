@@ -431,6 +431,16 @@ namespace xdeequ.Checks
             return Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", assertion, hint);
         }
 
+
+        public CheckWithLastConstraintFilterable IsLessThan(
+            string columnA,
+            string columnB,
+            Option<string> hint
+        )
+        {
+            return Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", hint);
+        }
+
         public CheckWithLastConstraintFilterable IsLessThanOrEqualTo(
             string columnA,
             string columnB,
@@ -438,8 +448,19 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return Satisfies(Expr($"{columnA} =< {columnB}"), $"{columnA} is less than or equal to {columnB}",
+            return Satisfies(Expr($"{columnA} <= {columnB}"), $"{columnA} is less than or equal to {columnB}",
                 assertion,
+                hint);
+        }
+
+
+        public CheckWithLastConstraintFilterable IsLessThanOrEqualTo(
+            string columnA,
+            string columnB,
+            Option<string> hint
+        )
+        {
+            return Satisfies(Expr($"{columnA} <= {columnB}"), $"{columnA} is less than or equal to {columnB}",
                 hint);
         }
 

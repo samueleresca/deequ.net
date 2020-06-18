@@ -296,7 +296,6 @@ namespace xdeequ.tests.Checks
         public void Check_should_return_the_correct_check_status_for_conditional_column_constraints()
         {
             var df = FixtureSupport.GetDfWithNumericValues(_session);
-            var numberOfRows = df.Count();
 
             var check1 = new Check(CheckLevel.Error, "group-1")
                 .Satisfies("att1 < att2", "rule1", Option<string>.None).Where("att1 > 3");
@@ -313,6 +312,61 @@ namespace xdeequ.tests.Checks
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
             AssertEvaluatesTo(check3, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void Check_should_correctly_evaluate_less_than_constraints()
+        {
+            var df = FixtureSupport.GetDfWithNumericValues(_session);
+
+            var lessThanCheck = new Check(CheckLevel.Error, "a")
+                .IsLessThan("att1", "att2", Option<string>.None)
+                .Where("item > 3");
+
+            var incorrectLessThanCheck = new Check(CheckLevel.Error, "a")
+                .IsLessThan("att1", "att2", Option<string>.None);
+
+            var lessThanCheckWithCustomAssertionFunction
+                = new Check(CheckLevel.Error, "a")
+                .IsLessThan("att1", "att2", _ => _ == 0.5, Option<string>.None);
+
+            var incorrectLessThanCheckWithCustomAssertionFunction = new Check(CheckLevel.Error, "a")
+                .IsLessThan("att1", "att2", _ => _ == 0.4, Option<string>.None);
+
+            var context =
+                RunChecks(df, lessThanCheck, new[] { incorrectLessThanCheck, lessThanCheckWithCustomAssertionFunction, incorrectLessThanCheckWithCustomAssertionFunction });
+
+            AssertEvaluatesTo(lessThanCheck, context, CheckStatus.Success);
+            AssertEvaluatesTo(incorrectLessThanCheck, context, CheckStatus.Error);
+            AssertEvaluatesTo(lessThanCheckWithCustomAssertionFunction, context, CheckStatus.Success);
+            AssertEvaluatesTo(incorrectLessThanCheckWithCustomAssertionFunction, context, CheckStatus.Error);
+        }
+
+        [Fact]
+        public void Check_should_correctly_evaluate_less_than_or_equal_constraints()
+        {
+            var df = FixtureSupport.GetDfWithNumericValues(_session);
+
+            var lessThanCheck = new Check(CheckLevel.Error, "a")
+                .IsLessThanOrEqualTo("att1", "att3", Option<string>.None).Where("item > 3");
+
+            var incorrectLessThanCheck = new Check(CheckLevel.Error, "a")
+                .IsLessThanOrEqualTo("att1", "att3", Option<string>.None);
+
+            var lessThanCheckWithCustomAssertionFunction
+                = new Check(CheckLevel.Error, "a")
+                    .IsLessThanOrEqualTo("att1", "att3", _ => _ == 0.5, Option<string>.None);
+
+            var incorrectLessThanCheckWithCustomAssertionFunction = new Check(CheckLevel.Error, "a")
+                .IsLessThanOrEqualTo("att1", "att3", _ => _ == 0.4, Option<string>.None);
+
+            var context =
+                RunChecks(df, lessThanCheck, new[] { incorrectLessThanCheck, lessThanCheckWithCustomAssertionFunction, incorrectLessThanCheckWithCustomAssertionFunction });
+
+            AssertEvaluatesTo(lessThanCheck, context, CheckStatus.Success);
+            AssertEvaluatesTo(incorrectLessThanCheck, context, CheckStatus.Error);
+            AssertEvaluatesTo(lessThanCheckWithCustomAssertionFunction, context, CheckStatus.Success);
+            AssertEvaluatesTo(incorrectLessThanCheckWithCustomAssertionFunction, context, CheckStatus.Error);
         }
     }
 }
