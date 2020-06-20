@@ -121,6 +121,25 @@ namespace xdeequ.tests
 
             return sparkSession.CreateDataFrame(elements, schema);
         }
+        
+        public static DataFrame GetDfWithConditionallyInformativeColumns(SparkSession sparkSession)
+        {
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {1, 4}),
+                new GenericRow(new object[] {2, 5}),
+                new GenericRow(new object[] {3, 6})
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("att1", new IntegerType()),
+                    new StructField("att2", new IntegerType())
+                });
+
+            return sparkSession.CreateDataFrame(elements, schema);
+        }
 
         public static DataFrame GetDfFractionalIntegralTypes(SparkSession sparkSession)
         {

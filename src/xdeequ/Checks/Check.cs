@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
+using xdeequ.Analyzers.States;
 using xdeequ.Constraints;
 using xdeequ.Metrics;
 using xdeequ.Util;
@@ -177,7 +178,7 @@ namespace xdeequ.Checks
             Func<long, bool> assertion,
             Option<Func<Column, Column>> binningFunc,
             Option<string> hint,
-            int maxBins = 100
+            int maxBins = 1000
         )
         {
             return AddFilterableConstraint(filter =>
@@ -610,11 +611,11 @@ namespace xdeequ.Checks
                 .Select(cons =>
                 {
                     if (!(cons is ConstraintDecorator)) return cons;
-                    var nc = cons as ConstraintDecorator;
+                    var nc = (ConstraintDecorator) cons;
                     return nc.Inner;
                 })
                 .OfType<IAnalysisBasedConstraint>()
-                .Select(x => x.Analyzer);
+                .Select(x => (IAnalyzer<IMetric>) x.Analyzer);
         }
     }
 }

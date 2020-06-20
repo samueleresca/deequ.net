@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using xdeequ.Metrics;
 using xdeequ.Util;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
@@ -18,10 +19,7 @@ namespace xdeequ.Analyzers
             _column = column;
         }
 
-        public Option<string> FilterCondition()
-        {
-            throw new NotImplementedException();
-        }
+        public Option<string> FilterCondition() => _where;
 
         public override Option<NumMatchesAndCount> ComputeStateFrom(DataFrame dataFrame)
         {
@@ -30,7 +28,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            throw new NotImplementedException();
+            return new[] { ApproxCountDistinct(_column)};
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)

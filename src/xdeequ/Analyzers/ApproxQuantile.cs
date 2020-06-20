@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using xdeequ.Metrics;
 using xdeequ.Util;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
+    
     public class ApproxQuantile : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         private readonly string _column;
@@ -25,7 +27,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            throw new NotImplementedException();
+            return new Column[] { };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)

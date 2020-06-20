@@ -71,7 +71,9 @@ namespace xdeequ.Constraints
         public ConstraintResult Evaluate(
             Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
         {
-            return _inner.Evaluate(analysisResult);
+            var result = _inner.Evaluate(analysisResult);
+            result.Constraint = this;
+            return result;
         }
     }
 
@@ -101,7 +103,7 @@ namespace xdeequ.Constraints
         public static IConstraint SizeConstraint(Func<double, bool> assertion,
             Option<string> where, Option<string> hint)
         {
-            var size = Size(where);
+            Size size = Size(where);
             var constraint =
                 new AnalysisBasedConstraint<NumMatches, double, double>(size, assertion, Option<Func<double, double>>.None,
                     hint);
@@ -117,7 +119,7 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            IAnalyzer<IMetric> histogram = Histogram(column, binningFunc, where, maxBins);
+            var histogram =  Histogram(column, binningFunc, @where, maxBins);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, Distribution>(histogram, assertion,
@@ -137,7 +139,7 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            var histogram = Histogram(column, binningFunc, where, maxBins);
+            var histogram =  Histogram(column, binningFunc, @where, maxBins);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long>(histogram, assertion,
