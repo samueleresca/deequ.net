@@ -15,7 +15,7 @@ namespace xdeequ.Analyzers
         {
             Analyzers = analyzers;
         }
-        
+
         public Analysis()
         {
             Analyzers = new List<IAnalyzer<IMetric>>();

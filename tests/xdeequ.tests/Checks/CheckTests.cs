@@ -23,23 +23,26 @@ namespace xdeequ.tests.Checks
         }
 
         private readonly SparkSession _session;
-        
+
         private static ITestOutputHelper _helper;
-        
+
 
         public static AnalyzerContext RunChecks(DataFrame data, Check check, Check[] checks)
         {
             var analyzers = check.RequiredAnalyzers()
                 .Concat(checks.SelectMany(x => x.RequiredAnalyzers())).AsEnumerable();
-            return new Analysis(analyzers).Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
-                new StorageLevel());
+
+            return new AnalysisRunBuilder(data)
+                .OnData(data)
+                .AddAnalyzers(analyzers)
+                .Run();
         }
 
         public static void AssertEvaluatesTo(Check check, AnalyzerContext analyzerContext, CheckStatus checkStatus)
         {
             var checkResult = check.Evaluate(analyzerContext);
             if (checkResult.Status == CheckStatus.Error)
-            {    
+            {
                 _helper.WriteLine(
                     $"Check {check.Description} failed because {checkResult.ConstraintResults.FirstOrDefault()?.Message.Value}");
             }
@@ -574,8 +577,8 @@ namespace xdeequ.tests.Checks
             AssertEvaluatesTo(check2, context, CheckStatus.Success);
             AssertEvaluatesTo(check3, context, CheckStatus.Error);
         }
-        
-        
+
+
         [Fact]
         public void should_correctly_return_the_correct_check_status_for_entropy_constraints()
         {
@@ -584,10 +587,10 @@ namespace xdeequ.tests.Checks
 
             var check1 = new Check(CheckLevel.Error, "group-1")
                 .HasEntropy("att1", _ => _ == expectedValue, Option<string>.None);
-            
+
             var check2 = new Check(CheckLevel.Error, "group-1")
                 .HasEntropy("att1", _ => _ == 0, Option<string>.None).Where("att2 = 'c'");
-            
+
             var check3 = new Check(CheckLevel.Error, "group-1")
                 .HasEntropy("att1", _ => _ != expectedValue, Option<string>.None);
 
@@ -598,13 +601,13 @@ namespace xdeequ.tests.Checks
             AssertEvaluatesTo(check2, context, CheckStatus.Success);
             AssertEvaluatesTo(check3, context, CheckStatus.Error);
         }
-        
+
         [Fact]
         public void should_correctly_return_the_correct_check_status_for_mutual_information_constraints()
         {
             var check = new Check(CheckLevel.Error, "check")
                 .HasMutualInformation("att1", "att2", _ => Math.Abs(_ - 0.5623) < 0.0001, Option<string>.None);
-            
+
             var checkWithFilter = new Check(CheckLevel.Error, "check")
                 .HasMutualInformation("att1", "att2", _ => _ == 0, Option<string>.None).Where("att2 = 'c'");
 
@@ -614,7 +617,7 @@ namespace xdeequ.tests.Checks
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
         }
-        
+
         [Fact]
         public void should_correctly_yield_correct_results_for_basic_stats()
         {
@@ -635,42 +638,42 @@ namespace xdeequ.tests.Checks
 
             var context = numericAnalysis
                 .Run(dfNumeric, Option<IStateLoader>.None, Option<IStatePersister>.None, null);
-            
-            AssertEvaluatesTo(check.HasMin("att1",  _ => _ == 1.0, Option<string>.None), context, CheckStatus.Success);
-            AssertEvaluatesTo(check.HasMax("att1",  _ => _ == 6.0, Option<string>.None), context, CheckStatus.Success);
-            AssertEvaluatesTo(check.HasMean("att1",  _ => _ == 3.5, Option<string>.None), context, CheckStatus.Success);
-            AssertEvaluatesTo(check.HasSum("att1",  _ => _ == 1.0, Option<string>.None), context, CheckStatus.Success);
-            AssertEvaluatesTo(check.HasStandardDeviation("att1",  _ => _ == 1.707825127659933, Option<string>.None), context, CheckStatus.Success);
+
+            AssertEvaluatesTo(check.HasMin("att1", _ => _ == 1.0, Option<string>.None), context, CheckStatus.Success);
+            AssertEvaluatesTo(check.HasMax("att1", _ => _ == 6.0, Option<string>.None), context, CheckStatus.Success);
+            AssertEvaluatesTo(check.HasMean("att1", _ => _ == 3.5, Option<string>.None), context, CheckStatus.Success);
+            AssertEvaluatesTo(check.HasSum("att1", _ => _ == 1.0, Option<string>.None), context, CheckStatus.Success);
+            AssertEvaluatesTo(check.HasStandardDeviation("att1", _ => _ == 1.707825127659933, Option<string>.None), context, CheckStatus.Success);
         }
-        
+
         [Fact]
         public void should_correctly_evaluate_mean_constraints()
         {
             var meanCheck = new Check(CheckLevel.Error, "a")
-                .HasMean("att1", _=> _ == 3.5, Option<string>.None);
-            
+                .HasMean("att1", _ => _ == 3.5, Option<string>.None);
+
             var meanCheckFiltered = new Check(CheckLevel.Error, "a")
-                .HasMean("att1", _=> _ == 5.0, Option<string>.None).Where("att2 > 0");
-            
+                .HasMean("att1", _ => _ == 5.0, Option<string>.None).Where("att2 > 0");
+
             var context =
                 RunChecks(FixtureSupport.GetDFFull(_session), meanCheck, new[] { meanCheckFiltered });
 
             AssertEvaluatesTo(meanCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(meanCheckFiltered, context, CheckStatus.Success);
         }
-        
+
         [Fact(Skip = "Implement HasApproxQuantile")]
         public void should_correctly_evaluate_HasApproxQuantile_constraints()
         {
-            
+
         }
-        
+
         [Fact]
         public void should_yield_correct_results_for_minimum_and_maximum_length_stats()
         {
             var baseCheck = new Check(CheckLevel.Error, "a description");
             var df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            
+
             //var context = new AnalysisRunner()
 
             //AssertEvaluatesTo(meanCheck, context, CheckStatus.Success);

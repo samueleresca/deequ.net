@@ -35,7 +35,7 @@ namespace xdeequ.Analyzers
         public new M Calculate(DataFrame data, Option<IStateLoader> aggregateWith, Option<IStatePersister> saveStateWith);
     }
 
-    public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>, IState 
+    public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>, IState
     {
         public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
         public abstract M ComputeMetricFrom(Option<S> state);

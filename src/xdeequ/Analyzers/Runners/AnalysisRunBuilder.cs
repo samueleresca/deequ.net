@@ -9,7 +9,7 @@ namespace xdeequ.Analyzers.Runners
     public class AnalysisRunBuilder
     {
         protected DataFrame data;
-        protected IEnumerable<IAnalyzer<IMetric>> _analyzers;
+        protected IEnumerable<IAnalyzer<IMetric>> _analyzers = new List<IAnalyzer<IMetric>>();
         protected Option<IMetricsRepository> metricRepository;
         protected Option<ResultKey> ReuseExistingResultsKey;
         protected bool FailIfResultsForReusingMissing = false;
@@ -17,13 +17,18 @@ namespace xdeequ.Analyzers.Runners
         protected Option<SparkSession> sparkSession;
         protected Option<string> SaveSuccessMetricJsonPath;
         protected bool overwriteOutputFiles = false;
-        
-        
+
+
         public AnalysisRunBuilder(DataFrame data)
         {
             this.data = data;
         }
-        
+
+        public AnalysisRunBuilder()
+        {
+
+        }
+
         public AnalysisRunBuilder(AnalysisRunBuilder analysisRunBuilder)
         {
             data = analysisRunBuilder.data;
@@ -38,57 +43,63 @@ namespace xdeequ.Analyzers.Runners
         }
 
 
+        public AnalysisRunBuilder OnData(DataFrame data)
+        {
+            this.data = data;
+            return this;
+        }
+
         public AnalysisRunBuilder AddAnalyzer(IAnalyzer<IMetric> analyzer)
         {
             _analyzers = _analyzers.Append(analyzer);
             return this;
         }
 
-        public AnalysisRunBuilder AddAnalyzer(IEnumerable<IAnalyzer<IMetric>> analyzers)
+        public AnalysisRunBuilder AddAnalyzers(IEnumerable<IAnalyzer<IMetric>> analyzers)
         {
             _analyzers = _analyzers.Concat(analyzers);
             return this;
         }
-        
+
         public AnalysisRunBuilderWithRepository UseRepository(IMetricsRepository metricRepository)
         {
-            return new AnalysisRunBuilderWithRepository(this, 
+            return new AnalysisRunBuilderWithRepository(this,
                 new Option<IMetricsRepository>(metricRepository));
         }
-        
-        
+
+
         public AnalysisRunBuilderWithSparkSession UseSparkSession(SparkSession sparkSession)
         {
-            return new AnalysisRunBuilderWithSparkSession(this, 
+            return new AnalysisRunBuilderWithSparkSession(this,
                 new Option<SparkSession>(sparkSession));
         }
 
         public AnalyzerContext Run()
         {
-           return AnalysisRunner.DoAnalysisRun
-            (
-                data,
-                _analyzers,
-                Option<IStateLoader>.None,
-                Option<IStatePersister>.None,
-                new StorageLevel(),
-                new AnalysisRunnerRepositoryOptions(
-                    metricRepository,
-                    ReuseExistingResultsKey,
-                    SaveOrAppendResultsKey,
-                    FailIfResultsForReusingMissing
-                ),
-                new AnalysisRunnerFileOutputOptions(
-                    sparkSession,
-                    SaveSuccessMetricJsonPath,
-                    overwriteOutputFiles
-                ));
+            return AnalysisRunner.DoAnalysisRun
+             (
+                 data,
+                 _analyzers,
+                 Option<IStateLoader>.None,
+                 Option<IStatePersister>.None,
+                 new StorageLevel(),
+                 new AnalysisRunnerRepositoryOptions(
+                     metricRepository,
+                     ReuseExistingResultsKey,
+                     SaveOrAppendResultsKey,
+                     FailIfResultsForReusingMissing
+                 ),
+                 new AnalysisRunnerFileOutputOptions(
+                     sparkSession,
+                     SaveSuccessMetricJsonPath,
+                     overwriteOutputFiles
+                 ));
         }
     }
 
     public class AnalysisRunBuilderWithRepository : AnalysisRunBuilder
     {
-        public AnalysisRunBuilderWithRepository(AnalysisRunBuilder analysisRunBuilder, 
+        public AnalysisRunBuilderWithRepository(AnalysisRunBuilder analysisRunBuilder,
             Option<IMetricsRepository> usingMetricRepository) : base(analysisRunBuilder)
         {
             metricRepository = usingMetricRepository;
@@ -101,17 +112,17 @@ namespace xdeequ.Analyzers.Runners
             FailIfResultsForReusingMissing = failIfResultsMissing;
             return this;
         }
-        
+
         public AnalysisRunBuilderWithRepository SaveOrAppendResult(ResultKey resultKey)
         {
             SaveOrAppendResultsKey = new Option<ResultKey>(resultKey);
             return this;
         }
     }
-    
+
     public class AnalysisRunBuilderWithSparkSession : AnalysisRunBuilder
     {
-        public AnalysisRunBuilderWithSparkSession(AnalysisRunBuilder analysisRunBuilder, 
+        public AnalysisRunBuilderWithSparkSession(AnalysisRunBuilder analysisRunBuilder,
             Option<SparkSession> usingSparkSession) : base(analysisRunBuilder)
         {
             sparkSession = usingSparkSession;
@@ -122,7 +133,7 @@ namespace xdeequ.Analyzers.Runners
             SaveSuccessMetricJsonPath = new Option<string>(path);
             return this;
         }
-        
+
         public AnalysisRunBuilderWithSparkSession OverwritePreviousFiles(bool overwriteFiles)
         {
             overwriteOutputFiles = overwriteFiles;

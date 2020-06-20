@@ -121,7 +121,7 @@ namespace xdeequ.tests
 
             return sparkSession.CreateDataFrame(elements, schema);
         }
-        
+
         public static DataFrame GetDfWithConditionallyInformativeColumns(SparkSession sparkSession)
         {
             var elements = new List<GenericRow>

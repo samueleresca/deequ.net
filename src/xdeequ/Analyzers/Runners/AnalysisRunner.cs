@@ -53,7 +53,7 @@ namespace xdeequ.Analyzers.Runners
             var allScanningAnalyzers = passedAnalyzers.Except(groupingAnalyzers).Select(x => x);
 
             var nonGroupedMetrics = RunScanningAnalyzers(data, allScanningAnalyzers, aggregateWith, saveStatesWith);
-            
+
             var numRowsOfData = nonGroupedMetrics.Metric(Initializers.Size(Option<string>.None)).Select(x =>
             {
                 if (x is DoubleMetric dm)
@@ -208,7 +208,8 @@ namespace xdeequ.Analyzers.Runners
 
                 var metricsByAnalyzerDict = new Dictionary<IAnalyzer<IMetric>, IMetric>(metricsByAnalyzer);
                 sharedResults = new AnalyzerContext(metricsByAnalyzerDict);
-            } else sharedResults = AnalyzerContext.Empty();
+            }
+            else sharedResults = AnalyzerContext.Empty();
 
             var otherMetrics = new Dictionary<IAnalyzer<IMetric>, IMetric>(others.Select(analyzer =>
                 new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer,

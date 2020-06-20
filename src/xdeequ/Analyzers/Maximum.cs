@@ -36,7 +36,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer 
+    public class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer
     {
         public string Column;
         public Option<string> Where;

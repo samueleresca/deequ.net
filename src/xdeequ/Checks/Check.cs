@@ -611,11 +611,11 @@ namespace xdeequ.Checks
                 .Select(cons =>
                 {
                     if (!(cons is ConstraintDecorator)) return cons;
-                    var nc = (ConstraintDecorator) cons;
+                    var nc = (ConstraintDecorator)cons;
                     return nc.Inner;
                 })
                 .OfType<IAnalysisBasedConstraint>()
-                .Select(x => (IAnalyzer<IMetric>) x.Analyzer);
+                .Select(x => (IAnalyzer<IMetric>)x.Analyzer);
         }
     }
 }

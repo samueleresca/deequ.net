@@ -28,7 +28,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] { ApproxCountDistinct(_column)};
+            return new[] { ApproxCountDistinct(_column) };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)

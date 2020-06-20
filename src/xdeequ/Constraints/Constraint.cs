@@ -119,7 +119,7 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            var histogram =  Histogram(column, binningFunc, @where, maxBins);
+            var histogram = Histogram(column, binningFunc, @where, maxBins);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, Distribution>(histogram, assertion,
@@ -139,7 +139,7 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            var histogram =  Histogram(column, binningFunc, @where, maxBins);
+            var histogram = Histogram(column, binningFunc, @where, maxBins);
 
             var constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long>(histogram, assertion,
