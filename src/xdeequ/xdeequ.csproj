@@ -11,7 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Repository" />
+      <Folder Include="Repository\FileSystem" />
+      <Folder Include="Repository\InMemory" />
     </ItemGroup>
 
 </Project>

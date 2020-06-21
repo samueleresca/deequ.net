@@ -375,7 +375,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsCreditCardNumber({column})");
+            return HasPattern(column, Patterns.CreditCard, assertion, $"ContainsCreditCardNumber({column})");
         }
 
         public CheckWithLastConstraintFilterable ContainsEmail(
@@ -384,7 +384,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsEmail({column})");
+            return HasPattern(column, Patterns.Email, assertion, $"ContainsEmail({column})");
         }
 
         public CheckWithLastConstraintFilterable ContainsURL(
@@ -393,7 +393,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsURL({column})");
+            return HasPattern(column, Patterns.Url, assertion, $"ContainsURL({column})");
         }
 
         public CheckWithLastConstraintFilterable ContainsSSN(
@@ -402,7 +402,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsSSN({column})");
+            return HasPattern(column, Patterns.SocialSecurityNumberUs, assertion, $"ContainsSSN({column})");
         }
 
         public CheckWithLastConstraintFilterable HasDataType(

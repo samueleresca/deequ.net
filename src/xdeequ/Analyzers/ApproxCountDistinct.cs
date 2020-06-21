@@ -21,11 +21,6 @@ namespace xdeequ.Analyzers
 
         public Option<string> FilterCondition() => _where;
 
-        public override Option<NumMatchesAndCount> ComputeStateFrom(DataFrame dataFrame)
-        {
-            return base.ComputeStateFrom(dataFrame);
-        }
-
         public override IEnumerable<Column> AggregationFunctions()
         {
             return new[] { ApproxCountDistinct(_column) };

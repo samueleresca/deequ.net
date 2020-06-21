@@ -834,5 +834,279 @@ namespace xdeequ.tests.Checks
 
             AssertEvaluatesTo(hasPattern, context, CheckStatus.Error);
         }
+
+        [Fact]
+        public void should_check_credit_cards()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"9999888877776666", "invalid"}),
+                new GenericRow(new object[] {"6011 1111 1111 1117", "valid"}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                    new StructField("type", new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .ContainsCreditCardNumber(col, _ => _ == .5, Option<string>.None);
+
+            var checkWithFilter = new Check(CheckLevel.Error, "some description")
+                .ContainsCreditCardNumber(col, _ => _ == 1, Option<string>.None).Where("type = 'valid'");
+
+            var context =
+                RunChecks(df, check, new Check[] { checkWithFilter });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+            AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
+        }
+
+
+        [Fact]
+        public void should_check_email()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"someone@somewhere.org", "valid"}),
+                new GenericRow(new object[] {"someone@else", "invalid"}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                    new StructField("type", new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .ContainsEmail(col, _ => _ == .5, Option<string>.None);
+
+            var checkWithFilter = new Check(CheckLevel.Error, "some description")
+                .ContainsEmail(col, _ => _ == 1, Option<string>.None).Where("type = 'valid'");
+
+            var context =
+                RunChecks(df, check, new Check[] { checkWithFilter });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+            AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_check_SSN()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"111-05-1130", "valid"}),
+                new GenericRow(new object[] {"something else", "invalid"}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                    new StructField("type", new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .ContainsSSN(col, _ => _ == .5, Option<string>.None);
+
+            var checkWithFilter = new Check(CheckLevel.Error, "some description")
+                .ContainsSSN(col, _ => _ == 1, Option<string>.None).Where("type = 'valid'");
+
+            var context =
+                RunChecks(df, check, new[] { checkWithFilter });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+            AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_check_URL()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"https://www.example.com/foo/?bar=baz&inga=42&quux", "valid"}),
+                new GenericRow(new object[] {"http:// shouldfail.com", "invalid"}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                    new StructField("type", new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .ContainsURL(col, _ => _ == .5, Option<string>.None);
+
+            var checkWithFilter = new Check(CheckLevel.Error, "some description")
+                .ContainsURL(col, _ => _ == 1, Option<string>.None).Where("type = 'valid'");
+
+            var context =
+                RunChecks(df, check, new[] { checkWithFilter });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+            AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_check_DataType()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"2", "integral"}),
+                new GenericRow(new object[] {"1.0", "fractional"}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("value", new StringType()),
+                    new StructField("type", new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .HasDataType("value", ConstrainableDataTypes.Integral, _ => _ == .5, Option<string>.None);
+
+            var checkWithFilter = new Check(CheckLevel.Error, "some description")
+                .HasDataType("value", ConstrainableDataTypes.Integral, _ => _ == 1, Option<string>.None).Where("type = 'integral'");
+
+            var context =
+                RunChecks(df, check, new[] { checkWithFilter });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+            AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_find_credit_card_numbers_embedded_in_text()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"My credit card number is: 4111-1111-1111-1111."}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .ContainsCreditCardNumber(col, _ => _ == 1, Option<string>.None);
+
+            var context =
+                RunChecks(df, check, new Check[] { });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_find_emails_embedded_in_text()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"Please contact me at someone@somewhere.org, thank you."}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .ContainsEmail(col, _ => _ == 1, Option<string>.None);
+
+            var context =
+                RunChecks(df, check, new Check[] { });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_find_URL_embedded_in_text()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"Hey, please have a look at https://www.example.com/foo/?bar=baz&inga=42&quux!"}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .ContainsURL(col, _ => _ == 1, Option<string>.None);
+
+            var context =
+                RunChecks(df, check, new Check[] { });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_find_SSN_embedded_in_text()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"My SSN is 111-05-1130, thanks."}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var check = new Check(CheckLevel.Error, "some description")
+                .ContainsSSN(col, _ => _ == 1, Option<string>.None);
+
+            var context =
+                RunChecks(df, check, new Check[] { });
+
+            AssertEvaluatesTo(check, context, CheckStatus.Success);
+        }
     }
 }
