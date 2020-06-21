@@ -23,11 +23,13 @@ namespace xdeequ.Analyzers
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)
+            {
                 return AnalyzersExt.MetricFromEmpty(this, Name, string.Join(',', ColumnsToGroupOn),
                     AnalyzersExt.EntityFrom(ColumnsToGroupOn));
+            }
 
-            var aggregations = AggregationFunctions(state.Value.NumRows);
-            var result = state.Value.Frequencies
+            IEnumerable<Column> aggregations = AggregationFunctions(state.Value.NumRows);
+            Row result = state.Value.Frequencies
                 .Agg(aggregations.First(),
                     aggregations.Skip(1).ToArray())
                 .Collect()
@@ -36,23 +38,21 @@ namespace xdeequ.Analyzers
             return FromAggregationResult(result, 0);
         }
 
-        protected DoubleMetric ToSuccessMetric(double value)
-        {
-            return AnalyzersExt.MetricFromValue(value, Name, string.Join(',', ColumnsToGroupOn),
+        protected DoubleMetric ToSuccessMetric(double value) =>
+            AnalyzersExt.MetricFromValue(value, Name, string.Join(',', ColumnsToGroupOn),
                 AnalyzersExt.EntityFrom(ColumnsToGroupOn));
-        }
 
-        public override DoubleMetric ToFailureMetric(Exception exception)
-        {
-            return AnalyzersExt.MetricFromFailure(exception, Name, string.Join(',', ColumnsToGroupOn),
+        public override DoubleMetric ToFailureMetric(Exception exception) =>
+            AnalyzersExt.MetricFromFailure(exception, Name, string.Join(',', ColumnsToGroupOn),
                 AnalyzersExt.EntityFrom(ColumnsToGroupOn));
-        }
 
         public virtual DoubleMetric FromAggregationResult(Row result, int offset)
         {
             if (result.Values.Length <= offset || result[offset] == null)
+            {
                 return AnalyzersExt.MetricFromEmpty(this, Name, string.Join(',', ColumnsToGroupOn),
                     AnalyzersExt.EntityFrom(ColumnsToGroupOn));
+            }
 
             return ToSuccessMetric(result.GetAs<double>(offset));
         }
@@ -69,39 +69,32 @@ namespace xdeequ.Analyzers
         public string Name { get; set; }
         public IEnumerable<string> ColumnsToGroupOn { get; set; }
 
-        public override IEnumerable<string> GroupingColumns()
-        {
-            return ColumnsToGroupOn;
-        }
+        public override IEnumerable<string> GroupingColumns() => ColumnsToGroupOn;
 
-        public override Option<FrequenciesAndNumRows> ComputeStateFrom(DataFrame dataFrame)
-        {
-            return new Option<FrequenciesAndNumRows>(
+        public override Option<FrequenciesAndNumRows> ComputeStateFrom(DataFrame dataFrame) =>
+            new Option<FrequenciesAndNumRows>(
                 ComputeFrequencies(dataFrame, GroupingColumns(),
                     new Option<string>())
             );
-        }
 
-        public override IEnumerable<Action<StructType>> Preconditions()
-        {
-            return new[] { AnalyzersExt.AtLeastOne(ColumnsToGroupOn) }
+        public override IEnumerable<Action<StructType>> Preconditions() =>
+            new[] {AnalyzersExt.AtLeastOne(ColumnsToGroupOn)}
                 .Concat(ColumnsToGroupOn.Select(AnalyzersExt.HasColumn))
                 .Concat(ColumnsToGroupOn.Select(AnalyzersExt.IsNotNested))
                 .Concat(base.Preconditions());
-        }
 
         public static FrequenciesAndNumRows ComputeFrequencies(DataFrame data,
             IEnumerable<string> groupingColumns, Option<string> where)
         {
-            var columnsToGroupBy = groupingColumns.Select(name => Col(name));
-            var projectionColumns = columnsToGroupBy.Append(Col(AnalyzersExt.COUNT_COL));
-            var atLeasOneNonNullGroupingColumn = groupingColumns.Aggregate(Expr(false.ToString()),
+            IEnumerable<Column> columnsToGroupBy = groupingColumns.Select(name => Col(name));
+            IEnumerable<Column> projectionColumns = columnsToGroupBy.Append(Col(AnalyzersExt.COUNT_COL));
+            Column atLeasOneNonNullGroupingColumn = groupingColumns.Aggregate(Expr(false.ToString()),
                 (condition, name) => condition.Or(Col(name).IsNotNull()));
 
             //TODO: Add Transoform function
             where = where.GetOrElse("true");
 
-            var frequencies = data
+            DataFrame frequencies = data
                 .Select(columnsToGroupBy.ToArray())
                 .Where(atLeasOneNonNullGroupingColumn)
                 .Filter(where.Value)
@@ -109,7 +102,7 @@ namespace xdeequ.Analyzers
                 .Agg(Count(Lit(1)).Alias(AnalyzersExt.COUNT_COL))
                 .Select(projectionColumns.ToArray());
 
-            var numRows = data
+            long numRows = data
                 .Select(columnsToGroupBy.ToArray())
                 .Where(atLeasOneNonNullGroupingColumn)
                 .Filter(where.Value)
@@ -131,18 +124,15 @@ namespace xdeequ.Analyzers
             NumRows = numRows;
         }
 
-        public IState Sum(IState other)
-        {
-            return base.Sum((FrequenciesAndNumRows)other);
-        }
+        public IState Sum(IState other) => base.Sum((FrequenciesAndNumRows)other);
 
         public override FrequenciesAndNumRows Sum(FrequenciesAndNumRows other)
         {
-            var columns = Frequencies.Schema().Fields
+            IEnumerable<string> columns = Frequencies.Schema().Fields
                 .Select(field => field.Name)
                 .Where(field => field != AnalyzersExt.COUNT_COL);
 
-            var projectionAfterMerge = columns
+            IEnumerable<Column> projectionAfterMerge = columns
                 .Select(col =>
                     Coalesce(Col($"this.{col}"), Col($"other.{col}")).As(col))
                 .Append(
@@ -150,11 +140,11 @@ namespace xdeequ.Analyzers
                      AnalyzersExt.ZeroIfNull($"other.{AnalyzersExt.COUNT_COL}")).As(AnalyzersExt.COUNT_COL));
 
 
-            var joinCondition = columns.Aggregate(NullSafeEq(columns.First()),
+            Column joinCondition = columns.Aggregate(NullSafeEq(columns.First()),
                 (previous, result) => previous.And(NullSafeEq(result)));
 
 
-            var frequenciesSum = Frequencies
+            DataFrame frequenciesSum = Frequencies
                 .Alias("this")
                 .Join(other.Frequencies.Alias("other"), joinCondition, "outer")
                 .Select(projectionAfterMerge.ToArray());
@@ -163,9 +153,6 @@ namespace xdeequ.Analyzers
             return new FrequenciesAndNumRows(frequenciesSum, NumRows + other.NumRows);
         }
 
-        private Column NullSafeEq(string column)
-        {
-            return Col($"this.{column}") == Col($"other.{column}");
-        }
+        private Column NullSafeEq(string column) => Col($"this.{column}") == Col($"other.{column}");
     }
 }

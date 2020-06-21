@@ -49,10 +49,9 @@ namespace xdeequ.Metrics
         public override IEnumerable<DoubleMetric> Flatten()
         {
             if (!Value.IsSuccess)
-                return new[]
-                {
-                    new DoubleMetric(Entity, $"{Name}.bins", Instance, new Try<double>(Value.Failure.Value))
-                };
+            {
+                return new[] {new DoubleMetric(Entity, $"{Name}.bins", Instance, new Try<double>(Value.Failure.Value))};
+            }
 
             DoubleMetric[] numberOfBins =
             {
@@ -60,12 +59,12 @@ namespace xdeequ.Metrics
                     $"{Name}.bins", Instance, Value.Get().NumberOfBins)
             };
 
-            var details = Value
+            IEnumerable<DoubleMetric> details = Value
                 .Get()
                 .Values
                 .SelectMany(element =>
                 {
-                    var (key, value) = element;
+                    (string key, DistributionValue value) = element;
                     return new[]
                     {
                         new DoubleMetric(Entity, $"{Name}.abs.{key}", Instance, value.Absolute),

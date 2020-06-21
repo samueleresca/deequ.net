@@ -8,7 +8,8 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer, IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
+    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer,
+        IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
         public readonly Option<string> Where;
         public IEnumerable<string> Columns;
@@ -25,28 +26,17 @@ namespace xdeequ.Analyzers
             Where = Option<string>.None;
         }
 
-        public override DoubleMetric ToFailureMetric(Exception e)
-        {
-            return base.ToFailureMetric(e);
-        }
+        public Option<string> FilterCondition() => Where;
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
 
-        public override IEnumerable<Column> AggregationFunctions(long numRows)
-        {
-            return new[]
-            {
-                Sum(Col(AnalyzersExt.COUNT_COL).EqualTo(Lit(1)).Cast("double")), Count("*")
-            };
-        }
+        public override IEnumerable<Column> AggregationFunctions(long numRows) =>
+            new[] {Sum(Col(AnalyzersExt.COUNT_COL).EqualTo(Lit(1)).Cast("double")), Count("*")};
 
         public override DoubleMetric FromAggregationResult(Row result, int offset)
         {
-            var numUniqueValues = (double)result[offset];
-            var numDistinctValues = (Int32)result[offset + 1];
+            double numUniqueValues = (double)result[offset];
+            int numDistinctValues = (int)result[offset + 1];
 
             return ToSuccessMetric(numUniqueValues / numDistinctValues);
         }

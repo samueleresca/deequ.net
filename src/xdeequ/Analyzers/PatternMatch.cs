@@ -26,34 +26,27 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var expression =
+            Column expression =
                 When(RegexpExtract(Column(Column), Regex.ToString(), 0) != Lit(""), 1)
                     .Otherwise(0);
 
-            var summation = Sum(AnalyzersExt.ConditionalSelection(expression, Where).Cast("integer"));
+            Column summation = Sum(AnalyzersExt.ConditionalSelection(expression, Where).Cast("integer"));
 
-            return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
+            return new[] {summation, AnalyzersExt.ConditionalCount(Where)};
         }
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
-        {
-            return AnalyzersExt.IfNoNullsIn(result, offset,
+        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+            AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
                     (int)result.Get(offset), (int)result.Get(offset + 1)), 2);
-        }
 
-        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
-        {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
-        }
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
     }
 
 

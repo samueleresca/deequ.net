@@ -12,8 +12,8 @@ namespace xdeequ.Analyzers
     public class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
 
     {
-        public readonly Option<string> Where;
         public readonly Option<string> Column;
+        public readonly Option<string> Where;
 
         public Completeness(Option<string> column, Option<string> where) : base("Completeness", column.Value,
             Entity.Column)
@@ -28,37 +28,26 @@ namespace xdeequ.Analyzers
             Where = Option<string>.None;
         }
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
-        {
-            return AnalyzersExt.IfNoNullsIn(result, offset,
+        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+            AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
                     result.GetAs<int>(offset),
                     result.GetAs<int>(offset + 1)), 2);
-        }
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var summarization = Sum(AnalyzersExt.ConditionalSelection(Column, Where)
+            Column summarization = Sum(AnalyzersExt.ConditionalSelection(Column, Where)
                 .IsNotNull()
                 .Cast("int"));
 
-            var conditional = AnalyzersExt.ConditionalCount(Where);
+            Column conditional = AnalyzersExt.ConditionalCount(Where);
 
-            return new[] { summarization, conditional };
+            return new[] {summarization, conditional};
         }
 
-        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
-        {
-            return new[]
-            {
-                AnalyzersExt.HasColumn(Column.Value),
-                AnalyzersExt.IsNotNested(Column.Value)
-            };
-        }
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
+            new[] {AnalyzersExt.HasColumn(Column.Value), AnalyzersExt.IsNotNested(Column.Value)};
     }
 }

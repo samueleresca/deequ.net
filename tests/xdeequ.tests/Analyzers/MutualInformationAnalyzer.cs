@@ -10,20 +10,17 @@ namespace xdeequ.tests.Analyzers
     [Collection("Spark instance")]
     public class MutualInformationAnalyzer
     {
-        public MutualInformationAnalyzer(SparkFixture fixture)
-        {
-            _session = fixture.Spark;
-        }
+        public MutualInformationAnalyzer(SparkFixture fixture) => _session = fixture.Spark;
 
         private readonly SparkSession _session;
 
         [Fact]
         public void compute_correct_metrics_missing()
         {
-            var complete = FixtureSupport.GetDFFull(_session);
+            DataFrame complete = FixtureSupport.GetDFFull(_session);
 
-            var attr1 = MutualInformation(new[] { "att1", "att2" }).Calculate(complete);
-            var expected1 = DoubleMetric
+            DoubleMetric attr1 = MutualInformation(new[] {"att1", "att2"}).Calculate(complete);
+            DoubleMetric expected1 = DoubleMetric
                 .Create(Entity.MultiColumn, "MutualInformation", "att1,att2",
                     -(0.75 * Math.Log(0.75) + 0.25 * Math.Log(0.25)));
 
@@ -36,10 +33,10 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void compute_entropy_for_same_column()
         {
-            var complete = FixtureSupport.GetDFFull(_session);
+            DataFrame complete = FixtureSupport.GetDFFull(_session);
 
-            var entropyViaMI = MutualInformation(new[] { "att1", "att2" }).Calculate(complete);
-            var entropy = Entropy("att1").Calculate(complete);
+            DoubleMetric entropyViaMI = MutualInformation(new[] {"att1", "att2"}).Calculate(complete);
+            DoubleMetric entropy = Entropy("att1").Calculate(complete);
 
             entropyViaMI.Value.IsSuccess.ShouldBeTrue();
             entropy.Value.IsSuccess.ShouldBeTrue();
@@ -49,8 +46,8 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void yields_0_for_conditionally_uninformative_columns()
         {
-            var complete = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
-            MutualInformation(new[] { "att1", "att2" }).Calculate(complete).Value.Get().ShouldBe(0);
+            DataFrame complete = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
+            MutualInformation(new[] {"att1", "att2"}).Calculate(complete).Value.Get().ShouldBe(0);
         }
     }
 }

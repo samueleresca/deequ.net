@@ -32,28 +32,26 @@ namespace xdeequ.Analyzers
         public M MetricFromAggregationResult(Row result, int offset, Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStatesWith);
 
-        public new M Calculate(DataFrame data, Option<IStateLoader> aggregateWith, Option<IStatePersister> saveStateWith);
+        public new M Calculate(DataFrame data, Option<IStateLoader> aggregateWith,
+            Option<IStatePersister> saveStateWith);
     }
 
     public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>, IState
     {
-        public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
-        public abstract M ComputeMetricFrom(Option<S> state);
         public abstract M ToFailureMetric(Exception e);
 
-        public virtual IEnumerable<Action<StructType>> Preconditions()
-        {
-            return Enumerable.Empty<Action<StructType>>();
-        }
+        public virtual IEnumerable<Action<StructType>> Preconditions() => Enumerable.Empty<Action<StructType>>();
 
         public M Calculate(DataFrame data, Option<IStateLoader> aggregateWith, Option<IStatePersister> saveStateWith)
         {
             try
             {
-                foreach (var condition in Preconditions())
+                foreach (Action<StructType> condition in Preconditions())
+                {
                     condition(data.Schema());
+                }
 
-                var state = ComputeStateFrom(data);
+                Option<S> state = ComputeStateFrom(data);
                 return CalculateMetric(state, aggregateWith, saveStateWith);
             }
             catch (Exception e)
@@ -62,19 +60,19 @@ namespace xdeequ.Analyzers
             }
         }
 
-        public M Calculate(DataFrame data)
-        {
-            return Calculate(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
-        }
+        public M Calculate(DataFrame data) => Calculate(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
+
+        public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
+        public abstract M ComputeMetricFrom(Option<S> state);
 
         public M CalculateMetric(Option<S> state, Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStateWith)
         {
-            var loadedState = aggregateWith
+            Option<S> loadedState = aggregateWith
                 .Select(value => value.Load(new Option<Analyzer<S, M>>(this)))
                 .GetOrElse(Option<S>.None);
 
-            var stateToComputeMetricFrom = AnalyzersExt.Merge(loadedState, state);
+            Option<S> stateToComputeMetricFrom = AnalyzersExt.Merge(loadedState, state);
 
             saveStateWith
                 .Select(persister =>
@@ -85,10 +83,10 @@ namespace xdeequ.Analyzers
 
         public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
         {
-            var maybeStateA = sourceA.Load(new Option<Analyzer<S, M>>(this));
-            var maybeStateB = sourceB.Load(new Option<Analyzer<S, M>>(this));
+            Option<S> maybeStateA = sourceA.Load(new Option<Analyzer<S, M>>(this));
+            Option<S> maybeStateB = sourceB.Load(new Option<Analyzer<S, M>>(this));
 
-            var aggregated = (maybeStateA.HasValue, maybeStateB.HasValue) switch
+            S aggregated = (maybeStateA.HasValue, maybeStateB.HasValue) switch
             {
                 (true, true) => maybeStateA.Value.Sum(maybeStateB.Value),
                 (true, false) => maybeStateA.Value,
@@ -99,15 +97,11 @@ namespace xdeequ.Analyzers
             target.Persist(new Option<Analyzer<S, M>>(this), new Option<S>(aggregated));
         }
 
-        public Option<M> LoadStateAndComputeMetric(IStateLoader source)
-        {
-            return new Option<M>(ComputeMetricFrom(source.Load(new Option<Analyzer<S, M>>(this))));
-        }
+        public Option<M> LoadStateAndComputeMetric(IStateLoader source) =>
+            new Option<M>(ComputeMetricFrom(source.Load(new Option<Analyzer<S, M>>(this))));
 
-        public void CopyStateTo(IStateLoader source, IStatePersister target)
-        {
+        public void CopyStateTo(IStateLoader source, IStatePersister target) =>
             target.Persist(new Option<Analyzer<S, M>>(this), source.Load(new Option<Analyzer<S, M>>(this)));
-        }
     }
 
     public abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M>, IScanSharableAnalyzer<S, M>
@@ -118,7 +112,7 @@ namespace xdeequ.Analyzers
         public M MetricFromAggregationResult(Row result, int offset, Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStatesWith)
         {
-            var state = FromAggregationResult(result, offset);
+            Option<S> state = FromAggregationResult(result, offset);
             return CalculateMetric(state, aggregateWith, saveStatesWith);
         }
 
@@ -126,8 +120,8 @@ namespace xdeequ.Analyzers
 
         public override Option<S> ComputeStateFrom(DataFrame dataFrame)
         {
-            var aggregations = AggregationFunctions();
-            var result = dataFrame
+            IEnumerable<Column> aggregations = AggregationFunctions();
+            Row result = dataFrame
                 .Agg(aggregations.First(), aggregations.Skip(1).ToArray())
                 .Collect()
                 .FirstOrDefault();
@@ -152,24 +146,18 @@ namespace xdeequ.Analyzers
         public string Name { get; set; }
         public string Instance { get; set; }
 
-        public override IEnumerable<Action<StructType>> Preconditions()
-        {
-            return AdditionalPreconditions().Concat(base.Preconditions());
-        }
+        public override IEnumerable<Action<StructType>> Preconditions() =>
+            AdditionalPreconditions().Concat(base.Preconditions());
 
-        public override DoubleMetric ToFailureMetric(Exception e)
-        {
-            return AnalyzersExt.MetricFromFailure(e, Name, Instance, Entity);
-        }
+        public override DoubleMetric ToFailureMetric(Exception e) =>
+            AnalyzersExt.MetricFromFailure(e, Name, Instance, Entity);
 
-        public virtual IEnumerable<Action<StructType>> AdditionalPreconditions()
-        {
-            return Enumerable.Empty<Action<StructType>>();
-        }
+        public virtual IEnumerable<Action<StructType>> AdditionalPreconditions() =>
+            Enumerable.Empty<Action<StructType>>();
 
         public override DoubleMetric ComputeMetricFrom(Option<S> state)
         {
-            var metric = state.HasValue switch
+            DoubleMetric metric = state.HasValue switch
             {
                 true => AnalyzersExt.MetricFromValue(new Try<double>(state.Value.MetricValue()), Name, Instance,
                     Entity),
@@ -192,19 +180,17 @@ namespace xdeequ.Analyzers
             Count = count;
         }
 
-        public IState Sum(IState other)
-        {
-            throw new NotImplementedException();
-        }
+        public IState Sum(IState other) => throw new NotImplementedException();
 
-        public override NumMatchesAndCount Sum(NumMatchesAndCount other)
-        {
-            return new NumMatchesAndCount(NumMatches + other.NumMatches, Count + other.Count);
-        }
+        public override NumMatchesAndCount Sum(NumMatchesAndCount other) =>
+            new NumMatchesAndCount(NumMatches + other.NumMatches, Count + other.Count);
 
         public override double MetricValue()
         {
-            if (Count == 0L) return double.NaN;
+            if (Count == 0L)
+            {
+                return double.NaN;
+            }
 
             return (double)NumMatches / Count;
         }
@@ -224,16 +210,19 @@ namespace xdeequ.Analyzers
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
-            if (result[offset] == null || result[offset + 1] == null) return Option<NumMatchesAndCount>.None;
+            if (result[offset] == null || result[offset + 1] == null)
+            {
+                return Option<NumMatchesAndCount>.None;
+            }
 
-            var state = new NumMatchesAndCount((long)result[offset], (long)result[offset + 1]);
+            NumMatchesAndCount state = new NumMatchesAndCount((long)result[offset], (long)result[offset + 1]);
             return new Option<NumMatchesAndCount>(state);
         }
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var selection = AnalyzersExt.ConditionalSelection(Predicate, Where);
-            return new[] { selection, Count("*") }.AsEnumerable();
+            Column selection = AnalyzersExt.ConditionalSelection(Predicate, Where);
+            return new[] {selection, Count("*")}.AsEnumerable();
         }
     }
 
@@ -241,23 +230,19 @@ namespace xdeequ.Analyzers
     {
         public abstract IEnumerable<string> GroupingColumns();
 
-        public new M Calculate(DataFrame data)
-        {
-            return base.Calculate(data);
-        }
+        public new M Calculate(DataFrame data) => base.Calculate(data);
 
-        public override IEnumerable<Action<StructType>> Preconditions()
-        {
-            return GroupingColumns().Select(HasColumn).Concat(base.Preconditions());
-        }
+        public override IEnumerable<Action<StructType>> Preconditions() =>
+            GroupingColumns().Select(HasColumn).Concat(base.Preconditions());
 
 
-        public static Action<StructType> HasColumn(string column)
-        {
-            return schema =>
+        public static Action<StructType> HasColumn(string column) =>
+            schema =>
             {
-                if (!AnalyzersExt.HasColumn(schema, column)) throw new Exception("Input data does not include column!");
+                if (!AnalyzersExt.HasColumn(schema, column))
+                {
+                    throw new Exception("Input data does not include column!");
+                }
             };
-        }
     }
 }

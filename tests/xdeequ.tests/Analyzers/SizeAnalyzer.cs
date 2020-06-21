@@ -10,20 +10,17 @@ namespace xdeequ.tests.Analyzers
     [Collection("Spark instance")]
     public class SizeAnalyzer
     {
-        public SizeAnalyzer(SparkFixture fixture)
-        {
-            _session = fixture.Spark;
-        }
+        public SizeAnalyzer(SparkFixture fixture) => _session = fixture.Spark;
 
         private readonly SparkSession _session;
 
         [Fact]
         public void compute_correct_metrics_full()
         {
-            var full = FixtureSupport.GetDFFull(_session);
+            DataFrame full = FixtureSupport.GetDFFull(_session);
 
-            var actualFull = Size(Option<string>.None).Calculate(full);
-            var expectedFull = DoubleMetric.Create(Entity.DataSet, "Size", "*", full.Count());
+            DoubleMetric actualFull = Size(Option<string>.None).Calculate(full);
+            DoubleMetric expectedFull = DoubleMetric.Create(Entity.DataSet, "Size", "*", full.Count());
 
             actualFull.Entity.ShouldBe(expectedFull.Entity);
             actualFull.Name.ShouldBe(expectedFull.Name);
@@ -34,10 +31,10 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void compute_correct_metrics_missing()
         {
-            var missing = FixtureSupport.GetDFMissing(_session);
+            DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
-            var actualMissing = Size(Option<string>.None).Calculate(missing);
-            var expectedMissing = DoubleMetric.Create(Entity.DataSet, "Size", "*", missing.Count());
+            DoubleMetric actualMissing = Size(Option<string>.None).Calculate(missing);
+            DoubleMetric expectedMissing = DoubleMetric.Create(Entity.DataSet, "Size", "*", missing.Count());
 
             actualMissing.Entity.ShouldBe(expectedMissing.Entity);
             actualMissing.Name.ShouldBe(expectedMissing.Name);

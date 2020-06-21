@@ -12,41 +12,40 @@ namespace xdeequ.Analyzers
 {
     public class Entropy : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {
-        public readonly Option<string> Where;
         public Option<string> Column;
+        public Option<string> Where;
 
         public Entropy(Option<string> column, Option<string> where) : base("Entropy",
-            new[] { column.Value }.AsEnumerable())
+            new[] {column.Value}.AsEnumerable())
         {
             Column = column;
             Where = where;
         }
 
-        public Entropy(Option<string> column) : base("Entropy", new[] { column.Value }.AsEnumerable())
+        public Entropy(Option<string> column) : base("Entropy", new[] {column.Value}.AsEnumerable())
         {
             Column = column;
             Where = Option<string>.None;
         }
 
-        public override DoubleMetric ToFailureMetric(Exception e)
-        {
-            return base.ToFailureMetric(e);
-        }
+        public Option<string> FilterCondition() => Where;
+
+        public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
 
 
         public override IEnumerable<Column> AggregationFunctions(long numRows)
         {
-            var summands = Udf<double, double>(count =>
+            Func<Column, Column> summands = Udf<double, double>(count =>
             {
                 if (count == 0.0)
+                {
                     return 0.0;
+                }
 
                 return -(count / numRows) * Math.Log(count / numRows);
             });
 
-            return new[] { Sum(summands(Col(AnalyzersExt.COUNT_COL).Cast("double"))) };
+            return new[] {Sum(summands(Col(AnalyzersExt.COUNT_COL).Cast("double")))};
         }
-
-        public Option<string> FilterCondition() => Where;
     }
 }

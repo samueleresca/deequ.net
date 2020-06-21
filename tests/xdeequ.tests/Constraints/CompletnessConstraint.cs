@@ -11,17 +11,14 @@ namespace xdeequ.tests.Constraints
     [Collection("Spark instance")]
     public class CompletenessConstraint
     {
-        public CompletenessConstraint(SparkFixture fixture)
-        {
-            _session = fixture.Spark;
-        }
+        public CompletenessConstraint(SparkFixture fixture) => _session = fixture.Spark;
 
         private readonly SparkSession _session;
 
         [Fact]
         public void assert_on_wrong_completeness()
         {
-            var df = FixtureSupport.GetDFMissing(_session);
+            DataFrame df = FixtureSupport.GetDFMissing(_session);
 
             ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att1",
                 d => d == 0.5,

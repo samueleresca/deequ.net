@@ -11,34 +11,21 @@ namespace xdeequ.Analyzers
     {
         public IEnumerable<IAnalyzer<IMetric>> Analyzers;
 
-        public Analysis(IEnumerable<IAnalyzer<IMetric>> analyzers)
-        {
-            Analyzers = analyzers;
-        }
+        public Analysis(IEnumerable<IAnalyzer<IMetric>> analyzers) => Analyzers = analyzers;
 
-        public Analysis()
-        {
-            Analyzers = new List<IAnalyzer<IMetric>>();
-        }
+        public Analysis() => Analyzers = new List<IAnalyzer<IMetric>>();
 
-        public Analysis AddAnalyzer(IAnalyzer<IMetric> analyzer)
-        {
-            return new Analysis(Analyzers.Append(analyzer));
-        }
+        public Analysis AddAnalyzer(IAnalyzer<IMetric> analyzer) => new Analysis(Analyzers.Append(analyzer));
 
-        public Analysis AddAnalyzers(IEnumerable<IAnalyzer<IMetric>> analyzers)
-        {
-            return new Analysis(Analyzers.Concat(analyzers));
-        }
+        public Analysis AddAnalyzers(IEnumerable<IAnalyzer<IMetric>> analyzers) =>
+            new Analysis(Analyzers.Concat(analyzers));
 
         public AnalyzerContext Run(DataFrame data,
             Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStateWith,
-            StorageLevel storageLevelOfGroupedDataForMultiplePasses)
-        {
-            return AnalysisRunner.DoAnalysisRun(
+            StorageLevel storageLevelOfGroupedDataForMultiplePasses) =>
+            AnalysisRunner.DoAnalysisRun(
                 data,
                 Analyzers, aggregateWith, saveStateWith, storageLevelOfGroupedDataForMultiplePasses);
-        }
     }
 }

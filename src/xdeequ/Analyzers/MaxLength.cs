@@ -21,24 +21,17 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
-        public override IEnumerable<Column> AggregationFunctions()
+        public override IEnumerable<Column> AggregationFunctions() => new[]
         {
-            return new[] { Max(Length(AnalyzersExt.ConditionalSelection(Column, Where))).Cast("double") };
-        }
+            Max(Length(AnalyzersExt.ConditionalSelection(Column, Where))).Cast("double")
+        };
 
-        public override Option<MaxState> FromAggregationResult(Row result, int offset)
-        {
-            return AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
-        }
+        public override Option<MaxState> FromAggregationResult(Row result, int offset) =>
+            AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
 
-        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
-        {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
-        }
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
     }
 }

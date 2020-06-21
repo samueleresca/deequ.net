@@ -9,14 +9,15 @@ namespace xdeequ.tests.Constraints
         public static ConstraintResult Calculate<S, M, V>(IConstraint constraint, DataFrame dataFrame)
             where S : IState
         {
-            var analysisBasedConstraint = constraint;
+            IConstraint analysisBasedConstraint = constraint;
             if (analysisBasedConstraint is ConstraintDecorator)
             {
-                var cd = (ConstraintDecorator)constraint;
+                ConstraintDecorator cd = (ConstraintDecorator)constraint;
                 analysisBasedConstraint = cd.Inner;
             }
 
-            var constraintCasted = (AnalysisBasedConstraint<S, M, V>)analysisBasedConstraint;
+            AnalysisBasedConstraint<S, M, V> constraintCasted =
+                (AnalysisBasedConstraint<S, M, V>)analysisBasedConstraint;
             return constraintCasted.CalculateAndEvaluate(dataFrame);
         }
     }

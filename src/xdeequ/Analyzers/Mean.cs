@@ -21,24 +21,22 @@ namespace xdeequ.Analyzers
             _count = count;
         }
 
-        public IState Sum(IState other)
-        {
-            throw new NotImplementedException();
-        }
+        public IState Sum(IState other) => throw new NotImplementedException();
 
-        public override MeanState Sum(MeanState other)
-        {
-            return new MeanState(_sum + other._sum, _count + other._count);
-        }
+        public override MeanState Sum(MeanState other) => new MeanState(_sum + other._sum, _count + other._count);
 
         public override double MetricValue()
         {
-            if (_count == 0L) return double.NaN;
+            if (_count == 0L)
+            {
+                return double.NaN;
+            }
+
             return _sum / _count;
         }
     }
 
-    public class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer
     {
         public string Column;
         public Option<string> Where;
@@ -50,30 +48,21 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
-        public override IEnumerable<Column> AggregationFunctions()
-        {
-            return new[]
+        public override IEnumerable<Column> AggregationFunctions() =>
+            new[]
             {
                 Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double"),
                 Count(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("long")
             };
-        }
 
-        public override Option<MeanState> FromAggregationResult(Row result, int offset)
-        {
-            return AnalyzersExt.IfNoNullsIn(result, offset,
+        public override Option<MeanState> FromAggregationResult(Row result, int offset) =>
+            AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new MeanState((double)result.Get(offset),
                     (int)result.Get(offset + 1)), 2);
-        }
 
-        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
-        {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
-        }
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
     }
 }

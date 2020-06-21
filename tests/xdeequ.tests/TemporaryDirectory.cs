@@ -36,15 +36,26 @@ namespace xdeequ.tests
         private void Cleanup()
         {
             if (File.Exists(Path))
+            {
                 File.Delete(Path);
-            else if (Directory.Exists(Path)) Directory.Delete(Path, true);
+            }
+            else if (Directory.Exists(Path))
+            {
+                Directory.Delete(Path, true);
+            }
         }
 
         private void Dispose(bool disposing)
         {
-            if (disposed) return;
+            if (disposed)
+            {
+                return;
+            }
 
-            if (disposing) Cleanup();
+            if (disposing)
+            {
+                Cleanup();
+            }
 
             disposed = true;
         }

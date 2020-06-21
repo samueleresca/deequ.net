@@ -1,7 +1,6 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using xdeequ.Analyzers;
 using xdeequ.Util;
 
 namespace xdeequ.Metrics
@@ -10,8 +9,8 @@ namespace xdeequ.Metrics
     {
         public override IMetric Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            JsonDocument.TryParseValue(ref reader, out var document);
-            var metricName = document.RootElement.GetProperty("metricName").GetString();
+            JsonDocument.TryParseValue(ref reader, out JsonDocument document);
+            string metricName = document.RootElement.GetProperty("metricName").GetString();
 
             if (metricName == "DoubleMetric")
             {
@@ -20,8 +19,7 @@ namespace xdeequ.Metrics
                     document.RootElement.GetProperty("name").GetString(),
                     document.RootElement.GetProperty("instance").GetString(),
                     document.RootElement.GetProperty("value").GetDouble()
-                    );
-
+                );
             }
 
             if (metricName == "HistogramMetric")
@@ -40,7 +38,10 @@ namespace xdeequ.Metrics
         {
             if (value is DoubleMetric dm)
             {
-                if (!dm.Value.IsSuccess) throw new ArgumentException("Unable to serialize failed metrics.");
+                if (!dm.Value.IsSuccess)
+                {
+                    throw new ArgumentException("Unable to serialize failed metrics.");
+                }
 
                 writer.WriteString("metricName", "DoubleMetric");
                 writer.WriteString("entity", dm.Entity.ToString());
@@ -53,14 +54,15 @@ namespace xdeequ.Metrics
 
             if (value is HistogramMetric hm)
             {
-                if (!hm.Value.IsSuccess) throw new ArgumentException("Unable to serialize failed metrics.");
+                if (!hm.Value.IsSuccess)
+                {
+                    throw new ArgumentException("Unable to serialize failed metrics.");
+                }
 
                 writer.WriteString("metricName", "HistogramMetric");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, hm.Column);
                 writer.WriteString("numberOfBins", hm.Value.Get().NumberOfBins.ToString());
                 writer.WriteString("value", JsonSerializer.Serialize(hm.Value.GetOrElse(null)));
-
-                return;
             }
 
             //TODO: implement keyed double metric

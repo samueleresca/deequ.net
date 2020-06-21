@@ -11,17 +11,14 @@ namespace xdeequ.tests.Constraints
     [Collection("Spark instance")]
     public class MutualInformationConstraints
     {
-        public MutualInformationConstraints(SparkFixture fixture)
-        {
-            _session = fixture.Spark;
-        }
+        public MutualInformationConstraints(SparkFixture fixture) => _session = fixture.Spark;
 
         private readonly SparkSession _session;
 
         [Fact]
         public void yield_a_mutual_information_of_0_for_conditionally_uninformative_columns()
         {
-            var df = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
+            DataFrame df = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
 
             ConstraintUtils.Calculate<FrequenciesAndNumRows, double, double>(MutualInformationConstraint("att1", "att2",
                     _ => _ == 0,

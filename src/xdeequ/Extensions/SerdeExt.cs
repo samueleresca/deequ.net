@@ -20,8 +20,10 @@ namespace xdeequ.Metrics
         public static void WriteArray(this Utf8JsonWriter writer, string fieldName, IEnumerable<string> values)
         {
             writer.WriteStartArray(COLUMNS_FIELD);
-            foreach (var val in values)
+            foreach (string val in values)
+            {
                 writer.WriteStringValue(val);
+            }
 
             writer.WriteEndArray();
         }

@@ -6,10 +6,7 @@ namespace xdeequ.tests.Analyzers
     [Collection("Spark instance")]
     public class PearsonCorrelation
     {
-        public PearsonCorrelation(SparkFixture fixture)
-        {
-            _session = fixture.Spark;
-        }
+        public PearsonCorrelation(SparkFixture fixture) => _session = fixture.Spark;
 
         private readonly SparkSession _session;
 

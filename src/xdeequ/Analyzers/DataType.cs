@@ -47,58 +47,57 @@ namespace xdeequ.Analyzers
         public long NumBoolean { get; set; }
         public long NumString { get; set; }
 
-        public IState Sum(IState other)
-        {
-            throw new NotImplementedException();
-        }
+        public IState Sum(IState other) => throw new NotImplementedException();
 
-        public override DataTypeHistogram Sum(DataTypeHistogram other)
-        {
-            return new DataTypeHistogram(NonNull + other.NonNull, NumFractional + other.NumFractional,
+        public override DataTypeHistogram Sum(DataTypeHistogram other) =>
+            new DataTypeHistogram(NonNull + other.NonNull, NumFractional + other.NumFractional,
                 NumIntegral + other.NumIntegral, NumBoolean + other.NumBoolean, NumString + other.NumString);
-        }
 
         public static DataTypeHistogram FromArray(int[] typesCount)
         {
-            if (typesCount.Length != SIZE_IN_BITES) throw new Exception();
+            if (typesCount.Length != SIZE_IN_BITES)
+            {
+                throw new Exception();
+            }
 
-            var numNull = typesCount[NULL_POS];
-            var numFractional = typesCount[FRATIONAL_POS];
-            var numIntegral = typesCount[INTEGRAL_POS];
-            var numBoolean = typesCount[BOOLEAN_POS];
-            var numString = typesCount[STRING_POS];
+            int numNull = typesCount[NULL_POS];
+            int numFractional = typesCount[FRATIONAL_POS];
+            int numIntegral = typesCount[INTEGRAL_POS];
+            int numBoolean = typesCount[BOOLEAN_POS];
+            int numString = typesCount[STRING_POS];
 
             return new DataTypeHistogram(numNull, numFractional, numIntegral, numBoolean, numString);
         }
 
         public static Distribution ToDistribution(DataTypeHistogram hist)
         {
-            var totalObservations =
+            long totalObservations =
                 hist.NonNull + hist.NumString + hist.NumBoolean + hist.NumIntegral + hist.NumFractional;
 
-            return new Distribution(new Dictionary<string, DistributionValue>
-            {
+            return new Distribution(
+                new Dictionary<string, DistributionValue>
                 {
-                    DataTypeInstances.Unknown.ToString(),
-                    new DistributionValue(hist.NonNull, (double) hist.NonNull / totalObservations)
-                },
-                {
-                    DataTypeInstances.Fractional.ToString(),
-                    new DistributionValue(hist.NumFractional, (double) hist.NumFractional / totalObservations)
-                },
-                {
-                    DataTypeInstances.Integral.ToString(),
-                    new DistributionValue(hist.NumIntegral, (double) hist.NumIntegral / totalObservations)
-                },
-                {
-                    DataTypeInstances.Boolean.ToString(),
-                    new DistributionValue(hist.NumBoolean, (double) hist.NumBoolean / totalObservations)
-                },
-                {
-                    DataTypeInstances.String.ToString(),
-                    new DistributionValue(hist.NumString, (double) hist.NumString / totalObservations)
-                }
-            }, 5);
+                    {
+                        DataTypeInstances.Unknown.ToString(),
+                        new DistributionValue(hist.NonNull, (double)hist.NonNull / totalObservations)
+                    },
+                    {
+                        DataTypeInstances.Fractional.ToString(),
+                        new DistributionValue(hist.NumFractional, (double)hist.NumFractional / totalObservations)
+                    },
+                    {
+                        DataTypeInstances.Integral.ToString(),
+                        new DistributionValue(hist.NumIntegral, (double)hist.NumIntegral / totalObservations)
+                    },
+                    {
+                        DataTypeInstances.Boolean.ToString(),
+                        new DistributionValue(hist.NumBoolean, (double)hist.NumBoolean / totalObservations)
+                    },
+                    {
+                        DataTypeInstances.String.ToString(),
+                        new DistributionValue(hist.NumString, (double)hist.NumString / totalObservations)
+                    }
+                }, 5);
         }
     }
 
@@ -114,27 +113,21 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public override HistogramMetric ToFailureMetric(Exception e)
-        {
-            return new HistogramMetric(Column, new Try<Distribution>(e));
-        }
+        public override HistogramMetric ToFailureMetric(Exception e) =>
+            new HistogramMetric(Column, new Try<Distribution>(e));
 
-        public override IEnumerable<Action<StructType>> Preconditions()
-        {
-            return new[]
-                {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column)}.Concat(base.Preconditions());
-        }
+        public override IEnumerable<Action<StructType>> Preconditions() =>
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column)}.Concat(base.Preconditions());
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
         public override HistogramMetric ComputeMetricFrom(Option<DataTypeHistogram> state)
         {
             //TODO: Empty message as exception
             if (!state.HasValue)
+            {
                 return ToFailureMetric(new EmptyStateException(string.Empty));
+            }
 
             return new HistogramMetric(Column, new Try<Distribution>(DataTypeHistogram.ToDistribution(state.Value)));
         }
@@ -142,14 +135,14 @@ namespace xdeequ.Analyzers
 
         public override Option<DataTypeHistogram> ComputeStateFrom(DataFrame dataFrame)
         {
-            var statefulDataType = new StatefulDataType();
-            var aggregations = AggregationFunctions();
-            var arrayDataTypeCountUdf = Udf<string, int[]>(value => statefulDataType.Update(value));
+            StatefulDataType statefulDataType = new StatefulDataType();
+            IEnumerable<Column> aggregations = AggregationFunctions();
+            Func<Column, Column> arrayDataTypeCountUdf = Udf<string, int[]>(value => statefulDataType.Update(value));
 
-            var listOfColumns = statefulDataType.ColumnNames();
-            var aggregatedColumn = statefulDataType.GetAggregatedColumn();
+            string[] listOfColumns = statefulDataType.ColumnNames();
+            string aggregatedColumn = statefulDataType.GetAggregatedColumn();
 
-            var result = dataFrame
+            Row result = dataFrame
                 .WithColumn(aggregatedColumn, arrayDataTypeCountUdf(aggregations.First().Cast("string")))
                 .WithColumn(listOfColumns[0], Column(aggregatedColumn).GetItem(0))
                 .WithColumn(listOfColumns[1], Column(aggregatedColumn).GetItem(1))
@@ -164,18 +157,11 @@ namespace xdeequ.Analyzers
             return FromAggregationResult(result, 0);
         }
 
-        public override IEnumerable<Column> AggregationFunctions()
-        {
-            return new[]
-            {
-                AnalyzersExt.ConditionalSelection(Column, Where)
-            };
-        }
+        public override IEnumerable<Column> AggregationFunctions() =>
+            new[] {AnalyzersExt.ConditionalSelection(Column, Where)};
 
-        public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset)
-        {
-            return AnalyzersExt.IfNoNullsIn(result, offset,
+        public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
+            AnalyzersExt.IfNoNullsIn(result, offset,
                 () => { return DataTypeHistogram.FromArray(result.Values.Select(x => (int)x).ToArray()); });
-        }
     }
 }

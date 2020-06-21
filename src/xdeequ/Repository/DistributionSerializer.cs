@@ -10,14 +10,17 @@ namespace xdeequ.Metrics
     {
         public override Distribution Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            JsonDocument.TryParseValue(ref reader, out var document);
+            JsonDocument.TryParseValue(ref reader, out JsonDocument document);
 
-            var values = document.RootElement.GetProperty("values");
-            var distributionValues = values.EnumerateArray().Select(x =>
-               new KeyValuePair<string, DistributionValue>(x.GetProperty("key").GetString(),
-                   new DistributionValue(x.GetProperty("absolute").GetInt64(), x.GetProperty("ratio").GetInt64())));
+            JsonElement values = document.RootElement.GetProperty("values");
+            IEnumerable<KeyValuePair<string, DistributionValue>> distributionValues = values.EnumerateArray().Select(
+                x =>
+                    new KeyValuePair<string, DistributionValue>(x.GetProperty("key").GetString(),
+                        new DistributionValue(x.GetProperty("absolute").GetInt64(),
+                            x.GetProperty("ratio").GetInt64())));
 
-            return new Distribution(new Dictionary<string, DistributionValue>(distributionValues), document.RootElement.GetProperty("numberOfBins").GetInt64());
+            return new Distribution(new Dictionary<string, DistributionValue>(distributionValues),
+                document.RootElement.GetProperty("numberOfBins").GetInt64());
         }
 
         public override void Write(Utf8JsonWriter writer, Distribution distribution, JsonSerializerOptions options)
@@ -25,7 +28,7 @@ namespace xdeequ.Metrics
             writer.WriteNumber("numberOfBins", distribution.NumberOfBins);
 
             writer.WriteStartArray("values");
-            foreach (var distributionValue in distribution.Values)
+            foreach (KeyValuePair<string, DistributionValue> distributionValue in distribution.Values)
             {
                 writer.WriteString("key", distributionValue.Key);
                 writer.WriteNumber("absolute", distributionValue.Value.Absolute);
@@ -33,7 +36,6 @@ namespace xdeequ.Metrics
             }
 
             writer.WriteEndArray();
-
         }
     }
 }

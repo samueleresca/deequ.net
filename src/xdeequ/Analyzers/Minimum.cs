@@ -14,26 +14,17 @@ namespace xdeequ.Analyzers
     {
         private readonly double _minValue;
 
-        public MinState(double minValue)
-        {
-            _minValue = minValue;
-        }
+        public MinState(double minValue) => _minValue = minValue;
 
         public IState Sum(IState other)
         {
-            var otherMin = (MinState)other;
+            MinState otherMin = (MinState)other;
             return new MinState(Math.Min(_minValue, otherMin._minValue));
         }
 
-        public override MinState Sum(MinState other)
-        {
-            return new MinState(Math.Min(_minValue, other._minValue));
-        }
+        public override MinState Sum(MinState other) => new MinState(Math.Min(_minValue, other._minValue));
 
-        public override double MetricValue()
-        {
-            return _minValue;
-        }
+        public override double MetricValue() => _minValue;
     }
 
     public class Minimum : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
@@ -48,25 +39,16 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
 
-        public override IEnumerable<Column> AggregationFunctions()
-        {
-            return new[] { Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
-        }
+        public override IEnumerable<Column> AggregationFunctions() =>
+            new[] {Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
 
-        public override Option<MinState> FromAggregationResult(Row result, int offset)
-        {
-            return AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
-        }
+        public override Option<MinState> FromAggregationResult(Row result, int offset) =>
+            AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
-        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
-        {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
-        }
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
     }
 }

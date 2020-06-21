@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.States;
@@ -60,16 +59,20 @@ namespace xdeequ.Constraints
             try
             {
                 if (!metric.Value.IsSuccess)
+                {
                     return new ConstraintResult(this, ConstraintStatus.Failure,
                         metric.Value.Failure.Value.Message, metric);
+                }
 
-                var assertOn = RunPickerOnMetric(metric.Value.Get());
-                var assertionOk = RunAssertion(assertOn);
+                V assertOn = RunPickerOnMetric(metric.Value.Get());
+                bool assertionOk = RunAssertion(assertOn);
 
                 if (assertionOk)
+                {
                     return new ConstraintResult(this, ConstraintStatus.Success, Option<string>.None, metric);
+                }
 
-                var errorMessage = $"Value: {assertOn.ToString()} does not meet the constraint requirement!";
+                string errorMessage = $"Value: {assertOn.ToString()} does not meet the constraint requirement!";
                 hint = hint.Select(err => err += hint);
 
                 return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage, metric);
@@ -95,8 +98,14 @@ namespace xdeequ.Constraints
             try
             {
                 Option<V> result;
-                if (valuePicker.HasValue) result = valuePicker.Select(func => func(metricValue));
-                else result = (V)(object)metricValue;
+                if (valuePicker.HasValue)
+                {
+                    result = valuePicker.Select(func => func(metricValue));
+                }
+                else
+                {
+                    result = (V)(object)metricValue;
+                }
 
                 return result.Value;
             }
@@ -120,8 +129,8 @@ namespace xdeequ.Constraints
 
         public ConstraintResult CalculateAndEvaluate(DataFrame df)
         {
-            var metric = Analyzer.Calculate(df) as Metric<M>;
-            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> { { Analyzer, metric } });
+            Metric<M> metric = Analyzer.Calculate(df) as Metric<M>;
+            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> {{Analyzer, metric}});
         }
     }
 

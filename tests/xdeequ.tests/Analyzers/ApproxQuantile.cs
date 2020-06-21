@@ -6,10 +6,7 @@ namespace xdeequ.tests.Analyzers
     [Collection("Spark instance")]
     public class ApproxQuantile
     {
-        public ApproxQuantile(SparkFixture fixture)
-        {
-            _session = fixture.Spark;
-        }
+        public ApproxQuantile(SparkFixture fixture) => _session = fixture.Spark;
 
         private readonly SparkSession _session;
 

@@ -10,20 +10,11 @@ namespace xdeequ.Analyzers.Runners
     {
         public Dictionary<IAnalyzer<IMetric>, IMetric> MetricMap;
 
-        public AnalyzerContext(Dictionary<IAnalyzer<IMetric>, IMetric> metricMap)
-        {
-            MetricMap = metricMap;
-        }
+        public AnalyzerContext(Dictionary<IAnalyzer<IMetric>, IMetric> metricMap) => MetricMap = metricMap;
 
-        public static AnalyzerContext Empty()
-        {
-            return new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>());
-        }
+        public static AnalyzerContext Empty() => new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>());
 
-        public IEnumerable<IMetric> AllMetrics()
-        {
-            return MetricMap.Values.AsEnumerable();
-        }
+        public IEnumerable<IMetric> AllMetrics() => MetricMap.Values.AsEnumerable();
 
         public static AnalyzerContext operator +(AnalyzerContext current, AnalyzerContext other)
         {

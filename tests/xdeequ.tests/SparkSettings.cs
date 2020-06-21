@@ -24,14 +24,17 @@ namespace xdeequ.tests
         {
             SparkHome =
                 $"{Environment.GetEnvironmentVariable("HOME")}{Path.DirectorySeparatorChar}bin/spark-2.4.4-bin-hadoop2.7";
-            if (SparkHome == null) throw new NullException("SPARK_HOME environment variable is not set.");
+            if (SparkHome == null)
+            {
+                throw new NullException("SPARK_HOME environment variable is not set.");
+            }
         }
 
         private static void InitVersion()
         {
             // First line of the RELEASE file under SPARK_HOME will be something similar to:
             // Spark 2.3.2 built for Hadoop 2.7.3
-            var firstLine =
+            string firstLine =
                 File.ReadLines($"{SparkHome}{Path.DirectorySeparatorChar}RELEASE").First();
             Version = new Version(firstLine.Split(' ')[1]);
         }

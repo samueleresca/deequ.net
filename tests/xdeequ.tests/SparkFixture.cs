@@ -29,10 +29,12 @@ namespace xdeequ.tests
         {
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
+            {
                 throw new Exception(
                     $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
+            }
 
-            BuildSparkCmd(out var filename, out var args);
+            BuildSparkCmd(out string filename, out string args);
 
             // Configure the process using the StartInfo properties.
             _process.StartInfo.FileName = filename;
@@ -45,21 +47,26 @@ namespace xdeequ.tests
             _process.StartInfo.RedirectStandardOutput = true;
             _process.StartInfo.RedirectStandardError = true;
 
-            var isSparkReady = false;
+            bool isSparkReady = false;
             _process.OutputDataReceived += (sender, arguments) =>
             {
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
                 if (!isSparkReady &&
                     arguments.Data.Contains("Backend running debug mode"))
+                {
                     isSparkReady = true;
+                }
             };
 
             _process.Start();
             _process.BeginOutputReadLine();
 
-            var processExited = false;
-            while (!isSparkReady && !processExited) processExited = _process.WaitForExit(500);
+            bool processExited = false;
+            while (!isSparkReady && !processExited)
+            {
+                processExited = _process.WaitForExit(500);
+            }
 
             if (processExited)
             {
@@ -99,30 +106,39 @@ namespace xdeequ.tests
 
         private void BuildSparkCmd(out string filename, out string args)
         {
-            var sparkHome = SparkSettings.SparkHome;
+            string sparkHome = SparkSettings.SparkHome;
 
             // Build the executable name.
             filename = Path.Combine(sparkHome, "bin", "spark-submit");
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) filename += ".cmd";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                filename += ".cmd";
+            }
 
-            if (!File.Exists(filename)) throw new FileNotFoundException($"{filename} does not exist.");
+            if (!File.Exists(filename))
+            {
+                throw new FileNotFoundException($"{filename} does not exist.");
+            }
 
             // Build the arguments for the spark-submit.
-            var classArg = "--class org.apache.spark.deploy.dotnet.DotnetRunner";
-            var curDir = AppDomain.CurrentDomain.BaseDirectory;
-            var jarPrefix = GetJarPrefix();
-            var scalaDir = Path.Combine(curDir, "..", "..", "..", "scala");
-            var jarDir = Path.Combine(scalaDir, jarPrefix, "target");
-            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-            var jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
+            string classArg = "--class org.apache.spark.deploy.dotnet.DotnetRunner";
+            string? curDir = AppDomain.CurrentDomain.BaseDirectory;
+            string jarPrefix = GetJarPrefix();
+            string scalaDir = Path.Combine(curDir, "..", "..", "..", "scala");
+            string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
+            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+            string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
 
-            if (!File.Exists(jar)) throw new FileNotFoundException($"{jar} does not exist.");
+            if (!File.Exists(jar))
+            {
+                throw new FileNotFoundException($"{jar} does not exist.");
+            }
 
-            var warehouseUri = new Uri(
+            string warehouseUri = new Uri(
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
-            var warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
+            string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
 
-            var extraArgs = Environment.GetEnvironmentVariable(
+            string? extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
 
             // If there exists log4j.properties in SPARK_HOME/conf directory, Spark from 2.3.*
@@ -131,16 +147,16 @@ namespace xdeequ.tests
             // Note that the hang happens in JVM when it tries to append a console logger (log4j).
             // The solution is to use custom log configuration that appends NullLogger, which
             // works across all Spark versions.
-            var resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;
-            var logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
-                            $"{resourceUri}/log4j.properties";
+            string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;
+            string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
+                               $"{resourceUri}/log4j.properties";
 
             args = $"{logOption} {warehouseDir} {extraArgs} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix()
         {
-            var sparkVersion = SparkSettings.Version;
+            Version sparkVersion = SparkSettings.Version;
             return $"microsoft-spark-{sparkVersion.Major}.{sparkVersion.Minor}.x";
         }
 

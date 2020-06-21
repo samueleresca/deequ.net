@@ -14,26 +14,17 @@ namespace xdeequ.Analyzers
     {
         private readonly double _sum;
 
-        public SumState(double sum)
-        {
-            _sum = sum;
-        }
+        public SumState(double sum) => _sum = sum;
 
         public IState Sum(IState other)
         {
-            var sumStateOther = (SumState)other;
+            SumState sumStateOther = (SumState)other;
             return new SumState(_sum + sumStateOther._sum);
         }
 
-        public override SumState Sum(SumState other)
-        {
-            return new SumState(_sum + other._sum);
-        }
+        public override SumState Sum(SumState other) => new SumState(_sum + other._sum);
 
-        public override double MetricValue()
-        {
-            return _sum;
-        }
+        public override double MetricValue() => _sum;
     }
 
     public class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
@@ -47,39 +38,21 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public new DoubleMetric Calculate(DataFrame data)
-        {
-            return base.Calculate(data);
-        }
+        public new DoubleMetric Calculate(DataFrame data) => base.Calculate(data);
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
-        public static Sum Create(string column)
-        {
-            return new Sum(column, new Option<string>());
-        }
+        public static Sum Create(string column) => new Sum(column, new Option<string>());
 
-        public static Sum Create(string column, string where)
-        {
-            return new Sum(column, where);
-        }
+        public static Sum Create(string column, string where) => new Sum(column, where);
 
-        public override IEnumerable<Column> AggregationFunctions()
-        {
-            return new[] { Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
-        }
+        public override IEnumerable<Column> AggregationFunctions() =>
+            new[] {Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
 
-        public override Option<SumState> FromAggregationResult(Row result, int offset)
-        {
-            return AnalyzersExt.IfNoNullsIn(result, offset, () => new SumState(result.GetAs<double>(offset)));
-        }
+        public override Option<SumState> FromAggregationResult(Row result, int offset) =>
+            AnalyzersExt.IfNoNullsIn(result, offset, () => new SumState(result.GetAs<double>(offset)));
 
-        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
-        {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
-        }
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
     }
 }

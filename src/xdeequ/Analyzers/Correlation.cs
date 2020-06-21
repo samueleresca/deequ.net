@@ -13,19 +13,11 @@ namespace xdeequ.Analyzers
         {
         }
 
-        public Option<string> FilterCondition()
-        {
-            throw new NotImplementedException();
-        }
+        public Option<string> FilterCondition() => throw new NotImplementedException();
 
-        public override IEnumerable<Column> AggregationFunctions()
-        {
-            throw new NotImplementedException();
-        }
+        public override IEnumerable<Column> AggregationFunctions() => throw new NotImplementedException();
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
-        {
+        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             throw new NotImplementedException();
-        }
     }
 }

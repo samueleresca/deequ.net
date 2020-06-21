@@ -15,9 +15,9 @@ namespace xdeequ.Analyzers
     {
         public static int MaxDetailBins = 1000;
         public static string NullFieldReplacement = "NullValue";
+        private readonly int _maxDetailBins;
         public readonly Option<Func<Column, Column>> BinningUdf;
         public readonly string Column;
-        private readonly int _maxDetailBins;
         public readonly Option<string> Where;
 
         public Histogram(string column, Option<string> where, Option<Func<Column, Column>> binningUdf,
@@ -29,32 +29,22 @@ namespace xdeequ.Analyzers
             _maxDetailBins = maxDetailBins;
         }
 
-        public override IEnumerable<Action<StructType>> Preconditions()
-        {
-            return new[] { PARAM_CHECK(), AnalyzersExt.HasColumn(Column) };
-        }
+        public Option<string> FilterCondition() => Where;
 
-        public override HistogramMetric ToFailureMetric(Exception e)
-        {
-            return new HistogramMetric(Column, new Try<Distribution>(ExceptionExt.WrapIfNecessary(e)));
-        }
+        public override IEnumerable<Action<StructType>> Preconditions() =>
+            new[] {PARAM_CHECK(), AnalyzersExt.HasColumn(Column)};
 
-        public new HistogramMetric Calculate(DataFrame data)
-        {
-            return base.Calculate(data);
-        }
+        public override HistogramMetric ToFailureMetric(Exception e) =>
+            new HistogramMetric(Column, new Try<Distribution>(ExceptionExt.WrapIfNecessary(e)));
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public new HistogramMetric Calculate(DataFrame data) => base.Calculate(data);
 
         public override Option<FrequenciesAndNumRows> ComputeStateFrom(DataFrame dataFrame)
         {
-            var totalCount = dataFrame.Count();
+            long totalCount = dataFrame.Count();
 
-            var dataFrameFiltered = FilterOptional(Where, dataFrame);
-            var binnedDataFrame = BinOptional(BinningUdf, dataFrameFiltered);
+            DataFrame dataFrameFiltered = FilterOptional(Where, dataFrame);
+            DataFrame binnedDataFrame = BinOptional(BinningUdf, dataFrameFiltered);
 
             binnedDataFrame = binnedDataFrame.Select(Col(Column).Cast("string"))
                 .Na().Fill(NullFieldReplacement)
@@ -69,18 +59,20 @@ namespace xdeequ.Analyzers
         public override HistogramMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)
+            {
                 return new HistogramMetric(Column, new Try<Distribution>(new Exception()));
+            }
 
-            var topNRows =
+            IEnumerable<Row> topNRows =
                 state.Value.Frequencies.OrderBy(Desc(AnalyzersExt.COUNT_COL)).Take(_maxDetailBins);
-            var binCount = state.Value.Frequencies.Count();
+            long binCount = state.Value.Frequencies.Count();
 
-            var histogramDetails = topNRows
+            Dictionary<string, DistributionValue> histogramDetails = topNRows
                 .Select(row =>
                 {
-                    var discreteValue = (string)row[0];
-                    var absolute = row.GetAs<int>(1);
-                    var ratio = (double)absolute / state.Value.NumRows;
+                    string discreteValue = (string)row[0];
+                    int absolute = row.GetAs<int>(1);
+                    double ratio = (double)absolute / state.Value.NumRows;
 
                     return new KeyValuePair<string, DistributionValue>(discreteValue,
                         new DistributionValue(absolute, ratio));
@@ -88,37 +80,33 @@ namespace xdeequ.Analyzers
                 .ToDictionary(x => x.Key,
                     x => x.Value);
 
-            var distribution = new Distribution(histogramDetails, binCount);
+            Distribution distribution = new Distribution(histogramDetails, binCount);
 
             return new HistogramMetric(Column, distribution);
         }
 
-        private Action<StructType> PARAM_CHECK()
-        {
-            return _ =>
+        private Action<StructType> PARAM_CHECK() =>
+            _ =>
             {
                 if (_maxDetailBins > MaxDetailBins)
+                {
                     throw new Exception(
                         $"Cannot return histogram values for more than ${MaxDetailBins} values");
+                }
             };
-        }
 
-        private DataFrame BinOptional(Option<Func<Column, Column>> binningUdf, DataFrame dataFrame)
-        {
-            return binningUdf.HasValue switch
+        private DataFrame BinOptional(Option<Func<Column, Column>> binningUdf, DataFrame dataFrame) =>
+            binningUdf.HasValue switch
             {
                 true => dataFrame.WithColumn(Column, binningUdf.Value(Col(Column))),
                 false => dataFrame
             };
-        }
 
-        private DataFrame FilterOptional(Option<string> where, DataFrame dataFrame)
-        {
-            return where.HasValue switch
+        private DataFrame FilterOptional(Option<string> where, DataFrame dataFrame) =>
+            where.HasValue switch
             {
                 true => dataFrame.Filter(where.Value),
                 false => dataFrame
             };
-        }
     }
 }

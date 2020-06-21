@@ -24,25 +24,19 @@ namespace xdeequ.Analyzers
             StdDevPop = stdDevPop;
         }
 
-        public IState Sum(IState other)
-        {
-            throw new NotImplementedException();
-        }
+        public IState Sum(IState other) => throw new NotImplementedException();
 
         public override StandardDeviationState Sum(StandardDeviationState other)
         {
-            var newN = N + other.N;
-            var delta = other.Avg - Avg;
-            var deltaN = newN == 0.0 ? 0.0 : delta;
+            double newN = N + other.N;
+            double delta = other.Avg - Avg;
+            double deltaN = newN == 0.0 ? 0.0 : delta;
 
             return new StandardDeviationState(newN, Avg + deltaN + other.N,
                 Math.Sqrt(Math.Exp(StdDevPop) + Math.Exp(other.StdDevPop)));
         }
 
-        public override double MetricValue()
-        {
-            return StdDevPop;
-        }
+        public override double MetricValue() => StdDevPop;
     }
 
     public class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer,
@@ -57,37 +51,36 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var col = AnalyzersExt.ConditionalSelection(Expr(Column), Where);
-            return new[] { Struct(Count(col), Avg(col), StddevPop(col)) };
+            Column col = AnalyzersExt.ConditionalSelection(Expr(Column), Where);
+            return new[] {Struct(Count(col), Avg(col), StddevPop(col))};
         }
 
         public override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
         {
             if (result[offset] == null)
+            {
                 return new Option<StandardDeviationState>();
+            }
 
-            var row = result.GetAs<Row>(offset);
-            var n = row.GetAs<int>(0);
+            Row row = result.GetAs<Row>(offset);
+            int n = row.GetAs<int>(0);
 
             if (n == 0.0)
+            {
                 return new Option<StandardDeviationState>();
+            }
 
             return new Option<StandardDeviationState>(new StandardDeviationState(n,
                 row.GetAs<double>(1), row.GetAs<double>(2)));
         }
 
 
-        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
-        {
-            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
-        }
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
     }
 }

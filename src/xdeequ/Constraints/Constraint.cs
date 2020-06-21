@@ -52,18 +52,19 @@ namespace xdeequ.Constraints
     {
         private readonly IConstraint _inner;
 
-        public ConstraintDecorator(IConstraint constraint)
-        {
-            _inner = constraint;
-        }
+        public ConstraintDecorator(IConstraint constraint) => _inner = constraint;
 
         public IConstraint Inner
         {
             get
             {
-                var dc = _inner is ConstraintDecorator;
-                if (!dc) return _inner;
-                var result = (ConstraintDecorator)_inner;
+                bool dc = _inner is ConstraintDecorator;
+                if (!dc)
+                {
+                    return _inner;
+                }
+
+                ConstraintDecorator result = (ConstraintDecorator)_inner;
                 return result.Inner;
             }
         }
@@ -71,7 +72,7 @@ namespace xdeequ.Constraints
         public ConstraintResult Evaluate(
             Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
         {
-            var result = _inner.Evaluate(analysisResult);
+            ConstraintResult result = _inner.Evaluate(analysisResult);
             result.Constraint = this;
             return result;
         }
@@ -85,17 +86,11 @@ namespace xdeequ.Constraints
   */
     public class NamedConstraint : ConstraintDecorator
     {
-        public NamedConstraint(IConstraint constraint, string name) : base(constraint)
-        {
-            _name = name;
-        }
+        public NamedConstraint(IConstraint constraint, string name) : base(constraint) => _name = name;
 
         private string _name { get; }
 
-        public override string ToString()
-        {
-            return _name;
-        }
+        public override string ToString() => _name;
     }
 
     public static class Functions
@@ -104,8 +99,9 @@ namespace xdeequ.Constraints
             Option<string> where, Option<string> hint)
         {
             Size size = Size(where);
-            var constraint =
-                new AnalysisBasedConstraint<NumMatches, double, double>(size, assertion, Option<Func<double, double>>.None,
+            AnalysisBasedConstraint<NumMatches, double, double> constraint =
+                new AnalysisBasedConstraint<NumMatches, double, double>(size, assertion,
+                    Option<Func<double, double>>.None,
                     hint);
             return new NamedConstraint(constraint, $"SizeConstraint{size}");
         }
@@ -119,9 +115,9 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            var histogram = Histogram(column, binningFunc, @where, maxBins);
+            Histogram histogram = Histogram(column, binningFunc, where, maxBins);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, Distribution> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, Distribution>(histogram, assertion,
                     Option<Func<Distribution, Distribution>>.None, hint);
 
@@ -139,9 +135,9 @@ namespace xdeequ.Constraints
             int maxBins = 1000
         )
         {
-            var histogram = Histogram(column, binningFunc, @where, maxBins);
+            Histogram histogram = Histogram(column, binningFunc, where, maxBins);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long>(histogram, assertion,
                     new Func<Distribution, long>(_ => _.NumberOfBins),
                     hint);
@@ -160,7 +156,7 @@ namespace xdeequ.Constraints
         {
             IAnalyzer<IMetric> completeness = Completeness(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<NumMatchesAndCount, double, double> constraint =
                 new AnalysisBasedConstraint<NumMatchesAndCount, double, double>(completeness, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -174,7 +170,8 @@ namespace xdeequ.Constraints
             Option<string> hint
         ) where S : State<S>, IState
         {
-            var constraint = new AnalysisBasedConstraint<S, double, double>(analyzer, anomalyAssertion, hint);
+            AnalysisBasedConstraint<S, double, double> constraint =
+                new AnalysisBasedConstraint<S, double, double>(analyzer, anomalyAssertion, hint);
             return new NamedConstraint(constraint, $"AnomalyConstraint{analyzer}");
         }
 
@@ -185,9 +182,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var uniqueness = Uniqueness(column, where);
+            Uniqueness uniqueness = Uniqueness(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(uniqueness, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -202,9 +199,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var uniqueness = Uniqueness(columns, where);
+            Uniqueness uniqueness = Uniqueness(columns, where);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(uniqueness, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -219,9 +216,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var distinctness = Distinctness(columns, where);
+            Distinctness distinctness = Distinctness(columns, where);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(distinctness, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -239,7 +236,7 @@ namespace xdeequ.Constraints
         {
             IAnalyzer<IMetric> distinctness = UniqueValueRatio(columns, where);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(distinctness, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -256,9 +253,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var compliance = Compliance(name, column.Value, where);
+            Compliance compliance = Compliance(name, column.Value, where);
 
-            var constraint =
+            AnalysisBasedConstraint<NumMatchesAndCount, double, double> constraint =
                 new AnalysisBasedConstraint<NumMatchesAndCount, double, double>(compliance, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -274,10 +271,10 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var mutualInformation =
-                MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where);
+            MutualInformation mutualInformation =
+                MutualInformation(new[] {columnA, columnB}.AsEnumerable(), where);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(mutualInformation, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -292,9 +289,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var entropy = Entropy(column, where);
+            Entropy entropy = Entropy(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(entropy, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -310,9 +307,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var patternMatch = PatternMatch(column, pattern, where);
+            PatternMatch patternMatch = PatternMatch(column, pattern, where);
 
-            var constraint =
+            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(patternMatch, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -327,9 +324,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var maxLength = MaxLength(column, where);
+            MaxLength maxLength = MaxLength(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<MaxState, double, double> constraint =
                 new AnalysisBasedConstraint<MaxState, double, double>(maxLength, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -344,9 +341,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var minLength = MinLength(column, where);
+            MinLength minLength = MinLength(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<MinState, double, double> constraint =
                 new AnalysisBasedConstraint<MinState, double, double>(minLength, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -361,9 +358,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var min = Minimum(column, where);
+            Minimum min = Minimum(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<MinState, double, double> constraint =
                 new AnalysisBasedConstraint<MinState, double, double>(min, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -378,9 +375,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var max = Maximum(column, where);
+            Maximum max = Maximum(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<MaxState, double, double> constraint =
                 new AnalysisBasedConstraint<MaxState, double, double>(max, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -395,9 +392,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var mean = Mean(column, where);
+            Mean mean = Mean(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<MeanState, double, double> constraint =
                 new AnalysisBasedConstraint<MeanState, double, double>(mean, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -412,9 +409,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var sum = Sum(column, where);
+            Sum sum = Sum(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<SumState, double, double> constraint =
                 new AnalysisBasedConstraint<SumState, double, double>(sum, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -429,9 +426,9 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var stDev = StandardDeviation(column, where);
+            StandardDeviation stDev = StandardDeviation(column, where);
 
-            var constraint =
+            AnalysisBasedConstraint<StandardDeviationState, double, double> constraint =
                 new AnalysisBasedConstraint<StandardDeviationState, double, double>(stDev, assertion,
                     Option<Func<double, double>>.None, hint);
 
@@ -444,10 +441,8 @@ namespace xdeequ.Constraints
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
-        )
-        {
+        ) =>
             throw new NotImplementedException();
-        }
 
         public static IConstraint CorrelationConstraint(
             string columnA,
@@ -455,10 +450,8 @@ namespace xdeequ.Constraints
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
-        )
-        {
+        ) =>
             throw new NotImplementedException();
-        }
 
         public static IConstraint DataTypeConstraint(
             string column,
@@ -468,12 +461,13 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var valuePicker = dataType == ConstrainableDataTypes.Numeric
+            Func<Distribution, double> valuePicker = dataType == ConstrainableDataTypes.Numeric
                 ? d => RatioTypes(true, DataTypeInstances.Fractional, d) +
                        RatioTypes(true, DataTypeInstances.Integral, d)
                 : new Func<Distribution, double>(distribution =>
                 {
-                    var pure = new Func<DataTypeInstances, double>(keyType => RatioTypes(true, keyType, distribution));
+                    Func<DataTypeInstances, double> pure =
+                        new Func<DataTypeInstances, double>(keyType => RatioTypes(true, keyType, distribution));
                     return dataType switch
                     {
                         ConstrainableDataTypes.Null => RatioTypes(false, DataTypeInstances.Unknown, distribution),
@@ -484,7 +478,7 @@ namespace xdeequ.Constraints
                     };
                 });
 
-            var dataTypeResult = DataType(column, where);
+            DataType dataTypeResult = DataType(column, where);
 
             return new AnalysisBasedConstraint<DataTypeHistogram, Distribution, double>(dataTypeResult, assertion,
                 valuePicker, hint);
@@ -494,24 +488,28 @@ namespace xdeequ.Constraints
         private static double RatioTypes(bool ignoreUnknown, DataTypeInstances keyType, Distribution distribution)
         {
             if (!ignoreUnknown)
+            {
                 return distribution
                     .Values[keyType.ToString()]?
                     .Ratio ?? 0.0;
+            }
 
 
-            var absoluteCount = distribution
+            long absoluteCount = distribution
                 .Values[keyType.ToString()]?
                 .Absolute ?? 0L;
 
             if (absoluteCount == 0L)
+            {
                 return 0;
+            }
 
-            var numValues = distribution.Values.Sum(x => x.Value.Absolute);
-            var numUnknown = distribution
+            long numValues = distribution.Values.Sum(x => x.Value.Absolute);
+            long numUnknown = distribution
                 .Values[DataTypeInstances.Unknown.ToString()]?
                 .Absolute ?? 0L;
 
-            var sumOfNonNull = numValues - numUnknown;
+            long sumOfNonNull = numValues - numUnknown;
             return (double)absoluteCount / sumOfNonNull;
         }
     }

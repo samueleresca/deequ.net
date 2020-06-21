@@ -20,22 +20,17 @@ namespace xdeequ.Analyzers
             Predicate = predicate;
         }
 
-        public Option<string> FilterCondition()
-        {
-            return Where;
-        }
+        public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var summation = Sum(AnalyzersExt.ConditionalSelection(Predicate, Where).Cast("int"));
+            Column summation = Sum(AnalyzersExt.ConditionalSelection(Predicate, Where).Cast("int"));
 
-            return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
+            return new[] {summation, AnalyzersExt.ConditionalCount(Where)};
         }
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
-        {
-            return AnalyzersExt.IfNoNullsIn(result, offset, () =>
+        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+            AnalyzersExt.IfNoNullsIn(result, offset, () =>
                 new NumMatchesAndCount(result.GetAs<int>(offset), result.GetAs<int>(offset + 1)), 2);
-        }
     }
 }

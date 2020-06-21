@@ -4,6 +4,7 @@ using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using xdeequ.Analyzers;
+using xdeequ.Metrics;
 using Xunit;
 using static xdeequ.Analyzers.Initializers;
 
@@ -12,10 +13,7 @@ namespace xdeequ.tests.Analyzers
     [Collection("Spark instance")]
     public class PatternMatch
     {
-        public PatternMatch(SparkFixture fixture)
-        {
-            _session = fixture.Spark;
-        }
+        public PatternMatch(SparkFixture fixture) => _session = fixture.Spark;
 
         private readonly SparkSession _session;
         private readonly string someColumnName = "some";
@@ -23,7 +21,7 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void match_credit_card_numbers()
         {
-            var elements = new List<GenericRow>
+            List<GenericRow> elements = new List<GenericRow>
             {
                 new GenericRow(new object[] {"378282246310005"}),
                 new GenericRow(new object[] {"6011111111111117"}),
@@ -37,15 +35,12 @@ namespace xdeequ.tests.Analyzers
                 new GenericRow(new object[] {"00001111222233"})
             };
 
-            var schema = new StructType(
-                new List<StructField>
-                {
-                    new StructField(someColumnName, new StringType())
-                });
+            StructType schema = new StructType(
+                new List<StructField> {new StructField(someColumnName, new StringType())});
 
-            var df = _session.CreateDataFrame(elements, schema);
+            DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            var result = PatternMatch(someColumnName, Patterns.CreditCard)
+            DoubleMetric result = PatternMatch(someColumnName, Patterns.CreditCard)
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -55,21 +50,18 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void match_email_addresses()
         {
-            var elements = new List<GenericRow>
+            List<GenericRow> elements = new List<GenericRow>
             {
                 new GenericRow(new object[] {"someone@somewhere.org"}),
                 new GenericRow(new object[] {"someone@else"})
             };
 
-            var schema = new StructType(
-                new List<StructField>
-                {
-                    new StructField(someColumnName, new StringType())
-                });
+            StructType schema = new StructType(
+                new List<StructField> {new StructField(someColumnName, new StringType())});
 
-            var df = _session.CreateDataFrame(elements, schema);
+            DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            var result = PatternMatch(someColumnName, Patterns.Email)
+            DoubleMetric result = PatternMatch(someColumnName, Patterns.Email)
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -79,21 +71,17 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void match_integers_in_a_String_column()
         {
-            var elements = new List<GenericRow>
+            List<GenericRow> elements = new List<GenericRow>
             {
-                new GenericRow(new object[] {"1"}),
-                new GenericRow(new object[] {"a"})
+                new GenericRow(new object[] {"1"}), new GenericRow(new object[] {"a"})
             };
 
-            var schema = new StructType(
-                new List<StructField>
-                {
-                    new StructField(someColumnName, new StringType())
-                });
+            StructType schema = new StructType(
+                new List<StructField> {new StructField(someColumnName, new StringType())});
 
-            var df = _session.CreateDataFrame(elements, schema);
+            DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            var result = PatternMatch(someColumnName, new Regex(@"\d"))
+            DoubleMetric result = PatternMatch(someColumnName, new Regex(@"\d"))
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -103,7 +91,7 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void match_URLS()
         {
-            var elements = new List<GenericRow>
+            List<GenericRow> elements = new List<GenericRow>
             {
                 new GenericRow(new object[] {"http://foo.com/blah_blah"}),
                 new GenericRow(new object[] {"http://foo.com/blah_blah_(wikipedia)"}),
@@ -120,15 +108,12 @@ namespace xdeequ.tests.Analyzers
                 new GenericRow(new object[] {"http://.www.foo.bar/"})
             };
 
-            var schema = new StructType(
-                new List<StructField>
-                {
-                    new StructField(someColumnName, new StringType())
-                });
+            StructType schema = new StructType(
+                new List<StructField> {new StructField(someColumnName, new StringType())});
 
-            var df = _session.CreateDataFrame(elements, schema);
+            DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            var result = PatternMatch(someColumnName, Patterns.Url)
+            DoubleMetric result = PatternMatch(someColumnName, Patterns.Url)
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -139,7 +124,7 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void match_US_SSN()
         {
-            var elements = new List<GenericRow>
+            List<GenericRow> elements = new List<GenericRow>
             {
                 new GenericRow(new object[] {"111-05-1130"}),
                 new GenericRow(new object[] {"111051130"}),
@@ -151,15 +136,12 @@ namespace xdeequ.tests.Analyzers
                 new GenericRow(new object[] {"999-05-1130"})
             };
 
-            var schema = new StructType(
-                new List<StructField>
-                {
-                    new StructField(someColumnName, new StringType())
-                });
+            StructType schema = new StructType(
+                new List<StructField> {new StructField(someColumnName, new StringType())});
 
-            var df = _session.CreateDataFrame(elements, schema);
+            DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            var result = PatternMatch(someColumnName, Patterns.SocialSecurityNumberUs)
+            DoubleMetric result = PatternMatch(someColumnName, Patterns.SocialSecurityNumberUs)
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeTrue();
@@ -169,7 +151,7 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void not_match_doubles_in_nullable_column()
         {
-            var elements = new List<GenericRow>
+            List<GenericRow> elements = new List<GenericRow>
             {
                 new GenericRow(new object[] {1.1}),
                 new GenericRow(new object[] {null}),
@@ -177,15 +159,12 @@ namespace xdeequ.tests.Analyzers
                 new GenericRow(new object[] {4.4})
             };
 
-            var schema = new StructType(
-                new List<StructField>
-                {
-                    new StructField(someColumnName, new DoubleType())
-                });
+            StructType schema = new StructType(
+                new List<StructField> {new StructField(someColumnName, new DoubleType())});
 
-            var df = _session.CreateDataFrame(elements, schema);
+            DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            var result = PatternMatch(someColumnName, new Regex(@"\d\.\d"))
+            DoubleMetric result = PatternMatch(someColumnName, new Regex(@"\d\.\d"))
                 .Calculate(df);
 
             result.Value.IsSuccess.ShouldBeFalse();

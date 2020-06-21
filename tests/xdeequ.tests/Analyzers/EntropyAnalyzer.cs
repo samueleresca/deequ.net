@@ -11,24 +11,21 @@ namespace xdeequ.tests.Analyzers
     [Collection("Spark instance")]
     public class EntropyAnalyzer
     {
-        public EntropyAnalyzer(SparkFixture fixture)
-        {
-            _session = fixture.Spark;
-        }
+        public EntropyAnalyzer(SparkFixture fixture) => _session = fixture.Spark;
 
         private readonly SparkSession _session;
 
         [Fact]
         public void compute_correct_metrics_missing()
         {
-            var complete = FixtureSupport.GetDFFull(_session);
+            DataFrame complete = FixtureSupport.GetDFFull(_session);
 
-            var attr1 = Entropy("att1").Calculate(complete);
-            var attr2 = Entropy("att2").Calculate(complete);
+            DoubleMetric attr1 = Entropy("att1").Calculate(complete);
+            DoubleMetric attr2 = Entropy("att2").Calculate(complete);
 
 
-            var expected1 = DoubleMetric.Create(Entity.Column, "Entropy", "att1", new Try<double>(0));
-            var expected2 = DoubleMetric.Create(Entity.Column, "Entropy", "att2",
+            DoubleMetric expected1 = DoubleMetric.Create(Entity.Column, "Entropy", "att1", new Try<double>(0));
+            DoubleMetric expected2 = DoubleMetric.Create(Entity.Column, "Entropy", "att2",
                 -(0.75 * Math.Log(0.75) + 0.25 * Math.Log(0.25)));
 
 
