@@ -352,12 +352,21 @@ namespace xdeequ.Checks
             string column,
             Regex pattern,
             Func<double, bool> assertion,
-            Option<string> name,
             Option<string> hint
         )
         {
             return AddFilterableConstraint(filter =>
-                PatternMatchConstraint(column, pattern, assertion, filter, name, hint));
+                PatternMatchConstraint(column, pattern, assertion, filter, hint));
+        }
+
+        public CheckWithLastConstraintFilterable HasPattern(
+            string column,
+            Regex pattern,
+            Option<string> hint
+        )
+        {
+            return AddFilterableConstraint(filter =>
+                PatternMatchConstraint(column, pattern, Check.IsOne, filter, hint));
         }
 
         public CheckWithLastConstraintFilterable ContainsCreditCardNumber(
@@ -366,7 +375,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsCreditCardNumber({column})", hint);
+            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsCreditCardNumber({column})");
         }
 
         public CheckWithLastConstraintFilterable ContainsEmail(
@@ -375,7 +384,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsEmail({column})", hint);
+            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsEmail({column})");
         }
 
         public CheckWithLastConstraintFilterable ContainsURL(
@@ -384,7 +393,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsURL({column})", hint);
+            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsURL({column})");
         }
 
         public CheckWithLastConstraintFilterable ContainsSSN(
@@ -393,7 +402,7 @@ namespace xdeequ.Checks
             Option<string> hint
         )
         {
-            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsSSN({column})", hint);
+            return HasPattern(column, new Regex(string.Empty), assertion, $"ContainsSSN({column})");
         }
 
         public CheckWithLastConstraintFilterable HasDataType(

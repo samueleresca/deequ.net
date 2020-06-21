@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
@@ -32,7 +34,7 @@ namespace xdeequ.tests.Checks
             var analyzers = check.RequiredAnalyzers()
                 .Concat(checks.SelectMany(x => x.RequiredAnalyzers())).AsEnumerable();
 
-            return new AnalysisRunBuilder(data)
+            return new AnalysisRunBuilder()
                 .OnData(data)
                 .AddAnalyzers(analyzers)
                 .Run();
@@ -627,23 +629,28 @@ namespace xdeequ.tests.Checks
             var dfInformative = FixtureSupport.GetDfWithConditionallyInformativeColumns(_session);
             var dfUninformative = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
 
-            var numericAnalysis = new Analysis().AddAnalyzers(new IAnalyzer<IMetric>[]
-            {
-                Initializers.Minimum("att1"),
-                Initializers.Maximum("att1"),
-                Initializers.Mean("att1"),
-                Initializers.Sum("att1"),
-                Initializers.StandardDeviation("att1")
-            });
+            var hasMinimum = check.HasMin("att1", _ => _ == 1.0, Option<string>.None);
+            var hasMaximum = check.HasMax("att1", _ => _ == 6.0, Option<string>.None);
+            var hasMean = check.HasMean("att1", _ => _ == 3.5, Option<string>.None);
+            var hasSum = check.HasSum("att1", _ => _ == 21.0, Option<string>.None);
+            var hasStandardDeviation = check.HasStandardDeviation("att1", _ => _ == 1.707825127659933, Option<string>.None);
 
-            var context = numericAnalysis
-                .Run(dfNumeric, Option<IStateLoader>.None, Option<IStatePersister>.None, null);
+            /* Analysis numericAnalysis = new Analysis().AddAnalyzers(new IAnalyzer<IMetric>[]
+             {
+                 hasMinimum,
+                 Initializers.Maximum("att1"),
+                 Initializers.Mean("att1"),
+                 Initializers.Sum("att1"),
+                 Initializers.StandardDeviation("att1")
+             });*/
 
-            AssertEvaluatesTo(check.HasMin("att1", _ => _ == 1.0, Option<string>.None), context, CheckStatus.Success);
-            AssertEvaluatesTo(check.HasMax("att1", _ => _ == 6.0, Option<string>.None), context, CheckStatus.Success);
-            AssertEvaluatesTo(check.HasMean("att1", _ => _ == 3.5, Option<string>.None), context, CheckStatus.Success);
-            AssertEvaluatesTo(check.HasSum("att1", _ => _ == 1.0, Option<string>.None), context, CheckStatus.Success);
-            AssertEvaluatesTo(check.HasStandardDeviation("att1", _ => _ == 1.707825127659933, Option<string>.None), context, CheckStatus.Success);
+            var context = RunChecks(dfNumeric, hasMinimum, new Check[] { hasMaximum, hasMean, hasSum, hasStandardDeviation });
+
+            AssertEvaluatesTo(hasMinimum, context, CheckStatus.Success);
+            AssertEvaluatesTo(hasMaximum, context, CheckStatus.Success);
+            AssertEvaluatesTo(hasMean, context, CheckStatus.Success);
+            AssertEvaluatesTo(hasSum, context, CheckStatus.Success);
+            AssertEvaluatesTo(hasStandardDeviation, context, CheckStatus.Success);
         }
 
         [Fact]
@@ -656,7 +663,7 @@ namespace xdeequ.tests.Checks
                 .HasMean("att1", _ => _ == 5.0, Option<string>.None).Where("att2 > 0");
 
             var context =
-                RunChecks(FixtureSupport.GetDFFull(_session), meanCheck, new[] { meanCheckFiltered });
+                RunChecks(FixtureSupport.GetDfWithNumericValues(_session), meanCheck, new[] { meanCheckFiltered });
 
             AssertEvaluatesTo(meanCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(meanCheckFiltered, context, CheckStatus.Success);
@@ -671,13 +678,161 @@ namespace xdeequ.tests.Checks
         [Fact]
         public void should_yield_correct_results_for_minimum_and_maximum_length_stats()
         {
-            var baseCheck = new Check(CheckLevel.Error, "a description");
-            var df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
+            var hasMin = new Check(CheckLevel.Error, "a")
+                .HasMinLength("att1", _ => _ == 0.0, Option<string>.None);
 
-            //var context = new AnalysisRunner()
+            var hasMax = new Check(CheckLevel.Error, "a")
+                .HasMaxLength("att1", _ => _ == 4.0, Option<string>.None);
 
-            //AssertEvaluatesTo(meanCheck, context, CheckStatus.Success);
-            //AssertEvaluatesTo(meanCheckFiltered, context, CheckStatus.Success);
+            var context =
+                RunChecks(FixtureSupport.GetDfWithVariableStringLengthValues(_session), hasMin, new[] { hasMax });
+
+            AssertEvaluatesTo(hasMin, context, CheckStatus.Success);
+            AssertEvaluatesTo(hasMax, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_work_on_regular_expression_patterns_for_E_Mails()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"someone@somewhere.org"})
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType())
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var hasPattern = new Check(CheckLevel.Error, "some description")
+                .HasPattern(col, Patterns.Email, Option<string>.None);
+
+            var context =
+                RunChecks(df, hasPattern, new Check[] { });
+
+            AssertEvaluatesTo(hasPattern, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_fail_on_mixed_data_for_E_Mail_pattern_with_default_assertion()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"someone@somewhere.org"}),
+                new GenericRow(new object[] {"someone@else"})
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType())
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var hasPattern = new Check(CheckLevel.Error, "some description")
+                .HasPattern(col, Patterns.Email, Option<string>.None);
+
+            var context =
+                RunChecks(df, hasPattern, new Check[] { });
+
+            AssertEvaluatesTo(hasPattern, context, CheckStatus.Error);
+        }
+
+        [Fact]
+        public void should_work_on_regular_expression_patterns_for_URLs()
+        {
+            var col = "some";
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"http://foo.com/blah_blah"}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType())
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var hasPattern = new Check(CheckLevel.Error, "some description")
+                .HasPattern(col, Patterns.Url, Option<string>.None);
+
+            var context =
+                RunChecks(df, hasPattern, new Check[] { });
+
+            AssertEvaluatesTo(hasPattern, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_work_on_regular_expression_patterns_with_filtering()
+        {
+            var col = "some";
+
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"someone@somewhere.org", "valid"}),
+                new GenericRow(new object[] {"someone@somewhere", "invalid"})
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType()),
+                    new StructField("type", new StringType()),
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var hasPattern =
+                new Check(CheckLevel.Error, "some description")
+                .HasPattern(col, Patterns.Email, _ => _ == .5, Option<string>.None);
+
+            var hasPatternWithFilter =
+                new Check(CheckLevel.Error, "some description")
+                    .HasPattern(col, Patterns.Email, _ => _ == 1, Option<string>.None)
+                    .Where("type = 'valid'");
+
+            var context =
+                RunChecks(df, hasPattern, new[] { hasPatternWithFilter });
+
+            AssertEvaluatesTo(hasPattern, context, CheckStatus.Success);
+            AssertEvaluatesTo(hasPatternWithFilter, context, CheckStatus.Success);
+        }
+
+        [Fact]
+        public void should_fail_on_mixed_data_for_URL_pattern_with_default_assertion()
+        {
+            var col = "some";
+            var elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] {"http:// foo.com/blah_blah"}),
+                new GenericRow(new object[] {"http://foo.com/blah_blah"}),
+            };
+
+            var schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField(col, new StringType())
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            var hasPattern = new Check(CheckLevel.Error, "some description")
+                .HasPattern(col, Patterns.Url, Option<string>.None);
+
+            var context =
+                RunChecks(df, hasPattern, new Check[] { });
+
+            AssertEvaluatesTo(hasPattern, context, CheckStatus.Error);
         }
     }
 }

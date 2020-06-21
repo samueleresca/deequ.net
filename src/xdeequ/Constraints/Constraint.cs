@@ -307,7 +307,6 @@ namespace xdeequ.Constraints
             Regex pattern,
             Func<double, bool> assertion,
             Option<string> where,
-            Option<string> name,
             Option<string> hint
         )
         {
@@ -379,10 +378,10 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var min = Maximum(column, where);
+            var max = Maximum(column, where);
 
             var constraint =
-                new AnalysisBasedConstraint<MaxState, double, double>(min, assertion,
+                new AnalysisBasedConstraint<MaxState, double, double>(max, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -396,10 +395,10 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var min = Mean(column, where);
+            var mean = Mean(column, where);
 
             var constraint =
-                new AnalysisBasedConstraint<MeanState, double, double>(min, assertion,
+                new AnalysisBasedConstraint<MeanState, double, double>(mean, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -430,10 +429,10 @@ namespace xdeequ.Constraints
             Option<string> hint
         )
         {
-            var sum = StandardDeviation(column, where);
+            var stDev = StandardDeviation(column, where);
 
             var constraint =
-                new AnalysisBasedConstraint<StandardDeviationState, double, double>(sum, assertion,
+                new AnalysisBasedConstraint<StandardDeviationState, double, double>(stDev, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,

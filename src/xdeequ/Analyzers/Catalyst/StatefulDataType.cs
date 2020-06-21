@@ -19,38 +19,6 @@ namespace xdeequ.Analyzers.Catalyst
         public static Regex INTEGRAL = new Regex(@"^(-|\+)? ?\d*$");
         public static Regex BOOLEAN = new Regex(@"^(true|false)$");
 
-        public StructType InputSchema()
-        {
-            return new StructType(new[] { new StructField("value", new StringType()) });
-        }
-
-        public BinaryType DataType()
-        {
-            return new BinaryType();
-        }
-
-        public bool Deterministic()
-        {
-            return true;
-        }
-
-        public Row Initialize()
-        {
-            return new GenericRow(new object[] { 0L, 0L, 0L, 0L, 0L });
-        }
-
-        public StructType BufferSchema()
-        {
-            return new StructType(new[]
-            {
-                new StructField("nullCount", new LongType()),
-                new StructField("fractionalCount", new LongType()),
-                new StructField("integralCount", new LongType()),
-                new StructField("booleanCount", new LongType()),
-                new StructField("stringCount", new LongType())
-            });
-        }
-
         public string GetAggregatedColumn()
         {
             return "arrayDataTypeCount";

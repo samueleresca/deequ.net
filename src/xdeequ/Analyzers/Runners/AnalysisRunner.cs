@@ -58,7 +58,6 @@ namespace xdeequ.Analyzers.Runners
             {
                 if (x is DoubleMetric dm)
                     return dm.Value.Success.Value;
-
                 return 0;
             });
 
