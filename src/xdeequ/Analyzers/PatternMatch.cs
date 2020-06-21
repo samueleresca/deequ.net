@@ -14,33 +14,33 @@ namespace xdeequ.Analyzers
     public class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
         IAnalyzer<DoubleMetric>
     {
-        private readonly string _column;
-        private readonly Regex _regex;
-        private readonly Option<string> _where;
+        public readonly string Column;
+        public readonly Regex Regex;
+        public readonly Option<string> Where;
 
         public PatternMatch(string column, Regex regex, Option<string> where)
             : base("PatternMatch", column, Entity.Column)
         {
-            _regex = regex;
-            _column = column;
-            _where = where;
+            Regex = regex;
+            Column = column;
+            Where = where;
         }
 
         public Option<string> FilterCondition()
         {
-            return _where;
+            return Where;
         }
 
 
         public override IEnumerable<Column> AggregationFunctions()
         {
             var expression =
-                When(RegexpExtract(Column(_column), _regex.ToString(), 0) != Lit(""), 1)
+                When(RegexpExtract(Column(Column), Regex.ToString(), 0) != Lit(""), 1)
                     .Otherwise(0);
 
-            var summation = Sum(AnalyzersExt.ConditionalSelection(expression, _where).Cast("integer"));
+            var summation = Sum(AnalyzersExt.ConditionalSelection(expression, Where).Cast("integer"));
 
-            return new[] { summation, AnalyzersExt.ConditionalCount(_where) };
+            return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
@@ -52,7 +52,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
-            return new[] { AnalyzersExt.HasColumn(_column), AnalyzersExt.IsString(_column) };
+            return new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
         }
     }
 

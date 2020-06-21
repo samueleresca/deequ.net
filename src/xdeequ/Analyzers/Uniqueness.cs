@@ -11,24 +11,24 @@ namespace xdeequ.Analyzers
     public class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer,
         IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
-        private readonly Option<string> _where;
-        private IEnumerable<string> _columns;
+        public readonly Option<string> Where;
+        public IEnumerable<string> Columns;
 
         public Uniqueness(IEnumerable<string> columns, Option<string> where) : base("Uniqueness", columns)
         {
-            _columns = columns;
-            _where = where;
+            Columns = columns;
+            Where = where;
         }
 
         public Uniqueness(IEnumerable<string> columns) : base("Uniqueness", columns)
         {
-            _columns = columns;
-            _where = Option<string>.None;
+            Columns = columns;
+            Where = Option<string>.None;
         }
 
         public Option<string> FilterCondition()
         {
-            return _where;
+            return Where;
         }
 
         public override DoubleMetric ToFailureMetric(Exception e)

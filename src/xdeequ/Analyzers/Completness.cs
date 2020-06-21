@@ -12,25 +12,25 @@ namespace xdeequ.Analyzers
     public class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
 
     {
-        private readonly Option<string> _where;
-        private readonly Option<string> _column;
+        public readonly Option<string> Where;
+        public readonly Option<string> Column;
 
         public Completeness(Option<string> column, Option<string> where) : base("Completeness", column.Value,
             Entity.Column)
         {
-            _column = column;
-            _where = where;
+            Column = column;
+            Where = where;
         }
 
         public Completeness(Option<string> column) : base("Completeness", column.Value, Entity.Column)
         {
-            _column = column;
-            _where = Option<string>.None;
+            Column = column;
+            Where = Option<string>.None;
         }
 
         public Option<string> FilterCondition()
         {
-            return _where;
+            return Where;
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
@@ -43,11 +43,11 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var summarization = Sum(AnalyzersExt.ConditionalSelection(_column, _where)
+            var summarization = Sum(AnalyzersExt.ConditionalSelection(Column, Where)
                 .IsNotNull()
                 .Cast("int"));
 
-            var conditional = AnalyzersExt.ConditionalCount(_where);
+            var conditional = AnalyzersExt.ConditionalCount(Where);
 
             return new[] { summarization, conditional };
         }
@@ -56,8 +56,8 @@ namespace xdeequ.Analyzers
         {
             return new[]
             {
-                AnalyzersExt.HasColumn(_column.Value),
-                AnalyzersExt.IsNotNested(_column.Value)
+                AnalyzersExt.HasColumn(Column.Value),
+                AnalyzersExt.IsNotNested(Column.Value)
             };
         }
     }

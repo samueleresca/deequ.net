@@ -10,26 +10,26 @@ namespace xdeequ.Analyzers
 {
     public class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
-        private readonly Column _predicate;
-        private readonly Option<string> _where;
+        public readonly Column Predicate;
+        public readonly Option<string> Where;
 
         public Compliance(string instance, Column predicate, Option<string> where) : base("Compliance", instance,
             Entity.Column)
         {
-            _where = where;
-            _predicate = predicate;
+            Where = where;
+            Predicate = predicate;
         }
 
         public Option<string> FilterCondition()
         {
-            return _where;
+            return Where;
         }
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            var summation = Sum(AnalyzersExt.ConditionalSelection(_predicate, _where).Cast("int"));
+            var summation = Sum(AnalyzersExt.ConditionalSelection(Predicate, Where).Cast("int"));
 
-            return new[] { summation, AnalyzersExt.ConditionalCount(_where) };
+            return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)

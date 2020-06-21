@@ -38,11 +38,11 @@ namespace xdeequ.Analyzers
 
     public class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
     {
-        private readonly Option<string> _where;
+        public readonly Option<string> Where;
 
         public Size(Option<string> where) : base("Size", "*", Entity.DataSet)
         {
-            _where = where;
+            Where = where;
         }
 
         private Size() : base("Size", "*", Entity.DataSet)
@@ -51,7 +51,7 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions()
         {
-            return new[] { AnalyzersExt.ConditionalCount(_where) }.AsEnumerable();
+            return new[] { AnalyzersExt.ConditionalCount(Where) }.AsEnumerable();
         }
 
         public override Option<NumMatches> FromAggregationResult(Row result, int offset)
@@ -65,6 +65,6 @@ namespace xdeequ.Analyzers
             return Enumerable.Empty<Action<StructType>>();
         }
 
-        public Option<string> FilterCondition() => _where;
+        public Option<string> FilterCondition() => Where;
     }
 }

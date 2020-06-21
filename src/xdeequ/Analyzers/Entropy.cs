@@ -12,20 +12,20 @@ namespace xdeequ.Analyzers
 {
     public class Entropy : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {
-        private readonly Option<string> _where;
-        private Option<string> _column;
+        public readonly Option<string> Where;
+        public Option<string> Column;
 
         public Entropy(Option<string> column, Option<string> where) : base("Entropy",
             new[] { column.Value }.AsEnumerable())
         {
-            _column = column;
-            _where = where;
+            Column = column;
+            Where = where;
         }
 
         public Entropy(Option<string> column) : base("Entropy", new[] { column.Value }.AsEnumerable())
         {
-            _column = column;
-            _where = Option<string>.None;
+            Column = column;
+            Where = Option<string>.None;
         }
 
         public override DoubleMetric ToFailureMetric(Exception e)
@@ -47,6 +47,6 @@ namespace xdeequ.Analyzers
             return new[] { Sum(summands(Col(AnalyzersExt.COUNT_COL).Cast("double"))) };
         }
 
-        public Option<string> FilterCondition() => _where;
+        public Option<string> FilterCondition() => Where;
     }
 }

@@ -10,19 +10,19 @@ namespace xdeequ.Analyzers
 {
     public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer, IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
-        private readonly Option<string> _where;
-        private IEnumerable<string> _columns;
+        public readonly Option<string> Where;
+        public IEnumerable<string> Columns;
 
         public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base("UniqueValueRatio", columns)
         {
-            _columns = columns;
-            _where = where;
+            Columns = columns;
+            Where = where;
         }
 
         public UniqueValueRatio(IEnumerable<string> columns) : base("UniqueValueRatio", columns)
         {
-            _columns = columns;
-            _where = Option<string>.None;
+            Columns = columns;
+            Where = Option<string>.None;
         }
 
         public override DoubleMetric ToFailureMetric(Exception e)
@@ -32,7 +32,7 @@ namespace xdeequ.Analyzers
 
         public Option<string> FilterCondition()
         {
-            return _where;
+            return Where;
         }
 
         public override IEnumerable<Column> AggregationFunctions(long numRows)

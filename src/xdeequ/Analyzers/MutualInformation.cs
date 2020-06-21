@@ -11,48 +11,48 @@ namespace xdeequ.Analyzers
 {
     public class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
-        private readonly Option<string> _where;
-        private readonly IEnumerable<string> _columns;
+        public readonly Option<string> Where;
+        public readonly IEnumerable<string> Columns;
 
         public MutualInformation(IEnumerable<string> columnsToGroupOn, Option<string> where) :
             base("MutualInformation", columnsToGroupOn)
         {
-            _columns = columnsToGroupOn;
-            _where = where;
+            Columns = columnsToGroupOn;
+            Where = where;
         }
 
         public MutualInformation(IEnumerable<string> columnsToGroupOn) :
             base("MutualInformation", columnsToGroupOn)
         {
-            _columns = columnsToGroupOn;
+            Columns = columnsToGroupOn;
         }
 
         public override IEnumerable<Action<StructType>> Preconditions()
         {
-            return AnalyzersExt.ExactlyNColumns(_columns, 2).Concat(base.Preconditions());
+            return AnalyzersExt.ExactlyNColumns(Columns, 2).Concat(base.Preconditions());
         }
 
         public override DoubleMetric ToFailureMetric(Exception e)
         {
-            return AnalyzersExt.MetricFromFailure(e, "MutualInformation", string.Join(',', _columns),
+            return AnalyzersExt.MetricFromFailure(e, "MutualInformation", string.Join(',', Columns),
                 Entity.MultiColumn);
         }
 
         public Option<string> FilterCondition()
         {
-            return _where;
+            return Where;
         }
 
 
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)
-                return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", string.Join(',', _columns),
+                return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", string.Join(',', Columns),
                     Entity.MultiColumn);
 
             var total = state.Value.NumRows;
-            var col1 = _columns.First();
-            var col2 = _columns.Skip(1).First();
+            var col1 = Columns.First();
+            var col2 = Columns.Skip(1).First();
 
             var freqCol1 = $"__deequ_f1_{col1}";
             var freqCol2 = $"__deequ_f2_{col2}";
@@ -86,11 +86,11 @@ namespace xdeequ.Analyzers
             var resultRow = value.First();
 
             if (resultRow[0] == null)
-                return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", string.Join(',', _columns),
+                return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", string.Join(',', Columns),
                     Entity.MultiColumn);
 
             return AnalyzersExt.MetricFromValue(resultRow.GetAs<double>(0), "MutualInformation",
-                string.Join(',', _columns),
+                string.Join(',', Columns),
                 Entity.MultiColumn);
         }
     }

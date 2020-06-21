@@ -51,7 +51,7 @@ namespace xdeequ.Metrics
             if (!Value.IsSuccess)
                 return new[]
                 {
-                    new DoubleMetric(Entity, $"${Name}.bins", Instance, new Try<double>(Value.Failure.Value))
+                    new DoubleMetric(Entity, $"{Name}.bins", Instance, new Try<double>(Value.Failure.Value))
                 };
 
             DoubleMetric[] numberOfBins =
