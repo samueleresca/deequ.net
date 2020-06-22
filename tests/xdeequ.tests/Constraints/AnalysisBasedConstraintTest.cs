@@ -130,7 +130,7 @@ namespace xdeequ.tests.Constraints
         public void fail_on_analysis_if_value_picker_is_provided_but_fails()
         {
             Func<double, double> problematicValuePicker =
-                new Func<double, double>(d => throw new RuntimeWrappedException("failed"));
+                d => throw new RuntimeWrappedException("failed");
             SampleAnalyzer att1Analyzer = new SampleAnalyzer("att1");
             Dictionary<IAnalyzer<IMetric>, IMetric> emptyResult = new Dictionary<IAnalyzer<IMetric>, IMetric>();
 
@@ -168,7 +168,7 @@ namespace xdeequ.tests.Constraints
         public void fail_on_failed_assertion_function_with_hint_in_exception_message_if_provided()
         {
             Func<double, double> problematicValuePicker =
-                new Func<double, double>(d => throw new RuntimeWrappedException("failed"));
+                d => throw new RuntimeWrappedException("failed");
             SampleAnalyzer att1Analyzer = new SampleAnalyzer("att1");
             DataFrame df = FixtureSupport.GetDFMissing(_session);
 
@@ -229,7 +229,7 @@ namespace xdeequ.tests.Constraints
             string msg = "-test-";
             RuntimeWrappedException exception = new RuntimeWrappedException(msg);
             DataFrame df = FixtureSupport.GetDFMissing(_session);
-            Func<double, bool> failingAssertion = new Func<double, bool>(d => throw exception);
+            Func<double, bool> failingAssertion = d => throw exception;
 
             AnalysisBasedConstraint<NumMatches, double, double> failingConstraint =
                 new AnalysisBasedConstraint<NumMatches, double, double>(new SampleAnalyzer("att1"),

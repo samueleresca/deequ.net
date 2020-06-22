@@ -1,6 +1,6 @@
 using xdeequ.Analyzers.Runners;
 
-namespace xdeequ.Metrics
+namespace xdeequ.Repository
 {
     public class AnalysisResult
     {

@@ -1,7 +1,7 @@
 using xdeequ.Analyzers.Runners;
 using xdeequ.Util;
 
-namespace xdeequ.Metrics
+namespace xdeequ.Repository
 {
     public interface IMetricsRepository
     {

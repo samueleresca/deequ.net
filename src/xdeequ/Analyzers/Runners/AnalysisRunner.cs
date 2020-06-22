@@ -5,6 +5,7 @@ using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers.States;
 using xdeequ.Metrics;
+using xdeequ.Repository;
 using xdeequ.Util;
 
 namespace xdeequ.Analyzers.Runners
@@ -446,6 +447,14 @@ namespace xdeequ.Analyzers.Runners
 
     public class ResultKey
     {
+        public ResultKey(long dataSetDate, Dictionary<string, string> tags)
+        {
+            DataSetDate = dataSetDate;
+            Tags = tags;
+        }
+
+        public long DataSetDate { get; set; }
+        public Dictionary<string, string> Tags { get; set; }
     }
 
     public class StorageLevel

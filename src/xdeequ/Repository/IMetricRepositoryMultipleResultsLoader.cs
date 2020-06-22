@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using xdeequ.Analyzers;
+using xdeequ.Metrics;
 
-namespace xdeequ.Metrics
+namespace xdeequ.Repository
 {
     public interface IMetricRepositoryMultipleResultsLoader
     {

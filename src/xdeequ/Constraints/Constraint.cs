@@ -467,7 +467,7 @@ namespace xdeequ.Constraints
                 : new Func<Distribution, double>(distribution =>
                 {
                     Func<DataTypeInstances, double> pure =
-                        new Func<DataTypeInstances, double>(keyType => RatioTypes(true, keyType, distribution));
+                        keyType => RatioTypes(true, keyType, distribution);
                     return dataType switch
                     {
                         ConstrainableDataTypes.Null => RatioTypes(false, DataTypeInstances.Unknown, distribution),

@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
+using xdeequ.Repository;
 using xdeequ.Util;
 
 namespace xdeequ.Analyzers.Runners
@@ -33,5 +37,77 @@ namespace xdeequ.Analyzers.Runners
                 return Option<IMetric>.None;
             }
         }
+
+        public static DataFrame SuccessMetricsAsDataFrame(AnalyzerContext analyzerContext,
+            SparkSession sparkSession,
+            IEnumerable<IAnalyzer<IMetric>> forAnalyzers)
+        {
+            IEnumerable<GenericRow> metricList =
+                GetSimplifiedMetricOutputForSelectedAnalyzers(analyzerContext, forAnalyzers)
+                    .Select(x => new GenericRow(new object[] {x.Entity.ToString(), x.Instance, x.Name, x.Value}));
+
+            DataFrame df = sparkSession.CreateDataFrame(metricList,
+                new StructType(new[]
+                {
+                    new StructField("entity", new StringType()), new StructField("instance", new StringType()),
+                    new StructField("name", new StringType()), new StructField("value", new DoubleType())
+                }));
+            return df;
+        }
+
+        public static DataFrame SuccessMetricsAsJson(AnalysisResult analysisResult,
+            IEnumerable<IAnalyzer<IMetric>> forAnalyzers,
+            IEnumerable<string> withTags) =>
+            throw new NotImplementedException();
+
+        public static IEnumerable<SimpleMetricOutput> GetSimplifiedMetricOutputForSelectedAnalyzers(
+            AnalyzerContext analyzerContext,
+            IEnumerable<IAnalyzer<IMetric>> forAnalyzers) =>
+            analyzerContext.MetricMap
+                .Where((pair, i) => pair.Key == null || forAnalyzers.Contains(pair.Key))
+                .Where((pair, i) =>
+                {
+                    DoubleMetric dm = pair.Value as DoubleMetric;
+                    return dm.Value.IsSuccess;
+                })
+                .SelectMany(pair =>
+                {
+                    DoubleMetric dm = pair.Value as DoubleMetric;
+                    return dm.Flatten().Select(x => RenameMetric(x, DescribeAnalyzer(pair.Key)));
+                })
+                .Select(x => new SimpleMetricOutput(x));
+
+        private static string DescribeAnalyzer(IAnalyzer<IMetric> analyzer)
+        {
+            string name = analyzer.GetType().ToString();
+
+            Option<string> filter = Option<string>.None;
+
+            if (analyzer is IFilterableAnalyzer filterable)
+            {
+                filter = filterable.FilterCondition();
+            }
+
+            return filter.Select(x => $"{name} (where: {x} )").GetOrElse(name);
+        }
+
+        private static DoubleMetric RenameMetric(DoubleMetric doubleMetric, string newName) =>
+            new DoubleMetric(doubleMetric.Entity, newName, doubleMetric.Instance, doubleMetric.Value);
+    }
+
+    public class SimpleMetricOutput
+    {
+        public SimpleMetricOutput(DoubleMetric doubleMetric)
+        {
+            Entity = doubleMetric.Entity.ToString();
+            Instance = doubleMetric.Instance;
+            Name = doubleMetric.Name;
+            Value = doubleMetric.Value.Get();
+        }
+
+        public string Entity { get; set; }
+        public string Instance { get; set; }
+        public string Name { get; set; }
+        public double Value { get; set; }
     }
 }

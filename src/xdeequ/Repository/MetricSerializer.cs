@@ -1,9 +1,11 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using xdeequ.Extensions;
+using xdeequ.Metrics;
 using xdeequ.Util;
 
-namespace xdeequ.Metrics
+namespace xdeequ.Repository
 {
     public class MetricSerializer : JsonConverter<IMetric>
     {

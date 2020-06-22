@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Spark.Sql;
 using xdeequ.Metrics;
+using xdeequ.Repository;
 using xdeequ.Util;
 
 namespace xdeequ.Analyzers.Runners

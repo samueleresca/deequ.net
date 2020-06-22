@@ -6,10 +6,12 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
+using xdeequ.Extensions;
+using xdeequ.Metrics;
 using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace xdeequ.Metrics
+namespace xdeequ.Repository
 {
     public class AnalyzerSerializer : JsonConverter<IAnalyzer<IMetric>>
     {

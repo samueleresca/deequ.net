@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace xdeequ.Metrics
+namespace xdeequ.Extensions
 {
     public static class SerdeExt
     {
