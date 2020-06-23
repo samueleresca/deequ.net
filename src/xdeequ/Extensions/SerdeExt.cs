@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json;
+using xdeequ.Repository;
 
 namespace xdeequ.Extensions
 {
@@ -27,5 +28,18 @@ namespace xdeequ.Extensions
 
             writer.WriteEndArray();
         }
+
+        public static JsonSerializerOptions GetDefaultOptions()
+        {
+            var serializeOptions = new JsonSerializerOptions();
+            serializeOptions.Converters.Add(new AnalyzerSerializer());
+            serializeOptions.Converters.Add(new AnalysisResultSerializer());
+            serializeOptions.Converters.Add(new AnalyzerContextSerializer());
+            serializeOptions.Converters.Add(new MetricSerializer());
+            serializeOptions.Converters.Add(new DistributionSerializer());
+
+            return serializeOptions;
+        }
+
     }
 }

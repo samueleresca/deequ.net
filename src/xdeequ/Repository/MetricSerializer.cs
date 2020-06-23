@@ -29,7 +29,7 @@ namespace xdeequ.Repository
                 return new HistogramMetric(
                     document.RootElement.GetProperty(SerdeExt.COLUMN_FIELD).GetString(),
                     new Try<Distribution>(
-                        JsonSerializer.Deserialize<Distribution>(document.RootElement.GetProperty("value").GetString())
+                        JsonSerializer.Deserialize<Distribution>(document.RootElement.GetProperty("value").GetString(), options)
                     ));
             }
 
@@ -64,7 +64,7 @@ namespace xdeequ.Repository
                 writer.WriteString("metricName", "HistogramMetric");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, hm.Column);
                 writer.WriteString("numberOfBins", hm.Value.Get().NumberOfBins.ToString());
-                writer.WriteString("value", JsonSerializer.Serialize(hm.Value.GetOrElse(null)));
+                writer.WriteString("value", JsonSerializer.Serialize(hm.Value.GetOrElse(null), options));
             }
 
             //TODO: implement keyed double metric
