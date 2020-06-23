@@ -29,7 +29,8 @@ namespace xdeequ.Repository
                 return new HistogramMetric(
                     document.RootElement.GetProperty(SerdeExt.COLUMN_FIELD).GetString(),
                     new Try<Distribution>(
-                        JsonSerializer.Deserialize<Distribution>(document.RootElement.GetProperty("value").GetString(), options)
+                        JsonSerializer.Deserialize<Distribution>(document.RootElement.GetProperty("value").GetString(),
+                            options)
                     ));
             }
 

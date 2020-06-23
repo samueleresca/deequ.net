@@ -16,10 +16,11 @@ namespace xdeequ.Repository
             JsonElement analyzer = document.RootElement.GetProperty(SerdeExt.ANALYZER_CONTEXT_FIELD);
 
 
-            var resultKeyDe = JsonSerializer.Deserialize<ResultKey>(resultKey.GetString(), options);
-            var analyzerContextDe = JsonSerializer.Deserialize<AnalyzerContext>(analyzer.GetString(), options);
+            ResultKey resultKeyDe = JsonSerializer.Deserialize<ResultKey>(resultKey.GetString(), options);
+            AnalyzerContext analyzerContextDe =
+                JsonSerializer.Deserialize<AnalyzerContext>(analyzer.GetString(), options);
 
-            return  new AnalysisResult(resultKeyDe, analyzerContextDe);
+            return new AnalysisResult(resultKeyDe, analyzerContextDe);
         }
 
         public override void Write(Utf8JsonWriter writer, AnalysisResult result, JsonSerializerOptions options)

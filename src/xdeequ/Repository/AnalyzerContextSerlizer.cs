@@ -12,21 +12,23 @@ namespace xdeequ.Repository
 {
     public class AnalyzerContextSerializer : JsonConverter<AnalyzerContext>
     {
-        public override AnalyzerContext Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override AnalyzerContext Read(ref Utf8JsonReader reader, Type typeToConvert,
+            JsonSerializerOptions options)
         {
             JsonDocument.TryParseValue(ref reader, out JsonDocument document);
-            JsonElement.ArrayEnumerator metricMap = document.RootElement.GetProperty(SerdeExt.METRIC_MAP_FIELD).EnumerateArray();
+            JsonElement.ArrayEnumerator metricMap =
+                document.RootElement.GetProperty(SerdeExt.METRIC_MAP_FIELD).EnumerateArray();
 
-            var result = metricMap.Select(element =>
+            IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> result = metricMap.Select(element =>
             {
-                var serializedAnalyzer = element.GetProperty(SerdeExt.ANALYZER_FIELD);
-                var analyzer = JsonSerializer.Deserialize<IAnalyzer<IMetric>>(serializedAnalyzer.GetString(), options);
+                JsonElement serializedAnalyzer = element.GetProperty(SerdeExt.ANALYZER_FIELD);
+                IAnalyzer<IMetric> analyzer =
+                    JsonSerializer.Deserialize<IAnalyzer<IMetric>>(serializedAnalyzer.GetString(), options);
 
-                var serializedMetric = element.GetProperty(SerdeExt.METRIC_FIELD);
-                var metric = JsonSerializer.Deserialize<IMetric>(serializedMetric.GetString(), options);
+                JsonElement serializedMetric = element.GetProperty(SerdeExt.METRIC_FIELD);
+                IMetric metric = JsonSerializer.Deserialize<IMetric>(serializedMetric.GetString(), options);
 
                 return new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, metric);
-
             });
 
             return new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(result));
@@ -34,10 +36,9 @@ namespace xdeequ.Repository
 
         public override void Write(Utf8JsonWriter writer, AnalyzerContext value, JsonSerializerOptions options)
         {
-
             writer.WriteStartArray(SerdeExt.METRIC_MAP_FIELD);
 
-            foreach (var keyValuePair in value.MetricMap)
+            foreach (KeyValuePair<IAnalyzer<IMetric>, IMetric> keyValuePair in value.MetricMap)
             {
                 writer.WriteStartObject();
 
@@ -48,7 +49,6 @@ namespace xdeequ.Repository
                 writer.WriteStringValue(JsonSerializer.Serialize(keyValuePair.Value, options));
 
                 writer.WriteEndObject();
-
             }
 
             writer.WriteEndArray();

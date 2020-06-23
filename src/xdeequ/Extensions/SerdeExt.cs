@@ -31,7 +31,7 @@ namespace xdeequ.Extensions
 
         public static JsonSerializerOptions GetDefaultOptions()
         {
-            var serializeOptions = new JsonSerializerOptions();
+            JsonSerializerOptions serializeOptions = new JsonSerializerOptions();
             serializeOptions.Converters.Add(new AnalyzerSerializer());
             serializeOptions.Converters.Add(new AnalysisResultSerializer());
             serializeOptions.Converters.Add(new AnalyzerContextSerializer());
@@ -40,6 +40,5 @@ namespace xdeequ.Extensions
 
             return serializeOptions;
         }
-
     }
 }
