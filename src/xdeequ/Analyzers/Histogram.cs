@@ -26,7 +26,7 @@ namespace xdeequ.Analyzers
             BinningUdf = binningUdf;
             Where = where;
             Column = column;
-            maxDetailBins = maxDetailBins;
+            this.maxDetailBins = maxDetailBins;
         }
 
         public Option<string> FilterCondition() => Where;
