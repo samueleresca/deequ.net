@@ -29,7 +29,7 @@ namespace xdeequ.Repository
                 return new HistogramMetric(
                     document.RootElement.GetProperty(SerdeExt.COLUMN_FIELD).GetString(),
                     new Try<Distribution>(
-                        JsonSerializer.Deserialize<Distribution>(document.RootElement.GetProperty("value").GetString(),
+                        JsonSerializer.Deserialize<Distribution>(document.RootElement.GetProperty("value").GetRawText(),
                             options)
                     ));
             }
@@ -39,6 +39,7 @@ namespace xdeequ.Repository
 
         public override void Write(Utf8JsonWriter writer, IMetric value, JsonSerializerOptions options)
         {
+            writer.WriteStartObject();
             if (value is DoubleMetric dm)
             {
                 if (!dm.Value.IsSuccess)
@@ -50,9 +51,7 @@ namespace xdeequ.Repository
                 writer.WriteString("entity", dm.Entity.ToString());
                 writer.WriteString("instance", dm.Instance);
                 writer.WriteString("name", dm.Name);
-                writer.WriteString("value", dm.Value.GetOrElse(null).ToString());
-
-                return;
+                writer.WriteNumber("value", dm.Value.GetOrElse(() => 0D).Get());
             }
 
             if (value is HistogramMetric hm)
@@ -65,10 +64,13 @@ namespace xdeequ.Repository
                 writer.WriteString("metricName", "HistogramMetric");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, hm.Column);
                 writer.WriteString("numberOfBins", hm.Value.Get().NumberOfBins.ToString());
-                writer.WriteString("value", JsonSerializer.Serialize(hm.Value.GetOrElse(null), options));
+                writer.WritePropertyName("value");
+                JsonSerializer.Serialize(writer, hm.Value.GetOrElse(null).Get(), options);
             }
 
             //TODO: implement keyed double metric
+
+            writer.WriteEndObject();
         }
     }
 }

@@ -16,9 +16,9 @@ namespace xdeequ.Repository
             JsonElement analyzer = document.RootElement.GetProperty(SerdeExt.ANALYZER_CONTEXT_FIELD);
 
 
-            ResultKey resultKeyDe = JsonSerializer.Deserialize<ResultKey>(resultKey.GetString(), options);
+            ResultKey resultKeyDe = JsonSerializer.Deserialize<ResultKey>(resultKey.GetRawText(), options);
             AnalyzerContext analyzerContextDe =
-                JsonSerializer.Deserialize<AnalyzerContext>(analyzer.GetString(), options);
+                JsonSerializer.Deserialize<AnalyzerContext>(analyzer.GetRawText(), options);
 
             return new AnalysisResult(resultKeyDe, analyzerContextDe);
         }
@@ -26,10 +26,14 @@ namespace xdeequ.Repository
         public override void Write(Utf8JsonWriter writer, AnalysisResult result, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
-            writer.WriteString(SerdeExt.RESULT_KEY_FIELD,
-                JsonSerializer.Serialize(result.ResultKey, options));
-            writer.WriteString(SerdeExt.ANALYZER_CONTEXT_FIELD,
-                JsonSerializer.Serialize(result.AnalyzerContext, options));
+
+
+            writer.WritePropertyName(SerdeExt.RESULT_KEY_FIELD);
+            JsonSerializer.Serialize(writer, result.ResultKey, options);
+
+            writer.WritePropertyName(SerdeExt.ANALYZER_CONTEXT_FIELD);
+            JsonSerializer.Serialize(writer, result.AnalyzerContext, options);
+
             writer.WriteEndObject();
         }
     }

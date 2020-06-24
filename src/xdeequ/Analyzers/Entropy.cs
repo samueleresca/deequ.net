@@ -16,13 +16,13 @@ namespace xdeequ.Analyzers
         public Option<string> Where;
 
         public Entropy(Option<string> column, Option<string> where) : base("Entropy",
-            new[] {column.Value}.AsEnumerable())
+            new[] { column.Value }.AsEnumerable())
         {
             Column = column;
             Where = where;
         }
 
-        public Entropy(Option<string> column) : base("Entropy", new[] {column.Value}.AsEnumerable())
+        public Entropy(Option<string> column) : base("Entropy", new[] { column.Value }.AsEnumerable())
         {
             Column = column;
             Where = Option<string>.None;
@@ -45,7 +45,7 @@ namespace xdeequ.Analyzers
                 return -(count / numRows) * Math.Log(count / numRows);
             });
 
-            return new[] {Sum(summands(Col(AnalyzersExt.COUNT_COL).Cast("double")))};
+            return new[] { Sum(summands(Col(AnalyzersExt.COUNT_COL).Cast("double"))) };
         }
     }
 }

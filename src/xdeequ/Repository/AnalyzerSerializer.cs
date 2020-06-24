@@ -178,7 +178,7 @@ namespace xdeequ.Repository
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Size");
                 writer.WriteString(SerdeExt.WHERE_FIELD, size.Where.GetOrElse(string.Empty));
-
+                writer.WriteEndObject();
                 return;
             }
 
@@ -187,7 +187,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Completeness");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, completeness.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, completeness.Where.GetOrElse(string.Empty));
-
+                writer.WriteEndObject();
                 return;
             }
 
@@ -197,7 +197,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.WHERE_FIELD, compliance.Where.GetOrElse(string.Empty));
                 writer.WriteString("instance", compliance.Instance);
                 writer.WriteString("predicate", compliance.Predicate.ToString());
-
+                writer.WriteEndObject();
                 return;
             }
 
@@ -207,6 +207,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.COLUMN_FIELD, patternMatch.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, patternMatch.Where.GetOrElse(string.Empty));
                 writer.WriteString("pattern", patternMatch.Regex.ToString());
+                writer.WriteEndObject();
                 return;
             }
 
@@ -215,6 +216,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Sum");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, sum.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, sum.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -223,6 +225,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Mean");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, mean.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, mean.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -231,6 +234,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Minimum");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, min.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, min.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -240,6 +244,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Maximum");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, max.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, max.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -251,6 +256,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Distinctness");
                 writer.WriteArray(SerdeExt.COLUMN_FIELD, distinctness.Columns.Select(x => x.ToString()));
                 writer.WriteString(SerdeExt.WHERE_FIELD, distinctness.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -258,6 +264,7 @@ namespace xdeequ.Repository
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Entropy");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, entropy.Column.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -265,6 +272,7 @@ namespace xdeequ.Repository
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "MutualInformation");
                 writer.WriteArray(SerdeExt.COLUMN_FIELD, mutual.Columns.Select(x => x.ToString()));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -272,6 +280,7 @@ namespace xdeequ.Repository
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "UniqueValueRatio");
                 writer.WriteArray(SerdeExt.COLUMN_FIELD, uniqueValueRatio.Columns.Select(x => x.ToString()));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -279,6 +288,7 @@ namespace xdeequ.Repository
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Uniqueness");
                 writer.WriteArray(SerdeExt.COLUMN_FIELD, uniqueness.Columns.Select(x => x.ToString()));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -292,6 +302,8 @@ namespace xdeequ.Repository
 
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Histogram");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, histogram.Column);
+                writer.WriteNumber("maxDetailBins", histogram.maxDetailBins);
+                writer.WriteEndObject();
                 return;
             }
 
@@ -300,6 +312,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "DataType");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, dataType.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, dataType.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -318,6 +331,8 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "StandardDeviation");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, stDev.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, stDev.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
+                return;
             }
 
             if (analyzer is ApproxQuantile approxQuantile)
@@ -330,6 +345,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "MinLength");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, minLength.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, minLength.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -338,6 +354,7 @@ namespace xdeequ.Repository
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "MaxLength");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, maxLength.Column);
                 writer.WriteString(SerdeExt.WHERE_FIELD, maxLength.Where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
                 return;
             }
 
@@ -346,15 +363,16 @@ namespace xdeequ.Repository
 
         private Option<string> GetOptionalWhereParam(JsonElement jsonElement)
         {
-            if (jsonElement.TryGetProperty(SerdeExt.WHERE_FIELD, out jsonElement))
+            if (jsonElement.TryGetProperty(SerdeExt.WHERE_FIELD, out JsonElement element)
+                && element.GetString() != string.Empty)
             {
-                return new Option<string>(jsonElement.GetProperty(SerdeExt.WHERE_FIELD).GetString());
+
+                return new Option<string>(element.GetString());
             }
 
             return Option<string>.None;
         }
 
-        private IEnumerable<string> GetColumnAsSequence(JsonElement jsonElement) => jsonElement
-            .GetProperty(SerdeExt.COLUMNS_FIELD).EnumerateArray().Select(x => x.GetString());
+        private IEnumerable<string> GetColumnAsSequence(JsonElement jsonElement) => jsonElement.EnumerateArray().Select(x => x.GetString());
     }
 }

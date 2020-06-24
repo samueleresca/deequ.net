@@ -132,15 +132,14 @@ namespace xdeequ.tests.Repository
                 });
 
             long dateTime = DateTime.UtcNow.Ticks;
-            ResultKey resultKeyOne = new ResultKey(dateTime, new Dictionary<string, string> {{"Region", "EU"}});
+            ResultKey resultKeyOne = new ResultKey(dateTime, new Dictionary<string, string> { { "Region", "EU" } });
 
-            ResultKey resultKeyTwo = new ResultKey(dateTime, new Dictionary<string, string> {{"Region", "NA"}});
+            ResultKey resultKeyTwo = new ResultKey(dateTime, new Dictionary<string, string> { { "Region", "NA" } });
 
             AnalysisResult analysisResultOne = new AnalysisResult(resultKeyOne, analyzerContextWithAllSuccValues);
             AnalysisResult analysisResultTwo = new AnalysisResult(resultKeyTwo, analyzerContextWithAllSuccValues);
 
-
-            AssertCorrectlyConvertsAnalysisResults(new[] {analysisResultOne, analysisResultTwo});
+            AssertCorrectlyConvertsAnalysisResults(new[] { analysisResultOne, analysisResultTwo });
         }
     }
 }

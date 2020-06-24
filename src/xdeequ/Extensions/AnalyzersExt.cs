@@ -31,7 +31,7 @@ namespace xdeequ.Extensions
 
         public static Option<S> Merge<S>(Option<S> state, Option<S> anotherState) where S : State<S>
         {
-            IEnumerable<Option<S>> statesToMerge = new List<Option<S>> {state, anotherState};
+            IEnumerable<Option<S>> statesToMerge = new List<Option<S>> { state, anotherState };
 
             return statesToMerge.Aggregate((stateA, stateB) =>
             {

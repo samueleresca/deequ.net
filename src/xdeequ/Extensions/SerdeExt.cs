@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using xdeequ.Repository;
 
@@ -37,6 +38,9 @@ namespace xdeequ.Extensions
             serializeOptions.Converters.Add(new AnalyzerContextSerializer());
             serializeOptions.Converters.Add(new MetricSerializer());
             serializeOptions.Converters.Add(new DistributionSerializer());
+
+            serializeOptions.Encoder = JavaScriptEncoder.Default;
+            serializeOptions.WriteIndented = true;
 
             return serializeOptions;
         }

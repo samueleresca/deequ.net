@@ -31,6 +31,6 @@ namespace xdeequ.Analyzers
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Column> AggregationFunctions(long numRows) =>
-            new[] {Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows};
+            new[] { Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows };
     }
 }

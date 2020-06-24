@@ -23,10 +23,10 @@ namespace xdeequ.Repository
             {
                 JsonElement serializedAnalyzer = element.GetProperty(SerdeExt.ANALYZER_FIELD);
                 IAnalyzer<IMetric> analyzer =
-                    JsonSerializer.Deserialize<IAnalyzer<IMetric>>(serializedAnalyzer.GetString(), options);
+                    JsonSerializer.Deserialize<IAnalyzer<IMetric>>(serializedAnalyzer.GetRawText(), options);
 
                 JsonElement serializedMetric = element.GetProperty(SerdeExt.METRIC_FIELD);
-                IMetric metric = JsonSerializer.Deserialize<IMetric>(serializedMetric.GetString(), options);
+                IMetric metric = JsonSerializer.Deserialize<IMetric>(serializedMetric.GetRawText(), options);
 
                 return new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, metric);
             });
@@ -36,6 +36,7 @@ namespace xdeequ.Repository
 
         public override void Write(Utf8JsonWriter writer, AnalyzerContext value, JsonSerializerOptions options)
         {
+            writer.WriteStartObject();
             writer.WriteStartArray(SerdeExt.METRIC_MAP_FIELD);
 
             foreach (KeyValuePair<IAnalyzer<IMetric>, IMetric> keyValuePair in value.MetricMap)
@@ -43,15 +44,16 @@ namespace xdeequ.Repository
                 writer.WriteStartObject();
 
                 writer.WritePropertyName(SerdeExt.ANALYZER_FIELD);
-                writer.WriteStringValue(JsonSerializer.Serialize(keyValuePair.Key, options));
+                JsonSerializer.Serialize(writer, keyValuePair.Key, options);
 
                 writer.WritePropertyName(SerdeExt.METRIC_FIELD);
-                writer.WriteStringValue(JsonSerializer.Serialize(keyValuePair.Value, options));
+                JsonSerializer.Serialize(writer, keyValuePair.Value, options);
 
                 writer.WriteEndObject();
             }
 
             writer.WriteEndArray();
+            writer.WriteEndObject();
         }
     }
 }

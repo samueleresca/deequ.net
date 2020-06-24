@@ -15,7 +15,7 @@ namespace xdeequ.Analyzers
     {
         public static int MaxDetailBins = 1000;
         public static string NullFieldReplacement = "NullValue";
-        private readonly int _maxDetailBins;
+        public readonly int maxDetailBins;
         public readonly Option<Func<Column, Column>> BinningUdf;
         public readonly string Column;
         public readonly Option<string> Where;
@@ -26,13 +26,13 @@ namespace xdeequ.Analyzers
             BinningUdf = binningUdf;
             Where = where;
             Column = column;
-            _maxDetailBins = maxDetailBins;
+            maxDetailBins = maxDetailBins;
         }
 
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
-            new[] {PARAM_CHECK(), AnalyzersExt.HasColumn(Column)};
+            new[] { PARAM_CHECK(), AnalyzersExt.HasColumn(Column) };
 
         public override HistogramMetric ToFailureMetric(Exception e) =>
             new HistogramMetric(Column, new Try<Distribution>(ExceptionExt.WrapIfNecessary(e)));
@@ -64,7 +64,7 @@ namespace xdeequ.Analyzers
             }
 
             IEnumerable<Row> topNRows =
-                state.Value.Frequencies.OrderBy(Desc(AnalyzersExt.COUNT_COL)).Take(_maxDetailBins);
+                state.Value.Frequencies.OrderBy(Desc(AnalyzersExt.COUNT_COL)).Take(maxDetailBins);
             long binCount = state.Value.Frequencies.Count();
 
             Dictionary<string, DistributionValue> histogramDetails = topNRows
@@ -88,7 +88,7 @@ namespace xdeequ.Analyzers
         private Action<StructType> PARAM_CHECK() =>
             _ =>
             {
-                if (_maxDetailBins > MaxDetailBins)
+                if (maxDetailBins > MaxDetailBins)
                 {
                     throw new Exception(
                         $"Cannot return histogram values for more than ${MaxDetailBins} values");
@@ -97,16 +97,16 @@ namespace xdeequ.Analyzers
 
         private DataFrame BinOptional(Option<Func<Column, Column>> binningUdf, DataFrame dataFrame) =>
             binningUdf.HasValue switch
-            {
-                true => dataFrame.WithColumn(Column, binningUdf.Value(Col(Column))),
-                false => dataFrame
-            };
+        {
+            true => dataFrame.WithColumn(Column, binningUdf.Value(Col(Column))),
+            false => dataFrame
+        };
 
         private DataFrame FilterOptional(Option<string> where, DataFrame dataFrame) =>
             where.HasValue switch
-            {
-                true => dataFrame.Filter(where.Value),
-                false => dataFrame
-            };
+        {
+            true => dataFrame.Filter(where.Value),
+            false => dataFrame
+        };
     }
 }
