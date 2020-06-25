@@ -366,13 +366,13 @@ namespace xdeequ.Repository
             if (jsonElement.TryGetProperty(SerdeExt.WHERE_FIELD, out JsonElement element)
                 && element.GetString() != string.Empty)
             {
-
                 return new Option<string>(element.GetString());
             }
 
             return Option<string>.None;
         }
 
-        private IEnumerable<string> GetColumnAsSequence(JsonElement jsonElement) => jsonElement.EnumerateArray().Select(x => x.GetString());
+        private IEnumerable<string> GetColumnAsSequence(JsonElement jsonElement) =>
+            jsonElement.EnumerateArray().Select(x => x.GetString());
     }
 }

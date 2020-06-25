@@ -16,13 +16,14 @@ namespace xdeequ.tests.Repository
 {
     public class AnalysisResultSerdeTests
     {
-        public void AssertCorrectlyConvertsAnalysisResults(IEnumerable<AnalysisResult> analysisResults,
+        private void AssertCorrectlyConvertsAnalysisResults(IEnumerable<AnalysisResult> analysisResults,
             bool shouldFail = false)
         {
             if (shouldFail)
             {
                 Assert.Throws<ArgumentException>(() =>
                     JsonSerializer.Serialize(analysisResults, SerdeExt.GetDefaultOptions()));
+                return;
             }
 
             string serialized = JsonSerializer.Serialize(analysisResults, SerdeExt.GetDefaultOptions());
@@ -30,6 +31,34 @@ namespace xdeequ.tests.Repository
                 JsonSerializer.Deserialize<AnalysisResult[]>(serialized, SerdeExt.GetDefaultOptions());
 
             analysisResults.Count().ShouldBe(deserialized.Count());
+        }
+
+        [Fact]
+        public void analysis_results_serialization_with_mixed_Values_should_fail()
+        {
+            ArgumentException sampleException = new ArgumentException("Some");
+            AnalyzerContext analyzerContextWithMixedValues = new AnalyzerContext(
+                new Dictionary<IAnalyzer<IMetric>, IMetric>
+                {
+                    {
+                        Initializers.Size(Option<string>.None),
+                        new DoubleMetric(Entity.Column, "Size", "*", Try<double>.From(() => 5.0))
+                    },
+                    {
+                        Initializers.Completeness("ColumnA"),
+                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA",
+                            Try<double>.From(() => throw sampleException))
+                    }
+                });
+
+            long dateTime = DateTime.UtcNow.Ticks;
+            ResultKey resultKeyOne = new ResultKey(dateTime, new Dictionary<string, string> { { "Region", "EU" } });
+            ResultKey resultKeyTwo = new ResultKey(dateTime, new Dictionary<string, string> { { "Region", "NA" } });
+
+            AnalysisResult analysisResultOne = new AnalysisResult(resultKeyOne, analyzerContextWithMixedValues);
+            AnalysisResult analysisResultTwo = new AnalysisResult(resultKeyTwo, analyzerContextWithMixedValues);
+
+            AssertCorrectlyConvertsAnalysisResults(new[] { analysisResultOne, analysisResultTwo }, true);
         }
 
         [Fact]
@@ -132,14 +161,20 @@ namespace xdeequ.tests.Repository
                 });
 
             long dateTime = DateTime.UtcNow.Ticks;
-            ResultKey resultKeyOne = new ResultKey(dateTime, new Dictionary<string, string> { { "Region", "EU" } });
 
+            ResultKey resultKeyOne = new ResultKey(dateTime, new Dictionary<string, string> { { "Region", "EU" } });
             ResultKey resultKeyTwo = new ResultKey(dateTime, new Dictionary<string, string> { { "Region", "NA" } });
 
             AnalysisResult analysisResultOne = new AnalysisResult(resultKeyOne, analyzerContextWithAllSuccValues);
             AnalysisResult analysisResultTwo = new AnalysisResult(resultKeyTwo, analyzerContextWithAllSuccValues);
 
             AssertCorrectlyConvertsAnalysisResults(new[] { analysisResultOne, analysisResultTwo });
+        }
+
+
+        [Fact(Skip = "ApproxQuantile not implemented")]
+        public void serialization_of_ApproxQuantile_should_correctly_restore_id()
+        {
         }
     }
 }

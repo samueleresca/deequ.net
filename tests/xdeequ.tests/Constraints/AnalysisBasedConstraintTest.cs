@@ -129,12 +129,11 @@ namespace xdeequ.tests.Constraints
         [Fact]
         public void fail_on_analysis_if_value_picker_is_provided_but_fails()
         {
-            Func<double, double> problematicValuePicker =
-                d => throw new RuntimeWrappedException("failed");
+            Func<double, double> problematicValuePicker = d => throw new Exception("failed");
             SampleAnalyzer att1Analyzer = new SampleAnalyzer("att1");
-            Dictionary<IAnalyzer<IMetric>, IMetric> emptyResult = new Dictionary<IAnalyzer<IMetric>, IMetric>();
-
             DataFrame df = FixtureSupport.GetDFMissing(_session);
+
+            Dictionary<IAnalyzer<IMetric>, IMetric> emptyResult = new Dictionary<IAnalyzer<IMetric>, IMetric>();
             Dictionary<IAnalyzer<IMetric>, IMetric> validResults = new Dictionary<IAnalyzer<IMetric>, IMetric>
             {
                 {att1Analyzer, new SampleAnalyzer("att1").Calculate(df)}
@@ -149,7 +148,6 @@ namespace xdeequ.tests.Constraints
             result.Status.ShouldBe(ConstraintStatus.Failure);
             result.Message.Value.Contains("Can't retrieve the value to assert on").ShouldBeTrue();
             result.Metric.HasValue.ShouldBeTrue();
-
 
             ConstraintResult validConstraint = constraint.Evaluate(validResults);
             validConstraint.Status.ShouldBe(ConstraintStatus.Failure);
@@ -167,20 +165,17 @@ namespace xdeequ.tests.Constraints
         [Fact]
         public void fail_on_failed_assertion_function_with_hint_in_exception_message_if_provided()
         {
-            Func<double, double> problematicValuePicker =
-                d => throw new RuntimeWrappedException("failed");
             SampleAnalyzer att1Analyzer = new SampleAnalyzer("att1");
             DataFrame df = FixtureSupport.GetDFMissing(_session);
 
             AnalysisBasedConstraint<NumMatches, double, double> failingConstraint =
-                new AnalysisBasedConstraint<NumMatches, double, double>(att1Analyzer, _ => _ == 2.0,
-                    new Option<Func<double, double>>(problematicValuePicker),
+                new AnalysisBasedConstraint<NumMatches, double, double>(att1Analyzer, _ => _ == 0.9,
                     new Option<string>("Value should be like ...!"));
 
             ConstraintResult result = ConstraintUtils.Calculate<NumMatches, double, double>(failingConstraint, df);
 
             result.Status.ShouldBe(ConstraintStatus.Failure);
-            result.Message.Value.ShouldBe("Value: 1.0 does not meet the constraint requirement!" +
+            result.Message.Value.ShouldBe("Value: 1 does not meet the constraint requirement!" +
                                           "Value should be like ...!");
             result.Metric.HasValue.ShouldBeTrue();
         }
@@ -227,7 +222,7 @@ namespace xdeequ.tests.Constraints
         public void return_failed_constraint_for_a_failing_assertion()
         {
             string msg = "-test-";
-            RuntimeWrappedException exception = new RuntimeWrappedException(msg);
+            Exception exception = new Exception(msg);
             DataFrame df = FixtureSupport.GetDFMissing(_session);
             Func<double, bool> failingAssertion = d => throw exception;
 

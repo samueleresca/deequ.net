@@ -15,9 +15,9 @@ namespace xdeequ.Analyzers
     {
         public static int MaxDetailBins = 1000;
         public static string NullFieldReplacement = "NullValue";
-        public readonly int maxDetailBins;
         public readonly Option<Func<Column, Column>> BinningUdf;
         public readonly string Column;
+        public readonly int maxDetailBins;
         public readonly Option<string> Where;
 
         public Histogram(string column, Option<string> where, Option<Func<Column, Column>> binningUdf,

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.States;
@@ -72,8 +73,8 @@ namespace xdeequ.Constraints
                     return new ConstraintResult(this, ConstraintStatus.Success, Option<string>.None, metric);
                 }
 
-                string errorMessage = $"Value: {assertOn.ToString()} does not meet the constraint requirement!";
-                hint = hint.Select(err => err += hint);
+                string errorMessage = $"Value: {assertOn} does not meet the constraint requirement!";
+                errorMessage += hint.GetOrElse(string.Empty);
 
                 return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage, metric);
             }
@@ -83,10 +84,10 @@ namespace xdeequ.Constraints
                 {
                     case ConstraintAssertionException ec:
                         return new ConstraintResult(this, ConstraintStatus.Failure,
-                            $"{AssertionException}: {ec.Message}!", metric);
+                            $"{AssertionException}: {ec.Message}", metric);
                     case ValuePickerException vpe:
                         return new ConstraintResult(this, ConstraintStatus.Failure,
-                            $"{ProblematicMetricPicker}: {vpe.Message}!", metric);
+                            $"{ProblematicMetricPicker}: {vpe.Message}", metric);
                 }
             }
 

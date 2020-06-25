@@ -39,6 +39,7 @@ namespace xdeequ.Repository
                 writer.WriteNumber("ratio", distributionValue.Value.Ratio);
                 writer.WriteEndObject();
             }
+
             writer.WriteEndArray();
 
             writer.WriteEndObject();
