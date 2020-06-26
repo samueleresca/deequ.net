@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Extensions;
@@ -38,12 +39,12 @@ namespace xdeequ.Analyzers.Runners
             }
         }
 
-        public static DataFrame SuccessMetricsAsDataFrame(AnalyzerContext analyzerContext,
+        public DataFrame SuccessMetricsAsDataFrame(
             SparkSession sparkSession,
             IEnumerable<IAnalyzer<IMetric>> forAnalyzers)
         {
             IEnumerable<GenericRow> metricList =
-                GetSimplifiedMetricOutputForSelectedAnalyzers(analyzerContext, forAnalyzers)
+                GetSimplifiedMetricOutputForSelectedAnalyzers(forAnalyzers)
                     .Select(x => new GenericRow(new object[] { x.Entity.ToString(), x.Instance, x.Name, x.Value }));
 
             DataFrame df = sparkSession.CreateDataFrame(metricList,
@@ -55,15 +56,15 @@ namespace xdeequ.Analyzers.Runners
             return df;
         }
 
-        public static DataFrame SuccessMetricsAsJson(AnalysisResult analysisResult,
-            IEnumerable<IAnalyzer<IMetric>> forAnalyzers,
-            IEnumerable<string> withTags) =>
-            throw new NotImplementedException();
+        public string SuccessMetricsAsJson(IEnumerable<IAnalyzer<IMetric>> forAnalyzers)
+        {
+            SimpleMetricOutput[] metricsList = GetSimplifiedMetricOutputForSelectedAnalyzers(forAnalyzers).ToArray();
+            return JsonSerializer.Serialize(metricsList);
+        }
 
-        public static IEnumerable<SimpleMetricOutput> GetSimplifiedMetricOutputForSelectedAnalyzers(
-            AnalyzerContext analyzerContext,
+        public IEnumerable<SimpleMetricOutput> GetSimplifiedMetricOutputForSelectedAnalyzers(
             IEnumerable<IAnalyzer<IMetric>> forAnalyzers) =>
-            analyzerContext.MetricMap
+            this.MetricMap
                 .Where((pair, i) => pair.Key == null || forAnalyzers.Contains(pair.Key))
                 .Where((pair, i) =>
                 {
