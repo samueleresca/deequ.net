@@ -1,12 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xdeequ", "src\xdeequ\xdeequ.csproj", "{6D3902D2-C1F5-4CCC-9424-1B14F3A4E244}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "deequ", "src\deequ\deequ.csproj", "{6D3902D2-C1F5-4CCC-9424-1B14F3A4E244}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{877C7358-EBFF-43D9-95CE-3F1347D9F65B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{97FB89AF-D129-4689-9DA9-5734602609CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xdeequ.tests", "tests\xdeequ.tests\xdeequ.tests.csproj", "{283202CA-DC3D-4747-A68B-D58A21CD3E1E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "deequ.tests", "tests\deequ.tests\deequ.tests.csproj", "{283202CA-DC3D-4747-A68B-D58A21CD3E1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
