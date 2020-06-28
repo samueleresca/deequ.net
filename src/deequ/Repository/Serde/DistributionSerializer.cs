@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using xdeequ.Metrics;
 
-namespace xdeequ.Repository
+namespace xdeequ.Repository.Serde
 {
     public class DistributionSerializer : JsonConverter<Distribution>
     {

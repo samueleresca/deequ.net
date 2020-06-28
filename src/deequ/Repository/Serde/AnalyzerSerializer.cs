@@ -11,7 +11,7 @@ using xdeequ.Metrics;
 using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace xdeequ.Repository
+namespace xdeequ.Repository.Serde
 {
     public class AnalyzerSerializer : JsonConverter<IAnalyzer<IMetric>>
     {

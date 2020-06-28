@@ -8,7 +8,7 @@ using xdeequ.Analyzers.Runners;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 
-namespace xdeequ.Repository
+namespace xdeequ.Repository.Serde
 {
     public class AnalyzerContextSerializer : JsonConverter<AnalyzerContext>
     {

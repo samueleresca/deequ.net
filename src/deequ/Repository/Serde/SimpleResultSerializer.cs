@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using xdeequ.Analyzers.Runners;
 
-namespace xdeequ.Repository
+namespace xdeequ.Repository.Serde
 {
     public class SimpleResultSerializer : JsonConverter<SimpleMetricOutput>
     {

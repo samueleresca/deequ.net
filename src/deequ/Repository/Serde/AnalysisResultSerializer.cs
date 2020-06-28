@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using xdeequ.Analyzers.Runners;
 using xdeequ.Extensions;
 
-namespace xdeequ.Repository
+namespace xdeequ.Repository.Serde
 {
     public class AnalysisResultSerializer : JsonConverter<AnalysisResult>
     {

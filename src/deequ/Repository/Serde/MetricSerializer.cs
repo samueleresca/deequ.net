@@ -5,7 +5,7 @@ using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
 
-namespace xdeequ.Repository
+namespace xdeequ.Repository.Serde
 {
     public class MetricSerializer : JsonConverter<IMetric>
     {
