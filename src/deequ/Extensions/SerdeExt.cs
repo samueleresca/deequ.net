@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using xdeequ.Repository;
 using xdeequ.Repository.Serde;
 
 namespace xdeequ.Extensions

@@ -11,26 +11,22 @@ namespace xdeequ.Repository.InMemory
 {
     public class InMemoryMetricsRepository : IMetricsRepository
     {
+        private readonly ConcurrentDictionary<ResultKey, AnalysisResult> _resultsRepository;
 
-        private ConcurrentDictionary<ResultKey, AnalysisResult> _resultsRepository;
-
-        public InMemoryMetricsRepository()
-        {
+        public InMemoryMetricsRepository() =>
             _resultsRepository = new ConcurrentDictionary<ResultKey, AnalysisResult>();
-        }
 
         public void Save(ResultKey resultKey, AnalyzerContext analyzerContext)
         {
-            IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> successfulMetrics = analyzerContext.MetricMap.Where(x => x.Value != null);
-            var analyzerContextWithSuccessfulValues = new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(successfulMetrics));
+            IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> successfulMetrics =
+                analyzerContext.MetricMap.Where(x => x.Value != null);
+            AnalyzerContext analyzerContextWithSuccessfulValues =
+                new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(successfulMetrics));
             _resultsRepository[resultKey] = new AnalysisResult(resultKey, analyzerContextWithSuccessfulValues);
         }
 
-        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey)
-        {
-            throw new NotImplementedException();
-        }
+        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey) => throw new NotImplementedException();
 
-        public IMetricRepositoryMultipleResultsLoader Load() => throw new System.NotImplementedException();
+        public IMetricRepositoryMultipleResultsLoader Load() => throw new NotImplementedException();
     }
 }

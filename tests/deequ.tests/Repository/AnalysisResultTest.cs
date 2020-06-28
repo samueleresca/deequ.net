@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
@@ -19,11 +18,16 @@ namespace xdeequ.tests.Repository
     [Collection("Spark instance")]
     public class AnalysisResultTest
     {
+        public AnalysisResultTest(SparkFixture fixture) => _session = fixture.Spark;
 
-        private static long DATE_ONE = new DateTime(2021, 10, 14).ToBinary();
-        private static KeyValuePair<string, string>[] REGION_EU = { new KeyValuePair<string, string>("Region", "EU") };
+        private static readonly long DATE_ONE = new DateTime(2021, 10, 14).ToBinary();
 
-        private static KeyValuePair<string, string>[] REGION_EU_INVALID =
+        private static readonly KeyValuePair<string, string>[] REGION_EU =
+        {
+            new KeyValuePair<string, string>("Region", "EU")
+        };
+
+        private static readonly KeyValuePair<string, string>[] REGION_EU_INVALID =
         {
             new KeyValuePair<string, string>("Re%%^gion!/", "EU")
         };
@@ -41,276 +45,33 @@ namespace xdeequ.tests.Repository
 
         private readonly SparkSession _session;
 
-        public AnalysisResultTest(SparkFixture fixture) => _session = fixture.Spark;
-
-        [Fact]
-        public void correctly_return_a_DataFrame_that_is_formatted_as_expected()
-        {
-            Evaluate(_session, context =>
-            {
-                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
-
-                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
-                        Enumerable.Empty<string>());
-
-
-                List<GenericRow> elements = new List<GenericRow>
-                {
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
-                };
-
-                StructType schema = new StructType(
-                    new List<StructField>
-                    {
-                        new StructField("entity", new StringType()),
-                        new StructField("instance", new StringType()),
-                        new StructField("name", new StringType()),
-                        new StructField("value", new DoubleType()),
-                        new StructField("dataset_date", new LongType()),
-                        new StructField("region", new StringType())
-                    });
-
-                var df = _session.CreateDataFrame(elements, schema);
-
-                AssertSameRows(analysisResultsAsDataFrame, df);
-
-            });
-        }
-
-        [Fact]
-        public void correctly_return_a_JSON_that_is_formatted_as_expected()
-        {
-            Evaluate(_session, context =>
-            {
-                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
-
-                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
-                        Enumerable.Empty<string>());
-
-
-                var expected = "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
-                expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
-
-                AssertSameRows(analysisResultsAsDataFrame, expected);
-
-            });
-        }
-
-        [Fact]
-        public void only_include_requested_metrics_in_returned_DataFrame()
-        {
-            Evaluate(_session, context =>
-            {
-                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
-                var metricsForAnalyzers = new IAnalyzer<DoubleMetric>[]
-                {
-                    Initializers.Completeness("att1"),
-                    Initializers.Uniqueness(new[] {"att1", "att2"})
-                };
-
-                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsDataFrame(_session, metricsForAnalyzers,
-                        Enumerable.Empty<string>());
-
-                List<GenericRow> elements = new List<GenericRow>
-                {
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
-                };
-
-                StructType schema = new StructType(
-                    new List<StructField>
-                    {
-                        new StructField("entity", new StringType()),
-                        new StructField("instance", new StringType()),
-                        new StructField("name", new StringType()),
-                        new StructField("value", new DoubleType()),
-                        new StructField("dataset_date", new LongType()),
-                        new StructField("region", new StringType())
-                    });
-
-                var df = _session.CreateDataFrame(elements, schema);
-
-
-                AssertSameRows(analysisResultsAsDataFrame, df);
-
-            });
-        }
-
-        [Fact]
-        public void only_include_requested_metrics_in_returned_JSON()
-        {
-            Evaluate(_session, context =>
-            {
-                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
-                var metricsForAnalyzers = new IAnalyzer<DoubleMetric>[]
-                {
-                    Initializers.Completeness("att1"),
-                    Initializers.Uniqueness(new[] {"att1", "att2"})
-                };
-
-                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsJson(_session, metricsForAnalyzers,
-                        Enumerable.Empty<string>());
-
-
-                var expected =
-                    "[{\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
-
-                expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
-
-
-                AssertSameRows(analysisResultsAsDataFrame, expected);
-
-            });
-        }
-
-
-        [Fact]
-        public void turn_tagNames_into_valid_columnNames_in_returned_DataFrame()
-        {
-            Evaluate(_session, context =>
-            {
-                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
-
-                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
-                        Enumerable.Empty<string>());
-
-                List<GenericRow> elements = new List<GenericRow>
-                {
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
-                };
-
-                StructType schema = new StructType(
-                    new List<StructField>
-                    {
-                        new StructField("entity", new StringType()),
-                        new StructField("instance", new StringType()),
-                        new StructField("name", new StringType()),
-                        new StructField("value", new DoubleType()),
-                        new StructField("dataset_date", new LongType()),
-                        new StructField("region", new StringType())
-                    });
-
-                var df = _session.CreateDataFrame(elements, schema);
-
-                AssertSameRows(analysisResultsAsDataFrame, df);
-
-            });
-        }
-
-        [Fact]
-        public void turn_tagNames_into_valid_columnNames_in_returned_JSON()
-        {
-            Evaluate(_session, context =>
-            {
-                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
-
-                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
-                        Enumerable.Empty<string>());
-
-                var expected =
-                    "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
-
-                expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
-
-
-                AssertSameRows(analysisResultsAsDataFrame, expected);
-
-            });
-        }
-
-        [Fact]
-        public void return_empty_DataFrame_if_AnalyzerContext_contains_no_entries()
-        {
-            var data = FixtureSupport.GetDFFull(_session);
-            var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
-
-            var results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
-                new StorageLevel());
-            var analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
-                .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
-                    Enumerable.Empty<string>());
-
-            List<GenericRow> elements = new List<GenericRow>
-            {
-            };
-
-            StructType schema = new StructType(
-                new List<StructField>
-                {
-                        new StructField("entity", new StringType()),
-                        new StructField("instance", new StringType()),
-                        new StructField("name", new StringType()),
-                        new StructField("value", new DoubleType()),
-                        new StructField("dataset_date", new LongType()),
-                        new StructField("region", new StringType())
-                });
-
-            var df = _session.CreateDataFrame(elements, schema);
-
-            AssertSameRows(analysisResultsAsDataFrame, df);
-
-        }
-
-        [Fact]
-        public void return_empty_JSON_if_AnalyzerContext_contains_no_entries()
-        {
-            var data = FixtureSupport.GetDFFull(_session);
-            var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
-
-            var results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
-                new StorageLevel());
-            var analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
-                .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
-                    Enumerable.Empty<string>());
-
-            var expected = "[]";
-
-            AssertSameRows(analysisResultsAsDataFrame, expected);
-
-        }
-
         private static void Evaluate(SparkSession session, Action<AnalyzerContext> func)
         {
+            DataFrame data = FixtureSupport.GetDFFull(session);
 
-            var data = FixtureSupport.GetDFFull(session);
-
-            var results = CreateAnalysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
+            AnalyzerContext results = CreateAnalysis().Run(data, Option<IStateLoader>.None,
+                Option<IStatePersister>.None,
                 new StorageLevel());
 
             func(results);
         }
 
-        private static Analysis CreateAnalysis()
-        {
-            return new Analysis()
+        private static Analysis CreateAnalysis() =>
+            new Analysis()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] {"item"}, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
-                .AddAnalyzer(Initializers.Uniqueness(new[] { "att1", "att2" }));
-        }
+                .AddAnalyzer(Initializers.Uniqueness(new[] {"att1", "att2"}));
 
         private static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
         {
+            IEnumerable<Row> dfASeq = dataFrameA.Collect();
+            IEnumerable<Row> dfBSeq = dataFrameB.Collect();
 
-            var dfASeq = dataFrameA.Collect();
-            var dfBSeq = dataFrameB.Collect();
-
-            var i = 0;
-            foreach (var rowA in dfASeq)
+            int i = 0;
+            foreach (Row rowA in dfASeq)
             {
-                var rowB = dfBSeq.Skip(i).First();
+                Row rowB = dfBSeq.Skip(i).First();
 
                 rowA[0].ShouldBe(rowB[0]);
                 rowA[1].ShouldBe(rowB[1]);
@@ -325,13 +86,15 @@ namespace xdeequ.tests.Repository
 
         private static void AssertSameRows(string jsonA, string jsonB)
         {
-            var resultA = JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonA, SerdeExt.GetDefaultOptions());
-            var resultB = JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonB, SerdeExt.GetDefaultOptions());
-            var i = 0;
+            SimpleMetricOutput[] resultA =
+                JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonA, SerdeExt.GetDefaultOptions());
+            SimpleMetricOutput[] resultB =
+                JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonB, SerdeExt.GetDefaultOptions());
+            int i = 0;
 
-            foreach (var rowA in resultA)
+            foreach (SimpleMetricOutput rowA in resultA)
             {
-                var rowB = resultB.Skip(i).First();
+                SimpleMetricOutput rowB = resultB.Skip(i).First();
 
                 rowA.Entity.ShouldBe(rowB.Entity);
                 rowA.Instance.ShouldBe(rowB.Instance);
@@ -341,5 +104,220 @@ namespace xdeequ.tests.Repository
                 i++;
             }
         }
+
+        [Fact]
+        public void correctly_return_a_DataFrame_that_is_formatted_as_expected() =>
+            Evaluate(_session, context =>
+            {
+                ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
+
+                DataFrame analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                        Enumerable.Empty<string>());
+
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"})
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType()),
+                        new StructField("dataset_date", new LongType()),
+                        new StructField("region", new StringType())
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+                AssertSameRows(analysisResultsAsDataFrame, df);
+            });
+
+        [Fact]
+        public void correctly_return_a_JSON_that_is_formatted_as_expected() =>
+            Evaluate(_session, context =>
+            {
+                ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
+
+                string analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                        Enumerable.Empty<string>());
+
+
+                string expected =
+                    "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+                expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
+
+                AssertSameRows(analysisResultsAsDataFrame, expected);
+            });
+
+        [Fact]
+        public void only_include_requested_metrics_in_returned_DataFrame() =>
+            Evaluate(_session, context =>
+            {
+                ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
+                IAnalyzer<DoubleMetric>[] metricsForAnalyzers =
+                {
+                    Initializers.Completeness("att1"), Initializers.Uniqueness(new[] {"att1", "att2"})
+                };
+
+                DataFrame analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsDataFrame(_session, metricsForAnalyzers,
+                        Enumerable.Empty<string>());
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"})
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType()),
+                        new StructField("dataset_date", new LongType()),
+                        new StructField("region", new StringType())
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+
+                AssertSameRows(analysisResultsAsDataFrame, df);
+            });
+
+        [Fact]
+        public void only_include_requested_metrics_in_returned_JSON() =>
+            Evaluate(_session, context =>
+            {
+                ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
+                IAnalyzer<DoubleMetric>[] metricsForAnalyzers =
+                {
+                    Initializers.Completeness("att1"), Initializers.Uniqueness(new[] {"att1", "att2"})
+                };
+
+                string analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsJson(_session, metricsForAnalyzers,
+                        Enumerable.Empty<string>());
+
+
+                string expected =
+                    "[{\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+
+                expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
+
+
+                AssertSameRows(analysisResultsAsDataFrame, expected);
+            });
+
+        [Fact]
+        public void return_empty_DataFrame_if_AnalyzerContext_contains_no_entries()
+        {
+            DataFrame data = FixtureSupport.GetDFFull(_session);
+            ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
+
+            AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
+                new StorageLevel());
+            DataFrame analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
+                .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                    Enumerable.Empty<string>());
+
+            List<GenericRow> elements = new List<GenericRow>();
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("entity", new StringType()),
+                    new StructField("instance", new StringType()),
+                    new StructField("name", new StringType()),
+                    new StructField("value", new DoubleType()),
+                    new StructField("dataset_date", new LongType()),
+                    new StructField("region", new StringType())
+                });
+
+            DataFrame df = _session.CreateDataFrame(elements, schema);
+
+            AssertSameRows(analysisResultsAsDataFrame, df);
+        }
+
+        [Fact]
+        public void return_empty_JSON_if_AnalyzerContext_contains_no_entries()
+        {
+            DataFrame data = FixtureSupport.GetDFFull(_session);
+            ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
+
+            AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
+                new StorageLevel());
+            string analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
+                .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                    Enumerable.Empty<string>());
+
+            string expected = "[]";
+
+            AssertSameRows(analysisResultsAsDataFrame, expected);
+        }
+
+
+        [Fact]
+        public void turn_tagNames_into_valid_columnNames_in_returned_DataFrame() =>
+            Evaluate(_session, context =>
+            {
+                ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
+
+                DataFrame analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                        Enumerable.Empty<string>());
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"})
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType()),
+                        new StructField("dataset_date", new LongType()),
+                        new StructField("region", new StringType())
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+                AssertSameRows(analysisResultsAsDataFrame, df);
+            });
+
+        [Fact]
+        public void turn_tagNames_into_valid_columnNames_in_returned_JSON() =>
+            Evaluate(_session, context =>
+            {
+                ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
+
+                string analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                        Enumerable.Empty<string>());
+
+                string expected =
+                    "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+
+                expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
+
+
+                AssertSameRows(analysisResultsAsDataFrame, expected);
+            });
     }
 }

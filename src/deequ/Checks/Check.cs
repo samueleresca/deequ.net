@@ -106,12 +106,12 @@ namespace xdeequ.Checks
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, IEnumerable<string> columns) =>
             AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, Option<string>.None));
+                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, Option<string>.None));
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, Option<string> hint,
             IEnumerable<string> columns) =>
             AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, hint));
+                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, hint));
 
         public CheckWithLastConstraintFilterable HasUniqueness(IEnumerable<string> columns,
             Func<double, bool> assertion) =>
