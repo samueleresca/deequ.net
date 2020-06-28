@@ -34,12 +34,12 @@ namespace xdeequ.Analyzers.Runners
 
             AnalyzerContext resultComputedPreviously = (metricsRepositoryOptions?.metricRepository.HasValue,
                     metricsRepositoryOptions?.reuseExistingResultsForKey.HasValue) switch
-                {
-                    (true, true) => metricsRepositoryOptions?.metricRepository.Value
-                        .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
-                        .GetOrElse(AnalyzerContext.Empty()),
-                    _ => AnalyzerContext.Empty()
-                };
+            {
+                (true, true) => metricsRepositoryOptions?.metricRepository.Value
+                    .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
+                    .GetOrElse(AnalyzerContext.Empty()),
+                _ => AnalyzerContext.Empty()
+            };
 
 
             IEnumerable<IAnalyzer<IMetric>>

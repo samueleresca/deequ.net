@@ -32,6 +32,6 @@ namespace xdeequ.Analyzers
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
     }
 }

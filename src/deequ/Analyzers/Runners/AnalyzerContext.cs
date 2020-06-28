@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -43,7 +44,7 @@ namespace xdeequ.Analyzers.Runners
         {
             IEnumerable<GenericRow> metricList =
                 GetSimplifiedMetricOutputForSelectedAnalyzers(forAnalyzers)
-                    .Select(x => new GenericRow(new object[] {x.Entity.ToString(), x.Instance, x.Name, x.Value}));
+                    .Select(x => new GenericRow(new object[] { x.Entity.ToString(), x.Instance, x.Name, x.Value }));
 
             DataFrame df = sparkSession.CreateDataFrame(metricList,
                 new StructType(new[]
@@ -63,7 +64,7 @@ namespace xdeequ.Analyzers.Runners
         public IEnumerable<SimpleMetricOutput> GetSimplifiedMetricOutputForSelectedAnalyzers(
             IEnumerable<IAnalyzer<IMetric>> forAnalyzers) =>
             MetricMap
-                .Where((pair, i) => forAnalyzers.Count() == 0 || forAnalyzers.Contains(pair.Key))
+                .Where((pair, i) => !forAnalyzers.Any() || forAnalyzers.Contains(pair.Key))
                 .Where((pair, i) =>
                 {
                     DoubleMetric dm = pair.Value as DoubleMetric;
@@ -78,7 +79,7 @@ namespace xdeequ.Analyzers.Runners
 
         private static string DescribeAnalyzer(IAnalyzer<IMetric> analyzer)
         {
-            string name = analyzer.GetType().ToString();
+            string name = analyzer.GetType().Name;
 
             Option<string> filter = Option<string>.None;
 
@@ -98,7 +99,7 @@ namespace xdeequ.Analyzers.Runners
     {
         public SimpleMetricOutput(DoubleMetric doubleMetric)
         {
-            Entity = doubleMetric.Entity.ToString();
+            Entity = Enum.GetName(typeof(Entity), doubleMetric.Entity);
             Instance = doubleMetric.Instance;
             Name = doubleMetric.Name;
             Value = doubleMetric.Value.Get();
