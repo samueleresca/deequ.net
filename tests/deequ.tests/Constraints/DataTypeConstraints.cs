@@ -21,7 +21,7 @@ namespace xdeequ.tests.Constraints
         public void assert_fractional_type_for_DoubleType_column()
         {
             DataFrame df = FixtureSupport.DataFrameWithColumn("column", new DoubleType(), _session,
-                new[] { new GenericRow(new object[] { 1.0 }), new GenericRow(new object[] { 2.0 }) });
+                new[] {new GenericRow(new object[] {1.0}), new GenericRow(new object[] {2.0})});
 
             ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, _ => _ == 1.0,
@@ -32,7 +32,7 @@ namespace xdeequ.tests.Constraints
         public void assert_fractional_type_for_StringType_column()
         {
             DataFrame df = FixtureSupport.DataFrameWithColumn("column", new StringType(), _session,
-                new[] { new GenericRow(new object[] { "1" }), new GenericRow(new object[] { "2.0" }) });
+                new[] {new GenericRow(new object[] {"1"}), new GenericRow(new object[] {"2.0"})});
 
             ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, _ => _ == 0.5,
@@ -43,7 +43,7 @@ namespace xdeequ.tests.Constraints
         public void assert_numeric_type_as_sum_over_fractional_and_integral()
         {
             DataFrame df = FixtureSupport.DataFrameWithColumn("column", new StringType(), _session,
-                new[] { new GenericRow(new object[] { "1" }), new GenericRow(new object[] { "2.0" }) });
+                new[] {new GenericRow(new object[] {"1"}), new GenericRow(new object[] {"2.0"})});
 
             ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Numeric, _ => _ == 1.0,

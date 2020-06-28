@@ -44,10 +44,10 @@ namespace xdeequ.Analyzers
 
             Column conditional = AnalyzersExt.ConditionalCount(Where);
 
-            return new[] { summarization, conditional };
+            return new[] {summarization, conditional};
         }
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column.Value), AnalyzersExt.IsNotNested(Column.Value) };
+            new[] {AnalyzersExt.HasColumn(Column.Value), AnalyzersExt.IsNotNested(Column.Value)};
     }
 }

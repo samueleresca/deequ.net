@@ -66,7 +66,7 @@ namespace xdeequ.Repository
 
             return dataFrameOne
                 .Select(WithAllColumns(columnsOne, columnTotal.ToArray()).ToArray())
-                .Union(dataFrameTwo.Select((Column[])WithAllColumns(columnsTwo, columnTotal)));
+                .Union(dataFrameTwo.Select(WithAllColumns(columnsTwo, columnTotal)));
         }
 
         private string JsonUnion(string jsonOne, string jsonTwo)

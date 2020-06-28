@@ -43,12 +43,12 @@ namespace xdeequ.Analyzers
 
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] { Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
+            new[] {Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
 
         public override Option<MinState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
     }
 }

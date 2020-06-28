@@ -33,29 +33,24 @@ namespace xdeequ.Repository.InMemory
             _resultsRepository[resultKey] = new AnalysisResult(resultKey, analyzerContextWithSuccessfulValues);
         }
 
-        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey)
-        {
-            return new Option<AnalyzerContext>(_resultsRepository[resultKey].AnalyzerContext);
-        }
+        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey) =>
+            new Option<AnalyzerContext>(_resultsRepository[resultKey].AnalyzerContext);
 
-        public IMetricRepositoryMultipleResultsLoader Load()
-        {
-            return new LimitedInMemoryMetricsRepositoryMultipleResultsLoader(_resultsRepository);
-        }
+        public IMetricRepositoryMultipleResultsLoader Load() =>
+            new LimitedInMemoryMetricsRepositoryMultipleResultsLoader(_resultsRepository);
     }
 
     public class LimitedInMemoryMetricsRepositoryMultipleResultsLoader : MetricsRepositoryMultipleResultsLoader
     {
-        private Option<Dictionary<string, string>> tagValues;
-        private Option<IEnumerable<IAnalyzer<IMetric>>> forAnalyzers;
-        private Option<long> before;
-        private Option<long> after;
         private readonly ConcurrentDictionary<ResultKey, AnalysisResult> _resultsRepository;
+        private Option<long> after;
+        private Option<long> before;
+        private Option<IEnumerable<IAnalyzer<IMetric>>> forAnalyzers;
+        private Option<Dictionary<string, string>> tagValues;
 
-        public LimitedInMemoryMetricsRepositoryMultipleResultsLoader(ConcurrentDictionary<ResultKey, AnalysisResult> resultsRepository)
-        {
+        public LimitedInMemoryMetricsRepositoryMultipleResultsLoader(
+            ConcurrentDictionary<ResultKey, AnalysisResult> resultsRepository) =>
             _resultsRepository = resultsRepository;
-        }
 
         public override IMetricRepositoryMultipleResultsLoader WithTagValues(Dictionary<string, string> tagValues)
         {
@@ -81,15 +76,14 @@ namespace xdeequ.Repository.InMemory
             return this;
         }
 
-        public override IEnumerable<AnalysisResult> Get()
-        {
-            return _resultsRepository
+        public override IEnumerable<AnalysisResult> Get() =>
+            _resultsRepository
                 .Where(pair => !after.HasValue || after.Value <= pair.Key.DataSetDate)
                 .Where(pair => !before.HasValue || pair.Key.DataSetDate <= before.Value)
                 .Where(pair => !tagValues.HasValue || pair.Key.Tags.Keys.All(x => tagValues.Value.ContainsKey(x)))
                 .Select(x =>
                 {
-                    var requestedMetrics = x.Value
+                    IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> requestedMetrics = x.Value
                         .AnalyzerContext
                         .MetricMap
                         .Where(analyzer => !forAnalyzers.HasValue || forAnalyzers.Value.Contains(analyzer.Key));
@@ -97,6 +91,5 @@ namespace xdeequ.Repository.InMemory
                     return new AnalysisResult(x.Value.ResultKey,
                         new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(requestedMetrics)));
                 });
-        }
     }
 }

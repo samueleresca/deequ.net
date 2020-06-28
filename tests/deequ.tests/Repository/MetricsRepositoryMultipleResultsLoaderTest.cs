@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.Spark.Sql;
 using Shouldly;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
-using xdeequ.Extensions;
 using xdeequ.Repository;
 using xdeequ.Repository.InMemory;
 using xdeequ.Util;
@@ -17,9 +15,6 @@ namespace xdeequ.tests.Repository
     [Collection("Spark instance")]
     public class MetricsRepositoryMultipleResultsLoaderTest
     {
-
-        private readonly SparkSession _session;
-
         private static readonly long DATE_ONE = new DateTime(2021, 10, 14).ToBinary();
         private static readonly long DATE_TWO = new DateTime(2021, 10, 15).ToBinary();
 
@@ -36,14 +31,16 @@ namespace xdeequ.tests.Repository
         private static readonly KeyValuePair<string, string>[] REGION_EU_AND_DATASET_NAME =
         {
             new KeyValuePair<string, string>("Region", "EU"),
-            new KeyValuePair<string, string>("dataset_name", "Some"),
+            new KeyValuePair<string, string>("dataset_name", "Some")
         };
 
         private static readonly KeyValuePair<string, string>[] REGION_NA_AND_DATASET_VERSION =
         {
             new KeyValuePair<string, string>("Region", "EU"),
-            new KeyValuePair<string, string>("dataset_version", "2.0"),
+            new KeyValuePair<string, string>("dataset_version", "2.0")
         };
+
+        private readonly SparkSession _session;
 
         public MetricsRepositoryMultipleResultsLoaderTest(SparkFixture fixture) => _session = fixture.Spark;
 
@@ -54,7 +51,7 @@ namespace xdeequ.tests.Repository
             AnalyzerContext results = CreateAnalysis()
                 .Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None, new StorageLevel());
 
-            var repository = new InMemoryMetricsRepository();
+            InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
 
             func(results, repository);
         }
@@ -62,9 +59,9 @@ namespace xdeequ.tests.Repository
         private static Analysis CreateAnalysis() =>
             new Analysis()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] {"item"}, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
-                .AddAnalyzer(Initializers.Uniqueness(new[] { "att1", "att2" }));
+                .AddAnalyzer(Initializers.Uniqueness(new[] {"att1", "att2"}));
 
         private static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
         {

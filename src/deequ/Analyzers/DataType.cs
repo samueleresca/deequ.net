@@ -117,7 +117,7 @@ namespace xdeequ.Analyzers
             new HistogramMetric(Column, new Try<Distribution>(e));
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) }.Concat(base.Preconditions());
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column)}.Concat(base.Preconditions());
 
         public Option<string> FilterCondition() => Where;
 
@@ -158,7 +158,7 @@ namespace xdeequ.Analyzers
         }
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] { AnalyzersExt.ConditionalSelection(Column, Where) };
+            new[] {AnalyzersExt.ConditionalSelection(Column, Where)};
 
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
