@@ -208,7 +208,6 @@ namespace xdeequ.tests.Repository
             });
         }
 
-
         [Fact]
         public void turn_tagNames_into_valid_columnNames_in_returned_JSON()
         {
@@ -229,6 +228,57 @@ namespace xdeequ.tests.Repository
                 AssertSameRows(analysisResultsAsDataFrame, expected);
 
             });
+        }
+
+        [Fact]
+        public void return_empty_DataFrame_if_AnalyzerContext_contains_no_entries()
+        {
+            var data = FixtureSupport.GetDFFull(_session);
+            var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
+
+            var results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
+                new StorageLevel());
+            var analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
+                .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                    Enumerable.Empty<string>());
+
+            List<GenericRow> elements = new List<GenericRow>
+            {
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType()),
+                        new StructField("dataset_date", new LongType()),
+                        new StructField("region", new StringType())
+                });
+
+            var df = _session.CreateDataFrame(elements, schema);
+
+            AssertSameRows(analysisResultsAsDataFrame, df);
+
+        }
+
+        [Fact]
+        public void return_empty_JSON_if_AnalyzerContext_contains_no_entries()
+        {
+            var data = FixtureSupport.GetDFFull(_session);
+            var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
+
+            var results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
+                new StorageLevel());
+            var analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
+                .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                    Enumerable.Empty<string>());
+
+            var expected = "[]";
+
+            AssertSameRows(analysisResultsAsDataFrame, expected);
+
         }
 
         private static void Evaluate(SparkSession session, Action<AnalyzerContext> func)
