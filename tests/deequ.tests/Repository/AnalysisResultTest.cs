@@ -57,10 +57,10 @@ namespace xdeequ.tests.Repository
 
                 List<GenericRow> elements = new List<GenericRow>
                 {
-                    new GenericRow(new object[] {"DataSet", "*", "Size", 4.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU"}),
                     new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
                     new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"MultiColumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
                 };
 
                 StructType schema = new StructType(
@@ -93,7 +93,7 @@ namespace xdeequ.tests.Repository
                         Enumerable.Empty<string>());
 
 
-                var expected = "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Mutlicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+                var expected = "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
                 expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
 
                 AssertSameRows(analysisResultsAsDataFrame, expected);
@@ -120,7 +120,7 @@ namespace xdeequ.tests.Repository
                 List<GenericRow> elements = new List<GenericRow>
                 {
                     new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"MultiColumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
                 };
 
                 StructType schema = new StructType(
@@ -160,7 +160,68 @@ namespace xdeequ.tests.Repository
 
 
                 var expected =
-                    "[{\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Mutlicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+                    "[{\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+
+                expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
+
+
+                AssertSameRows(analysisResultsAsDataFrame, expected);
+
+            });
+        }
+
+
+        [Fact]
+        public void turn_tagNames_into_valid_columnNames_in_returned_DataFrame()
+        {
+            Evaluate(_session, context =>
+            {
+                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
+
+                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                        Enumerable.Empty<string>());
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType()),
+                        new StructField("dataset_date", new LongType()),
+                        new StructField("region", new StringType())
+                    });
+
+                var df = _session.CreateDataFrame(elements, schema);
+
+                AssertSameRows(analysisResultsAsDataFrame, df);
+
+            });
+        }
+
+
+        [Fact]
+        public void turn_tagNames_into_valid_columnNames_in_returned_JSON()
+        {
+            Evaluate(_session, context =>
+            {
+                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
+
+                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                        Enumerable.Empty<string>());
+
+                var expected =
+                    "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
 
                 expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
 
@@ -214,8 +275,8 @@ namespace xdeequ.tests.Repository
 
         private static void AssertSameRows(string jsonA, string jsonB)
         {
-            var resultA = JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonA);
-            var resultB = JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonB);
+            var resultA = JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonA, SerdeExt.GetDefaultOptions());
+            var resultB = JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonB, SerdeExt.GetDefaultOptions());
             var i = 0;
 
             foreach (var rowA in resultA)

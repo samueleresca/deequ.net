@@ -31,7 +31,7 @@ namespace xdeequ.Analyzers
     {
         public readonly Option<string> Where;
 
-        public Size(Option<string> where) : base("Size", "*", Entity.DataSet) => Where = where;
+        public Size(Option<string> where) : base("Size", "*", Entity.Dataset) => Where = where;
 
         public Option<string> FilterCondition() => Where;
 

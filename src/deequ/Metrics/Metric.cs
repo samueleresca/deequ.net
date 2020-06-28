@@ -6,9 +6,9 @@ namespace xdeequ.Metrics
 {
     public enum Entity
     {
-        DataSet = 0,
+        Dataset = 0,
         Column = 1,
-        MultiColumn = 2
+        Multicolumn = 2
     }
 
     public interface IMetric

@@ -202,6 +202,6 @@ namespace xdeequ.Extensions
             }.AsEnumerable();
 
         public static Entity EntityFrom(IEnumerable<string> enumerable) =>
-            enumerable.Count() == 1 ? Entity.Column : Entity.MultiColumn;
+            enumerable.Count() == 1 ? Entity.Column : Entity.Multicolumn;
     }
 }
