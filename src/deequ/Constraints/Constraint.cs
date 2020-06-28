@@ -272,7 +272,7 @@ namespace xdeequ.Constraints
         )
         {
             MutualInformation mutualInformation =
-                MutualInformation(new[] {columnA, columnB}.AsEnumerable(), where);
+                MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where);
 
             AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(mutualInformation, assertion,

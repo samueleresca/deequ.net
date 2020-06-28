@@ -59,9 +59,9 @@ namespace xdeequ.tests.Repository
         private static Analysis CreateAnalysis() =>
             new Analysis()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] {"item"}, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
-                .AddAnalyzer(Initializers.Uniqueness(new[] {"att1", "att2"}));
+                .AddAnalyzer(Initializers.Uniqueness(new[] { "att1", "att2" }));
 
         private static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
         {
@@ -114,7 +114,6 @@ namespace xdeequ.tests.Repository
                 DataFrame analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
                     .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
                         Enumerable.Empty<string>());
-
 
                 List<GenericRow> elements = new List<GenericRow>
                 {

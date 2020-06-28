@@ -19,14 +19,84 @@ namespace xdeequ.Repository.InMemory
         public void Save(ResultKey resultKey, AnalyzerContext analyzerContext)
         {
             IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> successfulMetrics =
-                analyzerContext.MetricMap.Where(x => x.Value != null);
+                analyzerContext.MetricMap.Where(x =>
+                {
+                    return x.Value switch
+                    {
+                        DoubleMetric dm => dm.Value.IsSuccess,
+                        HistogramMetric hm => hm.Value.IsSuccess,
+                        _ => throw new NotSupportedException($"Metric type {x.Value.GetType()} not supported")
+                    };
+                });
             AnalyzerContext analyzerContextWithSuccessfulValues =
                 new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(successfulMetrics));
             _resultsRepository[resultKey] = new AnalysisResult(resultKey, analyzerContextWithSuccessfulValues);
         }
 
-        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey) => throw new NotImplementedException();
+        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey)
+        {
+            return new Option<AnalyzerContext>(_resultsRepository[resultKey].AnalyzerContext);
+        }
 
-        public IMetricRepositoryMultipleResultsLoader Load() => throw new NotImplementedException();
+        public IMetricRepositoryMultipleResultsLoader Load()
+        {
+            return new LimitedInMemoryMetricsRepositoryMultipleResultsLoader(_resultsRepository);
+        }
+    }
+
+    public class LimitedInMemoryMetricsRepositoryMultipleResultsLoader : MetricsRepositoryMultipleResultsLoader
+    {
+        private Option<Dictionary<string, string>> tagValues;
+        private Option<IEnumerable<IAnalyzer<IMetric>>> forAnalyzers;
+        private Option<long> before;
+        private Option<long> after;
+        private readonly ConcurrentDictionary<ResultKey, AnalysisResult> _resultsRepository;
+
+        public LimitedInMemoryMetricsRepositoryMultipleResultsLoader(ConcurrentDictionary<ResultKey, AnalysisResult> resultsRepository)
+        {
+            _resultsRepository = resultsRepository;
+        }
+
+        public override IMetricRepositoryMultipleResultsLoader WithTagValues(Dictionary<string, string> tagValues)
+        {
+            this.tagValues = new Option<Dictionary<string, string>>(tagValues);
+            return this;
+        }
+
+        public override IMetricRepositoryMultipleResultsLoader ForAnalyzers(IEnumerable<IAnalyzer<IMetric>> analyzers)
+        {
+            forAnalyzers = new Option<IEnumerable<IAnalyzer<IMetric>>>(analyzers);
+            return this;
+        }
+
+        public override IMetricRepositoryMultipleResultsLoader After(long dateTime)
+        {
+            after = new Option<long>(dateTime);
+            return this;
+        }
+
+        public override IMetricRepositoryMultipleResultsLoader Before(long dateTime)
+        {
+            before = new Option<long>(dateTime);
+            return this;
+        }
+
+        public override IEnumerable<AnalysisResult> Get()
+        {
+            return _resultsRepository
+                .Where(pair => !after.HasValue || after.Value <= pair.Key.DataSetDate)
+                .Where(pair => !before.HasValue || pair.Key.DataSetDate <= before.Value)
+                .Where(pair => !tagValues.HasValue || pair.Key.Tags.Keys.All(x => tagValues.Value.ContainsKey(x)))
+                .Select(x =>
+                {
+                    var requestedMetrics = x.Value
+                        .AnalyzerContext
+                        .MetricMap
+                        .Where(analyzer => !forAnalyzers.HasValue || forAnalyzers.Value.Contains(analyzer.Key));
+
+                    return new AnalysisResult(x.Value.ResultKey,
+                        new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(requestedMetrics)));
+                });
+        }
     }
 }

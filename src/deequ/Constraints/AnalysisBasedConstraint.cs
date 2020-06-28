@@ -130,7 +130,7 @@ namespace xdeequ.Constraints
         public ConstraintResult CalculateAndEvaluate(DataFrame df)
         {
             Metric<M> metric = Analyzer.Calculate(df) as Metric<M>;
-            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> {{Analyzer, metric}});
+            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> { { Analyzer, metric } });
         }
     }
 

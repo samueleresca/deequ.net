@@ -47,6 +47,6 @@ namespace xdeequ.Metrics
         public static DoubleMetric Create(Entity entity, string name, string instance, Try<double> value) =>
             new DoubleMetric(entity, name, instance, value);
 
-        public override IEnumerable<DoubleMetric> Flatten() => new[] {this}.AsEnumerable();
+        public override IEnumerable<DoubleMetric> Flatten() => new[] { this }.AsEnumerable();
     }
 }

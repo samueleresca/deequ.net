@@ -65,7 +65,7 @@ namespace xdeequ.Repository
             IEnumerable<string> columnTotal = columnsOne.Concat(columnsTwo);
 
             return dataFrameOne
-                .Select(WithAllColumns(columnsOne, columnTotal).ToArray())
+                .Select(WithAllColumns(columnsOne, columnTotal.ToArray()).ToArray())
                 .Union(dataFrameTwo.Select((Column[])WithAllColumns(columnsTwo, columnTotal)));
         }
 
@@ -92,7 +92,7 @@ namespace xdeequ.Repository
             return JsonSerializer.Serialize(unioned);
         }
 
-        private static IEnumerable<Column> WithAllColumns(IEnumerable<string> myCols, IEnumerable<string> allCols) =>
+        private static Column[] WithAllColumns(IEnumerable<string> myCols, IEnumerable<string> allCols) =>
             allCols.Select(x =>
             {
                 if (myCols.Contains(x))
@@ -101,6 +101,6 @@ namespace xdeequ.Repository
                 }
 
                 return Lit(null).As(x);
-            });
+            }).ToArray();
     }
 }
