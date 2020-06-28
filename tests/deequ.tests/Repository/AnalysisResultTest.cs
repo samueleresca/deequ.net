@@ -101,6 +101,75 @@ namespace xdeequ.tests.Repository
             });
         }
 
+        [Fact]
+        public void only_include_requested_metrics_in_returned_DataFrame()
+        {
+            Evaluate(_session, context =>
+            {
+                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
+                var metricsForAnalyzers = new IAnalyzer<DoubleMetric>[]
+                {
+                    Initializers.Completeness("att1"),
+                    Initializers.Uniqueness(new[] {"att1", "att2"})
+                };
+
+                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsDataFrame(_session, metricsForAnalyzers,
+                        Enumerable.Empty<string>());
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
+                    new GenericRow(new object[] {"MultiColumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType()),
+                        new StructField("dataset_date", new LongType()),
+                        new StructField("region", new StringType())
+                    });
+
+                var df = _session.CreateDataFrame(elements, schema);
+
+
+                AssertSameRows(analysisResultsAsDataFrame, df);
+
+            });
+        }
+
+        [Fact]
+        public void only_include_requested_metrics_in_returned_JSON()
+        {
+            Evaluate(_session, context =>
+            {
+                var resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
+                var metricsForAnalyzers = new IAnalyzer<DoubleMetric>[]
+                {
+                    Initializers.Completeness("att1"),
+                    Initializers.Uniqueness(new[] {"att1", "att2"})
+                };
+
+                var analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
+                    .GetSuccessMetricsAsJson(_session, metricsForAnalyzers,
+                        Enumerable.Empty<string>());
+
+
+                var expected =
+                    "[{\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Mutlicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+
+                expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
+
+
+                AssertSameRows(analysisResultsAsDataFrame, expected);
+
+            });
+        }
+
         private static void Evaluate(SparkSession session, Action<AnalyzerContext> func)
         {
 
