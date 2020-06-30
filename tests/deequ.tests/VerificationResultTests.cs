@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
@@ -10,12 +11,88 @@ using xdeequ.Checks;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
+using Xunit;
 
 namespace xdeequ.tests
 {
+    [Collection("Spark instance")]
     public class ValidationResultTests
     {
+        public SparkSession _session;
 
+        public ValidationResultTests(SparkFixture fixture) => _session = fixture.Spark;
+
+        [Fact]
+        public void getSuccessMetric_correctly_return_a_DataFrame_that_is_formatted_as_expected()
+        {
+            Evaluate(_session, results =>
+            {
+
+                var successMetricsAsDataFrame = results
+                    .SuccessMetricsAsDataFrame(_session,
+                    Enumerable.Empty<IAnalyzer<IMetric>>());
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25})
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType())
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+                AssertSameRows(successMetricsAsDataFrame,df);
+            }) ;
+        }
+
+
+        [Fact]
+        public void getSuccessMetric_only_include_specific_metrics_in_returned_DataFrame_if_requested()
+        {
+            Evaluate(_session, results =>
+            {
+
+                var metricsForAnalyzers = new IAnalyzer<DoubleMetric>[]
+                {
+                    Initializers.Completeness("att1"), Initializers.Uniqueness(new[] {"att1", "att2"})
+                };
+
+                var successMetricsAsDataFrame = results
+                    .SuccessMetricsAsDataFrame(_session,
+                        metricsForAnalyzers);
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25})
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType())
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+                AssertSameRows(successMetricsAsDataFrame,df);
+            }) ;
+        }
 
 
 
@@ -68,8 +145,6 @@ namespace xdeequ.tests
                 rowA[1].ShouldBe(rowB[1]);
                 rowA[2].ShouldBe(rowB[2]);
                 rowA[3].ShouldBe(rowB[3]);
-                rowA[4].ShouldBe(rowB[4]);
-                rowA[5].ShouldBe(rowB[5]);
 
                 i++;
             }

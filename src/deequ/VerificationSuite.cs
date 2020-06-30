@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers;
@@ -94,8 +95,11 @@ namespace xdeequ
 
         private void SaveJsonOutputsToFilesystemIfNecessary(
             VerificationFileOutputOptions fileOutputOptions,
-            VerificationResult verificationResult) =>
-            throw new NotImplementedException();
+            VerificationResult verificationResult)
+        {
+            return;
+        }
+
 
 
         private void SaveOrAppendResultsIfNecessary(

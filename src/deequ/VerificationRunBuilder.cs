@@ -15,7 +15,7 @@ namespace xdeequ
     {
         public IEnumerable<Check> checks;
         public DataFrame data;
-        public bool failIfResultsForReusingMissing;
+        public bool failIfResultsForReusingMissing ;
         public Option<IMetricsRepository> metricsRepository;
         public bool overwriteOutputFiles;
         public IEnumerable<IAnalyzer<IMetric>> requiredAnalyzers;
@@ -30,7 +30,12 @@ namespace xdeequ
         public Option<IStatePersister> statePersister;
 
 
-        public VerificationRunBuilder(DataFrame dataFrame) => data = dataFrame;
+        public VerificationRunBuilder(DataFrame dataFrame)
+        {
+            data = dataFrame;
+            checks = Enumerable.Empty<Check>();
+            requiredAnalyzers = Enumerable.Empty<IAnalyzer<IMetric>>();
+        }
 
         public VerificationRunBuilder(VerificationRunBuilder builder)
         {
