@@ -18,6 +18,9 @@ namespace xdeequ.Analyzers
         public M Calculate(DataFrame data, Option<IStateLoader> aggregateWith, Option<IStatePersister> saveStateWith);
         public IEnumerable<Action<StructType>> Preconditions();
         public M ToFailureMetric(Exception e);
+        public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target);
+        public M LoadStateAndComputeMetric(IStateLoader source);
+        public void CopyStateTo(IStateLoader source, IStatePersister target);
     }
 
     public interface IGroupAnalyzer<S, out M> : IAnalyzer<M>
@@ -62,6 +65,28 @@ namespace xdeequ.Analyzers
 
         public M Calculate(DataFrame data) => Calculate(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
 
+        public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
+        {
+            Option<S> maybeStateA = sourceA.Load(new Option<Analyzer<S, M>>(this));
+            Option<S> maybeStateB = sourceB.Load(new Option<Analyzer<S, M>>(this));
+
+            S aggregated = (maybeStateA.HasValue, maybeStateB.HasValue) switch
+            {
+                (true, true) => maybeStateA.Value.Sum(maybeStateB.Value),
+                (true, false) => maybeStateA.Value,
+                (false, true) => maybeStateB.Value,
+                _ => null
+            };
+
+            target.Persist(new Option<Analyzer<S, M>>(this), new Option<S>(aggregated));
+        }
+
+        public M LoadStateAndComputeMetric(IStateLoader source) =>
+            ComputeMetricFrom(source.Load(new Option<Analyzer<S, M>>(this)));
+
+        public void CopyStateTo(IStateLoader source, IStatePersister target) =>
+            target.Persist(new Option<Analyzer<S, M>>(this), source.Load(new Option<Analyzer<S, M>>(this)));
+
         public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
         public abstract M ComputeMetricFrom(Option<S> state);
 
@@ -80,28 +105,6 @@ namespace xdeequ.Analyzers
 
             return ComputeMetricFrom(stateToComputeMetricFrom);
         }
-
-        public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
-        {
-            Option<S> maybeStateA = sourceA.Load(new Option<Analyzer<S, M>>(this));
-            Option<S> maybeStateB = sourceB.Load(new Option<Analyzer<S, M>>(this));
-
-            S aggregated = (maybeStateA.HasValue, maybeStateB.HasValue) switch
-            {
-                (true, true) => maybeStateA.Value.Sum(maybeStateB.Value),
-                (true, false) => maybeStateA.Value,
-                (false, true) => maybeStateB.Value,
-                _ => null
-            };
-
-            target.Persist(new Option<Analyzer<S, M>>(this), new Option<S>(aggregated));
-        }
-
-        public Option<M> LoadStateAndComputeMetric(IStateLoader source) =>
-            new Option<M>(ComputeMetricFrom(source.Load(new Option<Analyzer<S, M>>(this))));
-
-        public void CopyStateTo(IStateLoader source, IStatePersister target) =>
-            target.Persist(new Option<Analyzer<S, M>>(this), source.Load(new Option<Analyzer<S, M>>(this)));
     }
 
     public abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M>, IScanSharableAnalyzer<S, M>
@@ -222,7 +225,7 @@ namespace xdeequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column selection = AnalyzersExt.ConditionalSelection(Predicate, Where);
-            return new[] { selection, Count("*") }.AsEnumerable();
+            return new[] {selection, Count("*")}.AsEnumerable();
         }
     }
 

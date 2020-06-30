@@ -20,7 +20,7 @@ namespace xdeequ.Analyzers.Catalyst
         public string GetAggregatedColumn() => "arrayDataTypeCount";
 
         public string[] ColumnNames() =>
-            new[] { "nullCount", "fractionalCount", "integralCount", "booleanCount", "stringCount" };
+            new[] {"nullCount", "fractionalCount", "integralCount", "booleanCount", "stringCount"};
 
         public int[] Update(string columnValue)
         {

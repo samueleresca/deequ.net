@@ -5,8 +5,10 @@ using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
+using xdeequ.AnomalyDetection;
 using xdeequ.Constraints;
 using xdeequ.Metrics;
+using xdeequ.Repository;
 using xdeequ.Util;
 using static xdeequ.Constraints.Functions;
 using static Microsoft.Spark.Sql.Functions;
@@ -60,7 +62,7 @@ namespace xdeequ.Checks
 
         public CheckLevel Level { get; set; }
         public string Description { get; set; }
-        protected IEnumerable<IConstraint> Constraints { get; set; }
+        public IEnumerable<IConstraint> Constraints { get; set; }
 
         private CheckWithLastConstraintFilterable AddFilterableConstraint(
             Func<Option<string>, IConstraint> constraintDefinition)
@@ -106,12 +108,12 @@ namespace xdeequ.Checks
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, IEnumerable<string> columns) =>
             AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, Option<string>.None));
+                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, Option<string>.None));
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, Option<string> hint,
             IEnumerable<string> columns) =>
             AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, hint));
+                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, hint));
 
         public CheckWithLastConstraintFilterable HasUniqueness(IEnumerable<string> columns,
             Func<double, bool> assertion) =>
@@ -512,5 +514,10 @@ namespace xdeequ.Checks
                 })
                 .OfType<IAnalysisBasedConstraint>()
                 .Select(x => x.Analyzer);
+
+        public Check IsNewestPointNonAnomalous(Option<IMetricsRepository> metricsRepository,
+            IAnomalyDetectionStrategy anomalyDetectionStrategy, IAnalyzer<IMetric> binningFunc,
+            Dictionary<string, string> valueWithTagValues, Option<long> valueAfterDate, Option<long> valueBeforeDate) =>
+            throw new NotImplementedException();
     }
 }

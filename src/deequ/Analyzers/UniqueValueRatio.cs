@@ -31,7 +31,7 @@ namespace xdeequ.Analyzers
         public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
 
         public override IEnumerable<Column> AggregationFunctions(long numRows) =>
-            new[] { Sum(Col(AnalyzersExt.COUNT_COL).EqualTo(Lit(1)).Cast("double")), Count("*") };
+            new[] {Sum(Col(AnalyzersExt.COUNT_COL).EqualTo(Lit(1)).Cast("double")), Count("*")};
 
         public override DoubleMetric FromAggregationResult(Row result, int offset)
         {

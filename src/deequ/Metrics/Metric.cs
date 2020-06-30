@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using xdeequ.Util;
@@ -16,6 +17,10 @@ namespace xdeequ.Metrics
         public Entity Entity { get; }
         public string Name { get; }
         public string Instance { get; }
+
+        public bool IsSuccess();
+
+        public Option<Exception> Exception();
     }
 
     public abstract class Metric<T> : IMetric
@@ -33,6 +38,9 @@ namespace xdeequ.Metrics
         public Entity Entity { get; }
         public string Name { get; }
         public string Instance { get; }
+        public bool IsSuccess() => Value.IsSuccess;
+
+        public Option<Exception> Exception() => Value.Failure;
 
         public abstract IEnumerable<DoubleMetric> Flatten();
     }
@@ -47,6 +55,6 @@ namespace xdeequ.Metrics
         public static DoubleMetric Create(Entity entity, string name, string instance, Try<double> value) =>
             new DoubleMetric(entity, name, instance, value);
 
-        public override IEnumerable<DoubleMetric> Flatten() => new[] { this }.AsEnumerable();
+        public override IEnumerable<DoubleMetric> Flatten() => new[] {this}.AsEnumerable();
     }
 }

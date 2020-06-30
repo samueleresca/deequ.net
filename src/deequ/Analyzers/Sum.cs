@@ -47,12 +47,12 @@ namespace xdeequ.Analyzers
         public static Sum Create(string column, string where) => new Sum(column, where);
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] { Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
+            new[] {Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
 
         public override Option<SumState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new SumState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
     }
 }

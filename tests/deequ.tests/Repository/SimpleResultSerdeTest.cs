@@ -29,12 +29,12 @@ namespace xdeequ.tests.Repository
 
             Analysis analysis = new Analysis()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] {"item"}, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
                 .AddAnalyzer(Initializers.Uniqueness("att1", Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] { "att1" }, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] {"att1"}, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att2"))
-                .AddAnalyzer(Initializers.Uniqueness(new[] { "att2" }))
+                .AddAnalyzer(Initializers.Uniqueness(new[] {"att2"}))
                 .AddAnalyzer(Initializers.MutualInformation("att1", "att2"))
                 .AddAnalyzer(Initializers.MinLength("att1"))
                 .AddAnalyzer(Initializers.MaxLength("att1"));
@@ -46,9 +46,9 @@ namespace xdeequ.tests.Repository
 
             string successMetricsResultJson =
                 new AnalysisResult(
-                    new ResultKey(dateTime, new Dictionary<string, string> { { "Region", "EU" } }),
+                    new ResultKey(dateTime, new Dictionary<string, string> {{"Region", "EU"}}),
                     analysisContext
-                ).GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                ).GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(),
                     Enumerable.Empty<string>());
 
             SimpleMetricOutput[] result =

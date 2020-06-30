@@ -14,7 +14,6 @@ namespace xdeequ.Analyzers
         public string Column;
         public Option<string> Where;
 
-
         public MaxLength(string column, Option<string> where) : base("MaxLength", column, Entity.Column)
         {
             Column = column;
@@ -32,6 +31,6 @@ namespace xdeequ.Analyzers
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
     }
 }

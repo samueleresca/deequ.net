@@ -17,7 +17,7 @@ namespace xdeequ.tests.Metrics
         {
             DoubleMetric metric =
                 new DoubleMetric(Entity.Column, "metric-name", "instance-name", Try<double>.From(() => 50));
-            metric.Flatten().ShouldBe(new List<DoubleMetric> { metric });
+            metric.Flatten().ShouldBe(new List<DoubleMetric> {metric});
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace xdeequ.tests.Metrics
         {
             DoubleMetric metric = new DoubleMetric(Entity.Column, "metric-name", "instance-name",
                 Try<double>.From(() => throw sampleException));
-            metric.Flatten().ShouldBe(new List<DoubleMetric> { metric });
+            metric.Flatten().ShouldBe(new List<DoubleMetric> {metric});
         }
 
         [Fact]

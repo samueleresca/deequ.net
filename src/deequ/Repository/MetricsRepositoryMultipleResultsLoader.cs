@@ -48,12 +48,11 @@ namespace xdeequ.Repository
             {
                 return new AnalysisResult(new ResultKey(0, new Dictionary<string, string>()),
                         new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>()))
-                    .GetSuccessMetricsAsJson(session, Enumerable.Empty<IAnalyzer<IMetric>>(), withTags);
+                    .GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(), withTags);
             }
 
             return analysisResults
-                .Select(x => x.GetSuccessMetricsAsJson(session,
-                    Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
+                .Select(x => x.GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
                 .Aggregate((x, y) => JsonUnion(x, y));
         }
 

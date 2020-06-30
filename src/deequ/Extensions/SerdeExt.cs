@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using xdeequ.Repository.Serde;
 
 namespace xdeequ.Extensions
@@ -44,6 +46,34 @@ namespace xdeequ.Extensions
             serializeOptions.WriteIndented = true;
 
             return serializeOptions;
+        }
+
+        public static DataFrame ToDataFrame(this IEnumerable<SimpleCheckResultOutput> simpleChecks)
+        {
+            List<GenericRow> elements = new List<GenericRow>();
+
+            foreach (SimpleCheckResultOutput check in simpleChecks)
+            {
+                elements.Add(
+                    new GenericRow(new[]
+                    {
+                        check.CheckDescription, check.CheckLevel, check.CheckStatus, check.Constraint,
+                        check.ConstraintStatus, check.ConstraintMessage
+                    }));
+            }
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("check", new StringType()),
+                    new StructField("check_level", new StringType()),
+                    new StructField("check_status", new StringType()),
+                    new StructField("constraint", new DoubleType()),
+                    new StructField("constraint_status", new LongType()),
+                    new StructField("constraint_message", new StringType())
+                });
+
+            return SparkSession.Active().CreateDataFrame(elements, schema);
         }
     }
 }

@@ -59,9 +59,9 @@ namespace xdeequ.tests.Repository
         private static Analysis CreateAnalysis() =>
             new Analysis()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] {"item"}, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
-                .AddAnalyzer(Initializers.Uniqueness(new[] { "att1", "att2" }));
+                .AddAnalyzer(Initializers.Uniqueness(new[] {"att1", "att2"}));
 
         private static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
         {
@@ -146,7 +146,7 @@ namespace xdeequ.tests.Repository
                 ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
 
                 string analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                    .GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(),
                         Enumerable.Empty<string>());
 
 
@@ -205,7 +205,7 @@ namespace xdeequ.tests.Repository
                 };
 
                 string analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsJson(_session, metricsForAnalyzers,
+                    .GetSuccessMetricsAsJson(metricsForAnalyzers,
                         Enumerable.Empty<string>());
 
 
@@ -257,7 +257,7 @@ namespace xdeequ.tests.Repository
             AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
                 new StorageLevel());
             string analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
-                .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                .GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(),
                     Enumerable.Empty<string>());
 
             string expected = "[]";
@@ -307,7 +307,7 @@ namespace xdeequ.tests.Repository
                 ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
 
                 string analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
+                    .GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(),
                         Enumerable.Empty<string>());
 
                 string expected =

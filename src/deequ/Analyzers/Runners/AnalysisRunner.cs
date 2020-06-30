@@ -34,12 +34,12 @@ namespace xdeequ.Analyzers.Runners
 
             AnalyzerContext resultComputedPreviously = (metricsRepositoryOptions?.metricRepository.HasValue,
                     metricsRepositoryOptions?.reuseExistingResultsForKey.HasValue) switch
-            {
-                (true, true) => metricsRepositoryOptions?.metricRepository.Value
-                    .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
-                    .GetOrElse(AnalyzerContext.Empty()),
-                _ => AnalyzerContext.Empty()
-            };
+                {
+                    (true, true) => metricsRepositoryOptions?.metricRepository.Value
+                        .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
+                        .GetOrElse(AnalyzerContext.Empty()),
+                    _ => AnalyzerContext.Empty()
+                };
 
 
             IEnumerable<IAnalyzer<IMetric>>
@@ -110,6 +110,110 @@ namespace xdeequ.Analyzers.Runners
             SaveJsonOutputsToFilesystemIfNecessary(fileOutputOptions, resultingAnalyzerContext);
 
             return resultingAnalyzerContext;
+        }
+
+        /**
+         * Compute the metrics from the analyzers configured in the analyis, instead of running
+         * directly on data, this computation leverages (and aggregates) existing states which have
+         * previously been computed on the data.
+         * 
+         * @param schema schema of the data frame from which the states were computed
+         * @param analysis the analysis to compute
+         * @param stateLoaders loaders from which we retrieve the states to aggregate
+         * @param saveStatesWith persist resulting states for the configured analyzers (optional)
+         * @param storageLevelOfGroupedDataForMultiplePasses caching level for grouped data that must be
+         * accessed multiple times (use
+         * StorageLevel.NONE to completely disable
+         * caching)
+         * @return AnalyzerContext holding the requested metrics per analyzer
+         */
+        public static AnalyzerContext RunOnAggregatedStates(
+            StructType schema,
+            Analysis analysis,
+            IEnumerable<IStateLoader> stateLoaders,
+            Option<IStatePersister> saveStatesWith,
+            Option<IMetricsRepository> metricsRepository,
+            Option<ResultKey> saveOrAppendResultsWithKey,
+            StorageLevel storageLevelOfGroupedDataForMultiplePasses)
+        {
+            if (analysis.Analyzers == null || stateLoaders == null)
+            {
+                return AnalyzerContext.Empty();
+            }
+
+            IEnumerable<IAnalyzer<IMetric>> analyzers = analysis.Analyzers;
+
+            /* Find all analyzers which violate their preconditions */
+            IEnumerable<IAnalyzer<IMetric>> passedAnalyzers = analyzers
+                .Where(x => FindFirstFailing(schema, x.Preconditions()).HasValue);
+
+            IEnumerable<IAnalyzer<IMetric>> failedAnalyzers = analyzers.Except(passedAnalyzers);
+
+            /* Create the failure metrics from the precondition violations */
+            AnalyzerContext preconditionFailures = ComputePreconditionFailureMetrics(failedAnalyzers, schema);
+
+            InMemoryStateProvider aggregatedStates = new InMemoryStateProvider();
+
+            foreach (IAnalyzer<IMetric> analyzer in passedAnalyzers)
+            foreach (IStateLoader state in stateLoaders)
+            {
+                analyzer.AggregateStateTo(aggregatedStates, state, aggregatedStates);
+            }
+
+
+            IEnumerable<IGroupAnalyzer<IState, IMetric>> groupingAnalyzers =
+                passedAnalyzers.OfType<IGroupAnalyzer<IState, IMetric>>();
+
+            IEnumerable<IAnalyzer<IMetric>> scanningAnalyzers = passedAnalyzers.Except(groupingAnalyzers);
+
+            Dictionary<IAnalyzer<IMetric>, IMetric> nonGroupedResults = new Dictionary<IAnalyzer<IMetric>, IMetric>(
+                passedAnalyzers.SelectMany(analyzer =>
+                {
+                    IMetric metrics = analyzer.LoadStateAndComputeMetric(aggregatedStates);
+
+                    if (saveStatesWith.HasValue)
+                    {
+                        analyzer.CopyStateTo(aggregatedStates, saveStatesWith.Value);
+                    }
+
+                    return new[] {new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, metrics)};
+                }));
+
+
+            AnalyzerContext groupedResults;
+
+            if (!groupingAnalyzers.Any())
+            {
+                groupedResults = AnalyzerContext.Empty();
+            }
+
+            groupedResults = groupingAnalyzers
+                .Select(analyzer => (IGroupAnalyzer<IState, IMetric>)analyzers)
+                .GroupBy(x => x.GroupingColumns().OrderBy(x => x))
+                .Select(analyzerForGrouping =>
+                {
+                    FrequenciesAndNumRows state = FindStateForParticularGrouping(analyzerForGrouping, aggregatedStates);
+                    return RunAnalyzersForParticularGrouping(state, analyzerForGrouping, saveStatesWith);
+                }).Aggregate((x, y) => x + y);
+
+
+            AnalyzerContext results = preconditionFailures + new AnalyzerContext(nonGroupedResults) + groupedResults;
+
+            SaveOrAppendResultsIfNecessary(results, metricsRepository, saveOrAppendResultsWithKey);
+
+            return results;
+        }
+
+        private static FrequenciesAndNumRows FindStateForParticularGrouping(IEnumerable<IGroupAnalyzer<IState, IMetric>>
+            analyzers, IStateLoader stateLoader)
+        {
+            /* One of the analyzers must have the state persisted */
+            IEnumerable<Option<FrequenciesAndNumRows>> states = analyzers.Select(analyzer =>
+                stateLoader.Load<FrequenciesAndNumRows, IMetric>(
+                    (Analyzer<FrequenciesAndNumRows, IMetric>)analyzer));
+
+
+            return states.FirstOrDefault().Value;
         }
 
 
@@ -268,8 +372,7 @@ namespace xdeequ.Analyzers.Runners
             }
 
 
-            AnalyzerContext results = RunAnalyzersForParticularGrouping(frequenciesAndNumRows, analyzers, saveStateTo,
-                storageLevelOfGroupedDataForMultiplePasses);
+            AnalyzerContext results = RunAnalyzersForParticularGrouping(frequenciesAndNumRows, analyzers, saveStateTo);
 
             return (frequenciesAndNumRows.NumRows, results);
         }
@@ -277,8 +380,7 @@ namespace xdeequ.Analyzers.Runners
         private static AnalyzerContext RunAnalyzersForParticularGrouping(
             FrequenciesAndNumRows frequenciesAndNumRows,
             IEnumerable<IGroupAnalyzer<IState, IMetric>> analyzers,
-            Option<IStatePersister> saveStatesTo,
-            StorageLevel storageLevelOfGroupedDataForMultiplePasses
+            Option<IStatePersister> saveStatesTo
         )
         {
             long numRows = frequenciesAndNumRows.NumRows;

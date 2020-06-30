@@ -37,7 +37,6 @@ namespace xdeequ.Extensions
         }
 
         public static string GetSuccessMetricsAsJson(this AnalysisResult analysisResult,
-            SparkSession sparkSession,
             IEnumerable<IAnalyzer<IMetric>> forAnalyzer,
             IEnumerable<string> withTags
         )
