@@ -1,6 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using Shouldly;
+using xdeequ.Util;
+using Xunit.Abstractions;
 
 namespace xdeequ.tests
 {
@@ -33,6 +37,21 @@ namespace xdeequ.tests
                 });
 
             return sparkSession.CreateDataFrame(elements, schema);
+        }
+
+
+        public static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB, Option<ITestOutputHelper> helper)
+        {
+            IEnumerable<Row> dfASeq = dataFrameA.Collect();
+            IEnumerable<Row> dfBSeq = dataFrameB.Collect();
+
+            foreach (Row rowA in dfASeq)
+                if (helper.HasValue)
+                    helper.Value.WriteLine($"Computed - {rowA}");
+
+            int i = 0;
+            foreach (Row rowA in dfASeq)
+                dfBSeq.Select(x=>x.ToString()).ShouldContain(rowA.ToString());
         }
 
         public static DataFrame GetDFFull(SparkSession sparkSession)

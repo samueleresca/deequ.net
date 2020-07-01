@@ -12,6 +12,7 @@ using xdeequ.Metrics;
 using xdeequ.Repository;
 using xdeequ.Util;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace xdeequ.tests.Repository
 {
@@ -63,26 +64,6 @@ namespace xdeequ.tests.Repository
                 .AddAnalyzer(Initializers.Completeness("att1"))
                 .AddAnalyzer(Initializers.Uniqueness(new[] {"att1", "att2"}));
 
-        private static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
-        {
-            IEnumerable<Row> dfASeq = dataFrameA.Collect();
-            IEnumerable<Row> dfBSeq = dataFrameB.Collect();
-
-            int i = 0;
-            foreach (Row rowA in dfASeq)
-            {
-                Row rowB = dfBSeq.Skip(i).First();
-
-                rowA[0].ShouldBe(rowB[0]);
-                rowA[1].ShouldBe(rowB[1]);
-                rowA[2].ShouldBe(rowB[2]);
-                rowA[3].ShouldBe(rowB[3]);
-                rowA[4].ShouldBe(rowB[4]);
-                rowA[5].ShouldBe(rowB[5]);
-
-                i++;
-            }
-        }
 
         private static void AssertSameRows(string jsonA, string jsonB)
         {
@@ -136,7 +117,7 @@ namespace xdeequ.tests.Repository
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(analysisResultsAsDataFrame, df);
+                FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, Option<ITestOutputHelper>.None);
             });
 
         [Fact]
@@ -191,7 +172,7 @@ namespace xdeequ.tests.Repository
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
 
-                AssertSameRows(analysisResultsAsDataFrame, df);
+                FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, Option<ITestOutputHelper>.None);
             });
 
         [Fact]
@@ -245,7 +226,7 @@ namespace xdeequ.tests.Repository
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            AssertSameRows(analysisResultsAsDataFrame, df);
+            FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, Option<ITestOutputHelper>.None);
         }
 
         [Fact]
@@ -297,7 +278,7 @@ namespace xdeequ.tests.Repository
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(analysisResultsAsDataFrame, df);
+                FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, Option<ITestOutputHelper>.None);
             });
 
         [Fact]

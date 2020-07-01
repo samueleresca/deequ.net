@@ -13,6 +13,6 @@ namespace xdeequ.Repository
         public IMetricRepositoryMultipleResultsLoader Before(long dateTime);
         public IEnumerable<AnalysisResult> Get();
         public DataFrame GetSuccessMetricsAsDataFrame(SparkSession session, IEnumerable<string> withTags);
-        public string GetSuccessMetricsAsJson(SparkSession session, IEnumerable<string> withTags);
+        public string GetSuccessMetricsAsJson( IEnumerable<string> withTags);
     }
 }

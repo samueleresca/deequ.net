@@ -158,14 +158,7 @@ namespace xdeequ
 
             CheckStatus verificationStatus;
 
-            if (!checkResult.Any())
-            {
-                verificationStatus = CheckStatus.Success;
-            }
-            else
-            {
-                verificationStatus = checkResult.Max(x => x.Value.Status);
-            }
+            verificationStatus = !checkResult.Any() ? CheckStatus.Success : checkResult.Max(x => x.Value.Status);
 
             return new VerificationResult(verificationStatus,
                 new Dictionary<Check, CheckResult>(checkResult), analyzerContext.MetricMap);

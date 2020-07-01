@@ -13,13 +13,18 @@ using xdeequ.Repository;
 using xdeequ.Repository.InMemory;
 using xdeequ.Util;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace xdeequ.tests.Repository
 {
     [Collection("Spark instance")]
     public class MetricsRepositoryMultipleResultsLoaderTest
     {
-        public MetricsRepositoryMultipleResultsLoaderTest(SparkFixture fixture) => _session = fixture.Spark;
+        public MetricsRepositoryMultipleResultsLoaderTest(SparkFixture fixture, ITestOutputHelper helper)
+        {
+            _session = fixture.Spark;
+            _helper = helper;
+        }
         private static readonly long DATE_ONE = new DateTime(2021, 10, 14).ToBinary();
         private static readonly long DATE_TWO = new DateTime(2021, 10, 15).ToBinary();
 
@@ -41,11 +46,12 @@ namespace xdeequ.tests.Repository
 
         private static readonly KeyValuePair<string, string>[] REGION_NA_AND_DATASET_VERSION =
         {
-            new KeyValuePair<string, string>("Region", "EU"),
+            new KeyValuePair<string, string>("Region", "NA"),
             new KeyValuePair<string, string>("dataset_version", "2.0")
         };
 
         private readonly SparkSession _session;
+        private readonly ITestOutputHelper _helper;
 
         private static void Evaluate(SparkSession session, Action<AnalyzerContext, IMetricsRepository> func)
         {
@@ -60,24 +66,6 @@ namespace xdeequ.tests.Repository
         }
 
 
-        private static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
-        {
-            IEnumerable<Row> dfASeq = dataFrameA.Collect();
-            IEnumerable<Row> dfBSeq = dataFrameB.Collect();
-
-            int i = 0;
-            foreach (Row rowA in dfASeq)
-            {
-                Row rowB = dfBSeq.Skip(i).First();
-
-                rowA[0].ShouldBe(rowB[0]);
-                rowA[1].ShouldBe(rowB[1]);
-                rowA[2].ShouldBe(rowB[2]);
-                rowA[3].ShouldBe(rowB[3]);
-
-                i++;
-            }
-        }
 
         private static void AssertSameRows(string jsonA, string jsonB)
         {
@@ -118,7 +106,6 @@ namespace xdeequ.tests.Repository
                 repository.Save(new ResultKey(DATE_TWO, new Dictionary<string, string>(REGION_NA)), context);
 
                 DataFrame analysisResultsAsDataFrame = repository.Load()
-                    .After(DATE_ONE)
                     .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<string>());
 
                 List<GenericRow> elements = new List<GenericRow>
@@ -146,7 +133,7 @@ namespace xdeequ.tests.Repository
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(analysisResultsAsDataFrame, df);
+                FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, Option<ITestOutputHelper>.None);
             });
 
         [Fact]
@@ -157,7 +144,7 @@ namespace xdeequ.tests.Repository
                 repository.Save(new ResultKey(DATE_TWO, new Dictionary<string, string>(REGION_NA)), context);
 
                 string analysisResultsAsDataFrame = repository.Load()
-                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<string>());
+                    .GetSuccessMetricsAsJson(Enumerable.Empty<string>());
 
                 string expected =
                     "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE},  {\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"NA\", \"dataset_date\":$DATE_TWO}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"NA\", \"dataset_date\":$DATE_TWO}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"NA\", \"dataset_date\":$DATE_TWO}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\",\"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"NA\", \"dataset_date\":$DATE_TWO}]";
@@ -202,7 +189,7 @@ namespace xdeequ.tests.Repository
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(analysisResultsAsDataFrame, df);
+                FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, Option<ITestOutputHelper>.None);
             });
 
         [Fact]
@@ -215,7 +202,7 @@ namespace xdeequ.tests.Repository
                 string analysisResultsAsDataFrame = repository.Load()
                     .After(DATE_TWO)
                     .Before(DATE_ONE)
-                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<string>());
+                    .GetSuccessMetricsAsJson(Enumerable.Empty<string>());
 
                 string expected = "[]";
 
@@ -223,7 +210,8 @@ namespace xdeequ.tests.Repository
             });
 
         [Fact]
-        public void support_saving_data_with_different_tags_and_returning_DataFrame_with_them() =>
+        public void
+            support_saving_data_with_different_tags_and_returning_DataFrame_with_them() =>
             Evaluate(_session, (context, repository) =>
             {
                 repository.Save(new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_AND_DATASET_NAME)),
@@ -237,21 +225,21 @@ namespace xdeequ.tests.Repository
 
                 List<GenericRow> elements = new List<GenericRow>
                 {
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU", null, "Some"}),
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU", null, "Some"}),
-                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU", null, "Some"}),
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU", "Some", null}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU","Some", null}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU", "Some", null}),
                     new GenericRow(new object[]
                     {
-                        "Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU", null, "Some"
+                        "Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU", "Some", null
                     }),
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_TWO, "NA", "2.0", null}),
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_TWO, "NA", null, "2.0"}),
                     new GenericRow(
-                        new object[] {"Column", "att1", "Completeness", 1.0, DATE_TWO, "NA", "2.0", null}),
+                        new object[] {"Column", "att1", "Completeness", 1.0, DATE_TWO, "NA", null, "2.0"}),
                     new GenericRow(
-                        new object[] {"Column", "item", "Distinctness", 1.0, DATE_TWO, "NA", "2.0", null}),
+                        new object[] {"Column", "item", "Distinctness", 1.0, DATE_TWO, "NA", null, "2.0"}),
                     new GenericRow(new object[]
                     {
-                        "Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_TWO, "NA", "2.0", null
+                        "Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_TWO, "NA", null, "2.0"
                     })
                 };
 
@@ -264,13 +252,13 @@ namespace xdeequ.tests.Repository
                         new StructField("value", new DoubleType()),
                         new StructField("dataset_date", new LongType()),
                         new StructField("region", new StringType()),
-                        new StructField("dataset_version", new StringType()),
-                        new StructField("dataset_name", new StringType())
+                        new StructField("dataset_name", new StringType()),
+                        new StructField("dataset_version", new StringType())
                     });
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(analysisResultsAsDataFrame, df);
+                FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, Option<ITestOutputHelper>.None);
             });
 
 
@@ -284,7 +272,7 @@ namespace xdeequ.tests.Repository
                     context);
 
                 string analysisResultsAsDataFrame = repository.Load()
-                    .GetSuccessMetricsAsJson(_session, Enumerable.Empty<string>());
+                    .GetSuccessMetricsAsJson(Enumerable.Empty<string>());
 
                 string expected =
                     "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE, \"dataset_name\":\"Some\", \"dataset_version\":null}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE, \"dataset_name\":\"Some\", \"dataset_version\":null}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE, \"dataset_name\":\"Some\", \"dataset_version\":null}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE, \"dataset_name\":\"Some\", \"dataset_version\":null},  {\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"NA\", \"dataset_date\":$DATE_TWO, \"dataset_name\":null, \"dataset_version\":\"2.0\"}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"NA\", \"dataset_date\":$DATE_TWO, \"dataset_name\":null, \"dataset_version\":\"2.0\"}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"NA\", \"dataset_date\":$DATE_TWO, \"dataset_name\":null, \"dataset_version\":\"2.0\"}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"NA\", \"dataset_date\":$DATE_TWO, \"dataset_name\":null, \"dataset_version\":\"2.0\"}]";

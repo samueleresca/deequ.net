@@ -65,7 +65,7 @@ namespace xdeequ
 
         public VerificationRunBuilder AddChecks(IEnumerable<Check> checks)
         {
-            this.checks.Concat(checks);
+            this.checks = this.checks.Concat(checks);
             return this;
         }
 

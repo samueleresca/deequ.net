@@ -12,6 +12,7 @@ using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace xdeequ.tests
 {
@@ -34,10 +35,12 @@ namespace xdeequ.tests
 
                 List<GenericRow> elements = new List<GenericRow>
                 {
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0}),
                     new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0}),
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0}),
+                    new GenericRow(new object[] {"Column", "att2", "Completeness", 1.0}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25}),
                     new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25})
+
                 };
 
                 StructType schema = new StructType(
@@ -51,7 +54,7 @@ namespace xdeequ.tests
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(successMetricsAsDataFrame,df);
+                FixtureSupport.AssertSameRows(successMetricsAsDataFrame,df, Option<ITestOutputHelper>.None);
             }) ;
         }
 
@@ -90,11 +93,49 @@ namespace xdeequ.tests
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(successMetricsAsDataFrame,df);
+                FixtureSupport.AssertSameRows(successMetricsAsDataFrame,df, Option<ITestOutputHelper>.None);
             }) ;
         }
 
 
+        [Fact]
+        public void getCheckResults_correctly_return_a_DataFrame_that_is_formatted_as_expected()
+        {
+            Evaluate(_session, (results) =>
+            {
+
+                var successMetricsAsDataFrame = new VerificationResult(results).CheckResultsAsDataFrame();
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"group-1", "Error", "Success", "CompletenessConstraint(Completeness(att1,None))", "Success"}),
+                    new GenericRow(new object[] {"group-2-E", "Error", "Error", "SizeConstraint(Size(None))", "Failure",
+                        "Value: 4 does not meet the constraint requirement! Should be greater than 5!"}),
+                    new GenericRow(new object[] {"group-2-E", "Error", "Error", "CompletenessConstraint(Completeness(att2,None))",
+                        "Success", ""}),
+                    new GenericRow(new object[] {"group-2-W", "Warning", "Warning",
+                        "DistinctnessConstraint(Distinctness(List(item),None))",
+                        "Failure", "Value: 1.0 does not meet the constraint requirement! " +
+                                   "Should be smaller than 0.8!"})
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("check", new StringType()),
+                        new StructField("check_level", new StringType()),
+                        new StructField("check_status", new StringType()),
+                        new StructField("constraint", new StringType()),
+                        new StructField("constraint_status", new StringType()),
+                        new StructField("constraint_message", new StringType()),
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+                FixtureSupport.AssertSameRows(successMetricsAsDataFrame, df, Option<ITestOutputHelper>.None);
+            });
+
+        }
 
         private static void Evaluate(SparkSession session, Action<VerificationResult> func)
         {
@@ -130,25 +171,6 @@ namespace xdeequ.tests
 
         private static IEnumerable<IAnalyzer<IMetric>> GetAnalyzers() =>
             new[] {Initializers.Uniqueness(new[] {"att1", "att2"})};
-
-        private static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
-        {
-            IEnumerable<Row> dfASeq = dataFrameA.Collect();
-            IEnumerable<Row> dfBSeq = dataFrameB.Collect();
-
-            int i = 0;
-            foreach (Row rowA in dfASeq)
-            {
-                Row rowB = dfBSeq.Skip(i).First();
-
-                rowA[0].ShouldBe(rowB[0]);
-                rowA[1].ShouldBe(rowB[1]);
-                rowA[2].ShouldBe(rowB[2]);
-                rowA[3].ShouldBe(rowB[3]);
-
-                i++;
-            }
-        }
 
         private static void AssertSameRows(string jsonA, string jsonB)
         {

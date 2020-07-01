@@ -11,14 +11,20 @@ using xdeequ.Repository;
 using xdeequ.Repository.InMemory;
 using xdeequ.Util;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace xdeequ.tests.Repository.Memory
 {
     [Collection("Spark instance")]
     public class InMemoryMetricsRepositoryTests
     {
-        public InMemoryMetricsRepositoryTests(SparkFixture fixture) => _session = fixture.Spark;
+        public InMemoryMetricsRepositoryTests(SparkFixture fixture, ITestOutputHelper helper)
+        {
+            _helper = helper;
+            _session = fixture.Spark;
+        }
 
+        private readonly ITestOutputHelper _helper;
         private readonly SparkSession _session;
         private static readonly long DATE_ONE = new DateTime(2021, 10, 14).ToBinary();
         private static readonly long DATE_TWO = new DateTime(2021, 10, 15).ToBinary();
@@ -31,7 +37,7 @@ namespace xdeequ.tests.Repository.Memory
 
         private static readonly KeyValuePair<string, string>[] REGION_NA =
         {
-            new KeyValuePair<string, string>("Region", "EU")
+            new KeyValuePair<string, string>("Region", "NA")
         };
 
         private static void Evaluate(SparkSession session, Action<AnalyzerContext, IMetricsRepository> func)
@@ -46,7 +52,7 @@ namespace xdeequ.tests.Repository.Memory
             func(results, repository);
         }
 
-        private static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
+        private  void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
         {
             IEnumerable<Row> dfASeq = dataFrameA.Collect();
             IEnumerable<Row> dfBSeq = dataFrameB.Collect();
@@ -54,12 +60,16 @@ namespace xdeequ.tests.Repository.Memory
             int i = 0;
             foreach (Row rowA in dfASeq)
             {
+
                 Row rowB = dfBSeq.Skip(i).First();
 
-                rowA[0].ShouldBe(rowB[0]);
-                rowA[1].ShouldBe(rowB[1]);
-                rowA[2].ShouldBe(rowB[2]);
-                rowA[3].ShouldBe(rowB[3]);
+                _helper.WriteLine($"Computed - {rowA.ToString()}");
+                _helper.WriteLine($"Expected - {rowB.ToString()}");
+
+                int columnSize = rowA.Size();
+
+                for (int j = 0; j < columnSize; j++)
+                    rowA[j].ShouldBe(rowB[j]);
 
                 i++;
             }
@@ -152,7 +162,7 @@ namespace xdeequ.tests.Repository.Memory
                 repository.Save(new ResultKey(DATE_TWO, new Dictionary<string, string>(REGION_NA)), context);
 
                 DataFrame analysisResultsAsDataFrame = repository.Load()
-                    .After(DATE_TWO)
+                    .After(DATE_ONE)
                     .WithTagValues(new Dictionary<string, string>(REGION_EU))
                     .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<string>());
 
@@ -195,10 +205,10 @@ namespace xdeequ.tests.Repository.Memory
 
                 List<GenericRow> elements = new List<GenericRow>
                 {
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "NA"}),
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "NA"}),
-                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "NA"}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "NA"})
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_TWO, "NA"}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_TWO, "NA"}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_TWO, "NA"}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25,  DATE_TWO, "NA"})
                 };
 
                 StructType schema = new StructType(
@@ -274,10 +284,10 @@ namespace xdeequ.tests.Repository.Memory
                     new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU"}),
                     new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU"}),
                     new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "EU"}),
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "NA"}),
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "NA"}),
-                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "NA"}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_ONE, "NA"})
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_TWO, "NA"}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_TWO, "NA"}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_TWO, "NA"}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_TWO, "NA"})
                 };
 
                 StructType schema = new StructType(
@@ -293,7 +303,7 @@ namespace xdeequ.tests.Repository.Memory
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(analysisResultsAsDataFrame, df);
+                FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, Option<ITestOutputHelper>.None);
             });
 
         [Fact]

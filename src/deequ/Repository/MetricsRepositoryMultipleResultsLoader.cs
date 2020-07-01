@@ -37,10 +37,13 @@ namespace xdeequ.Repository
             return analysisResults
                 .Select(x => x.GetSuccessMetricsAsDataFrame(session,
                     Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
-                .Aggregate((x, y) => DataFrameUnion(x, y));
+                .Aggregate((x, y) =>
+                {
+                    return DataFrameUnion(x, y);
+                });
         }
 
-        public string GetSuccessMetricsAsJson(SparkSession session, IEnumerable<string> withTags)
+        public string GetSuccessMetricsAsJson(IEnumerable<string> withTags)
         {
             IEnumerable<AnalysisResult> analysisResults = Get();
 
@@ -61,7 +64,7 @@ namespace xdeequ.Repository
             string[] columnsOne = dataFrameOne.Columns().ToArray();
             string[] columnsTwo = dataFrameTwo.Columns().ToArray();
 
-            IEnumerable<string> columnTotal = columnsOne.Concat(columnsTwo);
+            IEnumerable<string> columnTotal = columnsOne.Concat(columnsTwo).Distinct();
 
             return dataFrameOne
                 .Select(WithAllColumns(columnsOne, columnTotal.ToArray()).ToArray())
