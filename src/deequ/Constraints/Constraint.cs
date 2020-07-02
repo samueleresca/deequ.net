@@ -103,7 +103,7 @@ namespace xdeequ.Constraints
                 new AnalysisBasedConstraint<NumMatches, double, double>(size, assertion,
                     Option<Func<double, double>>.None,
                     hint);
-            return new NamedConstraint(constraint, $"SizeConstraint{size}");
+            return new NamedConstraint(constraint, $"SizeConstraint({size})");
         }
 
         public static IConstraint HistogramConstraint(
@@ -123,7 +123,7 @@ namespace xdeequ.Constraints
 
 
             return new NamedConstraint(constraint,
-                $"HistogramConstraint{histogram}");
+                $"HistogramConstraint({histogram})");
         }
 
         public static IConstraint HistogramBinConstraint(
@@ -144,7 +144,7 @@ namespace xdeequ.Constraints
 
 
             return new NamedConstraint(constraint,
-                $"HistogramBinConstraint{histogram}");
+                $"HistogramBinConstraint({histogram})");
         }
 
         public static IConstraint CompletenessConstraint(
@@ -161,7 +161,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"CompletenessConstraint{completeness}");
+                $"CompletenessConstraint({completeness})");
         }
 
         public static IConstraint AnomalyConstraint<S>(
@@ -172,7 +172,7 @@ namespace xdeequ.Constraints
         {
             AnalysisBasedConstraint<S, double, double> constraint =
                 new AnalysisBasedConstraint<S, double, double>(analyzer, anomalyAssertion, hint);
-            return new NamedConstraint(constraint, $"AnomalyConstraint{analyzer}");
+            return new NamedConstraint(constraint, $"AnomalyConstraint({analyzer})");
         }
 
         public static IConstraint UniquenessConstraint(
@@ -189,7 +189,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"HistogramConstraint{uniqueness}");
+                $"HistogramConstraint({uniqueness})");
         }
 
         public static IConstraint UniquenessConstraint(
@@ -206,7 +206,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"HistogramConstraint{uniqueness}");
+                $"HistogramConstraint({uniqueness})");
         }
 
         public static IConstraint DistinctnessConstraint(
@@ -223,7 +223,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"DistinctnessConstraint{distinctness}");
+                $"DistinctnessConstraint({distinctness})");
         }
 
 
@@ -241,7 +241,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"UniqueValueRatioConstraint{distinctness}");
+                $"UniqueValueRatioConstraint({distinctness})");
         }
 
 
@@ -260,7 +260,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"ComplianceConstraint{constraint}");
+                $"ComplianceConstraint({constraint})");
         }
 
         public static IConstraint MutualInformationConstraint(
@@ -272,14 +272,14 @@ namespace xdeequ.Constraints
         )
         {
             MutualInformation mutualInformation =
-                MutualInformation(new[] {columnA, columnB}.AsEnumerable(), where);
+                MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where);
 
             AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
                 new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(mutualInformation, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"MutualInformationConstraint{constraint}");
+                $"MutualInformationConstraint({constraint})");
         }
 
         public static IConstraint EntropyConstraint(
@@ -296,7 +296,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"EntropyConstraint{constraint}");
+                $"EntropyConstraint({constraint})");
         }
 
         public static IConstraint PatternMatchConstraint(
@@ -314,7 +314,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"PatternMatchConstraint{constraint}");
+                $"PatternMatchConstraint({constraint})");
         }
 
         public static IConstraint MaxLengthConstraint(
@@ -331,7 +331,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"MaxLengthConstraint{constraint}");
+                $"MaxLengthConstraint({constraint})");
         }
 
         public static IConstraint MinLengthConstraint(
@@ -348,7 +348,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"MinLengthConstraint{constraint}");
+                $"MinLengthConstraint({constraint})");
         }
 
         public static IConstraint MinConstraint(
@@ -365,7 +365,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"MinConstraint{constraint}");
+                $"MinConstraint({constraint})");
         }
 
         public static IConstraint MaxConstraint(
@@ -382,7 +382,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"MaxConstraint{constraint}");
+                $"MaxConstraint({constraint})");
         }
 
         public static IConstraint MeanConstraint(
@@ -399,7 +399,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"MeanConstraint{constraint}");
+                $"MeanConstraint({constraint})");
         }
 
         public static IConstraint SumConstraint(
@@ -416,7 +416,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"SumConstraint{constraint}");
+                $"SumConstraint({constraint})");
         }
 
         public static IConstraint StandardDeviationConstraint(
@@ -433,7 +433,7 @@ namespace xdeequ.Constraints
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
-                $"StandardDeviationConstraint{constraint}");
+                $"StandardDeviationConstraint({constraint})");
         }
 
         public static IConstraint ApproxCountDistinctConstraint(

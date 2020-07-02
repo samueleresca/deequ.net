@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers;
@@ -97,9 +95,7 @@ namespace xdeequ
             VerificationFileOutputOptions fileOutputOptions,
             VerificationResult verificationResult)
         {
-            return;
         }
-
 
 
         private void SaveOrAppendResultsIfNecessary(

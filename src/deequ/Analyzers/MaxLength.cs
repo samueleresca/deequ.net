@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Extensions;
@@ -9,10 +10,10 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class MaxLength : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public sealed class MaxLength : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
-        public string Column;
-        public Option<string> Where;
+        public readonly string Column;
+        public readonly Option<string> Where;
 
         public MaxLength(string column, Option<string> where) : base("MaxLength", column, Entity.Column)
         {
@@ -31,6 +32,20 @@ namespace xdeequ.Analyzers
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(Column)
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 }

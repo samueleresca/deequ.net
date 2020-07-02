@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers.States;
@@ -27,7 +28,7 @@ namespace xdeequ.Analyzers
         public override double MetricValue() => numMatches;
     }
 
-    public class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
+    public sealed class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
     {
         public readonly Option<string> Where;
 
@@ -36,7 +37,7 @@ namespace xdeequ.Analyzers
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] {AnalyzersExt.ConditionalCount(Where)}.AsEnumerable();
+            new[] { AnalyzersExt.ConditionalCount(Where) }.AsEnumerable();
 
         public override Option<NumMatches> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
@@ -44,5 +45,17 @@ namespace xdeequ.Analyzers
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
             Enumerable.Empty<Action<StructType>>();
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 }

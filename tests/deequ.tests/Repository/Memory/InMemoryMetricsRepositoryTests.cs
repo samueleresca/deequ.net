@@ -52,7 +52,7 @@ namespace xdeequ.tests.Repository.Memory
             func(results, repository);
         }
 
-        private  void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
+        private void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB)
         {
             IEnumerable<Row> dfASeq = dataFrameA.Collect();
             IEnumerable<Row> dfBSeq = dataFrameB.Collect();
@@ -60,16 +60,17 @@ namespace xdeequ.tests.Repository.Memory
             int i = 0;
             foreach (Row rowA in dfASeq)
             {
-
                 Row rowB = dfBSeq.Skip(i).First();
 
-                _helper.WriteLine($"Computed - {rowA.ToString()}");
-                _helper.WriteLine($"Expected - {rowB.ToString()}");
+                _helper.WriteLine($"Computed - {rowA}");
+                _helper.WriteLine($"Expected - {rowB}");
 
                 int columnSize = rowA.Size();
 
                 for (int j = 0; j < columnSize; j++)
+                {
                     rowA[j].ShouldBe(rowB[j]);
+                }
 
                 i++;
             }
@@ -78,9 +79,9 @@ namespace xdeequ.tests.Repository.Memory
         private static Analysis CreateAnalysis() =>
             new Analysis()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] {"item"}, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
-                .AddAnalyzer(Initializers.Uniqueness(new[] {"att1", "att2"}));
+                .AddAnalyzer(Initializers.Uniqueness(new[] { "att1", "att2" }));
 
         private static IMetricsRepository CreateRepository() => new InMemoryMetricsRepository();
 
@@ -208,7 +209,7 @@ namespace xdeequ.tests.Repository.Memory
                     new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_TWO, "NA"}),
                     new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_TWO, "NA"}),
                     new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_TWO, "NA"}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25,  DATE_TWO, "NA"})
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25, DATE_TWO, "NA"})
                 };
 
                 StructType schema = new StructType(

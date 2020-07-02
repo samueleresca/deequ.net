@@ -25,6 +25,7 @@ namespace xdeequ.tests.Repository
             _session = fixture.Spark;
             _helper = helper;
         }
+
         private static readonly long DATE_ONE = new DateTime(2021, 10, 14).ToBinary();
         private static readonly long DATE_TWO = new DateTime(2021, 10, 15).ToBinary();
 
@@ -66,7 +67,6 @@ namespace xdeequ.tests.Repository
         }
 
 
-
         private static void AssertSameRows(string jsonA, string jsonB)
         {
             SimpleMetricOutput[] resultA =
@@ -91,9 +91,9 @@ namespace xdeequ.tests.Repository
         private static Analysis CreateAnalysis() =>
             new Analysis()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] {"item"}, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
-                .AddAnalyzer(Initializers.Uniqueness(new[] {"att1", "att2"}));
+                .AddAnalyzer(Initializers.Uniqueness(new[] { "att1", "att2" }));
 
         private static IMetricsRepository CreateRepository() => new InMemoryMetricsRepository();
 
@@ -226,7 +226,7 @@ namespace xdeequ.tests.Repository
                 List<GenericRow> elements = new List<GenericRow>
                 {
                     new GenericRow(new object[] {"Dataset", "*", "Size", 4.0, DATE_ONE, "EU", "Some", null}),
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU","Some", null}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0, DATE_ONE, "EU", "Some", null}),
                     new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0, DATE_ONE, "EU", "Some", null}),
                     new GenericRow(new object[]
                     {

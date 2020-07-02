@@ -302,7 +302,7 @@ namespace xdeequ.Repository.Serde
 
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Histogram");
                 writer.WriteString(SerdeExt.COLUMN_FIELD, histogram.Column);
-                writer.WriteNumber("maxDetailBins", histogram.maxDetailBins);
+                writer.WriteNumber("maxDetailBins", histogram.MaxDetailBins);
                 writer.WriteEndObject();
                 return;
             }

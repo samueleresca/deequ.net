@@ -52,7 +52,7 @@ namespace xdeequ.Util
             }
         }
 
-        public override string ToString() => HasValue ? $"Some<{Value}>" : "None";
+        public override string ToString() => HasValue ? $"{Value}" : "None";
 
         public void OnSuccess(Action<T> action)
         {

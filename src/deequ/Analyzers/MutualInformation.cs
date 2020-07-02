@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Extensions;
@@ -10,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public sealed class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
     {
         public readonly IEnumerable<string> Columns;
         public readonly Option<string> Where;
@@ -88,6 +89,22 @@ namespace xdeequ.Analyzers
             return AnalyzersExt.MetricFromValue(resultRow.GetAs<double>(0), "MutualInformation",
                 string.Join(',', Columns),
                 Entity.Multicolumn);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append("List(")
+                .Append(string.Join(",", Columns))
+                .Append(")")
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
         }
     }
 }

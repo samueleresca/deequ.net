@@ -15,7 +15,7 @@ namespace xdeequ
     {
         public IEnumerable<Check> checks;
         public DataFrame data;
-        public bool failIfResultsForReusingMissing ;
+        public bool failIfResultsForReusingMissing;
         public Option<IMetricsRepository> metricsRepository;
         public bool overwriteOutputFiles;
         public IEnumerable<IAnalyzer<IMetric>> requiredAnalyzers;

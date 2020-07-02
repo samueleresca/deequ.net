@@ -225,7 +225,7 @@ namespace xdeequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column selection = AnalyzersExt.ConditionalSelection(Predicate, Where);
-            return new[] {selection, Count("*")}.AsEnumerable();
+            return new[] { selection, Count("*") }.AsEnumerable();
         }
     }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers.States;
@@ -27,10 +28,10 @@ namespace xdeequ.Analyzers
         public override double MetricValue() => _sum;
     }
 
-    public class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public sealed class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
-        public string Column;
-        public Option<string> Where;
+        public readonly string Column;
+        public readonly Option<string> Where;
 
         public Sum(string column, Option<string> where) : base("Sum", column, Entity.Column)
         {
@@ -42,17 +43,27 @@ namespace xdeequ.Analyzers
 
         public Option<string> FilterCondition() => Where;
 
-        public static Sum Create(string column) => new Sum(column, new Option<string>());
-
-        public static Sum Create(string column, string where) => new Sum(column, where);
-
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] {Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
+            new[] { Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
 
         public override Option<SumState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new SumState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(Column)
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 }

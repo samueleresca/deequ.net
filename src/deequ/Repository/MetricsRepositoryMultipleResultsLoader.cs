@@ -37,10 +37,7 @@ namespace xdeequ.Repository
             return analysisResults
                 .Select(x => x.GetSuccessMetricsAsDataFrame(session,
                     Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
-                .Aggregate((x, y) =>
-                {
-                    return DataFrameUnion(x, y);
-                });
+                .Aggregate((x, y) => { return DataFrameUnion(x, y); });
         }
 
         public string GetSuccessMetricsAsJson(IEnumerable<string> withTags)

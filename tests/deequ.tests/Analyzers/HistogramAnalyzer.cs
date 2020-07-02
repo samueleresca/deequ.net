@@ -59,7 +59,7 @@ namespace xdeequ.tests.Analyzers
 
             keys.ShouldContain("a");
             keys.ShouldContain("b");
-            keys.ShouldContain(Histogram.NullFieldReplacement);
+            keys.ShouldContain(Histogram.NULL_FIELD_REPLACEMENT);
         }
 
         [Fact]
@@ -85,7 +85,7 @@ namespace xdeequ.tests.Analyzers
             histogram.Value.Get().NumberOfBins.ShouldBe(3);
             histogram.Value.Get().Values.Count.ShouldBe(2);
             histogram.Value.Get().Values.Keys.ShouldContain("a");
-            histogram.Value.Get().Values.Keys.ShouldContain(Histogram.NullFieldReplacement);
+            histogram.Value.Get().Values.Keys.ShouldContain(Histogram.NULL_FIELD_REPLACEMENT);
         }
 
         [Fact]

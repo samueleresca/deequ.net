@@ -31,12 +31,12 @@ namespace xdeequ
             Metrics = metrics;
         }
 
-                public VerificationResult(VerificationResult verificationResult)
-                {
-                    CheckResults = verificationResult.CheckResults;
-                    Metrics = verificationResult.Metrics;
-                    Status = verificationResult.Status;
-                }
+        public VerificationResult(VerificationResult verificationResult)
+        {
+            CheckResults = verificationResult.CheckResults;
+            Metrics = verificationResult.Metrics;
+            Status = verificationResult.Status;
+        }
 
 
         public DataFrame SuccessMetricsAsDataFrame(SparkSession session, IEnumerable<IAnalyzer<IMetric>> forAnalyzers)

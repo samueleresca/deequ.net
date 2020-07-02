@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers.States;
@@ -10,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class MinState : DoubleValuedState<MinState>, IState
+    public sealed class MinState : DoubleValuedState<MinState>, IState
     {
         private readonly double _minValue;
 
@@ -29,8 +30,8 @@ namespace xdeequ.Analyzers
 
     public class Minimum : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
     {
-        public string Column;
-        public Option<string> Where;
+        public readonly string Column;
+        public readonly Option<string> Where;
 
 
         public Minimum(string column, Option<string> where) : base("Minimum", column, Entity.Column)
@@ -43,12 +44,26 @@ namespace xdeequ.Analyzers
 
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] {Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
+            new[] { Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
 
         public override Option<MinState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(Column)
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 }

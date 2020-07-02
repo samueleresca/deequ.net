@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers.Catalyst;
@@ -21,7 +22,6 @@ namespace xdeequ.Analyzers
         Boolean = 3,
         String = 4
     }
-
 
     public class DataTypeHistogram : State<DataTypeHistogram>, IState
     {
@@ -101,11 +101,10 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer,
-        IAnalyzer<HistogramMetric>
+    public sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
     {
-        public string Column;
-        public Option<string> Where;
+        public readonly string Column;
+        public readonly Option<string> Where;
 
         public DataType(string column, Option<string> where)
         {
@@ -117,7 +116,7 @@ namespace xdeequ.Analyzers
             new HistogramMetric(Column, new Try<Distribution>(e));
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column)}.Concat(base.Preconditions());
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) }.Concat(base.Preconditions());
 
         public Option<string> FilterCondition() => Where;
 
@@ -131,7 +130,6 @@ namespace xdeequ.Analyzers
 
             return new HistogramMetric(Column, new Try<Distribution>(DataTypeHistogram.ToDistribution(state.Value)));
         }
-
 
         public override Option<DataTypeHistogram> ComputeStateFrom(DataFrame dataFrame)
         {
@@ -158,10 +156,24 @@ namespace xdeequ.Analyzers
         }
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] {AnalyzersExt.ConditionalSelection(Column, Where)};
+            new[] { AnalyzersExt.ConditionalSelection(Column, Where) };
 
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => { return DataTypeHistogram.FromArray(result.Values.Select(x => (int)x).ToArray()); });
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(Column)
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 }

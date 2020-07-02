@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers.States;
@@ -39,11 +40,10 @@ namespace xdeequ.Analyzers
         public override double MetricValue() => StdDevPop;
     }
 
-    public class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer,
-        IAnalyzer<DoubleMetric>
+    public sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
     {
-        public string Column;
-        public Option<string> Where;
+        public readonly string Column;
+        public readonly Option<string> Where;
 
         public StandardDeviation(string column, Option<string> where) : base("StandardDeviation", column, Entity.Column)
         {
@@ -57,7 +57,7 @@ namespace xdeequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column col = AnalyzersExt.ConditionalSelection(Expr(Column), Where);
-            return new[] {Struct(Count(col), Avg(col), StddevPop(col))};
+            return new[] { Struct(Count(col), Avg(col), StddevPop(col)) };
         }
 
         public override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
@@ -81,6 +81,20 @@ namespace xdeequ.Analyzers
 
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(Column)
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 }

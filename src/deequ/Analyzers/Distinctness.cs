@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Spark.Sql;
+using xdeequ.Analyzers.Runners;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
@@ -9,10 +11,10 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class Distinctness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public sealed class Distinctness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {
+        public readonly IEnumerable<string> Columns;
         public readonly Option<string> Where;
-        public IEnumerable<string> Columns;
 
         public Distinctness(IEnumerable<string> columns, Option<string> where) : base("Distinctness", columns)
         {
@@ -31,6 +33,22 @@ namespace xdeequ.Analyzers
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Column> AggregationFunctions(long numRows) =>
-            new[] {Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows};
+            new[] { Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows };
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append("List(")
+                .Append(string.Join(",", Columns))
+                .Append(")")
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 }

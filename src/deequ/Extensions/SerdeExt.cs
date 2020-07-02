@@ -68,8 +68,8 @@ namespace xdeequ.Extensions
                     new StructField("check", new StringType()),
                     new StructField("check_level", new StringType()),
                     new StructField("check_status", new StringType()),
-                    new StructField("constraint", new DoubleType()),
-                    new StructField("constraint_status", new LongType()),
+                    new StructField("constraint", new StringType()),
+                    new StructField("constraint_status", new StringType()),
                     new StructField("constraint_message", new StringType())
                 });
 

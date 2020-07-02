@@ -46,12 +46,18 @@ namespace xdeequ.tests
             IEnumerable<Row> dfBSeq = dataFrameB.Collect();
 
             foreach (Row rowA in dfASeq)
+            {
                 if (helper.HasValue)
+                {
                     helper.Value.WriteLine($"Computed - {rowA}");
+                }
+            }
 
             int i = 0;
             foreach (Row rowA in dfASeq)
-                dfBSeq.Select(x=>x.ToString()).ShouldContain(rowA.ToString());
+            {
+                dfBSeq.Select(x => x.ToString()).ShouldContain(rowA.ToString());
+            }
         }
 
         public static DataFrame GetDFFull(SparkSession sparkSession)
@@ -270,7 +276,7 @@ namespace xdeequ.tests
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField("att1", new StringType())});
+                new List<StructField> { new StructField("att1", new StringType()) });
 
             return sparkSession.CreateDataFrame(elements, schema);
         }
@@ -307,6 +313,6 @@ namespace xdeequ.tests
         public static DataFrame DataFrameWithColumn(string name, DataType sparkDt, SparkSession session,
             GenericRow[] values) =>
             session.CreateDataFrame(values,
-                new StructType(new[] {new StructField(name, sparkDt)})).ToDF(name);
+                new StructType(new[] { new StructField(name, sparkDt) })).ToDF(name);
     }
 }

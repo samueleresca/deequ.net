@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
@@ -11,8 +12,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
-        IAnalyzer<DoubleMetric>
+    public sealed class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Regex Regex;
@@ -37,7 +37,7 @@ namespace xdeequ.Analyzers
 
             Column summation = Sum(AnalyzersExt.ConditionalSelection(expression, Where).Cast("integer"));
 
-            return new[] {summation, AnalyzersExt.ConditionalCount(Where)};
+            return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
@@ -46,7 +46,22 @@ namespace xdeequ.Analyzers
                     (int)result.Get(offset), (int)result.Get(offset + 1)), 2);
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
+
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(string.Join(",", Column))
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 
 
@@ -66,5 +81,8 @@ namespace xdeequ.Analyzers
         public static Regex CreditCard =>
             new Regex(
                 @"\b(?:3[47]\d{2}([\ \-]?)\d{6}\1\d|(?:(?:4\d|5[1-5]|65)\d{2}|6011)([\ \-]?)\d{4}\2\d{4}\2)\d{4}\b");
+
+
+
     }
 }

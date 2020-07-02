@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.Spark.Sql;
 using xdeequ.Metrics;
 using xdeequ.Util;
@@ -7,7 +8,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public class ApproxCountDistinct : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    public sealed class ApproxCountDistinct : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         private readonly string _column;
         private readonly Option<string> _where;
@@ -21,9 +22,23 @@ namespace xdeequ.Analyzers
 
         public Option<string> FilterCondition() => _where;
 
-        public override IEnumerable<Column> AggregationFunctions() => new[] {ApproxCountDistinct(_column)};
+        public override IEnumerable<Column> AggregationFunctions() => new[] { ApproxCountDistinct(_column) };
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             throw new NotImplementedException();
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(_column)
+                .Append(",")
+                .Append(_where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 }
