@@ -5,6 +5,7 @@ using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using xdeequ.Util;
 using Xunit.Abstractions;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.tests
 {
@@ -42,8 +43,20 @@ namespace xdeequ.tests
 
         public static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB, Option<ITestOutputHelper> helper)
         {
-            IEnumerable<Row> dfASeq = dataFrameA.Collect();
-            IEnumerable<Row> dfBSeq = dataFrameB.Collect();
+
+            var dfAOrderedColumns = dataFrameA
+                .Columns()
+                .OrderByDescending(x => x)
+                .Select(Column)
+                .ToArray();
+            var dfBOrderedColumns = dataFrameB
+                    .Columns()
+                    .OrderByDescending(x => x)
+                    .Select(Column)
+                    .ToArray();
+
+            IEnumerable<Row> dfASeq = dataFrameA.Select(dfAOrderedColumns).Collect();
+            IEnumerable<Row> dfBSeq = dataFrameB.Select(dfBOrderedColumns).Collect();
 
             foreach (Row rowA in dfASeq)
             {
@@ -56,7 +69,7 @@ namespace xdeequ.tests
             int i = 0;
             foreach (Row rowA in dfASeq)
             {
-                dfBSeq.Select(x => x.ToString()).ShouldContain(rowA.ToString());
+                dfBSeq.Select(x => x.Values.ToString()).ShouldContain(rowA.Values.ToString());
             }
         }
 
