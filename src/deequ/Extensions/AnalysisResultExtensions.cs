@@ -43,7 +43,7 @@ namespace xdeequ.Extensions
         {
             SimpleMetricOutput[] serializableResult = JsonSerializer
                 .Deserialize<SimpleMetricOutput[]>(
-                    analysisResult.AnalyzerContext.SuccessMetricsAsJson(forAnalyzer));
+                    analysisResult.AnalyzerContext.SuccessMetricsAsJson(forAnalyzer), SerdeExt.GetDefaultOptions());
 
             IEnumerable<Dictionary<string, object>> enanchedResult = ConvertAndAddColumnToSerializableResult(
                 serializableResult, SerdeExt.DATASET_DATE_FIELD, analysisResult.ResultKey.DataSetDate);
@@ -56,7 +56,7 @@ namespace xdeequ.Extensions
                 enanchedResult = AddColumnToSerializableResult(enanchedResult, key, value);
             }
 
-            return JsonSerializer.Serialize(enanchedResult.ToArray());
+            return JsonSerializer.Serialize(enanchedResult.ToArray(), SerdeExt.GetDefaultOptions());
         }
 
         private static IEnumerable<Dictionary<string, object>> ConvertAndAddColumnToSerializableResult(

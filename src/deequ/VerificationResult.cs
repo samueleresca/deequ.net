@@ -45,7 +45,7 @@ namespace xdeequ
             return metricsAsAnalyzerContext.SuccessMetricsAsDataFrame(session, forAnalyzers);
         }
 
-        public string SuccessMetricsAsJson(SparkSession session, IEnumerable<IAnalyzer<IMetric>> forAnalyzers)
+        public string SuccessMetricsAsJson(IEnumerable<IAnalyzer<IMetric>> forAnalyzers)
         {
             AnalyzerContext metricsAsAnalyzerContext = new AnalyzerContext(Metrics);
             return metricsAsAnalyzerContext.SuccessMetricsAsJson(forAnalyzers);
@@ -78,7 +78,7 @@ namespace xdeequ
                 result.Add(elements);
             }
 
-            return JsonSerializer.Serialize(result);
+            return JsonSerializer.Serialize(result, SerdeExt.GetDefaultOptions());
         }
 
 

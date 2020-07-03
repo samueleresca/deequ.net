@@ -58,7 +58,7 @@ namespace xdeequ.Analyzers.Runners
         public string SuccessMetricsAsJson(IEnumerable<IAnalyzer<IMetric>> forAnalyzers)
         {
             SimpleMetricOutput[] metricsList = GetSimplifiedMetricOutputForSelectedAnalyzers(forAnalyzers).ToArray();
-            return JsonSerializer.Serialize(metricsList);
+            return JsonSerializer.Serialize(metricsList, SerdeExt.GetDefaultOptions());
         }
 
         public IEnumerable<SimpleMetricOutput> GetSimplifiedMetricOutputForSelectedAnalyzers(

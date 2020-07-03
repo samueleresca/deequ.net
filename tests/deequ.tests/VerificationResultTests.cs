@@ -63,67 +63,67 @@ namespace xdeequ.tests
                 JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonA, SerdeExt.GetDefaultOptions());
             SimpleMetricOutput[] resultB =
                 JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonB, SerdeExt.GetDefaultOptions());
-            int i = 0;
 
             foreach (SimpleMetricOutput rowA in resultA)
             {
-                SimpleMetricOutput rowB = resultB.Skip(i).First();
-
-                rowA.Entity.ShouldBe(rowB.Entity);
-                rowA.Instance.ShouldBe(rowB.Instance);
-                rowA.Name.ShouldBe(rowB.Name);
-                rowA.Value.ShouldBe(rowB.Value);
-
-                i++;
+                resultB.Any(x => rowA.Entity == x.Entity
+                                 && rowA.Instance == x.Instance
+                                 && rowA.Name == x.Name
+                                 && rowA.Value == x.Value).ShouldBeTrue();
             }
         }
 
 
-        [Fact]
-        public void getCheckResults_correctly_return_a_DataFrame_that_is_formatted_as_expected() =>
-            Evaluate(_session, results =>
+        private static void AssertSameRowsDictionary(string jsonA, string jsonB)
+        {
+            IEnumerable<Dictionary<string, string>> resultA =
+                JsonSerializer.Deserialize<IEnumerable<Dictionary<string, string>>>(jsonA, SerdeExt.GetDefaultOptions());
+            IEnumerable<Dictionary<string, string>> resultB =
+                JsonSerializer.Deserialize<IEnumerable<Dictionary<string, string>>>(jsonB, SerdeExt.GetDefaultOptions());
+
+            foreach (Dictionary<string, string> value in resultA)
             {
-                DataFrame successMetricsAsDataFrame = new VerificationResult(results).CheckResultsAsDataFrame();
+                resultB.Any(x => x.OrderBy(y => y.Key)
+                   .SequenceEqual(value.OrderBy(y => y.Key))).ShouldBeTrue();
+            }
+        }
 
-                List<GenericRow> elements = new List<GenericRow>
+        static bool DictionariesEqual(Dictionary<string, string> x, Dictionary<string, string> y)
+        {
+            if (x == y)
+            {
+                return true;
+            }
+            if (x == null || y == null)
+            {
+                return false;
+            }
+
+            bool result = false;
+
+            result = x.Count == y.Count;
+
+            if (result)
+            {
+                foreach (KeyValuePair<string, string> xKvp in x)
                 {
-                    new GenericRow(new object[]
+                    string yValue;
+                    if (!y.TryGetValue(xKvp.Key, out yValue))
                     {
-                        "group-1", "Error", "Success", "CompletenessConstraint(Completeness(att1,None))", "Success",""
-                    }),
-                    new GenericRow(new object[]
-                    {
-                        "group-2-E", "Error", "Error", "SizeConstraint(Size(None))", "Failure",
-                        "Value: 4 does not meet the constraint requirement!Should be greater than 5!"
-                    }),
-                    new GenericRow(new object[]
-                    {
-                        "group-2-E", "Error", "Error", "CompletenessConstraint(Completeness(att2,None))", "Success",
-                        ""
-                    }),
-                    new GenericRow(new object[]
-                    {
-                        "group-2-W", "Warning", "Warning", "DistinctnessConstraint(Distinctness(List(item),None))",
-                        "Failure", "Value: 1 does not meet the constraint requirement!" +
-                                   "Should be smaller than 0.8!"
-                    })
-                };
+                        result = false;
+                        break;
+                    }
 
-                StructType schema = new StructType(
-                    new List<StructField>
+                    result = xKvp.Value.Equals(yValue);
+                    if (!result)
                     {
-                        new StructField("check", new StringType()),
-                        new StructField("check_level", new StringType()),
-                        new StructField("check_status", new StringType()),
-                        new StructField("constraint", new StringType()),
-                        new StructField("constraint_status", new StringType()),
-                        new StructField("constraint_message", new StringType())
-                    });
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
 
-                DataFrame df = _session.CreateDataFrame(elements, schema);
-
-                FixtureSupport.AssertSameRows(successMetricsAsDataFrame, df, Option<ITestOutputHelper>.None);
-            });
 
         [Fact]
         public void getSuccessMetric_correctly_return_a_DataFrame_that_is_formatted_as_expected() =>
@@ -191,5 +191,105 @@ namespace xdeequ.tests
 
                 FixtureSupport.AssertSameRows(successMetricsAsDataFrame, df, Option<ITestOutputHelper>.None);
             });
+
+
+
+        [Fact]
+        public void getSuccessMetric_correctly_return_Json_that_is_formatted_as_expected() =>
+            Evaluate(_session, results =>
+            {
+                string successMetricsAsJson = results
+                    .SuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>());
+
+                var expected =
+                    "[{\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0}," +
+                    " {\"entity\": \"Column\", \"instance\":\"att2\",\"name\":\"Completeness\",\"value\":1.0}," +
+                    " {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0}," +
+                    " {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25}," +
+                    " {\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0}]";
+
+                AssertSameRows(successMetricsAsJson, expected);
+            });
+
+        [Fact]
+        public void getSuccessMetric_only_include_requested_metrics_in_returned_Json() =>
+            Evaluate(_session, results =>
+            {
+                var metricsForAnalyzers = new IAnalyzer<IMetric>[] { new Completeness("att1"), new Uniqueness(new[] { "att1", "att2" }) };
+                string successMetricsAsJson = results
+                    .SuccessMetricsAsJson(metricsForAnalyzers);
+
+                var expected = "[{\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0}," +
+                               "{\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\",\"name\":\"Uniqueness\",\"value\":0.25}]";
+
+                AssertSameRows(successMetricsAsJson, expected);
+            });
+
+        [Fact]
+        public void getCheckResults_correctly_return_a_DataFrame_that_is_formatted_as_expected() =>
+            Evaluate(_session, results =>
+            {
+                DataFrame successMetricsAsDataFrame = new VerificationResult(results).CheckResultsAsDataFrame();
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[]
+                    {
+                        "group-1", "Error", "Success", "CompletenessConstraint(Completeness(att1,None))", "Success",""
+                    }),
+                    new GenericRow(new object[]
+                    {
+                        "group-2-E", "Error", "Error", "SizeConstraint(Size(None))", "Failure",
+                        "Value: 4 does not meet the constraint requirement!Should be greater than 5!"
+                    }),
+                    new GenericRow(new object[]
+                    {
+                        "group-2-E", "Error", "Error", "CompletenessConstraint(Completeness(att2,None))", "Success",
+                        ""
+                    }),
+                    new GenericRow(new object[]
+                    {
+                        "group-2-W", "Warning", "Warning", "DistinctnessConstraint(Distinctness(List(item),None))",
+                        "Failure", "Value: 1 does not meet the constraint requirement!" +
+                                   "Should be smaller than 0.8!"
+                    })
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("check", new StringType()),
+                        new StructField("check_level", new StringType()),
+                        new StructField("check_status", new StringType()),
+                        new StructField("constraint", new StringType()),
+                        new StructField("constraint_status", new StringType()),
+                        new StructField("constraint_message", new StringType())
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+                FixtureSupport.AssertSameRows(successMetricsAsDataFrame, df, Option<ITestOutputHelper>.None);
+            });
+
+
+        [Fact]
+        public void getCheckResults_correctly_return_Json_that_is_formatted_as_expected()
+        {
+
+            Evaluate(_session, results =>
+          {
+              string successMetricsAsDataFrame = new VerificationResult(results).CheckResultAsJson(results, Enumerable.Empty<Check>());
+
+              var expected =
+                  "[{\"check\":\"group-1\",\"check_level\":\"Error\",\"check_status\":\"Success\",\"constraint\":\"CompletenessConstraint(Completeness(att1,None))\",\"constraint_status\":\"Success\",\"constraint_message\":\"\"}," +
+                  "{\"check\":\"group-2-E\",\"check_level\":\"Error\",\"check_status\":\"Error\",\"constraint\":\"SizeConstraint(Size(None))\", \"constraint_status\":\"Failure\",\"constraint_message\":\"Value: 4 does not meet the constraint requirement!Should be greater than 5!\"}," +
+                  "{\"check\":\"group-2-E\",\"check_level\":\"Error\",\"check_status\":\"Error\",\"constraint\":\"CompletenessConstraint(Completeness(att2,None))\",\"constraint_status\":\"Success\",\"constraint_message\":\"\"}," +
+                  "{\"check\":\"group-2-W\",\"check_level\":\"Warning\",\"check_status\":\"Warning\",\"constraint\":\"DistinctnessConstraint(Distinctness(List(item),None))\",\"constraint_status\":\"Failure\",\"constraint_message\":\"Value: 1 does not meet the constraint requirement!Should be smaller than 0.8!\"}]";
+
+              AssertSameRowsDictionary(successMetricsAsDataFrame, expected);
+          });
+
+        }
+
     }
 }
