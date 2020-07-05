@@ -116,7 +116,7 @@ namespace xdeequ.Analyzers.Runners
          * Compute the metrics from the analyzers configured in the analyis, instead of running
          * directly on data, this computation leverages (and aggregates) existing states which have
          * previously been computed on the data.
-         * 
+         *
          * @param schema schema of the data frame from which the states were computed
          * @param analysis the analysis to compute
          * @param stateLoaders loaders from which we retrieve the states to aggregate
@@ -225,8 +225,23 @@ namespace xdeequ.Analyzers.Runners
             {
                 saveOrAppendResultsWithKey.OnSuccess(key =>
                 {
-                    AnalyzerContext currentValueForKey = repository.LoadByKey(key).GetOrElse(AnalyzerContext.Empty());
-                    AnalyzerContext valueToSave = currentValueForKey + resultingAnalyzerContext;
+                    AnalyzerContext valueToSave = repository.LoadByKey(key).GetOrElse(AnalyzerContext.Empty());
+
+                    var dictEquality = valueToSave.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
+
+                    resultingAnalyzerContext.MetricMap.ToList().ForEach(_ =>
+                    {
+                        if (dictEquality.ContainsKey(_.Key.ToString()) &&
+                            valueToSave.MetricMap.ContainsKey(dictEquality[_.Key.ToString()]))
+                        {
+                            valueToSave.MetricMap[dictEquality[_.Key.ToString()]] = _.Value;
+                        }
+                        else
+                        {
+                            valueToSave.MetricMap.Add(_.Key, _.Value);
+                        }
+                    });
+
                     repository.Save(saveOrAppendResultsWithKey.Value, valueToSave);
                 });
             });

@@ -39,6 +39,7 @@ namespace xdeequ
 
         public VerificationRunBuilder(VerificationRunBuilder builder)
         {
+            data = builder.data;
             requiredAnalyzers = builder.requiredAnalyzers;
             checks = builder.checks;
             metricsRepository = builder.metricsRepository;

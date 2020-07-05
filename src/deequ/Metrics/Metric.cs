@@ -45,7 +45,7 @@ namespace xdeequ.Metrics
         public abstract IEnumerable<DoubleMetric> Flatten();
     }
 
-    public class DoubleMetric : Metric<double>
+    public class DoubleMetric : Metric<double>, IEquatable<DoubleMetric>
     {
         public DoubleMetric(Entity entity, string name, string instance, Try<double> value)
             : base(entity, name, instance, value)
@@ -56,5 +56,34 @@ namespace xdeequ.Metrics
             new DoubleMetric(entity, name, instance, value);
 
         public override IEnumerable<DoubleMetric> Flatten() => new[] { this }.AsEnumerable();
+
+        public bool Equals(DoubleMetric other)
+        {
+            return Name == other.Name &&
+                   Instance == other.Instance &&
+                   Entity == other.Entity &&
+                   Value.IsSuccess == other.Value.IsSuccess &&
+                    Value.GetOrElse(()=> 0).Get() == other.Value.GetOrElse(()=> 0).Get();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
+
+            return Equals((DoubleMetric) obj);
+        }
     }
 }

@@ -19,22 +19,18 @@ namespace xdeequ.Repository.InMemory
         public void Save(ResultKey resultKey, AnalyzerContext analyzerContext)
         {
             IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> successfulMetrics =
-                analyzerContext.MetricMap.Where(x =>
-                {
-                    return x.Value switch
-                    {
-                        DoubleMetric dm => dm.Value.IsSuccess,
-                        HistogramMetric hm => hm.Value.IsSuccess,
-                        _ => throw new NotSupportedException($"Metric type {x.Value.GetType()} not supported")
-                    };
-                });
+                analyzerContext.MetricMap.Where(x => x.Value.IsSuccess());
+
             AnalyzerContext analyzerContextWithSuccessfulValues =
                 new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(successfulMetrics));
+
             _resultsRepository[resultKey] = new AnalysisResult(resultKey, analyzerContextWithSuccessfulValues);
         }
 
-        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey) =>
-            new Option<AnalyzerContext>(_resultsRepository[resultKey].AnalyzerContext);
+        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey)
+        {
+            return !_resultsRepository.ContainsKey(resultKey) ? Option<AnalyzerContext>.None : new Option<AnalyzerContext>(_resultsRepository[resultKey]?.AnalyzerContext);
+        }
 
         public IMetricRepositoryMultipleResultsLoader Load() =>
             new LimitedInMemoryMetricsRepositoryMultipleResultsLoader(_resultsRepository);

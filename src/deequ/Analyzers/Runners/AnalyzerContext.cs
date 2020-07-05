@@ -10,7 +10,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers.Runners
 {
-    public class AnalyzerContext
+    public class AnalyzerContext : IEquatable<AnalyzerContext>
     {
         public Dictionary<IAnalyzer<IMetric>, IMetric> MetricMap;
 
@@ -93,25 +93,33 @@ namespace xdeequ.Analyzers.Runners
 
         private static DoubleMetric RenameMetric(DoubleMetric doubleMetric, string newName) =>
             new DoubleMetric(doubleMetric.Entity, newName, doubleMetric.Instance, doubleMetric.Value);
-    }
 
-    public class SimpleMetricOutput
-    {
-        public SimpleMetricOutput(DoubleMetric doubleMetric)
+        public bool Equals(AnalyzerContext other)
         {
-            Entity = Enum.GetName(typeof(Entity), doubleMetric.Entity);
-            Instance = doubleMetric.Instance;
-            Name = doubleMetric.Name;
-            Value = doubleMetric.Value.Get();
+           return MetricMap
+               .SequenceEqual(other.MetricMap);
         }
 
-        public SimpleMetricOutput()
+        public override bool Equals(object obj)
         {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            return Equals((AnalyzerContext) obj);
         }
 
-        public string Entity { get; set; }
-        public string Instance { get; set; }
-        public string Name { get; set; }
-        public double Value { get; set; }
+        public override int GetHashCode() => (MetricMap != null ? MetricMap.GetHashCode() : 0);
     }
 }
