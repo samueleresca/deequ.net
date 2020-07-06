@@ -5,9 +5,16 @@ namespace xdeequ.AnomalyDetection
 {
     public class Anomaly
     {
-        public double Confidence;
+        public readonly double Confidence;
         public Option<string> Detail;
         public Option<double> Value;
+
+        public Anomaly(double confidence, Option<double> value, Option<string> detail)
+        {
+            Confidence = confidence;
+            Detail = detail;
+            Value = value;
+        }
 
         public bool CanEqual(object that) => that is Anomaly;
 
@@ -37,8 +44,13 @@ namespace xdeequ.AnomalyDetection
     }
 
 
-    internal class DetectionResult
+    public class DetectionResult
     {
         public IEnumerable<(long, Anomaly)> Anomalies;
+
+        public DetectionResult(IEnumerable<(long, Anomaly)> anomalies)
+        {
+            Anomalies = anomalies;
+        }
     }
 }

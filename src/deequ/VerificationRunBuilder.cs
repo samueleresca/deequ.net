@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
+using xdeequ.Analyzers.States;
 using xdeequ.AnomalyDetection;
 using xdeequ.Checks;
 using xdeequ.Metrics;
@@ -179,16 +180,15 @@ namespace xdeequ
 
 
             checks = checks.Append(
-                new Check(anomalyCheckConfig.Value.Level, anomalyCheckConfig.Value.Description)
-                    .IsNewestPointNonAnomalous(
-                        metricsRepository,
+                new Check(anomalyCheckConfigOrDefault.Level, anomalyCheckConfigOrDefault.Description)
+                    .IsNewestPointNonAnomalous<IState>(
+                        metricsRepository.Value,
                         anomalyDetectionStrategy,
                         analyzer,
-                        anomalyCheckConfig.Value.WithTagValues,
-                        anomalyCheckConfig.Value.AfterDate,
-                        anomalyCheckConfig.Value.BeforeDate
+                        anomalyCheckConfigOrDefault.WithTagValues,
+                        anomalyCheckConfigOrDefault.AfterDate,
+                        anomalyCheckConfigOrDefault.BeforeDate
                     ));
-
 
             return this;
         }
@@ -206,6 +206,17 @@ namespace xdeequ
         {
             Level = level;
             Description = description;
+        }
+
+        public AnomalyCheckConfig(CheckLevel level, string description, Dictionary<string, string> withTagValues,
+            Option<long> afterDate, Option<long> beforeDate)
+        {
+            Level = level;
+            Description = description;
+            WithTagValues = withTagValues;
+            AfterDate = afterDate;
+            BeforeDate = beforeDate;
+
         }
     }
 }

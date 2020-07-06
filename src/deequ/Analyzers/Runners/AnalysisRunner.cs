@@ -227,7 +227,8 @@ namespace xdeequ.Analyzers.Runners
                 {
                     AnalyzerContext valueToSave = repository.LoadByKey(key).GetOrElse(AnalyzerContext.Empty());
 
-                    var dictEquality = valueToSave.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
+                    Dictionary<string, IAnalyzer<IMetric>> dictEquality =
+                        valueToSave.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
 
                     resultingAnalyzerContext.MetricMap.ToList().ForEach(_ =>
                     {

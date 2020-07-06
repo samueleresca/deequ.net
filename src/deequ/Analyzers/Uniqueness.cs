@@ -12,8 +12,8 @@ namespace xdeequ.Analyzers
     public sealed class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer,
         IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
-        public IEnumerable<string> Columns;
         public readonly Option<string> Where;
+        public IEnumerable<string> Columns;
 
         public Uniqueness(IEnumerable<string> columns, Option<string> where) : base("Uniqueness", columns)
         {

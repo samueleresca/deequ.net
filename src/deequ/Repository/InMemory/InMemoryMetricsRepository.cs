@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,10 +26,9 @@ namespace xdeequ.Repository.InMemory
             _resultsRepository[resultKey] = new AnalysisResult(resultKey, analyzerContextWithSuccessfulValues);
         }
 
-        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey)
-        {
-            return !_resultsRepository.ContainsKey(resultKey) ? Option<AnalyzerContext>.None : new Option<AnalyzerContext>(_resultsRepository[resultKey]?.AnalyzerContext);
-        }
+        public Option<AnalyzerContext> LoadByKey(ResultKey resultKey) => !_resultsRepository.ContainsKey(resultKey)
+            ? Option<AnalyzerContext>.None
+            : new Option<AnalyzerContext>(_resultsRepository[resultKey]?.AnalyzerContext);
 
         public IMetricRepositoryMultipleResultsLoader Load() =>
             new LimitedInMemoryMetricsRepositoryMultipleResultsLoader(_resultsRepository);

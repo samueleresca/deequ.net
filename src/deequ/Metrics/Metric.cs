@@ -52,19 +52,17 @@ namespace xdeequ.Metrics
         {
         }
 
+        public bool Equals(DoubleMetric other) =>
+            Name == other.Name &&
+            Instance == other.Instance &&
+            Entity == other.Entity &&
+            Value.IsSuccess == other.Value.IsSuccess &&
+            Value.GetOrElse(() => 0).Get() == other.Value.GetOrElse(() => 0).Get();
+
         public static DoubleMetric Create(Entity entity, string name, string instance, Try<double> value) =>
             new DoubleMetric(entity, name, instance, value);
 
         public override IEnumerable<DoubleMetric> Flatten() => new[] { this }.AsEnumerable();
-
-        public bool Equals(DoubleMetric other)
-        {
-            return Name == other.Name &&
-                   Instance == other.Instance &&
-                   Entity == other.Entity &&
-                   Value.IsSuccess == other.Value.IsSuccess &&
-                    Value.GetOrElse(()=> 0).Get() == other.Value.GetOrElse(()=> 0).Get();
-        }
 
         public override bool Equals(object obj)
         {
@@ -83,7 +81,7 @@ namespace xdeequ.Metrics
                 return false;
             }
 
-            return Equals((DoubleMetric) obj);
+            return Equals((DoubleMetric)obj);
         }
     }
 }

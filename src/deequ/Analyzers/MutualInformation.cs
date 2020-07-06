@@ -27,14 +27,14 @@ namespace xdeequ.Analyzers
             base("MutualInformation", columnsToGroupOn) =>
             Columns = columnsToGroupOn;
 
+        public Option<string> FilterCondition() => Where;
+
         public override IEnumerable<Action<StructType>> Preconditions() =>
             AnalyzersExt.ExactlyNColumns(Columns, 2).Concat(base.Preconditions());
 
         public override DoubleMetric ToFailureMetric(Exception e) =>
             AnalyzersExt.MetricFromFailure(e, "MutualInformation", string.Join(',', Columns),
                 Entity.Multicolumn);
-
-        public Option<string> FilterCondition() => Where;
 
 
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)

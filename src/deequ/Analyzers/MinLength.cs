@@ -10,7 +10,8 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class MinLength : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public sealed class MinLength : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer,
+        IAnalyzer<DoubleMetric>
     {
         public string Column;
         public Option<string> Where;

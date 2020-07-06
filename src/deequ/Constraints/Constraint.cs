@@ -168,7 +168,7 @@ namespace xdeequ.Constraints
             IAnalyzer<IMetric> analyzer,
             Func<double, bool> anomalyAssertion,
             Option<string> hint
-        ) where S : State<S>, IState
+        ) where S : IState
         {
             AnalysisBasedConstraint<S, double, double> constraint =
                 new AnalysisBasedConstraint<S, double, double>(analyzer, anomalyAssertion, hint);

@@ -12,8 +12,8 @@ namespace xdeequ.Analyzers
     public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer,
         IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
-        public IEnumerable<string> Columns;
         public readonly Option<string> Where;
+        public IEnumerable<string> Columns;
 
         public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base("UniqueValueRatio", columns)
         {

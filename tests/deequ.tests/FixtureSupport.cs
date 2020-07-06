@@ -43,17 +43,16 @@ namespace xdeequ.tests
 
         public static void AssertSameRows(DataFrame dataFrameA, DataFrame dataFrameB, Option<ITestOutputHelper> helper)
         {
-
-            var dfAOrderedColumns = dataFrameA
+            Column[] dfAOrderedColumns = dataFrameA
                 .Columns()
                 .OrderByDescending(x => x)
                 .Select(Column)
                 .ToArray();
-            var dfBOrderedColumns = dataFrameB
-                    .Columns()
-                    .OrderByDescending(x => x)
-                    .Select(Column)
-                    .ToArray();
+            Column[] dfBOrderedColumns = dataFrameB
+                .Columns()
+                .OrderByDescending(x => x)
+                .Select(Column)
+                .ToArray();
 
             IEnumerable<Row> dfASeq = dataFrameA.Select(dfAOrderedColumns).Collect();
             IEnumerable<Row> dfBSeq = dataFrameB.Select(dfBOrderedColumns).Collect();
@@ -92,6 +91,22 @@ namespace xdeequ.tests
                 });
 
             return sparkSession.CreateDataFrame(elements, schema);
+        }
+
+        public static DataFrame GetDFWithNRows(SparkSession sparkSession, int N)
+        {
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("c0", new StringType()),
+                    new StructField("c1", new StringType()),
+                    new StructField("c2", new StringType())
+                });
+
+            return sparkSession.CreateDataFrame(Enumerable.Range(0, N).Select(x =>
+            {
+                return new GenericRow(new object[] { $"{x}", $"c1-r{x}", $"c2-r{x}" });
+            }).ToList(), schema);
         }
 
         public static DataFrame GetDFWithNegativeNumbers(SparkSession sparkSession)

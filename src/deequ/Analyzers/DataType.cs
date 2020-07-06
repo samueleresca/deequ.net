@@ -112,13 +112,13 @@ namespace xdeequ.Analyzers
             Where = where;
         }
 
+        public Option<string> FilterCondition() => Where;
+
         public override HistogramMetric ToFailureMetric(Exception e) =>
             new HistogramMetric(Column, new Try<Distribution>(e));
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
             new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) }.Concat(base.Preconditions());
-
-        public Option<string> FilterCondition() => Where;
 
         public override HistogramMetric ComputeMetricFrom(Option<DataTypeHistogram> state)
         {

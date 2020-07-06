@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers.Runners;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Util;
@@ -28,9 +27,9 @@ namespace xdeequ.Analyzers
             Where = Option<string>.None;
         }
 
-        public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
-
         public Option<string> FilterCondition() => Where;
+
+        public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
 
         public override IEnumerable<Column> AggregationFunctions(long numRows) =>
             new[] { Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows };

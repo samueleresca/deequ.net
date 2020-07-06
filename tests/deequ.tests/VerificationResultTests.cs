@@ -77,23 +77,26 @@ namespace xdeequ.tests
         private static void AssertSameRowsDictionary(string jsonA, string jsonB)
         {
             IEnumerable<Dictionary<string, string>> resultA =
-                JsonSerializer.Deserialize<IEnumerable<Dictionary<string, string>>>(jsonA, SerdeExt.GetDefaultOptions());
+                JsonSerializer.Deserialize<IEnumerable<Dictionary<string, string>>>(jsonA,
+                    SerdeExt.GetDefaultOptions());
             IEnumerable<Dictionary<string, string>> resultB =
-                JsonSerializer.Deserialize<IEnumerable<Dictionary<string, string>>>(jsonB, SerdeExt.GetDefaultOptions());
+                JsonSerializer.Deserialize<IEnumerable<Dictionary<string, string>>>(jsonB,
+                    SerdeExt.GetDefaultOptions());
 
             foreach (Dictionary<string, string> value in resultA)
             {
                 resultB.Any(x => x.OrderBy(y => y.Key)
-                   .SequenceEqual(value.OrderBy(y => y.Key))).ShouldBeTrue();
+                    .SequenceEqual(value.OrderBy(y => y.Key))).ShouldBeTrue();
             }
         }
 
-        static bool DictionariesEqual(Dictionary<string, string> x, Dictionary<string, string> y)
+        private static bool DictionariesEqual(Dictionary<string, string> x, Dictionary<string, string> y)
         {
             if (x == y)
             {
                 return true;
             }
+
             if (x == null || y == null)
             {
                 return false;
@@ -121,109 +124,9 @@ namespace xdeequ.tests
                     }
                 }
             }
+
             return result;
         }
-
-
-        [Fact]
-        public void getSuccessMetric_correctly_return_a_DataFrame_that_is_formatted_as_expected() =>
-            Evaluate(_session, results =>
-            {
-                DataFrame successMetricsAsDataFrame = results
-                    .SuccessMetricsAsDataFrame(_session,
-                        Enumerable.Empty<IAnalyzer<IMetric>>());
-
-                List<GenericRow> elements = new List<GenericRow>
-                {
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0}),
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0}),
-                    new GenericRow(new object[] {"Column", "att2", "Completeness", 1.0}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25}),
-                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0})
-                };
-
-                StructType schema = new StructType(
-                    new List<StructField>
-                    {
-                        new StructField("entity", new StringType()),
-                        new StructField("instance", new StringType()),
-                        new StructField("name", new StringType()),
-                        new StructField("value", new DoubleType())
-                    });
-
-                DataFrame df = _session.CreateDataFrame(elements, schema);
-
-                FixtureSupport.AssertSameRows(successMetricsAsDataFrame, df, Option<ITestOutputHelper>.None);
-            });
-
-
-        [Fact]
-        public void getSuccessMetric_only_include_specific_metrics_in_returned_DataFrame_if_requested() =>
-            Evaluate(_session, results =>
-            {
-                IAnalyzer<DoubleMetric>[] metricsForAnalyzers =
-                {
-                    Initializers.Completeness("att1"), Initializers.Uniqueness(new[] {"att1", "att2"})
-                };
-
-                DataFrame successMetricsAsDataFrame = results
-                    .SuccessMetricsAsDataFrame(_session,
-                        metricsForAnalyzers);
-
-                List<GenericRow> elements = new List<GenericRow>
-                {
-                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0}),
-                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0}),
-                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0}),
-                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25})
-                };
-
-                StructType schema = new StructType(
-                    new List<StructField>
-                    {
-                        new StructField("entity", new StringType()),
-                        new StructField("instance", new StringType()),
-                        new StructField("name", new StringType()),
-                        new StructField("value", new DoubleType())
-                    });
-
-                DataFrame df = _session.CreateDataFrame(elements, schema);
-
-                FixtureSupport.AssertSameRows(successMetricsAsDataFrame, df, Option<ITestOutputHelper>.None);
-            });
-
-
-
-        [Fact]
-        public void getSuccessMetric_correctly_return_Json_that_is_formatted_as_expected() =>
-            Evaluate(_session, results =>
-            {
-                string successMetricsAsJson = results
-                    .SuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>());
-
-                var expected =
-                    "[{\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0}," +
-                    " {\"entity\": \"Column\", \"instance\":\"att2\",\"name\":\"Completeness\",\"value\":1.0}," +
-                    " {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0}," +
-                    " {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25}," +
-                    " {\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0}]";
-
-                AssertSameRows(successMetricsAsJson, expected);
-            });
-
-        [Fact]
-        public void getSuccessMetric_only_include_requested_metrics_in_returned_Json() =>
-            Evaluate(_session, results =>
-            {
-                var metricsForAnalyzers = new IAnalyzer<IMetric>[] { new Completeness("att1"), new Uniqueness(new[] { "att1", "att2" }) };
-                string successMetricsAsJson = results
-                    .SuccessMetricsAsJson(metricsForAnalyzers);
-
-                var expected = "[{\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0}," +
-                               "{\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\",\"name\":\"Uniqueness\",\"value\":0.25}]";
-
-                AssertSameRows(successMetricsAsJson, expected);
-            });
 
         [Fact]
         public void getCheckResults_correctly_return_a_DataFrame_that_is_formatted_as_expected() =>
@@ -235,7 +138,8 @@ namespace xdeequ.tests
                 {
                     new GenericRow(new object[]
                     {
-                        "group-1", "Error", "Success", "CompletenessConstraint(Completeness(att1,None))", "Success",""
+                        "group-1", "Error", "Success", "CompletenessConstraint(Completeness(att1,None))", "Success",
+                        ""
                     }),
                     new GenericRow(new object[]
                     {
@@ -273,23 +177,123 @@ namespace xdeequ.tests
 
 
         [Fact]
-        public void getCheckResults_correctly_return_Json_that_is_formatted_as_expected()
-        {
-
+        public void getCheckResults_correctly_return_Json_that_is_formatted_as_expected() =>
             Evaluate(_session, results =>
-          {
-              string successMetricsAsDataFrame = new VerificationResult(results).CheckResultAsJson(results, Enumerable.Empty<Check>());
+            {
+                string successMetricsAsDataFrame =
+                    new VerificationResult(results).CheckResultAsJson(results, Enumerable.Empty<Check>());
 
-              var expected =
-                  "[{\"check\":\"group-1\",\"check_level\":\"Error\",\"check_status\":\"Success\",\"constraint\":\"CompletenessConstraint(Completeness(att1,None))\",\"constraint_status\":\"Success\",\"constraint_message\":\"\"}," +
-                  "{\"check\":\"group-2-E\",\"check_level\":\"Error\",\"check_status\":\"Error\",\"constraint\":\"SizeConstraint(Size(None))\", \"constraint_status\":\"Failure\",\"constraint_message\":\"Value: 4 does not meet the constraint requirement!Should be greater than 5!\"}," +
-                  "{\"check\":\"group-2-E\",\"check_level\":\"Error\",\"check_status\":\"Error\",\"constraint\":\"CompletenessConstraint(Completeness(att2,None))\",\"constraint_status\":\"Success\",\"constraint_message\":\"\"}," +
-                  "{\"check\":\"group-2-W\",\"check_level\":\"Warning\",\"check_status\":\"Warning\",\"constraint\":\"DistinctnessConstraint(Distinctness(List(item),None))\",\"constraint_status\":\"Failure\",\"constraint_message\":\"Value: 1 does not meet the constraint requirement!Should be smaller than 0.8!\"}]";
+                string expected =
+                    "[{\"check\":\"group-1\",\"check_level\":\"Error\",\"check_status\":\"Success\",\"constraint\":\"CompletenessConstraint(Completeness(att1,None))\",\"constraint_status\":\"Success\",\"constraint_message\":\"\"}," +
+                    "{\"check\":\"group-2-E\",\"check_level\":\"Error\",\"check_status\":\"Error\",\"constraint\":\"SizeConstraint(Size(None))\", \"constraint_status\":\"Failure\",\"constraint_message\":\"Value: 4 does not meet the constraint requirement!Should be greater than 5!\"}," +
+                    "{\"check\":\"group-2-E\",\"check_level\":\"Error\",\"check_status\":\"Error\",\"constraint\":\"CompletenessConstraint(Completeness(att2,None))\",\"constraint_status\":\"Success\",\"constraint_message\":\"\"}," +
+                    "{\"check\":\"group-2-W\",\"check_level\":\"Warning\",\"check_status\":\"Warning\",\"constraint\":\"DistinctnessConstraint(Distinctness(List(item),None))\",\"constraint_status\":\"Failure\",\"constraint_message\":\"Value: 1 does not meet the constraint requirement!Should be smaller than 0.8!\"}]";
 
-              AssertSameRowsDictionary(successMetricsAsDataFrame, expected);
-          });
+                AssertSameRowsDictionary(successMetricsAsDataFrame, expected);
+            });
 
-        }
 
+        [Fact]
+        public void getSuccessMetric_correctly_return_a_DataFrame_that_is_formatted_as_expected() =>
+            Evaluate(_session, results =>
+            {
+                DataFrame successMetricsAsDataFrame = results
+                    .SuccessMetricsAsDataFrame(_session,
+                        Enumerable.Empty<IAnalyzer<IMetric>>());
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0}),
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0}),
+                    new GenericRow(new object[] {"Column", "att2", "Completeness", 1.0}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0})
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType())
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+                FixtureSupport.AssertSameRows(successMetricsAsDataFrame, df, Option<ITestOutputHelper>.None);
+            });
+
+
+        [Fact]
+        public void getSuccessMetric_correctly_return_Json_that_is_formatted_as_expected() =>
+            Evaluate(_session, results =>
+            {
+                string successMetricsAsJson = results
+                    .SuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>());
+
+                string expected =
+                    "[{\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0}," +
+                    " {\"entity\": \"Column\", \"instance\":\"att2\",\"name\":\"Completeness\",\"value\":1.0}," +
+                    " {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0}," +
+                    " {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25}," +
+                    " {\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0}]";
+
+                AssertSameRows(successMetricsAsJson, expected);
+            });
+
+        [Fact]
+        public void getSuccessMetric_only_include_requested_metrics_in_returned_Json() =>
+            Evaluate(_session, results =>
+            {
+                IAnalyzer<IMetric>[] metricsForAnalyzers =
+                {
+                    new Completeness("att1"), new Uniqueness(new[] {"att1", "att2"})
+                };
+                string successMetricsAsJson = results
+                    .SuccessMetricsAsJson(metricsForAnalyzers);
+
+                string expected =
+                    "[{\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0}," +
+                    "{\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\",\"name\":\"Uniqueness\",\"value\":0.25}]";
+
+                AssertSameRows(successMetricsAsJson, expected);
+            });
+
+
+        [Fact]
+        public void getSuccessMetric_only_include_specific_metrics_in_returned_DataFrame_if_requested() =>
+            Evaluate(_session, results =>
+            {
+                IAnalyzer<DoubleMetric>[] metricsForAnalyzers =
+                {
+                    Initializers.Completeness("att1"), Initializers.Uniqueness(new[] {"att1", "att2"})
+                };
+
+                DataFrame successMetricsAsDataFrame = results
+                    .SuccessMetricsAsDataFrame(_session,
+                        metricsForAnalyzers);
+
+                List<GenericRow> elements = new List<GenericRow>
+                {
+                    new GenericRow(new object[] {"Dataset", "*", "Size", 4.0}),
+                    new GenericRow(new object[] {"Column", "att1", "Completeness", 1.0}),
+                    new GenericRow(new object[] {"Column", "item", "Distinctness", 1.0}),
+                    new GenericRow(new object[] {"Multicolumn", "att1,att2", "Uniqueness", 0.25})
+                };
+
+                StructType schema = new StructType(
+                    new List<StructField>
+                    {
+                        new StructField("entity", new StringType()),
+                        new StructField("instance", new StringType()),
+                        new StructField("name", new StringType()),
+                        new StructField("value", new DoubleType())
+                    });
+
+                DataFrame df = _session.CreateDataFrame(elements, schema);
+
+                FixtureSupport.AssertSameRows(successMetricsAsDataFrame, df, Option<ITestOutputHelper>.None);
+            });
     }
 }

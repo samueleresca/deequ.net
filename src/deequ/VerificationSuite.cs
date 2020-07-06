@@ -6,7 +6,6 @@ using xdeequ.Analyzers;
 using xdeequ.Analyzers.Applicability;
 using xdeequ.Analyzers.Runners;
 using xdeequ.Checks;
-using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Repository;
 using xdeequ.Util;
@@ -108,9 +107,11 @@ namespace xdeequ
                 saveOrAppendResultsWithKey.Select<object>(key =>
                 {
                     Option<AnalyzerContext> currentValueForKey = repository.LoadByKey(key);
-                    AnalyzerContext valueToSave = currentValueForKey.GetOrElse(AnalyzerContext.Empty()); // TODO missing override
+                    AnalyzerContext
+                        valueToSave = currentValueForKey.GetOrElse(AnalyzerContext.Empty()); // TODO missing override
 
-                    var dictEquality = valueToSave.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
+                    Dictionary<string, IAnalyzer<IMetric>> dictEquality =
+                        valueToSave.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
 
                     resultingAnalyzerContext.MetricMap.ToList().ForEach(_ =>
                     {
@@ -118,7 +119,8 @@ namespace xdeequ
                             valueToSave.MetricMap.ContainsKey(dictEquality[_.Key.ToString()]))
                         {
                             valueToSave.MetricMap[dictEquality[_.Key.ToString()]] = _.Value;
-                        }else
+                        }
+                        else
                         {
                             valueToSave.MetricMap.Add(_.Key, _.Value);
                         }

@@ -16,6 +16,10 @@ namespace xdeequ.Analyzers.Runners
 
         public AnalyzerContext(Dictionary<IAnalyzer<IMetric>, IMetric> metricMap) => MetricMap = metricMap;
 
+        public bool Equals(AnalyzerContext other) =>
+            MetricMap.OrderBy(x => x.Key.ToString())
+                .SequenceEqual(other.MetricMap.OrderBy(x => x.Key.ToString()));
+
         public static AnalyzerContext Empty() => new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>());
 
         public IEnumerable<IMetric> AllMetrics() => MetricMap.Values.AsEnumerable();
@@ -94,12 +98,6 @@ namespace xdeequ.Analyzers.Runners
         private static DoubleMetric RenameMetric(DoubleMetric doubleMetric, string newName) =>
             new DoubleMetric(doubleMetric.Entity, newName, doubleMetric.Instance, doubleMetric.Value);
 
-        public bool Equals(AnalyzerContext other)
-        {
-           return MetricMap
-               .SequenceEqual(other.MetricMap);
-        }
-
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -112,14 +110,14 @@ namespace xdeequ.Analyzers.Runners
                 return true;
             }
 
-            if (obj.GetType() != this.GetType())
+            if (obj.GetType() != GetType())
             {
                 return false;
             }
 
-            return Equals((AnalyzerContext) obj);
+            return Equals((AnalyzerContext)obj);
         }
 
-        public override int GetHashCode() => (MetricMap != null ? MetricMap.GetHashCode() : 0);
+        public override int GetHashCode() => MetricMap != null ? MetricMap.GetHashCode() : 0;
     }
 }

@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
+using xdeequ.Analyzers.States;
 using xdeequ.AnomalyDetection;
 using xdeequ.Constraints;
 using xdeequ.Metrics;
@@ -17,16 +18,17 @@ namespace xdeequ.Checks
 {
     public class CheckResult
     {
+
+        public Check Check { get; set; }
+        public CheckStatus Status { get; set; }
+        public IEnumerable<ConstraintResult> ConstraintResults { get; set; }
+
         public CheckResult(Check check, CheckStatus status, IEnumerable<ConstraintResult> constraintResult)
         {
             Check = check;
             Status = status;
             ConstraintResults = constraintResult;
         }
-
-        public Check Check { get; set; }
-        public CheckStatus Status { get; set; }
-        public IEnumerable<ConstraintResult> ConstraintResults { get; set; }
     }
 
     public enum CheckLevel
@@ -170,13 +172,19 @@ namespace xdeequ.Checks
         ) =>
             throw new NotImplementedException();
 
-        public CheckWithLastConstraintFilterable IsNewestPointNonAnomalous(string column,
-            Func<Distribution, bool> assertion,
-            Option<Func<Column, Column>> binningFunc,
-            Option<string> hint,
-            int maxBins = 100
-        ) =>
-            throw new NotImplementedException();
+        public Check IsNewestPointNonAnomalous<S>(
+            IMetricsRepository metricRepository,
+            IAnomalyDetectionStrategy anomalyDetectionStrategy,
+            IAnalyzer<IMetric> analyzer,
+            Dictionary<string, string> withTagValues,
+            Option<long> afterDate,
+            Option<long> beforeDate
+        ) where S : IState
+        {
+            return AddConstraint(AnomalyConstraint<S>(analyzer, d =>
+                IsNewestPointNonAnomalous(metricRepository, anomalyDetectionStrategy, withTagValues, afterDate,
+                beforeDate, analyzer, d), Option<string>.None));
+        }
 
         public CheckWithLastConstraintFilterable HasEntropy(string column,
             Func<double, bool> assertion,
@@ -515,9 +523,77 @@ namespace xdeequ.Checks
                 .OfType<IAnalysisBasedConstraint>()
                 .Select(x => x.Analyzer);
 
-        public Check IsNewestPointNonAnomalous(Option<IMetricsRepository> metricsRepository,
-            IAnomalyDetectionStrategy anomalyDetectionStrategy, IAnalyzer<IMetric> binningFunc,
-            Dictionary<string, string> valueWithTagValues, Option<long> valueAfterDate, Option<long> valueBeforeDate) =>
-            throw new NotImplementedException();
+        private bool IsNewestPointNonAnomalous(IMetricsRepository metricsRepository,
+            IAnomalyDetectionStrategy anomalyDetectionStrategy,
+            Dictionary<string, string> valueWithTagValues,
+            Option<long> valueAfterDate,
+            Option<long> valueBeforeDate,
+            IAnalyzer<IMetric> analyzer,
+            double currentMetricValue)
+        {
+
+            // Get history keys
+            var repositoryLoader = metricsRepository.Load();
+            repositoryLoader = repositoryLoader.WithTagValues(valueWithTagValues);
+
+            valueBeforeDate.OnSuccess((value) =>
+            {
+                repositoryLoader = repositoryLoader.Before(value);
+            });
+
+            valueAfterDate.OnSuccess((value) =>
+            {
+                repositoryLoader = repositoryLoader.After(value);
+            });
+
+            repositoryLoader = repositoryLoader.ForAnalyzers(new[] { analyzer });
+
+            var analysisResults = repositoryLoader.Get();
+
+            if (!analysisResults.Any())
+            {
+                throw new ArgumentException("There have to be previous results in the MetricsRepository!");
+            }
+
+
+            var historicalMetrics = analysisResults
+                .OrderBy(x => x.ResultKey.Tags.Values)
+                .Select(analysisResults =>
+                {
+                    var analyzerContextMetricMap = analysisResults.AnalyzerContext.MetricMap;
+                    var onlyAnalyzerMetricEntryInLoadedAnalyzerContext = analyzerContextMetricMap.FirstOrDefault();
+                    var doubleMetricOption = (Metric<double>)onlyAnalyzerMetricEntryInLoadedAnalyzerContext.Value;
+
+                    var dataSetDate = analysisResults.ResultKey.DataSetDate;
+
+                    return (dataSetDate, doubleMetricOption);
+                });
+
+            var testDateTime = analysisResults.Select(x => x.ResultKey.DataSetDate).Max() + 1;
+
+            if (testDateTime == long.MaxValue)
+            {
+                throw new ArgumentException("Test DateTime cannot be Long.MaxValue, otherwise the" +
+                                            "Anomaly Detection, which works with an open upper interval bound, won't test anything");
+            }
+
+            var anomalyDetector = new AnomalyDetector(anomalyDetectionStrategy);
+            var metricsOptions = historicalMetrics
+                .Select(pair =>
+                {
+                    Option<double> valueOption = Option<double>.None;
+
+                    if (pair.doubleMetricOption.IsSuccess())
+                    {
+                        valueOption = new Option<double>(pair.doubleMetricOption.Value.Get());
+                    }
+
+                    return new DataPoint<double>(pair.dataSetDate, valueOption);
+                });
+            var detectedAnomalies = anomalyDetector.IsNewPointAnomalous(metricsOptions,
+                new DataPoint<double>(testDateTime, new Option<double>(currentMetricValue)));
+
+            return !detectedAnomalies.Anomalies.Any();
+        }
     }
 }
