@@ -74,7 +74,7 @@ namespace xdeequ.Repository.InMemory
             _resultsRepository
                 .Where(pair => !after.HasValue || after.Value <= pair.Key.DataSetDate)
                 .Where(pair => !before.HasValue || pair.Key.DataSetDate <= before.Value)
-                .Where(pair => !tagValues.HasValue || pair.Key.Tags.Any(x =>
+                .Where(pair => !tagValues.HasValue || tagValues.Value == null || tagValues.Value.Count == 0 || pair.Key.Tags.Any(x =>
                     tagValues.Value.TryGetValue(x.Key, out string found) && found == x.Value))
                 .Select(x =>
                 {

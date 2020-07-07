@@ -525,7 +525,7 @@ namespace xdeequ.Checks
 
         private bool IsNewestPointNonAnomalous(IMetricsRepository metricsRepository,
             IAnomalyDetectionStrategy anomalyDetectionStrategy,
-            Dictionary<string, string> valueWithTagValues,
+            Option<Dictionary<string, string>> withTagValues,
             Option<long> valueAfterDate,
             Option<long> valueBeforeDate,
             IAnalyzer<IMetric> analyzer,
@@ -534,7 +534,12 @@ namespace xdeequ.Checks
 
             // Get history keys
             var repositoryLoader = metricsRepository.Load();
-            repositoryLoader = repositoryLoader.WithTagValues(valueWithTagValues);
+
+            withTagValues.OnSuccess((value) =>
+            {
+                repositoryLoader = repositoryLoader.WithTagValues(value);
+            });
+
 
             valueBeforeDate.OnSuccess((value) =>
             {

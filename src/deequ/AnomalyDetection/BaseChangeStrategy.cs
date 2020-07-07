@@ -77,16 +77,19 @@ namespace xdeequ.AnomalyDetection
 
             var data = Diff(dataSeries.Skip(startPoint).Take(end), _order);
 
-            int index = 0;
-            var result = data.Where(d => d < _maxRateDecrease.GetOrElse(Double.MaxValue) ||
-                                         d > _maxRateIncrease.GetOrElse(Double.MaxValue))
+            var indexes = Enumerable.Range(0, data.Count());
+
+            var result = data
+                .Zip(indexes, (value, index) => (value, index))
+                .Where(pair => pair.value < _maxRateDecrease.GetOrElse(Double.MinValue) ||
+                               pair.value > _maxRateIncrease.GetOrElse(Double.MaxValue))
                 .Select(value =>
                 {
-                    var anomaly = new Anomaly(dataSeries.ElementAt(index + startPoint + _order), 1.0,
-                        "[AbsoluteChangeStrategy]: Change of $change is not in bounds " +
-                        $"[{_maxRateDecrease.GetOrElse(Double.MinValue)}, " +
-                        $"{_maxRateIncrease.GetOrElse(Double.MaxValue)}]. Order={_order}");
-                    return (index + startPoint + _order, anomaly);
+                    var anomaly = new Anomaly(dataSeries.ElementAt(value.index + startPoint + _order), 1.0,
+                        $"[AbsoluteChangeStrategy]: Change of {value.value} is not in bounds " +
+                        $"[{_maxRateDecrease.GetOrElse(double.MinValue)}, " +
+                        $"{_maxRateIncrease.GetOrElse(double.MaxValue)}]. Order={_order}");
+                    return (value.index + startPoint + _order, anomaly);
                 });
 
             return result;

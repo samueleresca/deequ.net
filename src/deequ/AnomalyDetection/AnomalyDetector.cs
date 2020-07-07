@@ -83,7 +83,11 @@ namespace xdeequ.AnomalyDetection
 
         private int FindIndexForBound(List<long> sortedTimestamps, long boundValue)
         {
-            return sortedTimestamps.IndexOf(boundValue);
+            var withinTheArray = sortedTimestamps
+                .Select((value, index) => new { value, index })
+                .FirstOrDefault(x => x.value >= boundValue);
+
+            return withinTheArray?.index ?? sortedTimestamps.Count;
         }
     }
 }
