@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
 using xdeequ.Util;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {

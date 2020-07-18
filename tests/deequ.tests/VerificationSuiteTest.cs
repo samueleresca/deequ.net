@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.Spark.Sql;
@@ -11,6 +12,7 @@ using xdeequ.Analyzers.Runners;
 using xdeequ.Analyzers.States;
 using xdeequ.AnomalyDetection;
 using xdeequ.Checks;
+using xdeequ.Constraints;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Repository;
@@ -18,6 +20,8 @@ using xdeequ.Repository.InMemory;
 using xdeequ.Util;
 using Xunit;
 using Xunit.Abstractions;
+using static xdeequ.Constraints.Functions;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.tests
 {
@@ -514,6 +518,40 @@ namespace xdeequ.tests
            sumState.Value.Get().ShouldBe(18*2);
            var matches = (DoubleMetric)result.Metrics[analyzers.Skip(1).First()];
            matches.Value.Get().ShouldBe(0.5);
+        }
+
+        [Fact]
+        public void  keep_order_of_check_constraints_and_their_results()
+        {
+            DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
+
+
+            var expectedConstraints = new IConstraint[]
+            {
+                CompletenessConstraint("att1", _ => _ == 1.0, Option<string>.None, Option<string>.None),
+                ComplianceConstraint("att1 is positive", Column("att1"), _ => _ == 1.0, Option<string>.None, Option<string>.None)
+            };
+
+            var check = expectedConstraints.Aggregate(new Check(CheckLevel.Error, "check"),
+                (check, constraint) => check.AddConstraint(constraint));
+
+            check.Constraints.SequenceEqual(expectedConstraints).ShouldBeTrue();
+            check.Constraints.SequenceEqual(expectedConstraints.Reverse()).ShouldBeFalse();
+
+
+            var results = new VerificationSuite()
+                .OnData(df)
+                .AddCheck(check)
+                .Run();
+
+            var checkConstraintsWithResultConstraints = check
+                .Constraints.
+                Zip(results.CheckResults[check].ConstraintResults, (check, result) => (check, result));
+
+            foreach (var constraint in checkConstraintsWithResultConstraints)
+            {
+                constraint.check.ShouldBe(constraint.result.Constraint);
+            }
         }
     }
 }

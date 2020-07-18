@@ -94,8 +94,8 @@ namespace xdeequ.Analyzers
             Option<IStatePersister> saveStateWith)
         {
             Option<S> loadedState = aggregateWith
-                .Select(value => value.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this)).Value)
-                .GetOrElse(null);
+                .Select(value => value.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this)).Value);
+
 
             Option<S> stateToComputeMetricFrom = AnalyzersExt.Merge(loadedState, state);
 
@@ -229,7 +229,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupAnalyzer<IState, M> where S : State<S>, IState
+    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupAnalyzer<IState, M> where S : State<S>
     {
         public abstract IEnumerable<string> GroupingColumns();
 
