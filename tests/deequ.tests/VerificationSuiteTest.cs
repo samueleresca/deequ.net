@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Moq;
@@ -13,7 +11,6 @@ using xdeequ.Analyzers.States;
 using xdeequ.AnomalyDetection;
 using xdeequ.Checks;
 using xdeequ.Constraints;
-using xdeequ.Extensions;
 using xdeequ.Metrics;
 using xdeequ.Repository;
 using xdeequ.Repository.InMemory;
@@ -31,62 +28,6 @@ namespace xdeequ.tests
         public VerificationSuiteTest(SparkFixture fixture) => _session = fixture.Spark;
 
         public SparkSession _session;
-
-        private static void Evaluate(SparkSession session, Action<VerificationResult> func)
-        {
-            DataFrame data = FixtureSupport.GetDFFull(session);
-
-            IEnumerable<IAnalyzer<IMetric>> analyzers = GetAnalyzers();
-            IEnumerable<Check> checks = GetChecks();
-
-            VerificationResult results = new VerificationSuite()
-                .OnData(data)
-                .AddRequiredAnalyzer(analyzers)
-                .AddChecks(checks)
-                .Run();
-
-            func(results);
-        }
-
-        private static IEnumerable<Check> GetChecks()
-        {
-            CheckWithLastConstraintFilterable checkToSucceed = new Check(CheckLevel.Error, "group-1")
-                .IsComplete("att1", Option<string>.None);
-
-            CheckWithLastConstraintFilterable checkToErrorOut = new Check(CheckLevel.Error, "group-2-E")
-                .HasSize(_ => _ > 5, "Should be greater than 5!")
-                .HasCompleteness("att2", _ => _ == 1.0, "Should equal 1!");
-
-            CheckWithLastConstraintFilterable checkToWarn = new Check(CheckLevel.Warning, "group-2-W")
-                .HasDistinctness(new[] {"item"}, _ => _ < 0.8, "Should be smaller than 0.8!");
-
-
-            return new[] {checkToSucceed, checkToErrorOut, checkToWarn};
-        }
-
-        private static IEnumerable<IAnalyzer<IMetric>> GetAnalyzers() =>
-            new[] {Initializers.Uniqueness(new[] {"att1", "att2"})};
-
-        private static void AssertSameRows(string jsonA, string jsonB)
-        {
-            SimpleMetricOutput[] resultA =
-                JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonA, SerdeExt.GetDefaultOptions());
-            SimpleMetricOutput[] resultB =
-                JsonSerializer.Deserialize<SimpleMetricOutput[]>(jsonB, SerdeExt.GetDefaultOptions());
-            int i = 0;
-
-            foreach (SimpleMetricOutput rowA in resultA)
-            {
-                SimpleMetricOutput rowB = resultB.Skip(i).First();
-
-                rowA.Entity.ShouldBe(rowB.Entity);
-                rowA.Instance.ShouldBe(rowB.Instance);
-                rowA.Name.ShouldBe(rowB.Name);
-                rowA.Value.ShouldBe(rowB.Value);
-
-                i++;
-            }
-        }
 
         private static void AssertStatusFor(DataFrame df, Check[] checks, CheckStatus expectedStatus)
         {
