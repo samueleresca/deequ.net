@@ -113,7 +113,7 @@ namespace xdeequ.Analyzers
     }
 
 
-    public class FrequenciesAndNumRows : State<FrequenciesAndNumRows>, IState
+    public class FrequenciesAndNumRows : State<FrequenciesAndNumRows>
     {
         public DataFrame Frequencies;
         public long NumRows;

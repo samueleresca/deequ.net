@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using Moq;
 using Shouldly;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
+using xdeequ.Analyzers.States;
 using xdeequ.AnomalyDetection;
 using xdeequ.Checks;
 using xdeequ.Extensions;
@@ -443,6 +445,75 @@ namespace xdeequ.tests
 
 
             analyzerContext.Equals(repository.LoadByKey(resultKey).Value).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void call_state_persister_if_specified()
+        {
+            var statePersister = new Mock<IStatePersister>();
+
+            statePersister
+                .Setup(x => x
+                    .Persist(It.IsAny<Option<IAnalyzer<IMetric>>>(), It.IsAny<IState>()));
+
+            var df = FixtureSupport.GetDfWithNumericValues(_session);
+
+            IAnalyzer<IMetric>[] analyzers = { new Sum("att2", Option<string>.None),
+                new Completeness("att1")};
+
+            IState[] states = {new SumState(18.0), new NumMatchesAndCount(6, 6)};
+
+            new VerificationSuite()
+                .OnData(df)
+                .AddRequiredAnalyzer(analyzers)
+                .SaveStateWith(statePersister.Object)
+                .Run();
+
+            var analyzerStateTuples = analyzers
+                .Zip(states, (analyzer, state) => (analyzer, state));
+
+
+                statePersister.Verify(x => x.Persist(
+                        It.Is<Option<IAnalyzer<IMetric>>>(x=>x.Value.ToString() == analyzers.First().ToString()),
+                        It.Is<Option<SumState>>(x=>x.Value.MetricValue() == 18)), Times.AtLeastOnce);
+
+                statePersister.Verify(x => x.Persist(
+                    It.Is<Option<IAnalyzer<IMetric>>>(x=>x.Value.ToString() == analyzers.Skip(1).First().ToString()),
+                    It.Is<Option<NumMatchesAndCount>>(x=>x.Value.MetricValue() == 6 / 6)), Times.AtLeastOnce);
+        }
+
+        [Fact]
+        public void load_stored_states_for_aggregation_if_specified()
+        {
+            var statePersister = new Mock<IStateLoader>();
+
+            IAnalyzer<IMetric>[] analyzers = { new Sum("att2", Option<string>.None),
+                new Completeness("att1")};
+            statePersister
+                .Setup(x => x
+                    .Load<SumState>(
+                        It.Is<Option<IAnalyzer<IMetric>>>(x=>x.Value.ToString() =="Sum(att2,None)")
+                        )).Returns(new SumState(18.0));
+
+            statePersister
+                .Setup(x => x
+                    .Load<NumMatchesAndCount>(
+                        It.Is<Option<IAnalyzer<IMetric>>>(x=>x.Value.ToString() =="Completeness(att1,None)")
+                    )).Returns(new NumMatchesAndCount(0,6));
+
+
+            var df = FixtureSupport.GetDfWithNumericValues(_session);
+
+           var result = new VerificationSuite()
+                .OnData(df)
+                .AddRequiredAnalyzer(analyzers)
+                .AggregateWith(statePersister.Object)
+                .Run();
+
+           var sumState = (DoubleMetric)result.Metrics[analyzers.First()];
+           sumState.Value.Get().ShouldBe(18*2);
+           var matches = (DoubleMetric)result.Metrics[analyzers.Skip(1).First()];
+           matches.Value.Get().ShouldBe(0.5);
         }
     }
 }

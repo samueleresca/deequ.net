@@ -210,7 +210,7 @@ namespace xdeequ.Analyzers.Runners
         {
             /* One of the analyzers must have the state persisted */
             IEnumerable<Option<FrequenciesAndNumRows>> states = analyzers.Select(analyzer =>
-                stateLoader.Load<FrequenciesAndNumRows, IMetric>(
+                stateLoader.Load<FrequenciesAndNumRows>(
                     (Analyzer<FrequenciesAndNumRows, IMetric>)analyzer));
 
 
@@ -379,7 +379,7 @@ namespace xdeequ.Analyzers.Runners
                 analyzers.First() as Analyzer<FrequenciesAndNumRows, IMetric>;
 
             Option<FrequenciesAndNumRows> previousFrequenciesAndNumRows = aggregateWith
-                .Select(x => x.Load<FrequenciesAndNumRows, IMetric>(sampleAnalyzer))
+                .Select(x => x.Load<FrequenciesAndNumRows>(sampleAnalyzer))
                 .GetOrElse(Option<FrequenciesAndNumRows>.None);
 
             if (previousFrequenciesAndNumRows.HasValue)
@@ -470,8 +470,7 @@ namespace xdeequ.Analyzers.Runners
             }
 
             saveStatesTo.Select(_ =>
-                _.Persist<FrequenciesAndNumRows, IMetric>((Analyzer<FrequenciesAndNumRows, IMetric>)analyzers.First(),
-                    frequenciesAndNumRows));
+                _.Persist(new Option<IAnalyzer<IMetric>>(analyzers.First()), frequenciesAndNumRows));
             frequenciesAndNumRows.Frequencies.Unpersist();
 
             ;

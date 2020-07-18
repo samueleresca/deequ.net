@@ -39,7 +39,7 @@ namespace xdeequ.Analyzers
             Option<IStatePersister> saveStateWith);
     }
 
-    public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>, IState
+    public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>
     {
         public abstract M ToFailureMetric(Exception e);
 
@@ -67,8 +67,8 @@ namespace xdeequ.Analyzers
 
         public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
         {
-            Option<S> maybeStateA = sourceA.Load(new Option<Analyzer<S, M>>(this));
-            Option<S> maybeStateB = sourceB.Load(new Option<Analyzer<S, M>>(this));
+            Option<S> maybeStateA = sourceA.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this));
+            Option<S> maybeStateB = sourceB.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this));
 
             S aggregated = (maybeStateA.HasValue, maybeStateB.HasValue) switch
             {
@@ -78,14 +78,14 @@ namespace xdeequ.Analyzers
                 _ => null
             };
 
-            target.Persist(new Option<Analyzer<S, M>>(this), new Option<S>(aggregated));
+            target.Persist(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this), new Option<S>(aggregated));
         }
 
         public M LoadStateAndComputeMetric(IStateLoader source) =>
-            ComputeMetricFrom(source.Load(new Option<Analyzer<S, M>>(this)));
+            ComputeMetricFrom(source.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this)));
 
         public void CopyStateTo(IStateLoader source, IStatePersister target) =>
-            target.Persist(new Option<Analyzer<S, M>>(this), source.Load(new Option<Analyzer<S, M>>(this)));
+            target.Persist(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this), source.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this)));
 
         public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
         public abstract M ComputeMetricFrom(Option<S> state);
@@ -94,14 +94,14 @@ namespace xdeequ.Analyzers
             Option<IStatePersister> saveStateWith)
         {
             Option<S> loadedState = aggregateWith
-                .Select(value => value.Load(new Option<Analyzer<S, M>>(this)))
-                .GetOrElse(Option<S>.None);
+                .Select(value => value.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this)).Value)
+                .GetOrElse(null);
 
             Option<S> stateToComputeMetricFrom = AnalyzersExt.Merge(loadedState, state);
 
             saveStateWith
                 .Select(persister =>
-                    persister.Persist(new Option<Analyzer<S, M>>(this), stateToComputeMetricFrom));
+                    persister.Persist(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this), stateToComputeMetricFrom));
 
             return ComputeMetricFrom(stateToComputeMetricFrom);
         }

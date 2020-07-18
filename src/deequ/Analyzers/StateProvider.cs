@@ -9,13 +9,13 @@ namespace xdeequ.Analyzers
 {
     public interface IStatePersister
     {
-        S Persist<S, M>(Option<Analyzer<S, M>> analyzer, Option<S> state) where S : State<S>, IState;
-        S Persist<S, M>(Option<Analyzer<S, M>> analyzer, S state) where S : State<S>, IState;
+        S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, Option<S> state) where S : IState;
+        S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, S state) where S : IState;
     }
 
     public interface IStateLoader
     {
-        Option<S> Load<S, M>(Option<Analyzer<S, M>> analyzer) where S : State<S>, IState;
+        Option<S> Load<S>(Option<IAnalyzer<IMetric>> analyzer) where S : IState;
     }
 
     public class InMemoryStateProvider : IStateLoader, IStatePersister
@@ -23,29 +23,29 @@ namespace xdeequ.Analyzers
         private readonly ConcurrentDictionary<IAnalyzer<IMetric>, IState> statesByAnalyzer
             = new ConcurrentDictionary<IAnalyzer<IMetric>, IState>();
 
-        public Option<S> Load<S, M>(Option<Analyzer<S, M>> analyzer) where S : State<S>, IState => !analyzer.HasValue
-            ? null
-            : new Option<S>((S)statesByAnalyzer[(IAnalyzer<IMetric>)analyzer.Value]);
+        public Option<S> Load<S>(Option<IAnalyzer<IMetric>> analyzer) where S : IState => !analyzer.HasValue
+            ? Option<S>.None
+            : new Option<S>((S)statesByAnalyzer[analyzer.Value]);
 
-        public S Persist<S, M>(Option<Analyzer<S, M>> analyzer, Option<S> state) where S : State<S>, IState
+        public S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, Option<S> state) where S :  IState
         {
             if (!analyzer.HasValue)
             {
-                return null;
+                return (S) (IState) null;
             }
 
             statesByAnalyzer[(IAnalyzer<IMetric>)analyzer.Value] = state.Value;
             return state.Value;
         }
 
-        public S Persist<S, M>(Option<Analyzer<S, M>> analyzer, S state) where S : State<S>, IState
+        public S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, S state) where S :  IState
         {
             if (!analyzer.HasValue)
             {
-                return null;
+                return (S) (IState) null;
             }
 
-            statesByAnalyzer[(IAnalyzer<IMetric>)analyzer.Value] = state;
+            statesByAnalyzer[analyzer.Value] = state;
             return state;
         }
 
