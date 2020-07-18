@@ -18,17 +18,16 @@ namespace xdeequ.Checks
 {
     public class CheckResult
     {
-
-        public Check Check { get; set; }
-        public CheckStatus Status { get; set; }
-        public IEnumerable<ConstraintResult> ConstraintResults { get; set; }
-
         public CheckResult(Check check, CheckStatus status, IEnumerable<ConstraintResult> constraintResult)
         {
             Check = check;
             Status = status;
             ConstraintResults = constraintResult;
         }
+
+        public Check Check { get; set; }
+        public CheckStatus Status { get; set; }
+        public IEnumerable<ConstraintResult> ConstraintResults { get; set; }
     }
 
     public enum CheckLevel
@@ -110,12 +109,12 @@ namespace xdeequ.Checks
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, IEnumerable<string> columns) =>
             AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, Option<string>.None));
+                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, Option<string>.None));
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, Option<string> hint,
             IEnumerable<string> columns) =>
             AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, hint));
+                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, hint));
 
         public CheckWithLastConstraintFilterable HasUniqueness(IEnumerable<string> columns,
             Func<double, bool> assertion) =>
@@ -181,9 +180,12 @@ namespace xdeequ.Checks
             Option<long> beforeDate
         ) where S : IState
         {
-            return AddConstraint(AnomalyConstraint<S>(analyzer, d =>
-                IsNewestPointNonAnomalous(metricRepository, anomalyDetectionStrategy, withTagValues, afterDate,
-                beforeDate, analyzer, d), Option<string>.None));
+            Func<double, bool> funcResult = IsNewestPointNonAnomalous(metricRepository, anomalyDetectionStrategy,
+                withTagValues,
+                afterDate,
+                beforeDate, analyzer);
+
+            return AddConstraint(AnomalyConstraint<S>(analyzer, funcResult, Option<string>.None));
         }
 
         public CheckWithLastConstraintFilterable HasEntropy(string column,
@@ -523,37 +525,26 @@ namespace xdeequ.Checks
                 .OfType<IAnalysisBasedConstraint>()
                 .Select(x => x.Analyzer);
 
-        private bool IsNewestPointNonAnomalous(IMetricsRepository metricsRepository,
+        private Func<double, bool> IsNewestPointNonAnomalous(IMetricsRepository metricsRepository,
             IAnomalyDetectionStrategy anomalyDetectionStrategy,
             Option<Dictionary<string, string>> withTagValues,
             Option<long> valueAfterDate,
             Option<long> valueBeforeDate,
-            IAnalyzer<IMetric> analyzer,
-            double currentMetricValue)
+            IAnalyzer<IMetric> analyzer)
         {
-
             // Get history keys
-            var repositoryLoader = metricsRepository.Load();
+            IMetricRepositoryMultipleResultsLoader repositoryLoader = metricsRepository.Load();
 
-            withTagValues.OnSuccess((value) =>
-            {
-                repositoryLoader = repositoryLoader.WithTagValues(value);
-            });
+            withTagValues.OnSuccess(value => { repositoryLoader = repositoryLoader.WithTagValues(value); });
 
 
-            valueBeforeDate.OnSuccess((value) =>
-            {
-                repositoryLoader = repositoryLoader.Before(value);
-            });
+            valueBeforeDate.OnSuccess(value => { repositoryLoader = repositoryLoader.Before(value); });
 
-            valueAfterDate.OnSuccess((value) =>
-            {
-                repositoryLoader = repositoryLoader.After(value);
-            });
+            valueAfterDate.OnSuccess(value => { repositoryLoader = repositoryLoader.After(value); });
 
-            repositoryLoader = repositoryLoader.ForAnalyzers(new[] { analyzer });
+            repositoryLoader = repositoryLoader.ForAnalyzers(new[] {analyzer});
 
-            var analysisResults = repositoryLoader.Get();
+            IEnumerable<AnalysisResult> analysisResults = repositoryLoader.Get();
 
             if (!analysisResults.Any())
             {
@@ -561,20 +552,32 @@ namespace xdeequ.Checks
             }
 
 
-            var historicalMetrics = analysisResults
-                .OrderBy(x => x.ResultKey.Tags.Values)
-                .Select(analysisResults =>
-                {
-                    var analyzerContextMetricMap = analysisResults.AnalyzerContext.MetricMap;
-                    var onlyAnalyzerMetricEntryInLoadedAnalyzerContext = analyzerContextMetricMap.FirstOrDefault();
-                    var doubleMetricOption = (Metric<double>)onlyAnalyzerMetricEntryInLoadedAnalyzerContext.Value;
+            IEnumerable<(long dataSetDate, Option<Metric<double>> doubleMetricOption)> historicalMetrics =
+                analysisResults
+                    //TODO: Order by tags in case you have multiple data points .OrderBy(x => x.ResultKey.Tags.Values)
+                    .Select(analysisResults =>
+                    {
+                        Dictionary<IAnalyzer<IMetric>, IMetric> analyzerContextMetricMap =
+                            analysisResults.AnalyzerContext.MetricMap;
+                        KeyValuePair<IAnalyzer<IMetric>, IMetric> onlyAnalyzerMetricEntryInLoadedAnalyzerContext =
+                            analyzerContextMetricMap.FirstOrDefault();
+                        Metric<double> doubleMetric =
+                            (Metric<double>)onlyAnalyzerMetricEntryInLoadedAnalyzerContext.Value;
 
-                    var dataSetDate = analysisResults.ResultKey.DataSetDate;
+                        Option<Metric<double>> doubleMetricOption = Option<Metric<double>>.None;
 
-                    return (dataSetDate, doubleMetricOption);
-                });
+                        if (doubleMetric != null)
+                        {
+                            doubleMetricOption = new Option<Metric<double>>(doubleMetric);
+                        }
 
-            var testDateTime = analysisResults.Select(x => x.ResultKey.DataSetDate).Max() + 1;
+
+                        long dataSetDate = analysisResults.ResultKey.DataSetDate;
+
+                        return (dataSetDate, doubleMetricOption);
+                    });
+
+            long testDateTime = analysisResults.Select(x => x.ResultKey.DataSetDate).Max() + 1;
 
             if (testDateTime == long.MaxValue)
             {
@@ -582,23 +585,27 @@ namespace xdeequ.Checks
                                             "Anomaly Detection, which works with an open upper interval bound, won't test anything");
             }
 
-            var anomalyDetector = new AnomalyDetector(anomalyDetectionStrategy);
-            var metricsOptions = historicalMetrics
+            AnomalyDetector anomalyDetector = new AnomalyDetector(anomalyDetectionStrategy);
+            IEnumerable<DataPoint<double>> metricsOptions = historicalMetrics
                 .Select(pair =>
                 {
                     Option<double> valueOption = Option<double>.None;
 
-                    if (pair.doubleMetricOption.IsSuccess())
+                    if (pair.doubleMetricOption.HasValue && pair.doubleMetricOption.Value.IsSuccess())
                     {
-                        valueOption = new Option<double>(pair.doubleMetricOption.Value.Get());
+                        valueOption = new Option<double>(pair.doubleMetricOption.Value.Value.Get());
                     }
 
                     return new DataPoint<double>(pair.dataSetDate, valueOption);
                 });
-            var detectedAnomalies = anomalyDetector.IsNewPointAnomalous(metricsOptions,
-                new DataPoint<double>(testDateTime, new Option<double>(currentMetricValue)));
 
-            return !detectedAnomalies.Anomalies.Any();
+            return d =>
+            {
+                DetectionResult detectedAnomalies = anomalyDetector.IsNewPointAnomalous(metricsOptions,
+                    new DataPoint<double>(testDateTime, new Option<double>(d)));
+
+                return !detectedAnomalies.Anomalies.Any();
+            };
         }
     }
 }

@@ -33,7 +33,7 @@ namespace xdeequ.Analyzers
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
 
 
         public override string ToString()

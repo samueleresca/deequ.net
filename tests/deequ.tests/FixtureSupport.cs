@@ -103,10 +103,11 @@ namespace xdeequ.tests
                     new StructField("c2", new StringType())
                 });
 
-            return sparkSession.CreateDataFrame(Enumerable.Range(0, N).Select(x =>
-            {
-                return new GenericRow(new object[] { $"{x}", $"c1-r{x}", $"c2-r{x}" });
-            }).ToList(), schema);
+            return sparkSession.CreateDataFrame(
+                Enumerable.Range(1, N).Select(x =>
+                {
+                    return new GenericRow(new object[] {$"{x}", $"c1-r{x}", $"c2-r{x}"});
+                }).ToList(), schema);
         }
 
         public static DataFrame GetDFWithNegativeNumbers(SparkSession sparkSession)
@@ -304,7 +305,7 @@ namespace xdeequ.tests
             };
 
             StructType schema = new StructType(
-                new List<StructField> { new StructField("att1", new StringType()) });
+                new List<StructField> {new StructField("att1", new StringType())});
 
             return sparkSession.CreateDataFrame(elements, schema);
         }
@@ -341,6 +342,6 @@ namespace xdeequ.tests
         public static DataFrame DataFrameWithColumn(string name, DataType sparkDt, SparkSession session,
             GenericRow[] values) =>
             session.CreateDataFrame(values,
-                new StructType(new[] { new StructField(name, sparkDt) })).ToDF(name);
+                new StructType(new[] {new StructField(name, sparkDt)})).ToDF(name);
     }
 }

@@ -22,7 +22,7 @@ namespace xdeequ.Analyzers
 
         public Option<string> FilterCondition() => _where;
 
-        public override IEnumerable<Column> AggregationFunctions() => new[] { ApproxCountDistinct(_column) };
+        public override IEnumerable<Column> AggregationFunctions() => new[] {ApproxCountDistinct(_column)};
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             throw new NotImplementedException();

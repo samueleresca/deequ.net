@@ -37,7 +37,7 @@ namespace xdeequ.Analyzers
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] { AnalyzersExt.ConditionalCount(Where) }.AsEnumerable();
+            new[] {AnalyzersExt.ConditionalCount(Where)}.AsEnumerable();
 
         public override Option<NumMatches> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,

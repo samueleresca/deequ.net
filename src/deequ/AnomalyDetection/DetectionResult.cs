@@ -48,9 +48,6 @@ namespace xdeequ.AnomalyDetection
     {
         public IEnumerable<(long, Anomaly)> Anomalies;
 
-        public DetectionResult(IEnumerable<(long, Anomaly)> anomalies)
-        {
-            Anomalies = anomalies;
-        }
+        public DetectionResult(IEnumerable<(long, Anomaly)> anomalies) => Anomalies = anomalies;
     }
 }

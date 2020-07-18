@@ -32,7 +32,7 @@ namespace xdeequ.Analyzers
         public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
 
         public override IEnumerable<Column> AggregationFunctions(long numRows) =>
-            new[] { Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows };
+            new[] {Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows};
 
         public override string ToString()
         {

@@ -34,12 +34,12 @@ namespace xdeequ.Analyzers.Runners
 
             AnalyzerContext resultComputedPreviously = (metricsRepositoryOptions?.metricRepository.HasValue,
                     metricsRepositoryOptions?.reuseExistingResultsForKey.HasValue) switch
-            {
-                (true, true) => metricsRepositoryOptions?.metricRepository.Value
-                    .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
-                    .GetOrElse(AnalyzerContext.Empty()),
-                _ => AnalyzerContext.Empty()
-            };
+                {
+                    (true, true) => metricsRepositoryOptions?.metricRepository.Value
+                        .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
+                        .GetOrElse(AnalyzerContext.Empty()),
+                    _ => AnalyzerContext.Empty()
+                };
 
 
             IEnumerable<IAnalyzer<IMetric>>
@@ -155,10 +155,10 @@ namespace xdeequ.Analyzers.Runners
             InMemoryStateProvider aggregatedStates = new InMemoryStateProvider();
 
             foreach (IAnalyzer<IMetric> analyzer in passedAnalyzers)
-                foreach (IStateLoader state in stateLoaders)
-                {
-                    analyzer.AggregateStateTo(aggregatedStates, state, aggregatedStates);
-                }
+            foreach (IStateLoader state in stateLoaders)
+            {
+                analyzer.AggregateStateTo(aggregatedStates, state, aggregatedStates);
+            }
 
 
             IEnumerable<IGroupAnalyzer<IState, IMetric>> groupingAnalyzers =
@@ -167,7 +167,7 @@ namespace xdeequ.Analyzers.Runners
             IEnumerable<IAnalyzer<IMetric>> scanningAnalyzers = passedAnalyzers.Except(groupingAnalyzers);
 
             Dictionary<IAnalyzer<IMetric>, IMetric> nonGroupedResults = new Dictionary<IAnalyzer<IMetric>, IMetric>(
-                passedAnalyzers.SelectMany(analyzer =>
+                scanningAnalyzers.SelectMany(analyzer =>
                 {
                     IMetric metrics = analyzer.LoadStateAndComputeMetric(aggregatedStates);
 
@@ -176,7 +176,7 @@ namespace xdeequ.Analyzers.Runners
                         analyzer.CopyStateTo(aggregatedStates, saveStatesWith.Value);
                     }
 
-                    return new[] { new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, metrics) };
+                    return new[] {new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, metrics)};
                 }));
 
 
@@ -186,19 +186,20 @@ namespace xdeequ.Analyzers.Runners
             {
                 groupedResults = AnalyzerContext.Empty();
             }
-
-            groupedResults = groupingAnalyzers
-                .Select(analyzer => (IGroupAnalyzer<IState, IMetric>)analyzers)
-                .GroupBy(x => x.GroupingColumns().OrderBy(x => x))
-                .Select(analyzerForGrouping =>
-                {
-                    FrequenciesAndNumRows state = FindStateForParticularGrouping(analyzerForGrouping, aggregatedStates);
-                    return RunAnalyzersForParticularGrouping(state, analyzerForGrouping, saveStatesWith);
-                }).Aggregate((x, y) => x + y);
-
+            else
+            {
+                groupedResults = groupingAnalyzers
+                    .Select(analyzer => (IGroupAnalyzer<IState, IMetric>)analyzers)
+                    .GroupBy(x => x.GroupingColumns().OrderBy(x => x))
+                    .Select(analyzerForGrouping =>
+                    {
+                        FrequenciesAndNumRows state =
+                            FindStateForParticularGrouping(analyzerForGrouping, aggregatedStates);
+                        return RunAnalyzersForParticularGrouping(state, analyzerForGrouping, saveStatesWith);
+                    }).Aggregate((x, y) => x + y);
+            }
 
             AnalyzerContext results = preconditionFailures + new AnalyzerContext(nonGroupedResults) + groupedResults;
-
             SaveOrAppendResultsIfNecessary(results, metricsRepository, saveOrAppendResultsWithKey);
 
             return results;

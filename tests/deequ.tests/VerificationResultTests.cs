@@ -48,14 +48,14 @@ namespace xdeequ.tests
                 .HasCompleteness("att2", _ => _ == 1.0, "Should equal 1!");
 
             CheckWithLastConstraintFilterable checkToWarn = new Check(CheckLevel.Warning, "group-2-W")
-                .HasDistinctness(new[] { "item" }, _ => _ < 0.8, "Should be smaller than 0.8!");
+                .HasDistinctness(new[] {"item"}, _ => _ < 0.8, "Should be smaller than 0.8!");
 
 
-            return new[] { checkToSucceed, checkToErrorOut, checkToWarn };
+            return new[] {checkToSucceed, checkToErrorOut, checkToWarn};
         }
 
         private static IEnumerable<IAnalyzer<IMetric>> GetAnalyzers() =>
-            new[] { Initializers.Uniqueness(new[] { "att1", "att2" }) };
+            new[] {Initializers.Uniqueness(new[] {"att1", "att2"})};
 
         private static void AssertSameRows(string jsonA, string jsonB)
         {

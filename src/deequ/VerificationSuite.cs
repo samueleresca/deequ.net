@@ -81,9 +81,7 @@ namespace xdeequ
 
             AnalyzerContext analyzerContext = new AnalyzerContext(verificationResult.Metrics);
 
-            SaveOrAppendResultsIfNecessary(
-                analyzerContext,
-                metricsRepositoryOptions.metricRepository,
+            SaveOrAppendResultsIfNecessary(analyzerContext, metricsRepositoryOptions.metricRepository,
                 metricsRepositoryOptions.saveOrAppendResultsWithKey);
 
             SaveJsonOutputsToFilesystemIfNecessary(fileOutputOptions, verificationResult);
@@ -108,25 +106,26 @@ namespace xdeequ
                 {
                     Option<AnalyzerContext> currentValueForKey = repository.LoadByKey(key);
                     AnalyzerContext
-                        valueToSave = currentValueForKey.GetOrElse(AnalyzerContext.Empty()); // TODO missing override
+                        alreadySavedResult =
+                            currentValueForKey.GetOrElse(AnalyzerContext.Empty()); // TODO missing override
 
-                    Dictionary<string, IAnalyzer<IMetric>> dictEquality =
-                        valueToSave.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
+                    Dictionary<string, IAnalyzer<IMetric>> alreadySavedDict =
+                        alreadySavedResult.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
 
                     resultingAnalyzerContext.MetricMap.ToList().ForEach(_ =>
                     {
-                        if (dictEquality.ContainsKey(_.Key.ToString()) &&
-                            valueToSave.MetricMap.ContainsKey(dictEquality[_.Key.ToString()]))
+                        if (alreadySavedDict.ContainsKey(_.Key.ToString()) &&
+                            alreadySavedResult.MetricMap.ContainsKey(alreadySavedDict[_.Key.ToString()]))
                         {
-                            valueToSave.MetricMap[dictEquality[_.Key.ToString()]] = _.Value;
+                            alreadySavedResult.MetricMap[alreadySavedDict[_.Key.ToString()]] = _.Value;
                         }
                         else
                         {
-                            valueToSave.MetricMap.Add(_.Key, _.Value);
+                            alreadySavedResult.MetricMap.Add(_.Key, _.Value);
                         }
                     });
 
-                    repository.Save(saveOrAppendResultsWithKey.Value, valueToSave);
+                    repository.Save(saveOrAppendResultsWithKey.Value, alreadySavedResult);
                     return null;
                 });
 

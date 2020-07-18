@@ -7,11 +7,11 @@ using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using xdeequ.Analyzers;
 using xdeequ.Analyzers.Runners;
-using xdeequ.Analyzers.States;
 using xdeequ.AnomalyDetection;
 using xdeequ.Checks;
 using xdeequ.Extensions;
 using xdeequ.Metrics;
+using xdeequ.Repository;
 using xdeequ.Repository.InMemory;
 using xdeequ.Util;
 using Xunit;
@@ -52,14 +52,14 @@ namespace xdeequ.tests
                 .HasCompleteness("att2", _ => _ == 1.0, "Should equal 1!");
 
             CheckWithLastConstraintFilterable checkToWarn = new Check(CheckLevel.Warning, "group-2-W")
-                .HasDistinctness(new[] { "item" }, _ => _ < 0.8, "Should be smaller than 0.8!");
+                .HasDistinctness(new[] {"item"}, _ => _ < 0.8, "Should be smaller than 0.8!");
 
 
-            return new[] { checkToSucceed, checkToErrorOut, checkToWarn };
+            return new[] {checkToSucceed, checkToErrorOut, checkToWarn};
         }
 
         private static IEnumerable<IAnalyzer<IMetric>> GetAnalyzers() =>
-            new[] { Initializers.Uniqueness(new[] { "att1", "att2" }) };
+            new[] {Initializers.Uniqueness(new[] {"att1", "att2"})};
 
         private static void AssertSameRows(string jsonA, string jsonB)
         {
@@ -100,6 +100,41 @@ namespace xdeequ.tests
                 .Run().Status;
 
             verificationSuiteStatus.ShouldBe(expectedStatus);
+        }
+
+
+        private void EvaluateWithRepositoryWithHistory(Action<IMetricsRepository> callback)
+        {
+            InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
+
+            for (int i = 1; i <= 2; i++)
+            {
+                AnalyzerContext analyzerContext = new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>
+                {
+                    {
+                        new Size(Option<string>.None),
+                        new DoubleMetric(Entity.Column, "", "", Try<double>.From(() => i))
+                    }
+                });
+
+                repository.Save(new ResultKey(i, new Dictionary<string, string> {{"Region", "EU"}}), analyzerContext);
+            }
+
+
+            for (int i = 3; i <= 4; i++)
+            {
+                AnalyzerContext analyzerContext = new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>
+                {
+                    {
+                        new Size(Option<string>.None),
+                        new DoubleMetric(Entity.Column, "", "", Try<double>.From(() => i))
+                    }
+                });
+
+                repository.Save(new ResultKey(i, new Dictionary<string, string> {{"Region", "NA"}}), analyzerContext);
+            }
+
+            callback(repository);
         }
 
         [Fact]
@@ -152,13 +187,114 @@ namespace xdeequ.tests
         }
 
         [Fact]
+        public void addAnomalyCheck_should_work() =>
+            EvaluateWithRepositoryWithHistory(repository =>
+            {
+                DataFrame df = FixtureSupport.GetDFWithNRows(_session, 11);
+
+                ResultKey resultKey = new ResultKey(5, new Dictionary<string, string>());
+                IAnalyzer<IMetric>[] analyzers = {new Completeness("item")};
+
+                VerificationResult verificationResultOne = new VerificationSuite()
+                    .OnData(df)
+                    .UseRepository(repository)
+                    .AddRequiredAnalyzer(analyzers)
+                    .SaveOrAppendResult(resultKey)
+                    .AddAnomalyCheck(new AbsoluteChangeStrategy(-2.0, 2.0),
+                        new Size(Option<string>.None),
+                        new AnomalyCheckConfig(CheckLevel.Warning, "Anomaly check to fail"))
+                    .Run();
+
+                VerificationResult verificationResultTwo = new VerificationSuite()
+                    .OnData(df)
+                    .AddRequiredAnalyzer(analyzers)
+                    .UseRepository(repository)
+                    .SaveOrAppendResult(resultKey)
+                    .AddAnomalyCheck(new AbsoluteChangeStrategy(-7.0, 7.0),
+                        new Size(Option<string>.None),
+                        new AnomalyCheckConfig(CheckLevel.Error, "Anomaly check to succeed",
+                            new Dictionary<string, string>(), 0, 11))
+                    .Run();
+
+                VerificationResult verificationResultThree = new VerificationSuite()
+                    .OnData(df)
+                    .AddRequiredAnalyzer(analyzers)
+                    .UseRepository(repository)
+                    .SaveOrAppendResult(resultKey)
+                    .AddAnomalyCheck(
+                        new AbsoluteChangeStrategy(-7.0, 7.0),
+                        new Size(Option<string>.None), Option<AnomalyCheckConfig>.None
+                    ).Run();
+
+                CheckStatus checkResultsOne = verificationResultOne.CheckResults.First().Value.Status;
+                CheckStatus checkResultsTwo = verificationResultTwo.CheckResults.First().Value.Status;
+                CheckStatus checkResultsThree = verificationResultThree.CheckResults.First().Value.Status;
+
+
+                checkResultsOne.ShouldBe(CheckStatus.Warning);
+                checkResultsTwo.ShouldBe(CheckStatus.Success);
+                checkResultsThree.ShouldBe(CheckStatus.Success);
+            });
+
+
+        [Fact]
+        public void
+            if_there_are_previous_results_in_the_repository_new_results_should_pre_preferred_in_case_of_conflicts()
+        {
+            DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
+
+            InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
+            ResultKey resultKey = new ResultKey(0, new Dictionary<string, string>());
+            IAnalyzer<IMetric>[] analyzers = {new Size(Option<string>.None), new Completeness("item")};
+
+            VerificationResult actualResult = new VerificationSuite()
+                .OnData(df)
+                .AddRequiredAnalyzer(analyzers)
+                .UseRepository(repository)
+                .SaveOrAppendResult(resultKey).Run();
+
+            AnalyzerContext expectedAnalyzerContextOnLoadByKey = new AnalyzerContext(actualResult.Metrics);
+
+            AnalyzerContext resultWhichShouldBeOverwritten = new AnalyzerContext(
+                new Dictionary<IAnalyzer<IMetric>, IMetric>
+                {
+                    {
+                        new Size(Option<string>.None),
+                        new DoubleMetric(Entity.Dataset, "", "", Try<double>.From(() => 100.0))
+                    }
+                });
+
+            repository.Save(resultKey, resultWhichShouldBeOverwritten);
+
+            new VerificationSuite()
+                .OnData(df)
+                .AddRequiredAnalyzer(analyzers)
+                .UseRepository(repository)
+                .SaveOrAppendResult(resultKey)
+                .Run();
+
+
+            Dictionary<IAnalyzer<IMetric>, DoubleMetric> expected = expectedAnalyzerContextOnLoadByKey
+                .MetricMap
+                .ToDictionary(pair => pair.Key, pair => (DoubleMetric)pair.Value);
+
+            Dictionary<IAnalyzer<IMetric>, DoubleMetric> actual = repository.LoadByKey(resultKey)
+                .Value
+                .MetricMap
+                .ToDictionary(pair => pair.Key, pair => (DoubleMetric)pair.Value);
+
+            actual.OrderBy(x => x.Key.ToString())
+                .SequenceEqual(expected.OrderBy(x => x.Key.ToString()));
+        }
+
+        [Fact]
         public void only_append_results_to_repository_without_unnecessarily_overwriting_existing_ones()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
             InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
             ResultKey resultKey = new ResultKey(0, new Dictionary<string, string>());
-            IAnalyzer<IMetric>[] analyzers = { new Size(Option<string>.None), new Completeness("item") };
+            IAnalyzer<IMetric>[] analyzers = {new Size(Option<string>.None), new Completeness("item")};
 
             Dictionary<IAnalyzer<IMetric>, IMetric> metrics = new VerificationSuite()
                 .OnData(df)
@@ -205,10 +341,10 @@ namespace xdeequ.tests
             AssertStatusFor(df, checkToWarn, CheckStatus.Warning);
 
 
-            AssertStatusFor(df, new[] { checkToSucceed, checkToErrorOut }, CheckStatus.Error);
-            AssertStatusFor(df, new[] { checkToSucceed, checkToWarn }, CheckStatus.Warning);
-            AssertStatusFor(df, new[] { checkToWarn, checkToErrorOut }, CheckStatus.Error);
-            AssertStatusFor(df, new[] { checkToSucceed, checkToErrorOut, checkToWarn }, CheckStatus.Error);
+            AssertStatusFor(df, new[] {checkToSucceed, checkToErrorOut}, CheckStatus.Error);
+            AssertStatusFor(df, new[] {checkToSucceed, checkToWarn}, CheckStatus.Warning);
+            AssertStatusFor(df, new[] {checkToWarn, checkToErrorOut}, CheckStatus.Error);
+            AssertStatusFor(df, new[] {checkToSucceed, checkToErrorOut, checkToWarn}, CheckStatus.Error);
         }
 
 
@@ -217,7 +353,7 @@ namespace xdeequ.tests
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
-            Distinctness analyzerToTestReusingResults = new Distinctness(new[] { "att1", "att2" });
+            Distinctness analyzerToTestReusingResults = new Distinctness(new[] {"att1", "att2"});
 
 
             VerificationResult verificationResult = new VerificationSuite()
@@ -295,7 +431,7 @@ namespace xdeequ.tests
 
             InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
             ResultKey resultKey = new ResultKey(0, new Dictionary<string, string>());
-            IAnalyzer<IMetric>[] analyzers = { new Size(Option<string>.None), new Completeness("item") };
+            IAnalyzer<IMetric>[] analyzers = {new Size(Option<string>.None), new Completeness("item")};
 
             Dictionary<IAnalyzer<IMetric>, IMetric> metrics = new VerificationSuite()
                 .OnData(df)
@@ -307,103 +443,6 @@ namespace xdeequ.tests
 
 
             analyzerContext.Equals(repository.LoadByKey(resultKey).Value).ShouldBeTrue();
-        }
-
-
-        [Fact]
-        public void if_there_are_previous_results_in_the_repository_new_results_should_pre_preferred_in_case_of_conflicts()
-        {
-            DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-
-            InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
-            ResultKey resultKey = new ResultKey(0, new Dictionary<string, string>());
-            IAnalyzer<IMetric>[] analyzers = { new Size(Option<string>.None), new Completeness("item") };
-
-            var actualResult = new VerificationSuite()
-                .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
-                .UseRepository(repository)
-                .SaveOrAppendResult(resultKey).Run();
-
-            var expectedAnalyzerContextOnLoadByKey = new AnalyzerContext(actualResult.Metrics);
-
-            AnalyzerContext resultWhichShouldBeOverwritten = new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>
-            {
-                {new Size(Option<string>.None), new DoubleMetric(Entity.Dataset, "", "",  Try<double>.From(()=>100.0)) }
-            });
-
-            repository.Save(resultKey, resultWhichShouldBeOverwritten);
-
-            new VerificationSuite()
-                .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
-                .UseRepository(repository)
-                .SaveOrAppendResult(resultKey)
-                .Run();
-
-
-            var expected = expectedAnalyzerContextOnLoadByKey
-                .MetricMap
-                .ToDictionary(pair => pair.Key, pair => (DoubleMetric)pair.Value);
-
-            var actual = repository.LoadByKey(resultKey)
-                .Value
-                .MetricMap
-                .ToDictionary(pair => pair.Key, pair => (DoubleMetric)pair.Value);
-
-            actual.OrderBy(x => x.Key.ToString())
-                .SequenceEqual(expected.OrderBy(x => x.Key.ToString()));
-
-        }
-
-        [Fact]
-        public void addAnomalyCheck_should_work()
-        {
-            DataFrame df = FixtureSupport.GetDFWithNRows(_session, 11);
-
-            InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
-            ResultKey resultKey = new ResultKey(5, new Dictionary<string, string>());
-            IAnalyzer<IMetric>[] analyzers = { new Completeness("item") };
-
-            var verificationResultOne = new VerificationSuite()
-                .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
-                .UseRepository(repository)
-                .SaveOrAppendResult(resultKey)
-                .AddAnomalyCheck(new AbsoluteChangeStrategy(-2.0, 2.0),
-                    new Size(Option<string>.None),
-                    new AnomalyCheckConfig(CheckLevel.Warning, "Anomaly check to fail"))
-                .Run();
-
-            var verificationResultTwo = new VerificationSuite()
-                .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
-                .UseRepository(repository)
-                .SaveOrAppendResult(resultKey)
-                .AddAnomalyCheck(new AbsoluteChangeStrategy(-7.0, 7.0),
-                    new Size(Option<string>.None),
-                    new AnomalyCheckConfig(CheckLevel.Error, "Anomaly check to succeed",
-                        new Dictionary<string, string>(), 0, 11))
-                .Run();
-
-            var verificationResultThree = new VerificationSuite()
-                .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
-                .UseRepository(repository)
-                .SaveOrAppendResult(resultKey)
-                .AddAnomalyCheck(
-                    new AbsoluteChangeStrategy(-7.0, 7.0),
-                    new Size(Option<string>.None), Option<AnomalyCheckConfig>.None
-                )
-                .Run();
-
-            var checkResultsOne = verificationResultOne.CheckResults.First().Value;
-            var checkResultsTwo = verificationResultTwo.CheckResults.First().Value;
-            var checkResultsThree = verificationResultThree.CheckResults.First().Value;
-
-            checkResultsOne.Status.ShouldBe(CheckStatus.Warning);
-            checkResultsTwo.Status.ShouldBe(CheckStatus.Success);
-            checkResultsThree.Status.ShouldBe(CheckStatus.Success);
         }
     }
 }

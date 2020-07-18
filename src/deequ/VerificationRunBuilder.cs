@@ -169,12 +169,26 @@ namespace xdeequ
             return this;
         }
 
+        public new VerificationRunBuilderWithRepository AddRequiredAnalyzer(IAnalyzer<IMetric> requiredAnalyzer)
+        {
+            requiredAnalyzers = requiredAnalyzers.Append(requiredAnalyzer);
+            return this;
+        }
+
+        public new VerificationRunBuilderWithRepository AddRequiredAnalyzer(
+            IEnumerable<IAnalyzer<IMetric>> requiredAnalyzers)
+        {
+            this.requiredAnalyzers = this.requiredAnalyzers.Concat(requiredAnalyzers);
+            return this;
+        }
+
         public VerificationRunBuilderWithRepository AddAnomalyCheck(
             IAnomalyDetectionStrategy anomalyDetectionStrategy,
             IAnalyzer<IMetric> analyzer,
             Option<AnomalyCheckConfig> anomalyCheckConfig)
         {
             string checkDescription = $"Anomaly check for {analyzer}";
+
             AnomalyCheckConfig defaultConfig = new AnomalyCheckConfig(CheckLevel.Warning, checkDescription);
             AnomalyCheckConfig anomalyCheckConfigOrDefault = anomalyCheckConfig.GetOrElse(defaultConfig);
 
@@ -206,6 +220,9 @@ namespace xdeequ
         {
             Level = level;
             Description = description;
+            AfterDate = Option<long>.None;
+            BeforeDate = Option<long>.None;
+            WithTagValues = new Dictionary<string, string>();
         }
 
         public AnomalyCheckConfig(CheckLevel level, string description, Dictionary<string, string> withTagValues,
@@ -216,7 +233,6 @@ namespace xdeequ
             WithTagValues = withTagValues;
             AfterDate = afterDate;
             BeforeDate = beforeDate;
-
         }
     }
 }

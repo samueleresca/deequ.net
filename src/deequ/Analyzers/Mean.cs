@@ -64,7 +64,7 @@ namespace xdeequ.Analyzers
                     (int)result.Get(offset + 1)), 2);
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
 
         public override string ToString()
         {
