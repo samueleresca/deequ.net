@@ -22,7 +22,7 @@ jobs:
     test:
         runs-on: ubuntu-latest
         env:
-            DOTNET_WORKER_DIR: ~/usr/local/bin/Microsoft.Spark.Worker
+            DOTNET_WORKER_DIR: ~/usr/local/bin/
             SPARK_RUNNER_DIR: ~/home/runner/bin/
         steps:
             - uses: actions/checkout@v2
