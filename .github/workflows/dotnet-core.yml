@@ -51,7 +51,6 @@ jobs:
                 with:
                     name: "deequ.NET"
                     token: ${{ secrets.CODE_COV }}
-                    file: coverage.json
-                    directory: tests/deequ.tests/coverage
+                    file: tests/deequ.tests/coverage/coverage.json
                     flags: unittests
                     fail_ci_if_error: true
