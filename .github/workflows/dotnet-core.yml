@@ -45,15 +45,13 @@ jobs:
             -   name: Install .NET Worker
                 run: deploy/install-worker.sh github https://github.com/dotnet/spark/releases/download/v0.12.1/Microsoft.Spark.Worker.netcoreapp3.1.linux-x64-0.12.1.tar.gz /usr/local/bin/
             -   name: Run tests
-                run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=lcov
-            -   name: Run coverage
                 run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=json
             -   name: Upload coverage
                 uses: codecov/codecov-action@v1.0.11
                 with:
                     name: "deequ.NET"
                     token: ${{ secrets.CODE_COV }}
-                    file: coverage/coverage.json
-                    directory: coverage
+                    file: coverage.json
+                    directory: tests/deequ.tests/coverage
                     flags: unittests
                     fail_ci_if_error: true
