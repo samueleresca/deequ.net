@@ -20,6 +20,7 @@ set +e
 # Path where packaged worker file (tgz) exists.
 DESTINATION_PATH=$1
 
+mkdir -p "$DESTINATION_PATH"
 cd $DESTINATION_PATH
 
 echo "Downloading Spark distros."
