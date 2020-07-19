@@ -40,7 +40,7 @@ jobs:
               with:
                   feature: 8
             - name: Install Apache Spark
-              run: deploy/download-spark.sh bin/
+              run: deploy/download-spark.sh /home/runner/bin/
             - name: Install .NET Worker
               run: deploy/install-worker.sh github https://github.com/dotnet/spark/releases/download/v0.12.1/Microsoft.Spark.Worker.netcoreapp3.1.linux-x64-0.12.1.tar.gz /usr/local/bin
             - name: Run tests
