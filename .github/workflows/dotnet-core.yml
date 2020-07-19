@@ -23,6 +23,7 @@ jobs:
         runs-on: ubuntu-latest
         env:
             DOTNET_WORKER_DIR: ~/usr/local/bin/Microsoft.Spark.Worker
+            SPARK_RUNNER_DIR: ~/home/runner/bin/
         steps:
             - uses: actions/checkout@v2
             - name: Setup .NET Core
