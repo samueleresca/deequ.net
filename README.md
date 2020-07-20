@@ -1,4 +1,4 @@
-# xdeequ
+# deequ.NET
 
 ![deequ.NET](https://github.com/samueleresca/deequ.net/workflows/deequ.NET/badge.svg) [![codecov](https://codecov.io/gh/samueleresca/deequ.net/branch/master/graph/badge.svg)](https://codecov.io/gh/samueleresca/deequ.net)
 

@@ -25,6 +25,12 @@ namespace xdeequ.tests.Analyzers
         }
 
         [Fact]
+        public void maximum_correctly_tostring_instances()
+        {
+            Maximum("att1").ToString().ShouldBe("Maximum(att1,None)");
+        }
+
+        [Fact]
         public void compute_maximum_correctly_for_numeric_data_with_filtering()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
@@ -38,6 +44,12 @@ namespace xdeequ.tests.Analyzers
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
             Try<double> result = MaxLength("att1").Calculate(df).Value;
             result.Get().ShouldBe(4.0);
+        }
+
+        [Fact]
+        public void maxlength_correctly_tostring_instances()
+        {
+            MaxLength("att1").ToString().ShouldBe("MaxLength(att1,None)");
         }
 
         [Fact]
@@ -57,6 +69,12 @@ namespace xdeequ.tests.Analyzers
         }
 
         [Fact]
+        public void mean_correctly_tostring_instances()
+        {
+            Mean("att1").ToString().ShouldBe("Mean(att1,None)");
+        }
+
+        [Fact]
         public void compute_mean_correctly_for_numeric_data_with_where_predicate()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
@@ -73,6 +91,12 @@ namespace xdeequ.tests.Analyzers
         }
 
         [Fact]
+        public void minimum_correctly_tostring_instances()
+        {
+            Minimum("att1").ToString().ShouldBe("Minimum(att1,None)");
+        }
+
+        [Fact]
         public void compute_minimum_correctly_for_numeric_data_with_filtering()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
@@ -86,6 +110,12 @@ namespace xdeequ.tests.Analyzers
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
             Try<double> result = MinLength("att1").Calculate(df).Value;
             result.Get().ShouldBe(0.0);
+        }
+
+        [Fact]
+        public void minlength_correctly_tostring_instances()
+        {
+            MinLength("att1").ToString().ShouldBe("MinLength(att1,None)");
         }
 
         [Fact]
@@ -106,10 +136,22 @@ namespace xdeequ.tests.Analyzers
         }
 
         [Fact]
+        public void standarddeviation_correctly_tostring_instances()
+        {
+             StandardDeviation("att1").ToString().ShouldBe("StandardDeviation(att1,None)");
+        }
+
+        [Fact]
         public void compute_sum_correctly_for_numeric_data()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
             Sum("att1").Calculate(df).Value.Get().ShouldBe(21);
+        }
+
+        [Fact]
+        public void sum_correctly_tostring_instances()
+        {
+            Sum("att1").ToString().ShouldBe("Sum(att1,None)");
         }
 
         [Fact]

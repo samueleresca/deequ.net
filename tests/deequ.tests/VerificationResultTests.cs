@@ -90,44 +90,6 @@ namespace xdeequ.tests
             }
         }
 
-        private static bool DictionariesEqual(Dictionary<string, string> x, Dictionary<string, string> y)
-        {
-            if (x == y)
-            {
-                return true;
-            }
-
-            if (x == null || y == null)
-            {
-                return false;
-            }
-
-            bool result = false;
-
-            result = x.Count == y.Count;
-
-            if (result)
-            {
-                foreach (KeyValuePair<string, string> xKvp in x)
-                {
-                    string yValue;
-                    if (!y.TryGetValue(xKvp.Key, out yValue))
-                    {
-                        result = false;
-                        break;
-                    }
-
-                    result = xKvp.Value.Equals(yValue);
-                    if (!result)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return result;
-        }
-
         [Fact]
         public void getCheckResults_correctly_return_a_DataFrame_that_is_formatted_as_expected() =>
             Evaluate(_session, results =>
