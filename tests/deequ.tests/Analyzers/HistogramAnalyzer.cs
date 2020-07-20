@@ -95,5 +95,11 @@ namespace xdeequ.tests.Analyzers
             HistogramMetric histogram = Histogram("att1", new Option<string>(), 1002).Calculate(complete);
             histogram.Value.IsSuccess.ShouldBeFalse();
         }
+
+        [Fact]
+        public void histogram_correctly_tostring_instances()
+        {
+            Histogram("att1").ToString().ShouldBe("Histogram(att1,None)");
+        }
     }
 }

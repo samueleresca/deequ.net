@@ -105,5 +105,11 @@ namespace xdeequ.tests.Analyzers
             attr2.Name.ShouldBe(expected2.Name);
             attr2.Value.IsSuccess.ShouldBeFalse();
         }
+
+        [Fact]
+        public void uniqueness_correctly_tostring_instances()
+        {
+            Uniqueness(new []{"att1", "att2"}).ToString().ShouldBe("Uniqueness(List(att1,att2),None)");
+        }
     }
 }

@@ -89,6 +89,12 @@ namespace xdeequ.tests.Analyzers
         }
 
         [Fact]
+        public void patternmatch_correctly_tostring_instances()
+        {
+            PatternMatch("att1", new Regex("")).ToString().ShouldBe("PatternMatch(att1,None)");
+        }
+
+        [Fact]
         public void match_URLS()
         {
             List<GenericRow> elements = new List<GenericRow>
@@ -119,7 +125,6 @@ namespace xdeequ.tests.Analyzers
             result.Value.IsSuccess.ShouldBeTrue();
             result.Value.Get().ShouldBe(10.0 / 13.0);
         }
-
 
         [Fact]
         public void match_US_SSN()

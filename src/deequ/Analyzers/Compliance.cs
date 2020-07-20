@@ -41,6 +41,8 @@ namespace xdeequ.Analyzers
             sb
                 .Append(GetType().Name)
                 .Append("(")
+                .Append(Instance)
+                .Append(",")
                 .Append(Predicate)
                 .Append(",")
                 .Append(Where.GetOrElse("None"))

@@ -65,6 +65,11 @@ namespace xdeequ.tests.Analyzers
             attr1.Value.IsSuccess.ShouldBeFalse();
         }
 
+        [Fact]
+        public void completeness_correctly_tostring_instances()
+        {
+            Completeness("source").ToString().ShouldBe("Completeness(source,None)");
+        }
 
         [Fact]
         public void fail_on_wrong_column_input()

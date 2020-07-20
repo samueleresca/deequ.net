@@ -39,5 +39,11 @@ namespace xdeequ.tests.Analyzers
             attr2.Name.ShouldBe(expected2.Name);
             attr2.Value.Get().ShouldBe(expected2.Value.Get());
         }
+
+        [Fact]
+        public void entropy_correctly_tostring_instances()
+        {
+            Entropy("att1").ToString().ShouldBe("Entropy(att1,None)");
+        }
     }
 }

@@ -39,6 +39,12 @@ namespace xdeequ.tests.Analyzers
         }
 
         [Fact]
+        public void completeness_correctly_tostring_instances()
+        {
+            Compliance("rule1", Expr("att1 > 3")).ToString().ShouldBe("Compliance(rule1,Microsoft.Spark.Sql.Column,None)");
+        }
+
+        [Fact]
         public void compute_correct_metrics_with_filtering()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);

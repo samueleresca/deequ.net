@@ -49,5 +49,11 @@ namespace xdeequ.tests.Analyzers
             DataFrame complete = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
             MutualInformation(new[] {"att1", "att2"}).Calculate(complete).Value.Get().ShouldBe(0);
         }
+
+        [Fact]
+        public void mutualinformation_correctly_tostring_instances()
+        {
+            MutualInformation(new []{"att1"}).ToString().ShouldBe("MutualInformation(List(att1),None)");
+        }
     }
 }

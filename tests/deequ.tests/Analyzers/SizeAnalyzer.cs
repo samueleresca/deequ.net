@@ -41,5 +41,11 @@ namespace xdeequ.tests.Analyzers
             actualMissing.Instance.ShouldBe(expectedMissing.Instance);
             actualMissing.Value.Get().ShouldBe(expectedMissing.Value.Get());
         }
+
+        [Fact]
+        public void size_correctly_tostring_instances()
+        {
+            Size(Option<string>.None).ToString().ShouldBe("Size(None)");
+        }
     }
 }

@@ -16,7 +16,6 @@ namespace xdeequ.tests.Analyzers
 
         private readonly SparkSession _session;
 
-
         public Distribution GetDefaultDistribution() =>
             new Distribution(
                 new Dictionary<string, DistributionValue>
@@ -44,6 +43,12 @@ namespace xdeequ.tests.Analyzers
                 .ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Absolute);
             result.Value.Get()[DataTypeInstances.Fractional.ToString()].Ratio
                 .ShouldBe(expected1[DataTypeInstances.Fractional.ToString()].Ratio);
+        }
+
+        [Fact]
+        public void datatype_correctly_tostring_instances()
+        {
+            DataType("att1_float").ToString().ShouldBe("DataType(att1_float,None)");
         }
 
         [Fact]
