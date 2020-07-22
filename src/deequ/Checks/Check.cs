@@ -30,23 +30,28 @@ namespace xdeequ.Checks
         public IEnumerable<ConstraintResult> ConstraintResults { get; set; }
     }
 
-    public enum CheckLevel
-    {
-        Error = 0,
-        Warning = 1
-    }
-
-    public enum CheckStatus
-    {
-        Success = 0,
-        Warning = 1,
-        Error = 2
-    }
-
+    /// <summary>
+    /// A class representing a list of constraints that can be applied to a given
+    /// <see cref="DataFrame"/>. In order to run the checks, use the `run` method. You can
+    /// also use VerificationSuite.run to run your checks along with other Checks and Analysis objects.
+    /// When run with VerificationSuite, Analyzers required by multiple checks/analysis blocks is
+    /// optimized to run once.
+    /// </summary>
     public class Check
     {
         public static readonly Func<double, bool> IsOne = _ => _ == 1.0;
 
+        public CheckLevel Level { get; set; }
+        public string Description { get; set; }
+        public IEnumerable<IConstraint> Constraints { get; set; }
+
+        /// <summary>
+        /// Constructor of class <see cref="Check"/>
+        /// </summary>
+        /// <param name="level">Assertion level of the check group of type <see cref="CheckLevel"/> . If any of the constraints fail this level is used
+        /// for the status of the check.</param>
+        /// <param name="description">The name describes the check block. Generally will be used to show in the logs.</param>
+        /// <param name="constraints">The constraints list of type <see cref="IConstraint"> to apply when this check is run.</param>
         public Check(CheckLevel level, string description, IEnumerable<IConstraint> constraints)
         {
             Level = level;
@@ -54,6 +59,12 @@ namespace xdeequ.Checks
             Constraints = constraints;
         }
 
+        /// <summary>
+        /// Constructor of class <see cref="Check"/>
+        /// </summary>
+        /// <param name="level">Assertion level of the check group of type <see cref="CheckLevel"/> . If any of the constraints fail this level is used
+        /// for the status of the check.</param>
+        /// <param name="constraints">The constraints list of type <see cref="IConstraint"/> to apply when this check is run.</param>
         public Check(CheckLevel level, string description)
         {
             Level = level;
@@ -61,25 +72,27 @@ namespace xdeequ.Checks
             Constraints = new List<IConstraint>();
         }
 
-        public CheckLevel Level { get; set; }
-        public string Description { get; set; }
-        public IEnumerable<IConstraint> Constraints { get; set; }
 
-        private CheckWithLastConstraintFilterable AddFilterableConstraint(
-            Func<Option<string>, IConstraint> constraintDefinition)
-        {
-            IConstraint constraintWithoutFiltering = constraintDefinition(Option<string>.None);
-            IEnumerable<IConstraint> newConstraints = Constraints.Append(constraintWithoutFiltering);
-
-            return new CheckWithLastConstraintFilterable(Level, Description, newConstraints, constraintDefinition);
-        }
-
+        /// <summary>
+        /// Returns a new Check instance with the given constraint added to the constraints list.
+        /// </summary>
+        /// <param name="constraint">The constraint to add of type <see cref="IConstraint"/>.</param>
+        /// <returns>the new constraint instance.</returns>
         public Check AddConstraint(IConstraint constraint)
         {
             Constraints = Constraints.Append(constraint);
             return this;
         }
-
+        /// <summary>
+        /// Creates a constraint that calculates the data frame size and runs the assertion on it.
+        /// </summary>
+        /// <param name="assertion">Function that receives a long input parameter and returns a boolean
+        ///                  Assertion functions might refer to the data frame size by "_"
+        ///                  .hasSize(_>5), meaning the number of rows should be greater than 5
+        ///                  Or more elaborate function might be provided
+        ///                  .hasSize{ aNameForSize => aNameForSize > 0 && aNameForSize <10 }</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasSize(Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter => SizeConstraint(assertion, filter, hint));
 
@@ -520,6 +533,15 @@ namespace xdeequ.Checks
                 })
                 .OfType<IAnalysisBasedConstraint>()
                 .Select(x => x.Analyzer);
+
+        private CheckWithLastConstraintFilterable AddFilterableConstraint(
+            Func<Option<string>, IConstraint> constraintDefinition)
+        {
+            IConstraint constraintWithoutFiltering = constraintDefinition(Option<string>.None);
+            IEnumerable<IConstraint> newConstraints = Constraints.Append(constraintWithoutFiltering);
+
+            return new CheckWithLastConstraintFilterable(Level, Description, newConstraints, constraintDefinition);
+        }
 
         private Func<double, bool> IsNewestPointNonAnomalous(IMetricsRepository metricsRepository,
             IAnomalyDetectionStrategy anomalyDetectionStrategy,
