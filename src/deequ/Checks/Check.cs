@@ -48,10 +48,9 @@ namespace xdeequ.Checks
         /// <summary>
         /// Constructor of class <see cref="Check"/>
         /// </summary>
-        /// <param name="level">Assertion level of the check group of type <see cref="CheckLevel"/> . If any of the constraints fail this level is used
-        /// for the status of the check.</param>
+        /// <param name="level">Assertion level of the check group of type <see cref="CheckLevel"/> . If any of the constraints fail this level is used for the status of the check.</param>
         /// <param name="description">The name describes the check block. Generally will be used to show in the logs.</param>
-        /// <param name="constraints">The constraints list of type <see cref="IConstraint"> to apply when this check is run.</param>
+        /// <param name="constraints">The constraints list of type <see cref="IConstraint"/> to apply when this check is run.</param>
         public Check(CheckLevel level, string description, IEnumerable<IConstraint> constraints)
         {
             Level = level;
@@ -62,9 +61,8 @@ namespace xdeequ.Checks
         /// <summary>
         /// Constructor of class <see cref="Check"/>
         /// </summary>
-        /// <param name="level">Assertion level of the check group of type <see cref="CheckLevel"/> . If any of the constraints fail this level is used
-        /// for the status of the check.</param>
-        /// <param name="constraints">The constraints list of type <see cref="IConstraint"/> to apply when this check is run.</param>
+        /// <param name="level">Assertion level of the check group of type <see cref="CheckLevel"/> . If any of the constraints fail this level is used for the status of the check.</param>
+        /// <param name="description">The name describes the check block. Generally will be used to show in the logs.</param>
         public Check(CheckLevel level, string description)
         {
             Level = level;
@@ -77,7 +75,7 @@ namespace xdeequ.Checks
         /// Returns a new Check instance with the given constraint added to the constraints list.
         /// </summary>
         /// <param name="constraint">The constraint to add of type <see cref="IConstraint"/>.</param>
-        /// <returns>the new constraint instance.</returns>
+        /// <returns>The new constraint instance.</returns>
         public Check AddConstraint(IConstraint constraint)
         {
             Constraints = Constraints.Append(constraint);
@@ -88,17 +86,27 @@ namespace xdeequ.Checks
         /// </summary>
         /// <param name="assertion">Function that receives a long input parameter and returns a boolean
         ///                  Assertion functions might refer to the data frame size by "_"
-        ///                  .hasSize(_>5), meaning the number of rows should be greater than 5
+        ///                  <code>.HasSize(x => x > 5)</code> meaning the number of rows should be greater than 5
         ///                  Or more elaborate function might be provided
-        ///                  .hasSize{ aNameForSize => aNameForSize > 0 && aNameForSize <10 }</param>
+        ///                  <code>.HasSize(aNameForSize => aNmeForSize > 0 &amp;&amp; aNmeForSize &lt; 10 </code></param>
         /// <param name="hint">A hint to provide additional context why a constraint could have failed</param>
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HasSize(Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter => SizeConstraint(assertion, filter, hint));
-
+        /// <summary>
+        /// Creates a constraint that asserts on a column completion.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsComplete(string column, Option<string> hint = default) =>
             AddFilterableConstraint(filter => CompletenessConstraint(column, IsOne, filter, hint));
-
+        /// <summary>
+        /// Creates a constraint that asserts on a column completion.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasCompleteness(string column, Func<double, bool> assertion,
             Option<string> hint = default) =>
             AddFilterableConstraint(filter => CompletenessConstraint(column, assertion, filter, hint));
