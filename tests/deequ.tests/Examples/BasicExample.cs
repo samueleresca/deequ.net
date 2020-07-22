@@ -1,4 +1,4 @@
-git using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Checks;
@@ -7,7 +7,7 @@ using Xunit;
 
 namespace xdeequ.tests.Examples
 {
-    [Collection("Spark examples")]
+    [Collection("Spark instance")]
     public class BasicExample
     {
         private readonly SparkSession _session;
