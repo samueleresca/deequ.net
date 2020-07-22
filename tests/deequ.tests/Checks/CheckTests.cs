@@ -72,10 +72,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsCreditCardNumber(col, _ => _ == .5, Option<string>.None);
+                .ContainsCreditCardNumber(col, _ => _ == .5);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .ContainsCreditCardNumber(col, _ => _ == 1, Option<string>.None).Where("type = 'valid'");
+                .ContainsCreditCardNumber(col, _ => _ == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
                 RunChecks(df, check, new[] {checkWithFilter});
@@ -137,10 +137,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsEmail(col, _ => _ == .5, Option<string>.None);
+                .ContainsEmail(col, _ => _ == .5);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .ContainsEmail(col, _ => _ == 1, Option<string>.None).Where("type = 'valid'");
+                .ContainsEmail(col, _ => _ == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
                 RunChecks(df, check, new[] {checkWithFilter});
@@ -169,10 +169,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsSSN(col, _ => _ == .5, Option<string>.None);
+                .ContainsSSN(col, _ => _ == .5);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .ContainsSSN(col, _ => _ == 1, Option<string>.None).Where("type = 'valid'");
+                .ContainsSSN(col, _ => _ == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
                 RunChecks(df, check, new[] {checkWithFilter});
@@ -201,10 +201,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsURL(col, _ => _ == .5, Option<string>.None);
+                .ContainsURL(col, _ => _ == .5);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .ContainsURL(col, _ => _ == 1, Option<string>.None).Where("type = 'valid'");
+                .ContainsURL(col, _ => _ == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
                 RunChecks(df, check, new[] {checkWithFilter});
@@ -598,7 +598,7 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsCreditCardNumber(col, _ => _ == 1, Option<string>.None);
+                .ContainsCreditCardNumber(col, _ => _ == 1);
 
             AnalyzerContext context =
                 RunChecks(df, check, new Check[] { });
@@ -622,7 +622,7 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsEmail(col, _ => _ == 1, Option<string>.None);
+                .ContainsEmail(col, _ => _ == 1);
 
             AnalyzerContext context =
                 RunChecks(df, check, new Check[] { });
@@ -646,7 +646,7 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsSSN(col, _ => _ == 1, Option<string>.None);
+                .ContainsSSN(col, _ => _ == 1);
 
             AnalyzerContext context =
                 RunChecks(df, check, new Check[] { });
@@ -673,7 +673,7 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsURL(col, _ => _ == 1, Option<string>.None);
+                .ContainsURL(col, _ => _ == 1);
 
             AnalyzerContext context =
                 RunChecks(df, check, new Check[] { });

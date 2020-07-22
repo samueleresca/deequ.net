@@ -80,31 +80,31 @@ namespace xdeequ.Checks
             return this;
         }
 
-        public CheckWithLastConstraintFilterable HasSize(Func<double, bool> assertion, Option<string> hint) =>
+        public CheckWithLastConstraintFilterable HasSize(Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter => SizeConstraint(assertion, filter, hint));
 
-        public CheckWithLastConstraintFilterable IsComplete(string column, Option<string> hint) =>
+        public CheckWithLastConstraintFilterable IsComplete(string column, Option<string> hint = default) =>
             AddFilterableConstraint(filter => CompletenessConstraint(column, IsOne, filter, hint));
 
         public CheckWithLastConstraintFilterable HasCompleteness(string column, Func<double, bool> assertion,
-            Option<string> hint) =>
+            Option<string> hint = default) =>
             AddFilterableConstraint(filter => CompletenessConstraint(column, assertion, filter, hint));
 
-        public CheckWithLastConstraintFilterable AreComplete(IEnumerable<string> columns, Option<string> hint) =>
+        public CheckWithLastConstraintFilterable AreComplete(IEnumerable<string> columns, Option<string> hint = default) =>
             Satisfies(ChecksExt.IsEachNotNull(columns), "Combined Completeness", IsOne, hint);
 
         public CheckWithLastConstraintFilterable HaveCompleteness(IEnumerable<string> columns,
-            Func<double, bool> assertion, Option<string> hint) =>
+            Func<double, bool> assertion, Option<string> hint = default) =>
             Satisfies(ChecksExt.IsEachNotNull(columns), "Combined Completeness", assertion, hint);
 
-        public CheckWithLastConstraintFilterable AreAnyComplete(IEnumerable<string> columns, Option<string> hint) =>
+        public CheckWithLastConstraintFilterable AreAnyComplete(IEnumerable<string> columns, Option<string> hint = default) =>
             Satisfies(ChecksExt.IsAnyNotNull(columns), "Any Completeness", IsOne, hint);
 
         public CheckWithLastConstraintFilterable HaveAnyCompleteness(IEnumerable<string> columns,
-            Func<double, bool> assertion, Option<string> hint) =>
+            Func<double, bool> assertion, Option<string> hint = default) =>
             Satisfies(ChecksExt.IsAnyNotNull(columns), "Any Completeness", assertion, hint);
 
-        public CheckWithLastConstraintFilterable IsUnique(string column, Option<string> hint) =>
+        public CheckWithLastConstraintFilterable IsUnique(string column, Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniquenessConstraint(column, IsOne, filter, hint));
 
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column, IEnumerable<string> columns) =>
@@ -122,7 +122,7 @@ namespace xdeequ.Checks
                 UniquenessConstraint(columns, assertion, filter, Option<string>.None));
 
         public CheckWithLastConstraintFilterable HasUniqueness(IEnumerable<string> columns,
-            Func<double, bool> assertion, Option<string> hint) =>
+            Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniquenessConstraint(columns, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasUniqueness(string column, Func<double, bool> assertion) =>
@@ -130,24 +130,24 @@ namespace xdeequ.Checks
                 UniquenessConstraint(column, assertion, filter, Option<string>.None));
 
         public CheckWithLastConstraintFilterable HasUniqueness(string column, Func<double, bool> assertion,
-            Option<string> hint) =>
+            Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniquenessConstraint(column, assertion, filter, hint));
 
 
         public CheckWithLastConstraintFilterable HasDistinctness(IEnumerable<string> columns,
             Func<double, bool> assertion,
-            Option<string> hint) =>
+            Option<string> hint = default) =>
             AddFilterableConstraint(filter => DistinctnessConstraint(columns, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasUniqueValueRatio(IEnumerable<string> columns,
             Func<double, bool> assertion,
-            Option<string> hint) =>
+            Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniqueValueRatioConstraint(columns, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasNumberOfDistinctValues(string column,
             Func<long, bool> assertion,
-            Option<Func<Column, Column>> binningFunc,
-            Option<string> hint,
+            Option<Func<Column, Column>> binningFunc = default,
+            Option<string> hint = default,
             int maxBins = 1000
         ) =>
             AddFilterableConstraint(filter =>
@@ -156,8 +156,8 @@ namespace xdeequ.Checks
 
         public CheckWithLastConstraintFilterable HasHistogramValues(string column,
             Func<Distribution, bool> assertion,
-            Option<Func<Column, Column>> binningFunc,
-            Option<string> hint,
+            Option<Func<Column, Column>> binningFunc = default,
+            Option<string> hint = default,
             int maxBins = 100
         ) =>
             AddFilterableConstraint(filter =>
@@ -165,8 +165,8 @@ namespace xdeequ.Checks
 
         public CheckWithLastConstraintFilterable KllSketchSatisfies(string column,
             Func<Distribution, bool> assertion,
-            Option<Func<Column, Column>> binningFunc,
-            Option<string> hint,
+            Option<Func<Column, Column>> binningFunc = default,
+            Option<string> hint = default,
             int maxBins = 100
         ) =>
             throw new NotImplementedException();
@@ -176,8 +176,8 @@ namespace xdeequ.Checks
             IAnomalyDetectionStrategy anomalyDetectionStrategy,
             IAnalyzer<IMetric> analyzer,
             Dictionary<string, string> withTagValues,
-            Option<long> afterDate,
-            Option<long> beforeDate
+            Option<long> afterDate = default,
+            Option<long> beforeDate = default
         ) where S : IState
         {
             Func<double, bool> funcResult = IsNewestPointNonAnomalous(metricRepository, anomalyDetectionStrategy,
@@ -190,7 +190,7 @@ namespace xdeequ.Checks
 
         public CheckWithLastConstraintFilterable HasEntropy(string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => EntropyConstraint(column, assertion, filter, hint));
 
@@ -198,7 +198,7 @@ namespace xdeequ.Checks
             string columnA,
             string columnB,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
                 MutualInformationConstraint(columnA, columnB, assertion, filter, hint));
@@ -214,50 +214,50 @@ namespace xdeequ.Checks
 
         public CheckWithLastConstraintFilterable HasMinLength(string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MinLengthConstraint(column, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasMaxLength(string column,
             Func<double, bool> assertion,
-            Option<string> hint,
+            Option<string> hint = default,
             int maxBins = 100
         ) =>
             AddFilterableConstraint(filter => MaxLengthConstraint(column, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasMin(string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MinConstraint(column, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasMax(string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MaxConstraint(column, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasMean(string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MeanConstraint(column, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasSum(string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => SumConstraint(column, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasStandardDeviation(string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => StandardDeviationConstraint(column, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable HasApproxCountDistinct(string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => ApproxCountDistinctConstraint(column, assertion, filter, hint));
 
@@ -265,24 +265,24 @@ namespace xdeequ.Checks
             string columnA,
             string columnB,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => CorrelationConstraint(columnA, columnB, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
-            Func<double, bool> assertion, Option<string> hint) =>
+            Func<double, bool> assertion, Option<string> hint = default) =>
             Satisfies(Expr(columnCondition), constraintName, assertion, hint);
 
         public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
-            Option<string> hint) => Satisfies(Expr(columnCondition), constraintName, hint);
+            Option<string> hint = default) => Satisfies(Expr(columnCondition), constraintName, hint);
 
         public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
-            Func<double, bool> assertion, Option<string> hint) =>
+            Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter =>
                 ComplianceConstraint(constraintName, columnCondition, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
-            Option<string> hint) =>
+            Option<string> hint = default) =>
             AddFilterableConstraint(filter =>
                 ComplianceConstraint(constraintName, columnCondition, IsOne, filter, hint));
 
@@ -290,7 +290,7 @@ namespace xdeequ.Checks
             string column,
             Regex pattern,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
                 PatternMatchConstraint(column, pattern, assertion, filter, hint));
@@ -298,36 +298,32 @@ namespace xdeequ.Checks
         public CheckWithLastConstraintFilterable HasPattern(
             string column,
             Regex pattern,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
                 PatternMatchConstraint(column, pattern, IsOne, filter, hint));
 
         public CheckWithLastConstraintFilterable ContainsCreditCardNumber(
             string column,
-            Func<double, bool> assertion,
-            Option<string> hint
+            Func<double, bool> assertion
         ) =>
             HasPattern(column, Patterns.CreditCard, assertion, $"ContainsCreditCardNumber({column})");
 
         public CheckWithLastConstraintFilterable ContainsEmail(
             string column,
-            Func<double, bool> assertion,
-            Option<string> hint
+            Func<double, bool> assertion
         ) =>
             HasPattern(column, Patterns.Email, assertion, $"ContainsEmail({column})");
 
         public CheckWithLastConstraintFilterable ContainsURL(
             string column,
-            Func<double, bool> assertion,
-            Option<string> hint
+            Func<double, bool> assertion
         ) =>
             HasPattern(column, Patterns.Url, assertion, $"ContainsURL({column})");
 
         public CheckWithLastConstraintFilterable ContainsSSN(
             string column,
-            Func<double, bool> assertion,
-            Option<string> hint
+            Func<double, bool> assertion
         ) =>
             HasPattern(column, Patterns.SocialSecurityNumberUs, assertion, $"ContainsSSN({column})");
 
@@ -335,33 +331,33 @@ namespace xdeequ.Checks
             string column,
             ConstrainableDataTypes dataType,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => DataTypeConstraint(column, dataType, assertion, filter, hint));
 
         public CheckWithLastConstraintFilterable IsNonNegative(
             string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", assertion, hint);
 
         public CheckWithLastConstraintFilterable IsNonNegative(
             string column,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", hint);
 
         public CheckWithLastConstraintFilterable IsPositive(
             string column,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", assertion, hint);
 
         public CheckWithLastConstraintFilterable IsPositive(
             string column,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", hint);
 
@@ -369,7 +365,7 @@ namespace xdeequ.Checks
             string columnA,
             string columnB,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", assertion, hint);
 
@@ -377,7 +373,7 @@ namespace xdeequ.Checks
         public CheckWithLastConstraintFilterable IsLessThan(
             string columnA,
             string columnB,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", hint);
 
@@ -385,7 +381,7 @@ namespace xdeequ.Checks
             string columnA,
             string columnB,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"{columnA} <= {columnB}"), $"{columnA} is less than or equal to {columnB}",
                 assertion,
@@ -395,7 +391,7 @@ namespace xdeequ.Checks
         public CheckWithLastConstraintFilterable IsLessThanOrEqualTo(
             string columnA,
             string columnB,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"{columnA} <= {columnB}"), $"{columnA} is less than or equal to {columnB}",
                 hint);
@@ -404,14 +400,14 @@ namespace xdeequ.Checks
             string columnA,
             string columnB,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", assertion, hint);
 
         public CheckWithLastConstraintFilterable IsGreaterThan(
             string columnA,
             string columnB,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", hint);
 
@@ -419,7 +415,7 @@ namespace xdeequ.Checks
             string columnA,
             string columnB,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"{columnA} >= {columnB}"), $"{columnA} is greater than or equal to {columnB}",
                 assertion,
@@ -428,7 +424,7 @@ namespace xdeequ.Checks
         public CheckWithLastConstraintFilterable IsGreaterOrEqualTo(
             string columnA,
             string columnB,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             Satisfies(Expr($"{columnA} >= {columnB}"), $"{columnA} is greater than or equal to {columnB}",
                 hint);
@@ -442,7 +438,7 @@ namespace xdeequ.Checks
         public CheckWithLastConstraintFilterable IsContainedIn(
             string column,
             IEnumerable<string> allowedValues,
-            Option<string> hint
+            Option<string> hint = default
         ) =>
             IsContainedIn(column, allowedValues, IsOne, hint);
 
@@ -457,7 +453,7 @@ namespace xdeequ.Checks
             string column,
             double lowerBound,
             double upperBound,
-            Option<string> hint,
+            Option<string> hint = default,
             bool includeUpperBound = true,
             bool includeLowerBound = true
         )
@@ -475,7 +471,7 @@ namespace xdeequ.Checks
             string column,
             IEnumerable<string> allowedValues,
             Func<double, bool> assertion,
-            Option<string> hint
+            Option<string> hint = default
         )
         {
             string valueList = "'" + string.Join("', '", allowedValues) + "'";
