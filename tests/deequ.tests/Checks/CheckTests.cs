@@ -411,31 +411,31 @@ namespace xdeequ.tests.Checks
 
 
             CheckWithLastConstraintFilterable numericRangeCheck1 = new Check(CheckLevel.Error, "nr1")
-                .IsContainedIn("att2", 0, 7, Option<string>.None);
+                .IsContainedIn("att2", 0, 7);
 
             CheckWithLastConstraintFilterable numericRangeCheck2 = new Check(CheckLevel.Error, "nr2")
-                .IsContainedIn("att2", 1, 7, Option<string>.None);
+                .IsContainedIn("att2", 1, 7);
 
             CheckWithLastConstraintFilterable numericRangeCheck3 = new Check(CheckLevel.Error, "nr3")
-                .IsContainedIn("att2", 0, 6, Option<string>.None);
+                .IsContainedIn("att2", 0, 6);
 
             CheckWithLastConstraintFilterable numericRangeCheck4 = new Check(CheckLevel.Error, "nr4")
-                .IsContainedIn("att2", 0, 7, Option<string>.None, includeLowerBound: false, includeUpperBound: false);
+                .IsContainedIn("att2", 0, 7, includeLowerBound: false, includeUpperBound: false);
 
             CheckWithLastConstraintFilterable numericRangeCheck5 = new Check(CheckLevel.Error, "nr5")
-                .IsContainedIn("att2", -1, 8, Option<string>.None, includeLowerBound: false, includeUpperBound: false);
+                .IsContainedIn("att2", -1, 8, includeLowerBound: false, includeUpperBound: false);
 
             CheckWithLastConstraintFilterable numericRangeCheck6 = new Check(CheckLevel.Error, "nr6")
-                .IsContainedIn("att2", 0, 7, Option<string>.None, includeLowerBound: true, includeUpperBound: false);
+                .IsContainedIn("att2", 0, 7,  includeLowerBound: true, includeUpperBound: false);
 
             CheckWithLastConstraintFilterable numericRangeCheck7 = new Check(CheckLevel.Error, "nr7")
-                .IsContainedIn("att2", 0, 8, Option<string>.None, includeLowerBound: true, includeUpperBound: false);
+                .IsContainedIn("att2", 0, 8, includeLowerBound: true, includeUpperBound: false);
 
             CheckWithLastConstraintFilterable numericRangeCheck8 = new Check(CheckLevel.Error, "nr8")
-                .IsContainedIn("att2", 0, 7, Option<string>.None, includeLowerBound: false, includeUpperBound: true);
+                .IsContainedIn("att2", 0, 7,includeLowerBound: false, includeUpperBound: true);
 
             CheckWithLastConstraintFilterable numericRangeCheck9 = new Check(CheckLevel.Error, "nr0")
-                .IsContainedIn("att2", -1, 7, Option<string>.None, includeLowerBound: false, includeUpperBound: true);
+                .IsContainedIn("att2", -1, 7,  includeLowerBound: false, includeUpperBound: true);
 
 
             AnalyzerContext numericRangeResults = RunChecks(FixtureSupport.GetDfWithNumericValues(_session),
@@ -864,8 +864,7 @@ namespace xdeequ.tests.Checks
         public void should_return_the_correct_status_for_hasUniqueValueRatio()
         {
             Check check1 = new Check(CheckLevel.Error, "unique-value-ratio-check")
-                .HasUniqueValueRatio(new[] {"nonUnique", "halfUniqueCombinedWithNonUnique"}, _ => _ == .75,
-                    Option<string>.None)
+                .HasUniqueValueRatio(new[] {"nonUnique", "halfUniqueCombinedWithNonUnique"}, _ => _ == .75)
                 .HasUniqueValueRatio(new[] {"nonUnique", "halfUniqueCombinedWithNonUnique"}, Check.IsOne,
                     Option<string>.None)
                 .Where("nonUnique > 0")
@@ -889,42 +888,29 @@ namespace xdeequ.tests.Checks
             DataFrame df = FixtureSupport.GetDfCompleteAndInCompleteColumns(_session);
 
             Check check1 = new Check(CheckLevel.Error, "group-1")
-                .HasNumberOfDistinctValues("att1", _ => _ < 10, Option<Func<Column, Column>>.None, Option<string>.None)
-                .HasHistogramValues("att1", _ => _["a"].Absolute == 4, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
-                .HasHistogramValues("att1", _ => _["b"].Absolute == 2, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
-                .HasHistogramValues("att1", _ => _["a"].Ratio > .6, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
-                .HasHistogramValues("att1", _ => _["b"].Ratio < .4, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
-                .HasHistogramValues("att1", _ => _["a"].Absolute == 3, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
+                .HasNumberOfDistinctValues("att1", _ => _ < 10)
+                .HasHistogramValues("att1", _ => _["a"].Absolute == 4)
+                .HasHistogramValues("att1", _ => _["b"].Absolute == 2)
+                .HasHistogramValues("att1", _ => _["a"].Ratio > .6)
+                .HasHistogramValues("att1", _ => _["b"].Ratio < .4)
+                .HasHistogramValues("att1", _ => _["a"].Absolute == 3)
                 .Where("att2 is not null")
-                .HasHistogramValues("att1", _ => _["b"].Absolute == 1, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
+                .HasHistogramValues("att1", _ => _["b"].Absolute == 1)
                 .Where("att2 is not null");
 
             CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-1")
-                .HasNumberOfDistinctValues("att2", _ => _ == 3, Option<Func<Column, Column>>.None, Option<string>.None)
-                .HasNumberOfDistinctValues("att2", _ => _ == 2, Option<Func<Column, Column>>.None, Option<string>.None)
+                .HasNumberOfDistinctValues("att2", _ => _ == 3)
+                .HasNumberOfDistinctValues("att2", _ => _ == 2)
                 .Where("att1 = 'a'")
-                .HasHistogramValues("att2", _ => _["f"].Absolute == 3, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
-                .HasHistogramValues("att2", _ => _["d"].Absolute == 1, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
-                .HasHistogramValues("att2", _ => _[Histogram.NULL_FIELD_REPLACEMENT].Absolute == 2,
-                    Option<Func<Column, Column>>.None, Option<string>.None)
-                .HasHistogramValues("att2", _ => _["f"].Ratio == 3 / 6.0, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
-                .HasHistogramValues("att2", _ => _["d"].Ratio == 1 / 6.0, Option<Func<Column, Column>>.None,
-                    Option<string>.None)
-                .HasHistogramValues("att2", _ => _[Histogram.NULL_FIELD_REPLACEMENT].Ratio == 2 / 6.0,
-                    Option<Func<Column, Column>>.None, Option<string>.None);
+                .HasHistogramValues("att2", _ => _["f"].Absolute == 3)
+                .HasHistogramValues("att2", _ => _["d"].Absolute == 1)
+                .HasHistogramValues("att2", _ => _[Histogram.NULL_FIELD_REPLACEMENT].Absolute == 2)
+                .HasHistogramValues("att2", _ => _["f"].Ratio == 3 / 6.0)
+                .HasHistogramValues("att2", _ => _["d"].Ratio == 1 / 6.0)
+                .HasHistogramValues("att2", _ => _[Histogram.NULL_FIELD_REPLACEMENT].Ratio == 2 / 6.0);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Error, "group-1")
-                .HasNumberOfDistinctValues("unknownColumn", _ => _ == 3,
-                    Option<Func<Column, Column>>.None, Option<string>.None);
+                .HasNumberOfDistinctValues("unknownColumn", _ => _ == 3);
 
             AnalyzerContext context =
                 RunChecks(df, check1, new Check[] {check2, check3});
@@ -941,7 +927,7 @@ namespace xdeequ.tests.Checks
                 .IsPrimaryKey("unique", new string[] { })
                 .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new[] {"onlyUniqueWithOtherNonUnique"})
                 .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new string[] { }).Where("nonUnique > 0")
-                .IsPrimaryKey("nonUnique", new Option<string>("hint"), new[] {"halfUniqueCombinedWithNonUnique"})
+                .IsPrimaryKey("nonUnique", new[] {"halfUniqueCombinedWithNonUnique"}, new Option<string>("hint"))
                 .Where("nonUnique > 0 ")
                 .IsPrimaryKey("nonUnique", new string[] { })
                 .IsPrimaryKey("nonUnique", new[] {"nonUniqueWithNulls"});

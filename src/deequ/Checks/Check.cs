@@ -39,10 +39,22 @@ namespace xdeequ.Checks
     /// </summary>
     public class Check
     {
+        /// <summary>
+        ///
+        /// </summary>
         public static readonly Func<double, bool> IsOne = _ => _ == 1.0;
 
-        public CheckLevel Level { get; set; }
-        public string Description { get; set; }
+        /// <summary>
+        ///
+        /// </summary>
+        public CheckLevel Level { get; }
+        /// <summary>
+        ///
+        /// </summary>
+        public string Description { get; }
+        /// <summary>
+        ///
+        /// </summary>
         public IEnumerable<IConstraint> Constraints { get; set; }
 
         /// <summary>
@@ -93,6 +105,7 @@ namespace xdeequ.Checks
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HasSize(Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter => SizeConstraint(assertion, filter, hint));
+
         /// <summary>
         /// Creates a constraint that asserts on a column completion.
         /// </summary>
@@ -101,6 +114,7 @@ namespace xdeequ.Checks
         /// <returns></returns>
         public CheckWithLastConstraintFilterable IsComplete(string column, Option<string> hint = default) =>
             AddFilterableConstraint(filter => CompletenessConstraint(column, IsOne, filter, hint));
+
         /// <summary>
         /// Creates a constraint that asserts on a column completion.
         /// </summary>
@@ -111,75 +125,146 @@ namespace xdeequ.Checks
             Option<string> hint = default) =>
             AddFilterableConstraint(filter => CompletenessConstraint(column, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that asserts on completion in combined set of columns.
+        /// </summary>
+        /// <param name="columns">Columns to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable AreComplete(IEnumerable<string> columns, Option<string> hint = default) =>
             Satisfies(ChecksExt.IsEachNotNull(columns), "Combined Completeness", IsOne, hint);
 
+        /// <summary>
+        /// Creates a constraint that assert on completion in combined set of columns.
+        /// </summary>
+        /// <param name="columns">Columns to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HaveCompleteness(IEnumerable<string> columns,
             Func<double, bool> assertion, Option<string> hint = default) =>
             Satisfies(ChecksExt.IsEachNotNull(columns), "Combined Completeness", assertion, hint);
 
+        /// <summary>
+        /// Creates a constraint that asserts on completion in combined set of columns.
+        /// </summary>
+        /// <param name="columns">Columns to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable AreAnyComplete(IEnumerable<string> columns, Option<string> hint = default) =>
             Satisfies(ChecksExt.IsAnyNotNull(columns), "Any Completeness", IsOne, hint);
 
+        /// <summary>
+        /// Creates a constraint that assert on completion in combined set of columns.
+        /// </summary>
+        /// <param name="columns">Columns to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HaveAnyCompleteness(IEnumerable<string> columns,
             Func<double, bool> assertion, Option<string> hint = default) =>
             Satisfies(ChecksExt.IsAnyNotNull(columns), "Any Completeness", assertion, hint);
 
+        /// <summary>
+        /// Creates a constraint that asserts on a column uniqueness.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsUnique(string column, Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniquenessConstraint(column, IsOne, filter, hint));
 
-        public CheckWithLastConstraintFilterable IsPrimaryKey(string column, IEnumerable<string> columns) =>
-            AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, Option<string>.None));
-
-        public CheckWithLastConstraintFilterable IsPrimaryKey(string column, Option<string> hint,
-            IEnumerable<string> columns) =>
+        /// <summary>
+        /// Creates a constraint that asserts on a column(s) primary key characteristics. Currently only checks uniqueness, but reserved for primary key checks if there is another assertion to run on primary key columns.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="columns">Columns to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
+        public CheckWithLastConstraintFilterable IsPrimaryKey(string column,
+            IEnumerable<string> columns, Option<string> hint = default) =>
             AddFilterableConstraint(filter =>
                 UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, hint));
 
-        public CheckWithLastConstraintFilterable HasUniqueness(IEnumerable<string> columns,
-            Func<double, bool> assertion) =>
-            AddFilterableConstraint(filter =>
-                UniquenessConstraint(columns, assertion, filter, Option<string>.None));
-
+        /// <summary>
+        /// Creates a constraint that asserts on uniqueness in a single or combined set of key columns.
+        /// </summary>
+        /// <param name="columns">Key columns.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean. Refers to the fraction of unique values</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasUniqueness(IEnumerable<string> columns,
             Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniquenessConstraint(columns, assertion, filter, hint));
 
-        public CheckWithLastConstraintFilterable HasUniqueness(string column, Func<double, bool> assertion) =>
-            AddFilterableConstraint(filter =>
-                UniquenessConstraint(column, assertion, filter, Option<string>.None));
-
+        /// <summary>
+        /// Creates a constraint that asserts on the uniqueness of a key column.
+        /// </summary>
+        /// <param name="column">Key column</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean. Refers to the fraction of unique values.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasUniqueness(string column, Func<double, bool> assertion,
             Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniquenessConstraint(column, assertion, filter, hint));
 
-
+        /// <summary>
+        /// Creates a constraint that asserts on the uniqueness of a key column.
+        /// </summary>
+        /// <param name="columns">Key columns.</param>
+        /// <param name="assertion">Creates a constraint that asserts on the uniqueness of a key column.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasDistinctness(IEnumerable<string> columns,
             Func<double, bool> assertion,
             Option<string> hint = default) =>
             AddFilterableConstraint(filter => DistinctnessConstraint(columns, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint on the unique value ratio in a single or combined set of key columns.
+        /// </summary>
+        /// <param name="columns">columns</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean. Refers to the fraction of distinct values.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasUniqueValueRatio(IEnumerable<string> columns,
             Func<double, bool> assertion,
             Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniqueValueRatioConstraint(columns, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that asserts on the number of distinct values a column has.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a long input parameter and returns a boolean.</param>
+        /// <param name="binningFunc">An optional binning function.</param>
+        /// <param name="maxBins">Histogram details is only provided for N column values with top counts. maxBins sets the N</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasNumberOfDistinctValues(string column,
             Func<long, bool> assertion,
             Option<Func<Column, Column>> binningFunc = default,
-            Option<string> hint = default,
-            int maxBins = 1000
+            int maxBins = 1000,
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
                 HistogramBinConstraint(column, assertion, binningFunc, filter, hint, maxBins));
 
 
+        /// <summary>
+        /// Creates a constraint that asserts on column's value distribution.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a Distribution input parameter and returns a boolean. E.g <code>.hasHistogramValues("att2", _.absolutes("f") == 3 .hasHistogramValues("att2",_.ratios(Histogram.NullFieldReplacement) == 2/6.0)</code></param>
+        /// <param name="binningFunc">An optional binning function.</param>
+        /// <param name="maxBins">Histogram details is only provided for N column values with top counts. maxBins sets the N.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasHistogramValues(string column,
             Func<Distribution, bool> assertion,
             Option<Func<Column, Column>> binningFunc = default,
-            Option<string> hint = default,
-            int maxBins = 100
+            int maxBins = 100,
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
                 HistogramConstraint(column, assertion, binningFunc, filter, hint, maxBins));
@@ -192,13 +277,26 @@ namespace xdeequ.Checks
         ) =>
             throw new NotImplementedException();
 
+        /// <summary>
+        /// Creates a constraint that runs <see cref="IAnomalyDetectionStrategy"/> on the new value
+        /// </summary>
+        /// <param name="metricRepository">A metrics repository to get the previous results.</param>
+        /// <param name="anomalyDetectionStrategy">The anomaly detection strategy.</param>
+        /// <param name="analyzer">The analyzer for the metric to run anomaly detection on.</param>
+        /// <param name="withTagValues">Can contain a Map with tag names and the corresponding values to filter for.</param>
+        /// <param name="afterDate">The maximum DateTime of previous <see cref="AnalysisResults"/> to use for the Anomaly Detection.</param>
+        /// <param name="beforeDate">The minumum DateTime of previous <see cref="AnalysisResults"/> to use for the Anomaly Detection.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <typeparam name="S"><see cref="IState"/></typeparam>
+        /// <returns></returns>
         public Check IsNewestPointNonAnomalous<S>(
             IMetricsRepository metricRepository,
             IAnomalyDetectionStrategy anomalyDetectionStrategy,
             IAnalyzer<IMetric> analyzer,
             Dictionary<string, string> withTagValues,
             Option<long> afterDate = default,
-            Option<long> beforeDate = default
+            Option<long> beforeDate = default,
+            Option<string> hint = default
         ) where S : IState
         {
             Func<double, bool> funcResult = IsNewestPointNonAnomalous(metricRepository, anomalyDetectionStrategy,
@@ -209,12 +307,27 @@ namespace xdeequ.Checks
             return AddConstraint(AnomalyConstraint<S>(analyzer, funcResult, Option<string>.None));
         }
 
+        /// <summary>
+        /// Creates a constraint that asserts on a column entropy.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasEntropy(string column,
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => EntropyConstraint(column, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that asserts on a mutual information between two columns.
+        /// </summary>
+        /// <param name="columnA">First column for mutual information calculation.</param>
+        /// <param name="columnB">Second column for mutual information calculation.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasMutualInformation(
             string columnA,
             string columnB,
@@ -224,64 +337,137 @@ namespace xdeequ.Checks
             AddFilterableConstraint(filter =>
                 MutualInformationConstraint(columnA, columnB, assertion, filter, hint));
 
-
+        /// <summary>
+        /// Creates a constraint that asserts on an approximated quantile.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="quantile">Which quantile to assert on.</param>
+        /// <param name="assertion">Function that receives a double input parameter (the computed quantile) and returns a boolean</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasApproxQuantile(
-            string columnA,
-            string columnB,
+            string column,
+            double quantile,
             Func<double, bool> assertion,
             Option<string> hint
         ) =>
             throw new NotImplementedException();
 
+        /// <summary>
+        /// Creates a constraint that asserts on the minimum length of the column.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasMinLength(string column,
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MinLengthConstraint(column, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that asserts on the maximum length of the column.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasMaxLength(string column,
             Func<double, bool> assertion,
-            Option<string> hint = default,
-            int maxBins = 100
+            Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MaxLengthConstraint(column, assertion, filter, hint));
 
+
+        /// <summary>
+        /// Creates a constraint that asserts on the minimum of the column.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasMin(string column,
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MinConstraint(column, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that asserts on the maximum of the column.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasMax(string column,
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MaxConstraint(column, assertion, filter, hint));
 
+
+        /// <summary>
+        /// Creates a constraint that asserts on the mean of the column.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasMean(string column,
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => MeanConstraint(column, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that asserts on the sum of the column.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasSum(string column,
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => SumConstraint(column, assertion, filter, hint));
 
+
+        /// <summary>
+        /// Creates a constraint that asserts on the standard deviation of the column
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasStandardDeviation(string column,
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => StandardDeviationConstraint(column, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that asserts on the approximate count distinct of the given column
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasApproxCountDistinct(string column,
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter => ApproxCountDistinctConstraint(column, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that asserts on the pearson correlation between two columns.
+        /// </summary>
+        /// <param name="columnA">First column for correlation calculation.</param>
+        /// <param name="columnB">Second column for correlation calculation.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasCorrelation(
             string columnA,
             string columnB,
@@ -290,64 +476,160 @@ namespace xdeequ.Checks
         ) =>
             AddFilterableConstraint(filter => CorrelationConstraint(columnA, columnB, assertion, filter, hint));
 
+
+        /// <summary>
+        /// Creates a constraint that runs the given condition on the data frame.
+        /// </summary>
+        /// <param name="columnCondition">Data frame column which is a combination of expression and the column name. It has to comply with Spark SQL syntax. Can be written in an exact same way with conditions inside the `WHERE` clause.</param>
+        /// <param name="constraintName">A name that summarizes the check being made. This name is being used to name the metrics for the analysis being done.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
             Func<double, bool> assertion, Option<string> hint = default) =>
             Satisfies(Expr(columnCondition), constraintName, assertion, hint);
 
-        public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
+
+        /// <summary>
+        /// Creates a constraint that runs the given condition on the data frame.
+        /// </summary>
+        /// <param name="columnCondition">Data frame column which is a combination of expression and the column name. It has to comply with Spark SQL syntax. Can be written in an exact same way with conditions inside the `WHERE` clause.</param>
+        /// <param name="constraintName">A name that summarizes the check being made. This name is being used to name the metrics for the analysis being done.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
+        public CheckWithLastConstraintFilterable Satisfies(
+            string columnCondition,
+            string constraintName,
             Option<string> hint = default) => Satisfies(Expr(columnCondition), constraintName, hint);
 
+
+        /// <summary>
+        /// Creates a constraint that runs the given condition on the data frame.
+        /// </summary>
+        /// <param name="columnCondition">Data frame column which is a combination of expression and the column name. It has to comply with Spark SQL syntax. Can be written in an exact same way with conditions inside the `WHERE` clause.</param>
+        /// <param name="constraintName">A name that summarizes the check being made. This name is being used to name the metrics for the analysis being done.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
             Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter =>
                 ComplianceConstraint(constraintName, columnCondition, assertion, filter, hint));
 
+        /// <summary>
+        /// Creates a constraint that runs the given condition on the data frame.
+        /// </summary>
+        /// <param name="columnCondition">Data frame column which is a combination of expression and the column name. It has to comply with Spark SQL syntax. Can be written in an exact same way with conditions inside the `WHERE` clause.</param>
+        /// <param name="constraintName">A name that summarizes the check being made. This name is being used to name the metrics for the analysis being done.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
             Option<string> hint = default) =>
             AddFilterableConstraint(filter =>
                 ComplianceConstraint(constraintName, columnCondition, IsOne, filter, hint));
 
+        /// <summary>
+        /// Checks for pattern compliance. Given a column name and a regular expression, defines a Check on the average compliance of the column's values to the regular expression.
+        /// </summary>
+        /// <param name="column">Name of the column that should be checked.</param>
+        /// <param name="pattern">The columns values will be checked for a match against this pattern.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="name">A name that summarizes the check being made. This name is being used to name the metrics for the analysis being done.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasPattern(
             string column,
             Regex pattern,
             Func<double, bool> assertion,
+            Option<string> name = default,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
-                PatternMatchConstraint(column, pattern, assertion, filter, hint));
+                PatternMatchConstraint(column, pattern, assertion, filter, hint:hint));
 
+        /// <summary>
+        /// Checks for pattern compliance. Given a column name and a regular expression, defines a Check on the average compliance of the column's values to the regular expression.
+        /// </summary>
+        /// <param name="column">Name of the column that should be checked.</param>
+        /// <param name="pattern">The columns values will be checked for a match against this pattern.</param>
+        /// <param name="name">A name that summarizes the check being made. This name is being used to name the metrics for the analysis being done.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasPattern(
             string column,
             Regex pattern,
+            Option<string> name = default,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
-                PatternMatchConstraint(column, pattern, IsOne, filter, hint));
+                PatternMatchConstraint(column, pattern, IsOne, filter, name, hint));
 
+        /// <summary>
+        /// Check to run against the compliance of a column against an credit-card pattern.
+        /// </summary>
+        /// <param name="column">Name of the column that should be checked.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable ContainsCreditCardNumber(
             string column,
-            Func<double, bool> assertion
+            Func<double, bool> assertion,
+            Option<string> hint = default
         ) =>
-            HasPattern(column, Patterns.CreditCard, assertion, $"ContainsCreditCardNumber({column})");
+            HasPattern(column, Patterns.CreditCard, assertion, $"ContainsCreditCardNumber({column})", hint);
 
+
+        /// <summary>
+        /// Check to run against the compliance of a column against an email pattern.
+        /// </summary>
+        /// <param name="column">Name of the column that should be checked.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable ContainsEmail(
             string column,
-            Func<double, bool> assertion
+            Func<double, bool> assertion,
+            Option<string> hint = default
         ) =>
-            HasPattern(column, Patterns.Email, assertion, $"ContainsEmail({column})");
+            HasPattern(column, Patterns.Email, assertion, $"ContainsEmail({column})", hint);
 
+        /// <summary>
+        /// Check to run against the compliance of a column against an URL pattern.
+        /// </summary>
+        /// <param name="column">Name of the column that should be checked.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable ContainsURL(
             string column,
-            Func<double, bool> assertion
+            Func<double, bool> assertion,
+            Option<string> hint = default
         ) =>
-            HasPattern(column, Patterns.Url, assertion, $"ContainsURL({column})");
+            HasPattern(column, Patterns.Url, assertion, $"ContainsURL({column})", hint);
 
+
+        /// <summary>
+        /// Check to run against the compliance of a column against an SSN pattern.
+        /// </summary>
+        /// <param name="column">Name of the column that should be checked.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable ContainsSSN(
             string column,
-            Func<double, bool> assertion
+            Func<double, bool> assertion,
+            Option<string> hint = default
         ) =>
-            HasPattern(column, Patterns.SocialSecurityNumberUs, assertion, $"ContainsSSN({column})");
+            HasPattern(column, Patterns.SocialSecurityNumberUs, assertion, $"ContainsSSN({column})", hint);
 
+        /// <summary>
+        /// Check to run against the fraction of rows that conform to the given data type.
+        /// </summary>
+        /// <param name="column">Name of the column that should be checked.</param>
+        /// <param name="dataType">Data type to verify <see cref="ConstrainableDataTypes"/></param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable HasDataType(
             string column,
             ConstrainableDataTypes dataType,
@@ -356,6 +638,14 @@ namespace xdeequ.Checks
         ) =>
             AddFilterableConstraint(filter => DataTypeConstraint(column, dataType, assertion, filter, hint));
 
+
+        /// <summary>
+        /// Creates a constraint that asserts that a column contains no negative values.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsNonNegative(
             string column,
             Func<double, bool> assertion,
@@ -363,12 +653,27 @@ namespace xdeequ.Checks
         ) =>
             Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", assertion, hint);
 
+
+        /// <summary>
+        /// Creates a constraint that asserts that a column contains no negative values.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsNonNegative(
             string column,
             Option<string> hint = default
         ) =>
             Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", hint);
 
+
+        /// <summary>
+        /// Creates a constraint that asserts that a column contains no negative values.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsPositive(
             string column,
             Func<double, bool> assertion,
@@ -376,12 +681,29 @@ namespace xdeequ.Checks
         ) =>
             Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", assertion, hint);
 
+
+        /// <summary>
+        /// Creates a constraint that asserts that a column contains no negative values.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsPositive(
             string column,
             Option<string> hint = default
         ) =>
             Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", hint);
 
+
+
+        /// <summary>
+        /// Asserts that, in each row, the value of columnA is less than the value of columnB
+        /// </summary>
+        /// <param name="columnA">Column to run the assertion on.</param>
+        /// <param name="columnB">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsLessThan(
             string columnA,
             string columnB,
@@ -390,7 +712,13 @@ namespace xdeequ.Checks
         ) =>
             Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", assertion, hint);
 
-
+        /// <summary>
+        /// Asserts that, in each row, the value of columnA is less than the value of columnB
+        /// </summary>
+        /// <param name="columnA">Column to run the assertion on.</param>
+        /// <param name="columnB">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsLessThan(
             string columnA,
             string columnB,
@@ -398,6 +726,14 @@ namespace xdeequ.Checks
         ) =>
             Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", hint);
 
+        /// <summary>
+        /// Asserts that, in each row, the value of columnA is less than or equal to the value of columnB.
+        /// </summary>
+        /// <param name="columnA">Column to run the assertion on</param>
+        /// <param name="columnB">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsLessThanOrEqualTo(
             string columnA,
             string columnB,
@@ -409,6 +745,13 @@ namespace xdeequ.Checks
                 hint);
 
 
+        /// <summary>
+        /// Asserts that, in each row, the value of columnA is less than or equal to the value of columnB.
+        /// </summary>
+        /// <param name="columnA">Column to run the assertion on</param>
+        /// <param name="columnB">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsLessThanOrEqualTo(
             string columnA,
             string columnB,
@@ -417,6 +760,14 @@ namespace xdeequ.Checks
             Satisfies(Expr($"{columnA} <= {columnB}"), $"{columnA} is less than or equal to {columnB}",
                 hint);
 
+        /// <summary>
+        /// Asserts that, in each row, the value of columnA is greater than the value of columnB.
+        /// </summary>
+        /// <param name="columnA">Column to run the assertion on</param>
+        /// <param name="columnB">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsGreaterThan(
             string columnA,
             string columnB,
@@ -425,6 +776,13 @@ namespace xdeequ.Checks
         ) =>
             Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", assertion, hint);
 
+        /// <summary>
+        /// Asserts that, in each row, the value of columnA is greater than the value of columnB.
+        /// </summary>
+        /// <param name="columnA">Column to run the assertion on</param>
+        /// <param name="columnB">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsGreaterThan(
             string columnA,
             string columnB,
@@ -432,6 +790,14 @@ namespace xdeequ.Checks
         ) =>
             Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", hint);
 
+        /// <summary>
+        /// Asserts that, in each row, the value of columnA is greater than or equal to the value of columnB.
+        /// </summary>
+        /// <param name="columnA">Column to run the assertion on</param>
+        /// <param name="columnB">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsGreaterOrEqualTo(
             string columnA,
             string columnB,
@@ -442,6 +808,13 @@ namespace xdeequ.Checks
                 assertion,
                 hint);
 
+        /// <summary>
+        /// Asserts that, in each row, the value of columnA is greater than or equal to the value of columnB.
+        /// </summary>
+        /// <param name="columnA">Column to run the assertion on</param>
+        /// <param name="columnB">Column to run the assertion on.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsGreaterOrEqualTo(
             string columnA,
             string columnB,
@@ -450,12 +823,13 @@ namespace xdeequ.Checks
             Satisfies(Expr($"{columnA} >= {columnB}"), $"{columnA} is greater than or equal to {columnB}",
                 hint);
 
-        public CheckWithLastConstraintFilterable IsContainedIn(
-            string column,
-            IEnumerable<string> allowedValues
-        ) =>
-            IsContainedIn(column, allowedValues, IsOne, Option<string>.None);
-
+        /// <summary>
+        /// Asserts that every non-null value in a column is contained in a set of predefined values
+        /// </summary>
+        /// <param name="column">Column to run the assertion on</param>
+        /// <param name="allowedValues">allowed values for the column</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsContainedIn(
             string column,
             IEnumerable<string> allowedValues,
@@ -463,6 +837,13 @@ namespace xdeequ.Checks
         ) =>
             IsContainedIn(column, allowedValues, IsOne, hint);
 
+        /// <summary>
+        /// Asserts that every non-null value in a column is contained in a set of predefined values
+        /// </summary>
+        /// <param name="column">Column to run the assertion on</param>
+        /// <param name="allowedValues">allowed values for the column</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsContainedIn(
             string column,
             IEnumerable<string> allowedValues,
@@ -470,13 +851,23 @@ namespace xdeequ.Checks
         ) =>
             IsContainedIn(column, allowedValues, assertion, Option<string>.None);
 
+        /// <summary>
+        /// Asserts that every non-null value in a column is contained in a set of predefined values
+        /// </summary>
+        /// <param name="column">Column to run the assertion on</param>
+        /// <param name="lowerBound">lower bound of the interval.</param>
+        /// <param name="upperBound">upper bound of the interval.</param>
+        /// <param name="includeUpperBound">is a value equal to the lower bound allows?</param>
+        /// <param name="includeLowerBound">is a value equal to the upper bound allowed?</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsContainedIn(
             string column,
             double lowerBound,
             double upperBound,
-            Option<string> hint = default,
             bool includeUpperBound = true,
-            bool includeLowerBound = true
+            bool includeLowerBound = true,
+            Option<string> hint = default
         )
         {
             string leftOperand = includeLowerBound ? ">=" : ">";
@@ -488,6 +879,14 @@ namespace xdeequ.Checks
             return Satisfies(Expr(predictate), $"{column} between {lowerBound} and {upperBound}", hint);
         }
 
+        /// <summary>
+        /// Asserts that every non-null value in a column is contained in a set of predefined values
+        /// </summary>
+        /// <param name="column">Column to run the assertion on</param>
+        /// <param name="allowedValues">allowed values for the column</param>
+        /// <param name="assertion">Function that receives a double input parameter and returns a boolean</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
         public CheckWithLastConstraintFilterable IsContainedIn(
             string column,
             IEnumerable<string> allowedValues,
@@ -510,7 +909,11 @@ namespace xdeequ.Checks
                 $"{column} contained in {string.Join(",", allowedValues)}", assertion, hint);
         }
 
-
+        /// <summary>
+        /// Evaluate this check on computed metrics.
+        /// </summary>
+        /// <param name="context">result of the metrics computation.</param>
+        /// <returns></returns>
         public CheckResult Evaluate(AnalyzerContext context)
         {
             IEnumerable<ConstraintResult> constraintResults = Constraints.Select(x => x.Evaluate(context.MetricMap));
@@ -526,7 +929,10 @@ namespace xdeequ.Checks
             return new CheckResult(this, checkStatus, constraintResults);
         }
 
-
+        /// <summary>
+        /// Returns the required analyzers
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<IAnalyzer<IMetric>> RequiredAnalyzers() =>
             Constraints
                 .Select(cons =>

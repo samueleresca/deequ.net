@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Spark.Sql;
@@ -303,18 +304,18 @@ namespace xdeequ.Constraints
             string column,
             Regex pattern,
             Func<double, bool> assertion,
-            Option<string> where,
-            Option<string> hint
+            Option<string> where = default,
+            Option<string> name = default,
+            Option<string> hint = default
         )
         {
             PatternMatch patternMatch = PatternMatch(column, pattern, where);
 
             AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(patternMatch, assertion,
-                    Option<Func<double, double>>.None, hint);
+                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(patternMatch, assertion, hint);
 
-            return new NamedConstraint(constraint,
-                $"PatternMatchConstraint({constraint})");
+            string constraintName = name.HasValue ? name.Value : $"PatternMatchConstraint({constraint})";
+            return new NamedConstraint(constraint, constraintName);
         }
 
         public static IConstraint MaxLengthConstraint(
