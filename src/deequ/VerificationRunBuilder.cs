@@ -14,16 +14,16 @@ namespace xdeequ
 {
     public class VerificationRunBuilder
     {
-        public IEnumerable<Check> checks;
-        public DataFrame data;
-        public bool failIfResultsForReusingMissing;
-        public Option<IMetricsRepository> metricsRepository;
-        public bool overwriteOutputFiles;
-        public IEnumerable<IAnalyzer<IMetric>> requiredAnalyzers;
-        public Option<ResultKey> reuseExistingResultsKey;
-        public Option<string> saveCheckResultsJsonPath;
-        public Option<ResultKey> saveOrAppendResultsKey;
-        public Option<string> saveSuccessMetricsJsonPath;
+        protected IEnumerable<Check> checks;
+        protected DataFrame data;
+        protected bool failIfResultsForReusingMissing;
+        protected Option<IMetricsRepository> metricsRepository;
+        protected bool overwriteOutputFiles;
+        protected IEnumerable<IAnalyzer<IMetric>> requiredAnalyzers;
+        protected Option<ResultKey> reuseExistingResultsKey;
+        protected Option<string> saveCheckResultsJsonPath;
+        protected Option<ResultKey> saveOrAppendResultsKey;
+        protected Option<string> saveSuccessMetricsJsonPath;
 
         public Option<SparkSession> sparkSession;
         public Option<IStateLoader> stateLoader;

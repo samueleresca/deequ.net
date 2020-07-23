@@ -12,16 +12,18 @@ using xdeequ.Util;
 
 namespace xdeequ
 {
-    public class VerificationMetricsRepositoryOptions
+    internal class VerificationMetricsRepositoryOptions
     {
         public bool failIfResultsForReusingMissing;
         public Option<IMetricsRepository> metricRepository;
         public Option<ResultKey> reuseExistingResultsForKey;
         public Option<ResultKey> saveOrAppendResultsWithKey;
 
-        public VerificationMetricsRepositoryOptions(Option<IMetricsRepository> metricRepository,
-            Option<ResultKey> reuseExistingResultsForKey, bool failIfResultsForReusingMissing,
-            Option<ResultKey> saveOrAppendResultsWithKey)
+        public VerificationMetricsRepositoryOptions(
+            Option<IMetricsRepository> metricRepository = default,
+            Option<ResultKey> reuseExistingResultsForKey = default,
+            bool failIfResultsForReusingMissing = false,
+            Option<ResultKey> saveOrAppendResultsWithKey = default)
         {
             this.metricRepository = metricRepository;
             this.reuseExistingResultsForKey = reuseExistingResultsForKey;
@@ -30,7 +32,7 @@ namespace xdeequ
         }
     }
 
-    public class VerificationFileOutputOptions
+    internal class VerificationFileOutputOptions
     {
         public bool FailIfResultsForReusingMissing;
         public Option<string> SaveCheckResultsJsonToPath;
@@ -47,19 +49,37 @@ namespace xdeequ
             SaveSuccessMetricsJsonToPath = saveSuccessMetricsJsonToPath;
         }
     }
-
+    /// <summary>
+    /// Responsible for running checks and required analysis and return the results
+    /// </summary>
     public class VerificationSuite
     {
+        /// <summary>
+        /// Starting point to construct a VerificationRun.
+        /// </summary>
+        /// <param name="data">tabular data on which the checks should be verified</param>
+        /// <returns></returns>
         public VerificationRunBuilder OnData(DataFrame data) => new VerificationRunBuilder(data);
 
-        public VerificationResult DoVerificationRun(
+        /// <summary>
+        /// Runs all check groups and returns the verification result. Verification result includes all the metrics computed during the run.
+        /// </summary>
+        /// <param name="data">tabular data on which the checks should be verified.</param>
+        /// <param name="checks">A sequence of check objects to be executed.</param>
+        /// <param name="requiredAnalyzers">can be used to enforce the calculation of some some metrics. Regardless of if there are constraints on them (optional)</param>
+        /// <param name="aggregateWith">loader from which we retrieve initial states to aggregate (optional)</param>
+        /// <param name="saveStatesWith">persist resulting states for the configured analyzers (optional)</param>
+        /// <param name="metricsRepositoryOptions">Options related to the MetricsRepository</param>
+        /// <param name="fileOutputOptions">Options related to FileOuput using a SparkSession</param>
+        /// <returns> Result for every check including the overall status, detailed status for each constraints and all metrics produced</returns>
+        internal VerificationResult DoVerificationRun(
             DataFrame data,
             IEnumerable<Check> checks,
             IEnumerable<IAnalyzer<IMetric>> requiredAnalyzers,
-            Option<IStateLoader> aggregateWith,
-            Option<IStatePersister> saveStatesWith,
-            VerificationMetricsRepositoryOptions metricsRepositoryOptions,
-            VerificationFileOutputOptions fileOutputOptions)
+            Option<IStateLoader> aggregateWith = default,
+            Option<IStatePersister> saveStatesWith = default,
+            VerificationMetricsRepositoryOptions metricsRepositoryOptions = null,
+            VerificationFileOutputOptions fileOutputOptions = null)
         {
             IEnumerable<IAnalyzer<IMetric>> analyzers =
                 requiredAnalyzers.Concat(checks.SelectMany(x => x.RequiredAnalyzers()));
@@ -132,6 +152,17 @@ namespace xdeequ
                 return null;
             });
 
+        /// <summary>
+        /// Runs all check groups and returns the verification result. Metrics are computed from aggregated states. Verification result includes all the metrics generated during the run
+        /// </summary>
+        /// <param name="schema">schema of the tabular data on which the checks should be verified</param>
+        /// <param name="checks">A sequence of check objects to be executed</param>
+        /// <param name="stateLoaders">loaders from which we retrieve the states to aggregate</param>
+        /// <param name="requiredAnalysis">can be used to enforce the some metrics regardless of if there are constraints on them (optional)</param>
+        /// <param name="saveStatesWith">persist resulting states for the configured analyzers (optional)</param>
+        /// <param name="metricsRepository"></param>
+        /// <param name="saveOrAppendResultsWithKey"></param>
+        /// <returns>Result for every check including the overall status, detailed status for each constraints and all metrics produced</returns>
         public VerificationResult RunOnAggregatedStates(
             StructType schema,
             IEnumerable<Check> checks,
