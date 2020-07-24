@@ -145,7 +145,7 @@ namespace xdeequ.tests
                 VerificationResult verificationResultOne = new VerificationSuite()
                     .OnData(df)
                     .UseRepository(repository)
-                    .AddRequiredAnalyzer(analyzers)
+                    .AddRequiredAnalyzers(analyzers)
                     .SaveOrAppendResult(resultKey)
                     .AddAnomalyCheck(new AbsoluteChangeStrategy(-2.0, 2.0),
                         new Size(Option<string>.None),
@@ -325,7 +325,7 @@ namespace xdeequ.tests
                 .OnData(df)
                 .UseRepository(repository)
                 .ReuseExistingResultsForKey(resultKey)
-                .AddRequiredAnalyzer(analyzers)
+                .AddRequiredAnalyzers(analyzers)
                 .Run().Metrics.Values;
 
 

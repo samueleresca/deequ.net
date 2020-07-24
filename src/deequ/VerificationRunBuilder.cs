@@ -197,12 +197,28 @@ namespace xdeequ
         }
     }
 
+    /// <summary>
+    /// Reuse any previously computed results stored in the metrics repository associated with the current data to save computation time.
+    /// </summary>
     public class VerificationRunBuilderWithRepository : VerificationRunBuilder
     {
+
+        /// <summary>
+        /// Ctor of class <see cref="VerificationRunBuilderWithRepository"/>>
+        /// </summary>
+        /// <param name="verificationRunBuilder">The verification run builder base instance</param>
+        /// <param name="usingMetricsRepository">The <see cref="IMetricsRepository"/> interface used by the builder</param>
         public VerificationRunBuilderWithRepository(VerificationRunBuilder verificationRunBuilder,
             Option<IMetricsRepository> usingMetricsRepository) : base(verificationRunBuilder) =>
             metricsRepository = usingMetricsRepository;
 
+
+        /// <summary>
+        /// Reuse any previously computed results stored in the metrics repository associated with the current data to save computation time.
+        /// </summary>
+        /// <param name="resultKey">The exact result key of the previously computed result</param>
+        /// <param name="failIfResultsMissing">Whether the run should fail if new metric calculations are needed</param>
+        /// <returns></returns>
         public VerificationRunBuilderWithRepository ReuseExistingResultsForKey(ResultKey resultKey,
             bool failIfResultsMissing = false)
         {
@@ -212,25 +228,48 @@ namespace xdeequ
             return this;
         }
 
+
+        /// <summary>
+        /// A shortcut to save the results of the run or append them to existing results in the metrics repository.
+        /// </summary>
+        /// <param name="resultKey">The result key to identify the current run.</param>
+        /// <returns></returns>
         public VerificationRunBuilderWithRepository SaveOrAppendResult(ResultKey resultKey)
         {
             saveOrAppendResultsKey = new Option<ResultKey>(resultKey);
             return this;
         }
 
+        /// <summary>
+        ///  Can be used to enforce the calculation of some some metric regardless of if there is a constraint on it (optional)
+        /// </summary>
+        /// <param name="requiredAnalyzer">The analyzers to be used to calculate the metrics during the run.</param>
+        /// <returns></returns>
         public new VerificationRunBuilderWithRepository AddRequiredAnalyzer(IAnalyzer<IMetric> requiredAnalyzer)
         {
             requiredAnalyzers = requiredAnalyzers.Append(requiredAnalyzer);
             return this;
         }
 
-        public new VerificationRunBuilderWithRepository AddRequiredAnalyzer(
+        /// <summary>
+        ///  Can be used to enforce the calculation of some some metric regardless of if there is a constraint on it (optional)
+        /// </summary>
+        /// <param name="requiredAnalyzers">The analyzers to be used to calculate the metrics during the run.</param>
+        /// <returns></returns>
+        public new VerificationRunBuilderWithRepository AddRequiredAnalyzers(
             IEnumerable<IAnalyzer<IMetric>> requiredAnalyzers)
         {
             this.requiredAnalyzers = this.requiredAnalyzers.Concat(requiredAnalyzers);
             return this;
         }
 
+        /// <summary>
+        /// Add a check using Anomaly Detection methods. The Anomaly Detection Strategy only checks if the new value is an Anomaly.
+        /// </summary>
+        /// <param name="anomalyDetectionStrategy">The anomaly detection strategy</param>
+        /// <param name="analyzer">The analyzer for the metric to run anomaly detection on.</param>
+        /// <param name="anomalyCheckConfig">Some configuration settings for the Check.</param>
+        /// <returns></returns>
         public VerificationRunBuilderWithRepository AddAnomalyCheck(
             IAnomalyDetectionStrategy anomalyDetectionStrategy,
             IAnalyzer<IMetric> analyzer,
@@ -257,6 +296,10 @@ namespace xdeequ
         }
     }
 
+
+    /// <summary>
+    ///
+    /// </summary>
     public class AnomalyCheckConfig
     {
         public Option<long> AfterDate;
