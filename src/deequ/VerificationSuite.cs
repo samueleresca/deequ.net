@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using xdeequ.Analyzers;
@@ -9,7 +10,7 @@ using xdeequ.Checks;
 using xdeequ.Metrics;
 using xdeequ.Repository;
 using xdeequ.Util;
-
+[assembly: InternalsVisibleTo("deequ.tests")]
 namespace xdeequ
 {
     internal class VerificationMetricsRepositoryOptions
@@ -125,8 +126,7 @@ namespace xdeequ
                 saveOrAppendResultsWithKey.Select<object>(key =>
                 {
                     Option<AnalyzerContext> currentValueForKey = repository.LoadByKey(key);
-                    AnalyzerContext
-                        alreadySavedResult =
+                    AnalyzerContext alreadySavedResult =
                             currentValueForKey.GetOrElse(AnalyzerContext.Empty()); // TODO missing override
 
                     Dictionary<string, IAnalyzer<IMetric>> alreadySavedDict =

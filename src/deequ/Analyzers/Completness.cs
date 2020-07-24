@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    internal sealed class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         public readonly Option<string> Column;
         public readonly Option<string> Where;

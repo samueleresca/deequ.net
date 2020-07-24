@@ -184,7 +184,7 @@ namespace xdeequ.Analyzers.Applicability
             return new Random().NextDouble() > 0.5;
         }
 
-        private static int? RandomInteger(bool nullable)
+        private static object RandomInteger(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {
@@ -194,7 +194,7 @@ namespace xdeequ.Analyzers.Applicability
             return new Random().Next();
         }
 
-        private static float? RandomFloat(bool nullable)
+        private static object RandomFloat(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {
@@ -204,7 +204,7 @@ namespace xdeequ.Analyzers.Applicability
             return new Random().Next();
         }
 
-        private static double? RandomDouble(bool nullable)
+        private static object RandomDouble(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {
@@ -214,7 +214,7 @@ namespace xdeequ.Analyzers.Applicability
             return new Random().NextDouble();
         }
 
-        private static byte? RandomByte(bool nullable)
+        private static object RandomByte(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {
@@ -224,7 +224,7 @@ namespace xdeequ.Analyzers.Applicability
             return (byte)new Random().Next();
         }
 
-        private static short? RandomShort(bool nullable)
+        private static object RandomShort(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {
@@ -234,7 +234,7 @@ namespace xdeequ.Analyzers.Applicability
             return (short)new Random().Next();
         }
 
-        private static long? RandomLong(bool nullable)
+        private static object RandomLong(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {
@@ -244,7 +244,7 @@ namespace xdeequ.Analyzers.Applicability
             return new Random().Next();
         }
 
-        private static decimal? RandomDecimal(bool nullable)
+        private static object RandomDecimal(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {
@@ -254,7 +254,7 @@ namespace xdeequ.Analyzers.Applicability
             return new Random().NextDecimal();
         }
 
-        private static Timestamp? RandomTimestamp(bool nullable)
+        private static object RandomTimestamp(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {
@@ -264,7 +264,7 @@ namespace xdeequ.Analyzers.Applicability
             return new Timestamp(new DateTime(new Random().Next()));
         }
 
-        private static string? RandomString(bool nullable)
+        private static object RandomString(bool nullable)
         {
             if (ShouldBeNull(nullable))
             {

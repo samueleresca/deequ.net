@@ -1,9 +1,11 @@
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Spark.Sql;
 using Shouldly;
 using xdeequ.Metrics;
 using Xunit;
 using static xdeequ.Analyzers.Initializers;
+
 
 namespace xdeequ.tests.Analyzers
 {

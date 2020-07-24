@@ -8,7 +8,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class ApproxCountDistinct : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    internal sealed class ApproxCountDistinct : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         private readonly string _column;
         private readonly Option<string> _where;

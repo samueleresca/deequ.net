@@ -7,7 +7,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class ApproxQuantile : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    internal sealed class ApproxQuantile : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         private readonly string _column;
         private readonly Option<string> _where;

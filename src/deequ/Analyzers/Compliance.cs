@@ -9,7 +9,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    internal sealed class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         public readonly Column Predicate;
         public readonly Option<string> Where;

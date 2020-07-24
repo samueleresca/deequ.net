@@ -100,7 +100,7 @@ namespace xdeequ.tests
             };
 
             VerificationResult result = new VerificationSuite().OnData(df).AddCheck(checkToSucceed)
-                .AddRequiredAnalyzer(analyzers).Run();
+                .AddRequiredAnalyzers(analyzers).Run();
 
             DataFrame analysisDf = new AnalyzerContext(result.Metrics)
                 .SuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>());
@@ -154,7 +154,7 @@ namespace xdeequ.tests
 
                 VerificationResult verificationResultTwo = new VerificationSuite()
                     .OnData(df)
-                    .AddRequiredAnalyzer(analyzers)
+                    .AddRequiredAnalyzers(analyzers)
                     .UseRepository(repository)
                     .SaveOrAppendResult(resultKey)
                     .AddAnomalyCheck(new AbsoluteChangeStrategy(-7.0, 7.0),
@@ -165,7 +165,7 @@ namespace xdeequ.tests
 
                 VerificationResult verificationResultThree = new VerificationSuite()
                     .OnData(df)
-                    .AddRequiredAnalyzer(analyzers)
+                    .AddRequiredAnalyzers(analyzers)
                     .UseRepository(repository)
                     .SaveOrAppendResult(resultKey)
                     .AddAnomalyCheck(
@@ -196,7 +196,7 @@ namespace xdeequ.tests
 
             VerificationResult actualResult = new VerificationSuite()
                 .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
+                .AddRequiredAnalyzers(analyzers)
                 .UseRepository(repository)
                 .SaveOrAppendResult(resultKey).Run();
 
@@ -215,7 +215,7 @@ namespace xdeequ.tests
 
             new VerificationSuite()
                 .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
+                .AddRequiredAnalyzers(analyzers)
                 .UseRepository(repository)
                 .SaveOrAppendResult(resultKey)
                 .Run();
@@ -245,7 +245,7 @@ namespace xdeequ.tests
 
             Dictionary<IAnalyzer<IMetric>, IMetric> metrics = new VerificationSuite()
                 .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
+                .AddRequiredAnalyzers(analyzers)
                 .UseRepository(repository)
                 .SaveOrAppendResult(resultKey).Run().Metrics;
 
@@ -382,7 +382,7 @@ namespace xdeequ.tests
 
             Dictionary<IAnalyzer<IMetric>, IMetric> metrics = new VerificationSuite()
                 .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
+                .AddRequiredAnalyzers(analyzers)
                 .UseRepository(repository)
                 .SaveOrAppendResult(resultKey).Run().Metrics;
 
@@ -410,7 +410,7 @@ namespace xdeequ.tests
 
             new VerificationSuite()
                 .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
+                .AddRequiredAnalyzers(analyzers)
                 .SaveStateWith(statePersister.Object)
                 .Run();
 
@@ -451,7 +451,7 @@ namespace xdeequ.tests
 
            var result = new VerificationSuite()
                 .OnData(df)
-                .AddRequiredAnalyzer(analyzers)
+                .AddRequiredAnalyzers(analyzers)
                 .AggregateWith(statePersister.Object)
                 .Run();
 

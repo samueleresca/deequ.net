@@ -31,7 +31,7 @@ namespace xdeequ.tests
 
             VerificationResult results = new VerificationSuite()
                 .OnData(data)
-                .AddRequiredAnalyzer(analyzers)
+                .AddRequiredAnalyzers(analyzers)
                 .AddChecks(checks)
                 .Run();
 

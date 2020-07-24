@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class Histogram : Analyzer<FrequenciesAndNumRows, HistogramMetric>, IFilterableAnalyzer
+    internal sealed class Histogram : Analyzer<FrequenciesAndNumRows, HistogramMetric>, IFilterableAnalyzer
     {
         public static int DEFAULT_MAX_DETAIL_BINS = 1000;
         public static string NULL_FIELD_REPLACEMENT = "NullValue";

@@ -9,7 +9,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer,
+    internal sealed class Uniqueness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer,
         IGroupAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
         public readonly Option<string> Where;

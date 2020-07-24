@@ -14,7 +14,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public enum DataTypeInstances
+    internal enum DataTypeInstances
     {
         Unknown = 0,
         Fractional = 1,
@@ -23,7 +23,7 @@ namespace xdeequ.Analyzers
         String = 4
     }
 
-    public class DataTypeHistogram : State<DataTypeHistogram>, IState
+    internal class DataTypeHistogram : State<DataTypeHistogram>
     {
         private const int SIZE_IN_BITES = 5;
         private const int NULL_POS = 0;
@@ -101,7 +101,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
+    internal sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;
