@@ -44,8 +44,7 @@ jobs:
         runs-on: windows-latest
         env:
             DOTNET_WORKER_DIR: c:\bin\Microsoft.Spark.Worker\
-            SPARK_RUNNER_DIR: c:\bin\
-            HOME: c:\bin\
+            HOME: c:\
         steps:
             -   uses: actions/checkout@v2
             -   name: Setup .NET Core
