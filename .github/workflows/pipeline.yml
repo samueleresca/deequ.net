@@ -57,10 +57,6 @@ jobs:
                 run: dotnet build --configuration Release --no-restore
             -   name: Scripts permissions
                 run: chmod +x deploy/install-worker.sh && chmod +x deploy/download-spark.sh
-            -   name: Download OpenJDK
-                uses: sormuras/download-jdk@v1
-                with:
-                    feature: 8
             -   name: Install Apache Spark
                 run: bash deploy/download-spark.sh c:\bin\runner\
             -   name: Install .NET Worker
