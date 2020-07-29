@@ -62,7 +62,7 @@ jobs:
             -   name: Install .NET Worker
                 run: deploy/install-worker.cmd c:\bin\Microsoft.Spark.Worker\ 0.9.0
             -   name: Run tests
-                run: dotnet test --collect:"XPlat Code Coverage" /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=json
+                run: dotnet test -v d --collect:"XPlat Code Coverage" /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=json
             -   name: Upload coverage
                 uses: codecov/codecov-action@v1.0.11
                 with:
