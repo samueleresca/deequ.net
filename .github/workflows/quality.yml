@@ -42,10 +42,6 @@ jobs:
                     fail_ci_if_error: true
     publish-nuget:
         runs-on: ubuntu-latest
-        on:
-            push:
-                branches:
-                    - master
         env:
             DOTNET_WORKER_DIR: /usr/local/bin/
             SPARK_RUNNER_DIR: /home/runner/bin/
