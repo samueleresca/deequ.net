@@ -78,7 +78,7 @@ namespace xdeequ.tests.Checks
                 .ContainsCreditCardNumber(col, _ => _ == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] {checkWithFilter});
+                RunChecks(df, check, new[] { checkWithFilter });
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -110,7 +110,7 @@ namespace xdeequ.tests.Checks
                 .Where("type = 'integral'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] {checkWithFilter});
+                RunChecks(df, check, new[] { checkWithFilter });
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -143,7 +143,7 @@ namespace xdeequ.tests.Checks
                 .ContainsEmail(col, _ => _ == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] {checkWithFilter});
+                RunChecks(df, check, new[] { checkWithFilter });
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -175,7 +175,7 @@ namespace xdeequ.tests.Checks
                 .ContainsSSN(col, _ => _ == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] {checkWithFilter});
+                RunChecks(df, check, new[] { checkWithFilter });
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -207,7 +207,7 @@ namespace xdeequ.tests.Checks
                 .ContainsURL(col, _ => _ == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] {checkWithFilter});
+                RunChecks(df, check, new[] { checkWithFilter });
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -362,7 +362,7 @@ namespace xdeequ.tests.Checks
                 .HasMean("att1", _ => _ == 5.0, Option<string>.None).Where("att2 > 0");
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDfWithNumericValues(_session), meanCheck, new[] {meanCheckFiltered});
+                RunChecks(FixtureSupport.GetDfWithNumericValues(_session), meanCheck, new[] { meanCheckFiltered });
 
             AssertEvaluatesTo(meanCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(meanCheckFiltered, context, CheckStatus.Success);
@@ -381,7 +381,7 @@ namespace xdeequ.tests.Checks
                 .IsPositive("att3", Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, isNonNegative, new[] {isPositive});
+                RunChecks(df, isNonNegative, new[] { isPositive });
 
             AssertEvaluatesTo(isNonNegative, context, CheckStatus.Success);
             AssertEvaluatesTo(isPositive, context, CheckStatus.Success);
@@ -393,17 +393,17 @@ namespace xdeequ.tests.Checks
             DataFrame df = FixtureSupport.GetDfWithDistinctValues(_session);
 
             CheckWithLastConstraintFilterable rangeCheck = new Check(CheckLevel.Error, "a")
-                .IsContainedIn("att1", new[] {"a", "b", "c"});
+                .IsContainedIn("att1", new[] { "a", "b", "c" });
 
             CheckWithLastConstraintFilterable inCorrectRangeCheck = new Check(CheckLevel.Error, "a")
-                .IsContainedIn("att1", new[] {"a", "b"});
+                .IsContainedIn("att1", new[] { "a", "b" });
 
             CheckWithLastConstraintFilterable inCorrectRangeCheckWithCustomAssertionFunction =
                 new Check(CheckLevel.Error, "a")
-                    .IsContainedIn("att1", new[] {"a"}, _ => _ == 0.5);
+                    .IsContainedIn("att1", new[] { "a" }, _ => _ == 0.5);
 
             AnalyzerContext context =
-                RunChecks(df, rangeCheck, new[] {inCorrectRangeCheck, inCorrectRangeCheckWithCustomAssertionFunction});
+                RunChecks(df, rangeCheck, new[] { inCorrectRangeCheck, inCorrectRangeCheckWithCustomAssertionFunction });
 
             AssertEvaluatesTo(rangeCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(inCorrectRangeCheck, context, CheckStatus.Error);
@@ -426,16 +426,16 @@ namespace xdeequ.tests.Checks
                 .IsContainedIn("att2", -1, 8, includeLowerBound: false, includeUpperBound: false);
 
             CheckWithLastConstraintFilterable numericRangeCheck6 = new Check(CheckLevel.Error, "nr6")
-                .IsContainedIn("att2", 0, 7,  includeLowerBound: true, includeUpperBound: false);
+                .IsContainedIn("att2", 0, 7, includeLowerBound: true, includeUpperBound: false);
 
             CheckWithLastConstraintFilterable numericRangeCheck7 = new Check(CheckLevel.Error, "nr7")
                 .IsContainedIn("att2", 0, 8, includeLowerBound: true, includeUpperBound: false);
 
             CheckWithLastConstraintFilterable numericRangeCheck8 = new Check(CheckLevel.Error, "nr8")
-                .IsContainedIn("att2", 0, 7,includeLowerBound: false, includeUpperBound: true);
+                .IsContainedIn("att2", 0, 7, includeLowerBound: false, includeUpperBound: true);
 
             CheckWithLastConstraintFilterable numericRangeCheck9 = new Check(CheckLevel.Error, "nr0")
-                .IsContainedIn("att2", -1, 7,  includeLowerBound: false, includeUpperBound: true);
+                .IsContainedIn("att2", -1, 7, includeLowerBound: false, includeUpperBound: true);
 
 
             AnalyzerContext numericRangeResults = RunChecks(FixtureSupport.GetDfWithNumericValues(_session),
@@ -475,7 +475,7 @@ namespace xdeequ.tests.Checks
                 .HasEntropy("att1", _ => _ != expectedValue, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, check1, new[] {check2, check3});
+                RunChecks(df, check1, new[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Success);
@@ -492,7 +492,7 @@ namespace xdeequ.tests.Checks
                 .HasMutualInformation("att1", "att2", _ => _ == 0, Option<string>.None).Where("att2 = 'c'");
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFFull(_session), check, new[] {checkWithFilter});
+                RunChecks(FixtureSupport.GetDFFull(_session), check, new[] { checkWithFilter });
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -524,7 +524,7 @@ namespace xdeequ.tests.Checks
              });*/
 
             AnalyzerContext context = RunChecks(dfNumeric, hasMinimum,
-                new Check[] {hasMaximum, hasMean, hasSum, hasStandardDeviation});
+                new Check[] { hasMaximum, hasMean, hasSum, hasStandardDeviation });
 
             AssertEvaluatesTo(hasMinimum, context, CheckStatus.Success);
             AssertEvaluatesTo(hasMaximum, context, CheckStatus.Success);
@@ -545,7 +545,7 @@ namespace xdeequ.tests.Checks
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(col, new StringType())});
+                new List<StructField> { new StructField(col, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -569,7 +569,7 @@ namespace xdeequ.tests.Checks
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(col, new StringType())});
+                new List<StructField> { new StructField(col, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -593,7 +593,7 @@ namespace xdeequ.tests.Checks
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(col, new StringType())});
+                new List<StructField> { new StructField(col, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -617,7 +617,7 @@ namespace xdeequ.tests.Checks
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(col, new StringType())});
+                new List<StructField> { new StructField(col, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -641,7 +641,7 @@ namespace xdeequ.tests.Checks
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(col, new StringType())});
+                new List<StructField> { new StructField(col, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -668,7 +668,7 @@ namespace xdeequ.tests.Checks
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(col, new StringType())});
+                new List<StructField> { new StructField(col, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -685,18 +685,18 @@ namespace xdeequ.tests.Checks
         public void should_return_the_correct_status_for_any_completeness()
         {
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "group-1")
-                .AreAnyComplete(new[] {"item", "att1"}, Option<string>.None)
-                .HaveAnyCompleteness(new[] {"item", "att1"}, _ => _ == 1.0, Option<string>.None);
+                .AreAnyComplete(new[] { "item", "att1" }, Option<string>.None)
+                .HaveAnyCompleteness(new[] { "item", "att1" }, _ => _ == 1.0, Option<string>.None);
 
             CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-2-E")
-                .HaveAnyCompleteness(new[] {"att1", "att2"}, _ => _ > 0.917, Option<string>.None);
+                .HaveAnyCompleteness(new[] { "att1", "att2" }, _ => _ > 0.917, Option<string>.None);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Warning, "group-2-W")
-                .HaveAnyCompleteness(new[] {"att1", "att2"}, _ => _ > 0.917, Option<string>.None);
+                .HaveAnyCompleteness(new[] { "att1", "att2" }, _ => _ > 0.917, Option<string>.None);
 
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFMissing(_session), check1, new Check[] {check2, check3});
+                RunChecks(FixtureSupport.GetDFMissing(_session), check1, new Check[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -707,19 +707,19 @@ namespace xdeequ.tests.Checks
         public void should_return_the_correct_status_for_combined_completeness()
         {
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "group-1")
-                .AreComplete(new[] {"item", "att1"}, Option<string>.None)
-                .HaveCompleteness(new[] {"item", "att1"}, _ => _ == 1.0, Option<string>.None);
+                .AreComplete(new[] { "item", "att1" }, Option<string>.None)
+                .HaveCompleteness(new[] { "item", "att1" }, _ => _ == 1.0, Option<string>.None);
 
             CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-2-E")
-                .HaveCompleteness(new[] {"item", "att1", "att2"}, _ => _ > 0.8, Option<string>.None);
+                .HaveCompleteness(new[] { "item", "att1", "att2" }, _ => _ > 0.8, Option<string>.None);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Warning, "group-2-W")
-                .HaveCompleteness(new[] {"item", "att1", "att2"}, _ => _ > 0.8, Option<string>.None);
+                .HaveCompleteness(new[] { "item", "att1", "att2" }, _ => _ > 0.8, Option<string>.None);
 
 
             AnalyzerContext context =
                 RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1,
-                    new Check[] {check2, check3});
+                    new Check[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -742,7 +742,7 @@ namespace xdeequ.tests.Checks
 
             AnalyzerContext context =
                 RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1,
-                    new Check[] {check2, check3});
+                    new Check[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -764,7 +764,7 @@ namespace xdeequ.tests.Checks
                 .Satisfies("att2 > 0", "rule3", _ => _ == .5, Option<string>.None).Where("att1 > 0");
 
             AnalyzerContext context =
-                RunChecks(df, check1, new[] {check2, check3});
+                RunChecks(df, check1, new[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -787,7 +787,7 @@ namespace xdeequ.tests.Checks
                 .Satisfies("att1 > 3", "rule3", _ => _ == .5, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, check1, new Check[] {check2, check3});
+                RunChecks(df, check1, new Check[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -798,10 +798,10 @@ namespace xdeequ.tests.Checks
         public void should_return_the_correct_status_for_distinctness()
         {
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "distinctness-check")
-                .HasDistinctness(new[] {"att1"}, _ => _ == 3.0 / 5, Option<string>.None)
-                .HasDistinctness(new[] {"att1"}, _ => _ == 2.0 / 3, Option<string>.None).Where("att2 is not null")
-                .HasDistinctness(new[] {"att1", "att2"}, _ => _ == 4.0 / 6, Option<string>.None)
-                .HasDistinctness(new[] {"att2"}, _ => _ == 1.0, Option<string>.None);
+                .HasDistinctness(new[] { "att1" }, _ => _ == 3.0 / 5, Option<string>.None)
+                .HasDistinctness(new[] { "att1" }, _ => _ == 2.0 / 3, Option<string>.None).Where("att2 is not null")
+                .HasDistinctness(new[] { "att1", "att2" }, _ => _ == 4.0 / 6, Option<string>.None)
+                .HasDistinctness(new[] { "att2" }, _ => _ == 1.0, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(FixtureSupport.GetDfWithDistinctValues(_session), check1, new Check[] { });
@@ -821,13 +821,13 @@ namespace xdeequ.tests.Checks
             Check check1 = new Check(CheckLevel.Error, "group-1-u")
                 .HasUniqueness("nonUnique", fraction => fraction == .5)
                 .HasUniqueness("nonUnique", fraction => fraction < .6)
-                .HasUniqueness(new[] {"halfUniqueCombinedWithNonUnique", "nonUnique"}, fraction => fraction == .5)
-                .HasUniqueness(new[] {"onlyUniqueWithOtherNonUnique", "nonUnique"}, Check.IsOne)
+                .HasUniqueness(new[] { "halfUniqueCombinedWithNonUnique", "nonUnique" }, fraction => fraction == .5)
+                .HasUniqueness(new[] { "onlyUniqueWithOtherNonUnique", "nonUnique" }, Check.IsOne)
                 .HasUniqueness("unique", Check.IsOne)
                 .HasUniqueness("uniqueWithNulls", Check.IsOne)
-                .HasUniqueness(new[] {"nonUnique", "halfUniqueCombinedWithNonUnique"}, Check.IsOne)
+                .HasUniqueness(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, Check.IsOne)
                 .Where("nonUnique > 0")
-                .HasUniqueness(new[] {"nonUnique", "halfUniqueCombinedWithNonUnique"}, Check.IsOne,
+                .HasUniqueness(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, Check.IsOne,
                     new Option<string>("hint"))
                 .Where("nonUnique > 0")
                 .HasUniqueness("halfUniqueCombinedWithNonUnique", Check.IsOne).Where("nonUnique > 0")
@@ -864,11 +864,11 @@ namespace xdeequ.tests.Checks
         public void should_return_the_correct_status_for_hasUniqueValueRatio()
         {
             Check check1 = new Check(CheckLevel.Error, "unique-value-ratio-check")
-                .HasUniqueValueRatio(new[] {"nonUnique", "halfUniqueCombinedWithNonUnique"}, _ => _ == .75)
-                .HasUniqueValueRatio(new[] {"nonUnique", "halfUniqueCombinedWithNonUnique"}, Check.IsOne,
+                .HasUniqueValueRatio(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, _ => _ == .75)
+                .HasUniqueValueRatio(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, Check.IsOne,
                     Option<string>.None)
                 .Where("nonUnique > 0")
-                .HasUniqueValueRatio(new[] {"nonUnique"}, Check.IsOne, new Option<string>("hint"))
+                .HasUniqueValueRatio(new[] { "nonUnique" }, Check.IsOne, new Option<string>("hint"))
                 .Where("nonUnique > 0");
 
             AnalyzerContext context =
@@ -913,7 +913,7 @@ namespace xdeequ.tests.Checks
                 .HasNumberOfDistinctValues("unknownColumn", _ => _ == 3);
 
             AnalyzerContext context =
-                RunChecks(df, check1, new Check[] {check2, check3});
+                RunChecks(df, check1, new Check[] { check2, check3 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Success);
@@ -925,12 +925,12 @@ namespace xdeequ.tests.Checks
         {
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "primary-key-check")
                 .IsPrimaryKey("unique", new string[] { })
-                .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new[] {"onlyUniqueWithOtherNonUnique"})
+                .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new[] { "onlyUniqueWithOtherNonUnique" })
                 .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new string[] { }).Where("nonUnique > 0")
-                .IsPrimaryKey("nonUnique", new[] {"halfUniqueCombinedWithNonUnique"}, new Option<string>("hint"))
+                .IsPrimaryKey("nonUnique", new[] { "halfUniqueCombinedWithNonUnique" }, new Option<string>("hint"))
                 .Where("nonUnique > 0 ")
                 .IsPrimaryKey("nonUnique", new string[] { })
-                .IsPrimaryKey("nonUnique", new[] {"nonUniqueWithNulls"});
+                .IsPrimaryKey("nonUnique", new[] { "nonUniqueWithNulls" });
 
             AnalyzerContext context =
                 RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1, new Check[] { });
@@ -965,7 +965,7 @@ namespace xdeequ.tests.Checks
                 .HasSize(size => size > 0 && size < numberOfRows + 1, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, check1, new Check[] {check2, check3, check4, check5});
+                RunChecks(df, check1, new Check[] { check2, check3, check4, check5 });
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Success);
@@ -1003,10 +1003,10 @@ namespace xdeequ.tests.Checks
         {
             string col = "some";
 
-            List<GenericRow> elements = new List<GenericRow> {new GenericRow(new object[] {"someone@somewhere.org"})};
+            List<GenericRow> elements = new List<GenericRow> { new GenericRow(new object[] { "someone@somewhere.org" }) };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(col, new StringType())});
+                new List<StructField> { new StructField(col, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -1029,7 +1029,7 @@ namespace xdeequ.tests.Checks
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(col, new StringType())});
+                new List<StructField> { new StructField(col, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -1071,7 +1071,7 @@ namespace xdeequ.tests.Checks
                     .Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, hasPattern, new[] {hasPatternWithFilter});
+                RunChecks(df, hasPattern, new[] { hasPatternWithFilter });
 
             AssertEvaluatesTo(hasPattern, context, CheckStatus.Success);
             AssertEvaluatesTo(hasPatternWithFilter, context, CheckStatus.Success);
@@ -1087,7 +1087,7 @@ namespace xdeequ.tests.Checks
                 .HasMaxLength("att1", _ => _ == 4.0, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDfWithVariableStringLengthValues(_session), hasMin, new[] {hasMax});
+                RunChecks(FixtureSupport.GetDfWithVariableStringLengthValues(_session), hasMin, new[] { hasMax });
 
             AssertEvaluatesTo(hasMin, context, CheckStatus.Success);
             AssertEvaluatesTo(hasMax, context, CheckStatus.Success);

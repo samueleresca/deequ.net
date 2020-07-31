@@ -12,22 +12,58 @@ using static xdeequ.Analyzers.Initializers;
 
 namespace xdeequ.Constraints
 {
+    /// <summary>
+    /// Interface that represent a constraint
+    /// </summary>
     public interface IConstraint
     {
+        /// <summary>
+        /// Evaluates the constraint based on an analysis result
+        /// </summary>
+        /// <param name="analysisResult">The analysis result to evaluate against the check</param>
+        /// <returns></returns>
         public ConstraintResult Evaluate(
             Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult);
     }
-
-    public interface IAnalysisBasedConstraint : IConstraint
+    internal interface IAnalysisBasedConstraint : IConstraint
     {
         public IAnalyzer<IMetric> Analyzer { get; }
     }
 
+    /// <summary>
+    /// Represents the result of a constraint
+    /// </summary>
     public class ConstraintResult
     {
+        /// <summary>
+        /// The metric used by the result
+        /// </summary>
         public Option<IMetric> Metric;
 
 
+        /// <summary>
+        /// The constraint related to the constraint result <see cref="IConstraint"/>
+        /// </summary>
+        public IConstraint Constraint { get; set; }
+
+        /// <summary>
+        /// The status of the constraint <see cref="ConstraintStatus"/>
+        /// </summary>
+        public ConstraintStatus Status { get; }
+
+        /// <summary>
+        /// Optional message
+        /// </summary>
+        public Option<string> Message { get; }
+
+
+        /// <summary>
+        /// ctor of class <see cref="ConstraintResult"/>>
+        /// </summary>
+        /// <param name="constraint">The constraint binded with the result</param>
+        /// <param name="status">The status of the constraint result</param>
+        /// <param name="message">Optional message</param>
+        /// <param name="metric"></param>
         public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message,
             Option<IMetric> metric)
         {
@@ -37,19 +73,25 @@ namespace xdeequ.Constraints
             Metric = metric;
         }
 
-        public IConstraint Constraint { get; set; }
-        public ConstraintStatus Status { get; set; }
-        public Option<string> Message { get; set; }
     }
 
+    /// <summary>
+    /// Status of the constraint
+    /// </summary>
     public enum ConstraintStatus
     {
+        /// <summary>
+        /// Success
+        /// </summary>
         Success = 0,
+        /// <summary>
+        /// Failure
+        /// </summary>
         Failure = 1
     }
 
 
-    public class ConstraintDecorator : IConstraint
+    internal class ConstraintDecorator : IConstraint
     {
         private readonly IConstraint _inner;
 
@@ -79,13 +121,7 @@ namespace xdeequ.Constraints
         }
     }
 
-    /**
-  * Constraint decorator which holds a name of the constraint along with it
-  *
-  * @param constraint Delegate
-  * @param name       Name (Detailed message) for the constraint
-  */
-    public class NamedConstraint : ConstraintDecorator
+    internal class NamedConstraint : ConstraintDecorator
     {
         public NamedConstraint(IConstraint constraint, string name) : base(constraint) => _name = name;
 
@@ -94,14 +130,14 @@ namespace xdeequ.Constraints
         public override string ToString() => _name;
     }
 
-    public static class Functions
+    internal static class Functions
     {
         public static IConstraint SizeConstraint(Func<double, bool> assertion,
             Option<string> where, Option<string> hint)
         {
             Size size = Size(where);
-            AnalysisBasedConstraint<NumMatches, double, double> constraint =
-                new AnalysisBasedConstraint<NumMatches, double, double>(size, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(size, assertion,
                     Option<Func<double, double>>.None,
                     hint);
             return new NamedConstraint(constraint, $"SizeConstraint({size})");
@@ -118,8 +154,8 @@ namespace xdeequ.Constraints
         {
             Histogram histogram = Histogram(column, binningFunc, where, maxBins);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, Distribution> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, Distribution>(histogram, assertion,
+            AnalysisBasedConstraint<Distribution, Distribution> constraint =
+                new AnalysisBasedConstraint<Distribution, Distribution>(histogram, assertion,
                     Option<Func<Distribution, Distribution>>.None, hint);
 
 
@@ -138,8 +174,8 @@ namespace xdeequ.Constraints
         {
             Histogram histogram = Histogram(column, binningFunc, where, maxBins);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, Distribution, long>(histogram, assertion,
+            AnalysisBasedConstraint<Distribution, long> constraint =
+                new AnalysisBasedConstraint<Distribution, long>(histogram, assertion,
                     new Func<Distribution, long>(_ => _.NumberOfBins),
                     hint);
 
@@ -157,8 +193,8 @@ namespace xdeequ.Constraints
         {
             IAnalyzer<IMetric> completeness = Completeness(column, where);
 
-            AnalysisBasedConstraint<NumMatchesAndCount, double, double> constraint =
-                new AnalysisBasedConstraint<NumMatchesAndCount, double, double>(completeness, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(completeness, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -171,8 +207,8 @@ namespace xdeequ.Constraints
             Option<string> hint
         ) where S : IState
         {
-            AnalysisBasedConstraint<S, double, double> constraint =
-                new AnalysisBasedConstraint<S, double, double>(analyzer, anomalyAssertion, hint);
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(analyzer, anomalyAssertion, hint);
             return new NamedConstraint(constraint, $"AnomalyConstraint({analyzer})");
         }
 
@@ -185,8 +221,8 @@ namespace xdeequ.Constraints
         {
             Uniqueness uniqueness = Uniqueness(column, where);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(uniqueness, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(uniqueness, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -202,8 +238,8 @@ namespace xdeequ.Constraints
         {
             Uniqueness uniqueness = Uniqueness(columns, where);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(uniqueness, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(uniqueness, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -219,8 +255,8 @@ namespace xdeequ.Constraints
         {
             Distinctness distinctness = Distinctness(columns, where);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(distinctness, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(distinctness, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -237,8 +273,8 @@ namespace xdeequ.Constraints
         {
             IAnalyzer<IMetric> distinctness = UniqueValueRatio(columns, where);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(distinctness, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(distinctness, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -256,8 +292,8 @@ namespace xdeequ.Constraints
         {
             Compliance compliance = Compliance(name, column.Value, where);
 
-            AnalysisBasedConstraint<NumMatchesAndCount, double, double> constraint =
-                new AnalysisBasedConstraint<NumMatchesAndCount, double, double>(compliance, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(compliance, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -273,10 +309,10 @@ namespace xdeequ.Constraints
         )
         {
             MutualInformation mutualInformation =
-                MutualInformation(new[] {columnA, columnB}.AsEnumerable(), where);
+                MutualInformation(new[] { columnA, columnB }.AsEnumerable(), where);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(mutualInformation, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(mutualInformation, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -292,8 +328,8 @@ namespace xdeequ.Constraints
         {
             Entropy entropy = Entropy(column, where);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(entropy, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(entropy, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -311,8 +347,8 @@ namespace xdeequ.Constraints
         {
             PatternMatch patternMatch = PatternMatch(column, pattern, where);
 
-            AnalysisBasedConstraint<FrequenciesAndNumRows, double, double> constraint =
-                new AnalysisBasedConstraint<FrequenciesAndNumRows, double, double>(patternMatch, assertion, hint);
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(patternMatch, assertion, hint);
 
             string constraintName = name.HasValue ? name.Value : $"PatternMatchConstraint({constraint})";
             return new NamedConstraint(constraint, constraintName);
@@ -327,8 +363,8 @@ namespace xdeequ.Constraints
         {
             MaxLength maxLength = MaxLength(column, where);
 
-            AnalysisBasedConstraint<MaxState, double, double> constraint =
-                new AnalysisBasedConstraint<MaxState, double, double>(maxLength, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(maxLength, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -344,8 +380,8 @@ namespace xdeequ.Constraints
         {
             MinLength minLength = MinLength(column, where);
 
-            AnalysisBasedConstraint<MinState, double, double> constraint =
-                new AnalysisBasedConstraint<MinState, double, double>(minLength, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(minLength, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -361,8 +397,8 @@ namespace xdeequ.Constraints
         {
             Minimum min = Minimum(column, where);
 
-            AnalysisBasedConstraint<MinState, double, double> constraint =
-                new AnalysisBasedConstraint<MinState, double, double>(min, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(min, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -378,8 +414,8 @@ namespace xdeequ.Constraints
         {
             Maximum max = Maximum(column, where);
 
-            AnalysisBasedConstraint<MaxState, double, double> constraint =
-                new AnalysisBasedConstraint<MaxState, double, double>(max, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(max, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -395,8 +431,8 @@ namespace xdeequ.Constraints
         {
             Mean mean = Mean(column, where);
 
-            AnalysisBasedConstraint<MeanState, double, double> constraint =
-                new AnalysisBasedConstraint<MeanState, double, double>(mean, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(mean, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -412,8 +448,8 @@ namespace xdeequ.Constraints
         {
             Sum sum = Sum(column, where);
 
-            AnalysisBasedConstraint<SumState, double, double> constraint =
-                new AnalysisBasedConstraint<SumState, double, double>(sum, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(sum, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -429,8 +465,8 @@ namespace xdeequ.Constraints
         {
             StandardDeviation stDev = StandardDeviation(column, where);
 
-            AnalysisBasedConstraint<StandardDeviationState, double, double> constraint =
-                new AnalysisBasedConstraint<StandardDeviationState, double, double>(stDev, assertion,
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(stDev, assertion,
                     Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint,
@@ -481,7 +517,7 @@ namespace xdeequ.Constraints
 
             DataType dataTypeResult = DataType(column, where);
 
-            return new AnalysisBasedConstraint<DataTypeHistogram, Distribution, double>(dataTypeResult, assertion,
+            return new AnalysisBasedConstraint<Distribution, double>(dataTypeResult, assertion,
                 valuePicker, hint);
         }
 

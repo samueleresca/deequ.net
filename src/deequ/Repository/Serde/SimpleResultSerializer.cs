@@ -5,7 +5,7 @@ using xdeequ.Analyzers.Runners;
 
 namespace xdeequ.Repository.Serde
 {
-    public class SimpleResultSerializer : JsonConverter<SimpleMetricOutput>
+    internal class SimpleResultSerializer : JsonConverter<SimpleMetricOutput>
     {
         public override SimpleMetricOutput Read(ref Utf8JsonReader reader, Type typeToConvert,
             JsonSerializerOptions options)
@@ -16,7 +16,7 @@ namespace xdeequ.Repository.Serde
             string entity = document.RootElement.GetProperty("entity").GetString();
             double value = document.RootElement.GetProperty("value").GetDouble();
 
-            return new SimpleMetricOutput {Name = name, Entity = entity, Instance = instance, Value = value};
+            return new SimpleMetricOutput { Name = name, Entity = entity, Instance = instance, Value = value };
         }
 
         public override void Write(Utf8JsonWriter writer, SimpleMetricOutput value, JsonSerializerOptions options)

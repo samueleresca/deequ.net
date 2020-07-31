@@ -12,7 +12,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    internal sealed class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Regex Regex;
@@ -37,7 +37,7 @@ namespace xdeequ.Analyzers
 
             Column summation = Sum(AnalyzersExt.ConditionalSelection(expression, Where).Cast("integer"));
 
-            return new[] {summation, AnalyzersExt.ConditionalCount(Where)};
+            return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
@@ -46,7 +46,7 @@ namespace xdeequ.Analyzers
                     (int)result.Get(offset), (int)result.Get(offset + 1)), 2);
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
 
 
         public override string ToString()

@@ -5,7 +5,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Checks
 {
-    public static class ChecksExt
+    internal static class ChecksExt
     {
         public static Column IsEachNotNull(IEnumerable<string> cols) =>
             cols

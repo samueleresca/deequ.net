@@ -40,7 +40,7 @@ namespace xdeequ.Analyzers
         public override double MetricValue() => StdDevPop;
     }
 
-    public sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
+    internal sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;
@@ -57,7 +57,7 @@ namespace xdeequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column col = AnalyzersExt.ConditionalSelection(Expr(Column), Where);
-            return new[] {Struct(Count(col), Avg(col), StddevPop(col))};
+            return new[] { Struct(Count(col), Avg(col), StddevPop(col)) };
         }
 
         public override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
@@ -81,7 +81,7 @@ namespace xdeequ.Analyzers
 
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
 
         public override string ToString()
         {

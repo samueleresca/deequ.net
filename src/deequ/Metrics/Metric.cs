@@ -23,7 +23,7 @@ namespace xdeequ.Metrics
         public Option<Exception> Exception();
     }
 
-    public abstract class Metric<T> : IMetric
+    internal abstract class Metric<T> : IMetric
     {
         public Try<T> Value;
 
@@ -45,7 +45,7 @@ namespace xdeequ.Metrics
         public abstract IEnumerable<DoubleMetric> Flatten();
     }
 
-    public class DoubleMetric : Metric<double>, IEquatable<DoubleMetric>
+    internal class DoubleMetric : Metric<double>, IEquatable<DoubleMetric>
     {
         public DoubleMetric(Entity entity, string name, string instance, Try<double> value)
             : base(entity, name, instance, value)
@@ -62,7 +62,7 @@ namespace xdeequ.Metrics
         public static DoubleMetric Create(Entity entity, string name, string instance, Try<double> value) =>
             new DoubleMetric(entity, name, instance, value);
 
-        public override IEnumerable<DoubleMetric> Flatten() => new[] {this}.AsEnumerable();
+        public override IEnumerable<DoubleMetric> Flatten() => new[] { this }.AsEnumerable();
 
         public override bool Equals(object obj)
         {

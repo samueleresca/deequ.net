@@ -16,8 +16,8 @@ namespace xdeequ.tests.Constraints
                 analysisBasedConstraint = cd.Inner;
             }
 
-            AnalysisBasedConstraint<S, M, V> constraintCasted =
-                (AnalysisBasedConstraint<S, M, V>)analysisBasedConstraint;
+            AnalysisBasedConstraint<M, V> constraintCasted =
+                (AnalysisBasedConstraint<M, V>)analysisBasedConstraint;
             return constraintCasted.CalculateAndEvaluate(dataFrame);
         }
     }

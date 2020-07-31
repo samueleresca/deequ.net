@@ -64,7 +64,7 @@ namespace xdeequ.tests
                     }
                 });
 
-                repository.Save(new ResultKey(i, new Dictionary<string, string> {{"Region", "EU"}}), analyzerContext);
+                repository.Save(new ResultKey(i, new Dictionary<string, string> { { "Region", "EU" } }), analyzerContext);
             }
 
 
@@ -78,7 +78,7 @@ namespace xdeequ.tests
                     }
                 });
 
-                repository.Save(new ResultKey(i, new Dictionary<string, string> {{"Region", "NA"}}), analyzerContext);
+                repository.Save(new ResultKey(i, new Dictionary<string, string> { { "Region", "NA" } }), analyzerContext);
             }
 
             callback(repository);
@@ -140,7 +140,7 @@ namespace xdeequ.tests
                 DataFrame df = FixtureSupport.GetDFWithNRows(_session, 11);
 
                 ResultKey resultKey = new ResultKey(5, new Dictionary<string, string>());
-                IAnalyzer<IMetric>[] analyzers = {new Completeness("item")};
+                IAnalyzer<IMetric>[] analyzers = { new Completeness("item") };
 
                 VerificationResult verificationResultOne = new VerificationSuite()
                     .OnData(df)
@@ -192,7 +192,7 @@ namespace xdeequ.tests
 
             InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
             ResultKey resultKey = new ResultKey(0, new Dictionary<string, string>());
-            IAnalyzer<IMetric>[] analyzers = {new Size(Option<string>.None), new Completeness("item")};
+            IAnalyzer<IMetric>[] analyzers = { new Size(Option<string>.None), new Completeness("item") };
 
             VerificationResult actualResult = new VerificationSuite()
                 .OnData(df)
@@ -241,7 +241,7 @@ namespace xdeequ.tests
 
             InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
             ResultKey resultKey = new ResultKey(0, new Dictionary<string, string>());
-            IAnalyzer<IMetric>[] analyzers = {new Size(Option<string>.None), new Completeness("item")};
+            IAnalyzer<IMetric>[] analyzers = { new Size(Option<string>.None), new Completeness("item") };
 
             Dictionary<IAnalyzer<IMetric>, IMetric> metrics = new VerificationSuite()
                 .OnData(df)
@@ -288,10 +288,10 @@ namespace xdeequ.tests
             AssertStatusFor(df, checkToWarn, CheckStatus.Warning);
 
 
-            AssertStatusFor(df, new[] {checkToSucceed, checkToErrorOut}, CheckStatus.Error);
-            AssertStatusFor(df, new[] {checkToSucceed, checkToWarn}, CheckStatus.Warning);
-            AssertStatusFor(df, new[] {checkToWarn, checkToErrorOut}, CheckStatus.Error);
-            AssertStatusFor(df, new[] {checkToSucceed, checkToErrorOut, checkToWarn}, CheckStatus.Error);
+            AssertStatusFor(df, new[] { checkToSucceed, checkToErrorOut }, CheckStatus.Error);
+            AssertStatusFor(df, new[] { checkToSucceed, checkToWarn }, CheckStatus.Warning);
+            AssertStatusFor(df, new[] { checkToWarn, checkToErrorOut }, CheckStatus.Error);
+            AssertStatusFor(df, new[] { checkToSucceed, checkToErrorOut, checkToWarn }, CheckStatus.Error);
         }
 
 
@@ -300,7 +300,7 @@ namespace xdeequ.tests
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
-            Distinctness analyzerToTestReusingResults = new Distinctness(new[] {"att1", "att2"});
+            Distinctness analyzerToTestReusingResults = new Distinctness(new[] { "att1", "att2" });
 
 
             VerificationResult verificationResult = new VerificationSuite()
@@ -378,7 +378,7 @@ namespace xdeequ.tests
 
             InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
             ResultKey resultKey = new ResultKey(0, new Dictionary<string, string>());
-            IAnalyzer<IMetric>[] analyzers = {new Size(Option<string>.None), new Completeness("item")};
+            IAnalyzer<IMetric>[] analyzers = { new Size(Option<string>.None), new Completeness("item") };
 
             Dictionary<IAnalyzer<IMetric>, IMetric> metrics = new VerificationSuite()
                 .OnData(df)
@@ -406,7 +406,7 @@ namespace xdeequ.tests
             IAnalyzer<IMetric>[] analyzers = { new Sum("att2", Option<string>.None),
                 new Completeness("att1")};
 
-            IState[] states = {new SumState(18.0), new NumMatchesAndCount(6, 6)};
+            IState[] states = { new SumState(18.0), new NumMatchesAndCount(6, 6) };
 
             new VerificationSuite()
                 .OnData(df)
@@ -418,13 +418,13 @@ namespace xdeequ.tests
                 .Zip(states, (analyzer, state) => (analyzer, state));
 
 
-                statePersister.Verify(x => x.Persist(
-                        It.Is<Option<IAnalyzer<IMetric>>>(x=>x.Value.ToString() == analyzers.First().ToString()),
-                        It.Is<Option<SumState>>(x=>x.Value.MetricValue() == 18)), Times.AtLeastOnce);
+            statePersister.Verify(x => x.Persist(
+                    It.Is<Option<IAnalyzer<IMetric>>>(x => x.Value.ToString() == analyzers.First().ToString()),
+                    It.Is<Option<SumState>>(x => x.Value.MetricValue() == 18)), Times.AtLeastOnce);
 
-                statePersister.Verify(x => x.Persist(
-                    It.Is<Option<IAnalyzer<IMetric>>>(x=>x.Value.ToString() == analyzers.Skip(1).First().ToString()),
-                    It.Is<Option<NumMatchesAndCount>>(x=>x.Value.MetricValue() == 6 / 6)), Times.AtLeastOnce);
+            statePersister.Verify(x => x.Persist(
+                It.Is<Option<IAnalyzer<IMetric>>>(x => x.Value.ToString() == analyzers.Skip(1).First().ToString()),
+                It.Is<Option<NumMatchesAndCount>>(x => x.Value.MetricValue() == 6 / 6)), Times.AtLeastOnce);
         }
 
         [Fact]
@@ -437,32 +437,32 @@ namespace xdeequ.tests
             statePersister
                 .Setup(x => x
                     .Load<SumState>(
-                        It.Is<Option<IAnalyzer<IMetric>>>(x=>x.Value.ToString() =="Sum(att2,None)")
+                        It.Is<Option<IAnalyzer<IMetric>>>(x => x.Value.ToString() == "Sum(att2,None)")
                         )).Returns(new SumState(18.0));
 
             statePersister
                 .Setup(x => x
                     .Load<NumMatchesAndCount>(
-                        It.Is<Option<IAnalyzer<IMetric>>>(x=>x.Value.ToString() =="Completeness(att1,None)")
-                    )).Returns(new NumMatchesAndCount(0,6));
+                        It.Is<Option<IAnalyzer<IMetric>>>(x => x.Value.ToString() == "Completeness(att1,None)")
+                    )).Returns(new NumMatchesAndCount(0, 6));
 
 
             var df = FixtureSupport.GetDfWithNumericValues(_session);
 
-           var result = new VerificationSuite()
-                .OnData(df)
-                .AddRequiredAnalyzers(analyzers)
-                .AggregateWith(statePersister.Object)
-                .Run();
+            var result = new VerificationSuite()
+                 .OnData(df)
+                 .AddRequiredAnalyzers(analyzers)
+                 .AggregateWith(statePersister.Object)
+                 .Run();
 
-           var sumState = (DoubleMetric)result.Metrics[analyzers.First()];
-           sumState.Value.Get().ShouldBe(18*2);
-           var matches = (DoubleMetric)result.Metrics[analyzers.Skip(1).First()];
-           matches.Value.Get().ShouldBe(0.5);
+            var sumState = (DoubleMetric)result.Metrics[analyzers.First()];
+            sumState.Value.Get().ShouldBe(18 * 2);
+            var matches = (DoubleMetric)result.Metrics[analyzers.Skip(1).First()];
+            matches.Value.Get().ShouldBe(0.5);
         }
 
         [Fact]
-        public void  keep_order_of_check_constraints_and_their_results()
+        public void keep_order_of_check_constraints_and_their_results()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 

@@ -7,7 +7,7 @@ using xdeequ.Metrics;
 
 namespace xdeequ.Repository.Serde
 {
-    public class DistributionSerializer : JsonConverter<Distribution>
+    internal class DistributionSerializer : JsonConverter<Distribution>
     {
         public override Distribution Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

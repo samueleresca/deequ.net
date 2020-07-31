@@ -43,7 +43,7 @@ namespace xdeequ.tests.Examples
                         .IsComplete("id")
                         .IsUnique("id")
                         .IsComplete("productName")
-                        .IsContainedIn("priority", new[] {"high", "low"})
+                        .IsContainedIn("priority", new[] { "high", "low" })
                         .IsNonNegative("numViews")
                 )
                 .AddCheck(

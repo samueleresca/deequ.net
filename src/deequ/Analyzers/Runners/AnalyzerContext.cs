@@ -48,7 +48,7 @@ namespace xdeequ.Analyzers.Runners
         {
             IEnumerable<GenericRow> metricList =
                 GetSimplifiedMetricOutputForSelectedAnalyzers(forAnalyzers)
-                    .Select(x => new GenericRow(new object[] {x.Entity.ToString(), x.Instance, x.Name, x.Value}));
+                    .Select(x => new GenericRow(new object[] { x.Entity.ToString(), x.Instance, x.Name, x.Value }));
 
             DataFrame df = sparkSession.CreateDataFrame(metricList,
                 new StructType(new[]
@@ -65,7 +65,7 @@ namespace xdeequ.Analyzers.Runners
             return JsonSerializer.Serialize(metricsList, SerdeExt.GetDefaultOptions());
         }
 
-        public IEnumerable<SimpleMetricOutput> GetSimplifiedMetricOutputForSelectedAnalyzers(
+        private IEnumerable<SimpleMetricOutput> GetSimplifiedMetricOutputForSelectedAnalyzers(
             IEnumerable<IAnalyzer<IMetric>> forAnalyzers) =>
             MetricMap
                 .Where((pair, i) => !forAnalyzers.Any() || forAnalyzers.Contains(pair.Key))

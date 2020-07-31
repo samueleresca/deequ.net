@@ -28,7 +28,7 @@ namespace xdeequ.Analyzers
         public override double MetricValue() => numMatches;
     }
 
-    public sealed class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
+    internal sealed class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
     {
         public readonly Option<string> Where;
 
@@ -37,7 +37,7 @@ namespace xdeequ.Analyzers
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] {AnalyzersExt.ConditionalCount(Where)}.AsEnumerable();
+            new[] { AnalyzersExt.ConditionalCount(Where) }.AsEnumerable();
 
         public override Option<NumMatches> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,

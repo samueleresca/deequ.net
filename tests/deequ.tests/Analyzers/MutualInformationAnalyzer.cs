@@ -21,7 +21,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame complete = FixtureSupport.GetDFFull(_session);
 
-            DoubleMetric attr1 = MutualInformation(new[] {"att1", "att2"}).Calculate(complete);
+            DoubleMetric attr1 = MutualInformation(new[] { "att1", "att2" }).Calculate(complete);
             DoubleMetric expected1 = DoubleMetric
                 .Create(Entity.Multicolumn, "MutualInformation", "att1,att2",
                     -(0.75 * Math.Log(0.75) + 0.25 * Math.Log(0.25)));
@@ -37,7 +37,7 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame complete = FixtureSupport.GetDFFull(_session);
 
-            DoubleMetric entropyViaMI = MutualInformation(new[] {"att1", "att2"}).Calculate(complete);
+            DoubleMetric entropyViaMI = MutualInformation(new[] { "att1", "att2" }).Calculate(complete);
             DoubleMetric entropy = Entropy("att1").Calculate(complete);
 
             entropyViaMI.Value.IsSuccess.ShouldBeTrue();
@@ -49,13 +49,13 @@ namespace xdeequ.tests.Analyzers
         public void yields_0_for_conditionally_uninformative_columns()
         {
             DataFrame complete = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
-            MutualInformation(new[] {"att1", "att2"}).Calculate(complete).Value.Get().ShouldBe(0);
+            MutualInformation(new[] { "att1", "att2" }).Calculate(complete).Value.Get().ShouldBe(0);
         }
 
         [Fact]
         public void mutualinformation_correctly_tostring_instances()
         {
-            MutualInformation(new []{"att1"}).ToString().ShouldBe("MutualInformation(List(att1),None)");
+            MutualInformation(new[] { "att1" }).ToString().ShouldBe("MutualInformation(List(att1),None)");
         }
     }
 }

@@ -6,7 +6,7 @@ using xdeequ.Extensions;
 
 namespace xdeequ.Repository.Serde
 {
-    public class AnalysisResultSerializer : JsonConverter<AnalysisResult>
+    internal class AnalysisResultSerializer : JsonConverter<AnalysisResult>
     {
         public override AnalysisResult Read(ref Utf8JsonReader reader, Type typeToConvert,
             JsonSerializerOptions options)

@@ -3,7 +3,7 @@ using xdeequ.Metrics;
 
 namespace xdeequ.Analyzers.Runners
 {
-    public class SimpleMetricOutput
+    internal class SimpleMetricOutput
     {
         public SimpleMetricOutput(DoubleMetric doubleMetric)
         {

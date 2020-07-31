@@ -40,32 +40,32 @@ jobs:
                     name: deequ.NET
                     token: ${{ secrets.CODECOV_TOKEN }}
                     fail_ci_if_error: true
-    tests-windows:
-        runs-on: windows-latest
-        env:
-            DOTNET_WORKER_DIR: c:\bin\Microsoft.Spark.Worker\
-            HOME: c:\
-        steps:
-            -   uses: actions/checkout@v2
-            -   name: Setup .NET Core
-                uses: actions/setup-dotnet@v1
-                with:
-                    dotnet-version: 3.1.101
-            -   name: Install dependencies
-                run: dotnet restore
-            -   name: Build
-                run: dotnet build --configuration Release --no-restore
-            -   name: Scripts permissions
-                run: chmod +x deploy/install-worker.sh && chmod +x deploy/download-spark.sh
-            -   name: Install Apache Spark
-                run: bash deploy/download-spark.sh c:\bin\
-            -   name: Install .NET Worker
-                run: deploy/install-worker.cmd c:\bin\Microsoft.Spark.Worker\ 0.9.0
-            -   name: Run tests
-                run: dotnet test -v d --collect:"XPlat Code Coverage" /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=json
-            -   name: Upload coverage
-                uses: codecov/codecov-action@v1.0.11
-                with:
-                    name: deequ.NET
-                    token: ${{ secrets.CODECOV_TOKEN }}
-                    fail_ci_if_error: true
+#    tests-windows:
+#        runs-on: windows-latest
+#        env:
+#            DOTNET_WORKER_DIR: c:\bin\Microsoft.Spark.Worker\
+#            HOME: c:\
+#        steps:
+#            -   uses: actions/checkout@v2
+#            -   name: Setup .NET Core
+#                uses: actions/setup-dotnet@v1
+#                with:
+#                    dotnet-version: 3.1.101
+#            -   name: Install dependencies
+#                run: dotnet restore
+#            -   name: Build
+#                run: dotnet build --configuration Release --no-restore
+#            -   name: Scripts permissions
+#                run: chmod +x deploy/install-worker.sh && chmod +x deploy/download-spark.sh
+#            -   name: Install Apache Spark
+#                run: bash deploy/download-spark.sh c:\bin\
+#            -   name: Install .NET Worker
+#                run: deploy/install-worker.cmd c:\bin\Microsoft.Spark.Worker\ 0.9.0
+#            -   name: Run tests
+#                run: dotnet test -v d --collect:"XPlat Code Coverage" /p:CoverletOutput=coverage/ /p:CoverletOutputFormat=json
+#            -   name: Upload coverage
+#                uses: codecov/codecov-action@v1.0.11
+#                with:
+#                    name: deequ.NET
+#                    token: ${{ secrets.CODECOV_TOKEN }}
+#                    fail_ci_if_error: true

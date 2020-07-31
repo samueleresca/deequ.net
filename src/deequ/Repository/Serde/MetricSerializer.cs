@@ -7,7 +7,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Repository.Serde
 {
-    public class MetricSerializer : JsonConverter<IMetric>
+    internal class MetricSerializer : JsonConverter<IMetric>
     {
         public override IMetric Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

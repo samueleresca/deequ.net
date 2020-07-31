@@ -27,22 +27,22 @@ namespace xdeequ.Analyzers
             ? Option<S>.None
             : new Option<S>((S)statesByAnalyzer[analyzer.Value]);
 
-        public S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, Option<S> state) where S :  IState
+        public S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, Option<S> state) where S : IState
         {
             if (!analyzer.HasValue)
             {
-                return (S) (IState) null;
+                return (S)(IState)null;
             }
 
             statesByAnalyzer[(IAnalyzer<IMetric>)analyzer.Value] = state.Value;
             return state.Value;
         }
 
-        public S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, S state) where S :  IState
+        public S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, S state) where S : IState
         {
             if (!analyzer.HasValue)
             {
-                return (S) (IState) null;
+                return (S)(IState)null;
             }
 
             statesByAnalyzer[analyzer.Value] = state;

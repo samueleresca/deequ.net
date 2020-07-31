@@ -6,7 +6,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public static class Initializers
+    internal static class Initializers
     {
         public static Size Size(Option<string> where) => new Size(where);
 
@@ -39,7 +39,7 @@ namespace xdeequ.Analyzers
             new Uniqueness(columns, where);
 
         internal static Uniqueness Uniqueness(Option<string> column, Option<string> where) =>
-            new Uniqueness(new[] {column.Value}, where);
+            new Uniqueness(new[] { column.Value }, where);
 
         internal static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where) =>
             new Distinctness(columns, where);
@@ -60,7 +60,7 @@ namespace xdeequ.Analyzers
             new MutualInformation(columns, where);
 
         internal static MutualInformation MutualInformation(Option<string> column, Option<string> where) =>
-            new MutualInformation(new[] {column.Value}, where);
+            new MutualInformation(new[] { column.Value }, where);
 
         public static MaxLength MaxLength(string column) => new MaxLength(column, new Option<string>());
 
@@ -83,9 +83,9 @@ namespace xdeequ.Analyzers
 
         public static Mean Mean(string column, Option<string> where) => new Mean(column, where);
 
-        public static Sum Sum(string column) => new Sum(column, Option<string>.None);
+        internal static Sum Sum(string column) => new Sum(column, Option<string>.None);
 
-        public static Sum Sum(string column, Option<string> where) => new Sum(column, where);
+        internal static Sum Sum(string column, Option<string> where) => new Sum(column, where);
 
         public static StandardDeviation StandardDeviation(string column) =>
             new StandardDeviation(column, Option<string>.None);

@@ -184,7 +184,7 @@ namespace xdeequ.Checks
         public CheckWithLastConstraintFilterable IsPrimaryKey(string column,
             IEnumerable<string> columns, Option<string> hint = default) =>
             AddFilterableConstraint(filter =>
-                UniquenessConstraint(new[] {column}.Concat(columns), IsOne, filter, hint));
+                UniquenessConstraint(new[] { column }.Concat(columns), IsOne, filter, hint));
 
         /// <summary>
         /// Creates a constraint that asserts on uniqueness in a single or combined set of key columns.
@@ -545,7 +545,7 @@ namespace xdeequ.Checks
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
-                PatternMatchConstraint(column, pattern, assertion, filter, hint:hint));
+                PatternMatchConstraint(column, pattern, assertion, filter, hint: hint));
 
         /// <summary>
         /// Checks for pattern compliance. Given a column name and a regular expression, defines a Check on the average compliance of the column's values to the regular expression.
@@ -974,7 +974,7 @@ namespace xdeequ.Checks
 
             valueAfterDate.OnSuccess(value => { repositoryLoader = repositoryLoader.After(value); });
 
-            repositoryLoader = repositoryLoader.ForAnalyzers(new[] {analyzer});
+            repositoryLoader = repositoryLoader.ForAnalyzers(new[] { analyzer });
 
             IEnumerable<AnalysisResult> analysisResults = repositoryLoader.Get();
 

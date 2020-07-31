@@ -13,7 +13,7 @@ using DataType = Microsoft.Spark.Sql.Types.DataType;
 
 namespace xdeequ.Extensions
 {
-    public static class AnalyzersExt
+    internal static class AnalyzersExt
     {
         public static string COL_PREFIX = "xdeequ_dq_metrics_";
         public static string COUNT_COL = $"${COL_PREFIX}count";
@@ -56,7 +56,7 @@ namespace xdeequ.Extensions
 
         public static Option<S> Merge<S>(Option<S> state, Option<S> anotherState) where S : State<S>
         {
-            IEnumerable<Option<S>> statesToMerge = new List<Option<S>> {state, anotherState};
+            IEnumerable<Option<S>> statesToMerge = new List<Option<S>> { state, anotherState };
 
             return statesToMerge.Aggregate((stateA, stateB) =>
             {

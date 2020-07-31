@@ -36,7 +36,7 @@ namespace xdeequ.tests.Analyzers
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(someColumnName, new StringType())});
+                new List<StructField> { new StructField(someColumnName, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -57,7 +57,7 @@ namespace xdeequ.tests.Analyzers
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(someColumnName, new StringType())});
+                new List<StructField> { new StructField(someColumnName, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -77,7 +77,7 @@ namespace xdeequ.tests.Analyzers
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(someColumnName, new StringType())});
+                new List<StructField> { new StructField(someColumnName, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -115,7 +115,7 @@ namespace xdeequ.tests.Analyzers
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(someColumnName, new StringType())});
+                new List<StructField> { new StructField(someColumnName, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -142,7 +142,7 @@ namespace xdeequ.tests.Analyzers
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(someColumnName, new StringType())});
+                new List<StructField> { new StructField(someColumnName, new StringType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
@@ -165,7 +165,7 @@ namespace xdeequ.tests.Analyzers
             };
 
             StructType schema = new StructType(
-                new List<StructField> {new StructField(someColumnName, new DoubleType())});
+                new List<StructField> { new StructField(someColumnName, new DoubleType()) });
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 

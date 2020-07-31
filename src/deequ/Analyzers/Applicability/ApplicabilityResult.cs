@@ -11,13 +11,13 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers.Applicability
 {
-    public class ApplicabilityResult
+    class ApplicabilityResult
     {
         public Dictionary<string, Option<Exception>> Features;
         public bool IsApplicable;
     }
 
-    public class CheckApplicability : ApplicabilityResult
+    class CheckApplicability : ApplicabilityResult
     {
         public Dictionary<IConstraint, bool> ConstraintApplicabilities;
 
@@ -30,7 +30,7 @@ namespace xdeequ.Analyzers.Applicability
         }
     }
 
-    public class AnalyzersApplicability : ApplicabilityResult
+    class AnalyzersApplicability : ApplicabilityResult
     {
         public AnalyzersApplicability(bool isApplicable, Dictionary<string, Option<Exception>> features)
         {
@@ -39,7 +39,7 @@ namespace xdeequ.Analyzers.Applicability
         }
     }
 
-    public class Applicability
+    class Applicability
     {
         private readonly SparkSession _session;
 

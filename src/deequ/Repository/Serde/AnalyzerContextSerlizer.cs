@@ -10,7 +10,7 @@ using xdeequ.Metrics;
 
 namespace xdeequ.Repository.Serde
 {
-    public class AnalyzerContextSerializer : JsonConverter<AnalyzerContext>
+    internal class AnalyzerContextSerializer : JsonConverter<AnalyzerContext>
     {
         public override AnalyzerContext Read(ref Utf8JsonReader reader, Type typeToConvert,
             JsonSerializerOptions options)

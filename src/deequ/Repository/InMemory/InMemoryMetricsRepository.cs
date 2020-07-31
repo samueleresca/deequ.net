@@ -8,7 +8,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Repository.InMemory
 {
-    public class InMemoryMetricsRepository : IMetricsRepository
+    internal class InMemoryMetricsRepository : IMetricsRepository
     {
         private readonly ConcurrentDictionary<ResultKey, AnalysisResult> _resultsRepository;
 
@@ -34,7 +34,7 @@ namespace xdeequ.Repository.InMemory
             new LimitedInMemoryMetricsRepositoryMultipleResultsLoader(_resultsRepository);
     }
 
-    public class LimitedInMemoryMetricsRepositoryMultipleResultsLoader : MetricsRepositoryMultipleResultsLoader
+    internal class LimitedInMemoryMetricsRepositoryMultipleResultsLoader : MetricsRepositoryMultipleResultsLoader
     {
         private readonly ConcurrentDictionary<ResultKey, AnalysisResult> _resultsRepository;
         private Option<long> after;
