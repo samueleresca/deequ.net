@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
-        <RootNamespace>xdeequ</RootNamespace>
+      <TargetFramework>netstandard2.1</TargetFramework>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <Copyright />
@@ -14,13 +13,12 @@
       <PackageProjectUrl>https://github.com/samueleresca/deequ.NET</PackageProjectUrl>
       <AssemblyVersion>1.1.0.0</AssemblyVersion>
       <FileVersion>1.1.0.0</FileVersion>
-      <PackageTags>deequ.NET is a port of the awslabs/deequ library built on top of Apache Spark for defining "unit tests for data", which measure data quality in large datasets.</PackageTags>
+      <PackageTags>Spark Spark.NET awslabs/deequ data-quality bigdata</PackageTags>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Spark" Version="0.11.0" />
         <PackageReference Include="Microsoft.Spark.Experimental" Version="0.11.0" />
-        <PackageReference Include="Microsoft.Spark.Extensions.Delta" Version="0.11.0" />
         <PackageReference Include="System.Text.Json" Version="4.7.2" />
     </ItemGroup>
 </Project>
