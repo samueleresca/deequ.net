@@ -5,7 +5,7 @@ using xdeequ.Util;
 
 namespace xdeequ.AnomalyDetection
 {
-    public abstract class BaseChangeStrategy : IAnomalyDetectionStrategy
+    abstract class BaseChangeStrategy : IAnomalyDetectionStrategy
     {
         private readonly Option<double> _maxRateDecrease;
         private readonly Option<double> _maxRateIncrease;

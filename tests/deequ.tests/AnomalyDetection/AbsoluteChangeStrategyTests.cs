@@ -30,10 +30,10 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void attribute_indices_correctly_for_higher_orders_with_search_interval()
         {
-            double[] data = new[] {0.0, 1.0, 3.0, 6.0, 18.0, 72.0};
+            double[] data = new[] { 0.0, 1.0, 3.0, 6.0, 18.0, 72.0 };
             AbsoluteChangeStrategy strategy = new AbsoluteChangeStrategy(Option<double>.None, 8.0, 2);
             IEnumerable<(int, Anomaly)> anomalyResult = strategy.Detect(data, (5, 6));
-            (int, Anomaly)[] expected = new[] {(5, new Anomaly(72.0, 1.0, Option<string>.None))};
+            (int, Anomaly)[] expected = new[] { (5, new Anomaly(72.0, 1.0, Option<string>.None)) };
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -42,7 +42,7 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void attribute_indices_correctly_for_higher_orders_without_search_interval()
         {
-            double[] data = new[] {0.0, 1.0, 3.0, 6.0, 18.0, 72.0};
+            double[] data = new[] { 0.0, 1.0, 3.0, 6.0, 18.0, 72.0 };
             AbsoluteChangeStrategy strategy = new AbsoluteChangeStrategy(Option<double>.None, 8.0, 2);
             IEnumerable<(int, Anomaly)> anomalyResult = strategy.Detect(data, (0, int.MaxValue));
             (int, Anomaly)[] expected = new[]
@@ -56,7 +56,7 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void behave_like_the_threshold_strategy_when_order_is_0()
         {
-            double[] data = new[] {1.0, -1.0, 4.0, -7.0};
+            double[] data = new[] { 1.0, -1.0, 4.0, -7.0 };
 
             IEnumerable<(int, Anomaly)> anomalyResult = _strategy.Detect(data, (0, int.MaxValue));
             (int, Anomaly)[] expected = new[]
@@ -70,9 +70,9 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void derive_first_order_correctly()
         {
-            double[] data = new[] {1.0, 2.0, 4.0, 1.0, 2.0, 8.0};
+            double[] data = new[] { 1.0, 2.0, 4.0, 1.0, 2.0, 8.0 };
             IEnumerable<double> anomalyResult = _strategy.Diff(data, 1);
-            double[] expected = new[] {1.0, 2.0, -3.0, 1.0, 6.0};
+            double[] expected = new[] { 1.0, 2.0, -3.0, 1.0, 6.0 };
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -80,9 +80,9 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void derive_second_order_correctly()
         {
-            double[] data = new[] {1.0, 2.0, 4.0, 1.0, 2.0, 8.0};
+            double[] data = new[] { 1.0, 2.0, 4.0, 1.0, 2.0, 8.0 };
             IEnumerable<double> anomalyResult = _strategy.Diff(data, 2);
-            double[] expected = new[] {1.0, -5.0, 4.0, 5.0};
+            double[] expected = new[] { 1.0, -5.0, 4.0, 5.0 };
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -90,9 +90,9 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void derive_third_order_correctly()
         {
-            double[] data = new[] {1.0, 5.0, -10.0, 3.0, 100.0, 0.01, 0.0065};
+            double[] data = new[] { 1.0, 5.0, -10.0, 3.0, 100.0, 0.01, 0.0065 };
             IEnumerable<double> anomalyResult = _strategy.Diff(data, 3);
-            double[] expected = new[] {47, 56, -280.99, 296.9765};
+            double[] expected = new[] { 47, 56, -280.99, 296.9765 };
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }

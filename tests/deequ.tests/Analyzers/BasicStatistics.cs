@@ -138,7 +138,7 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void standarddeviation_correctly_tostring_instances()
         {
-             StandardDeviation("att1").ToString().ShouldBe("StandardDeviation(att1,None)");
+            StandardDeviation("att1").ToString().ShouldBe("StandardDeviation(att1,None)");
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace xdeequ.tests.Analyzers
         [Fact(Skip = "Support decimal columns")]
         public void should_work_correctly_on_decimal_columns()
         {
-            StructType schema = new StructType(new[] {new StructField("num", new DecimalType())});
+            StructType schema = new StructType(new[] { new StructField("num", new DecimalType()) });
 
             List<GenericRow> elements = new List<GenericRow>
             {

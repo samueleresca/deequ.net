@@ -28,7 +28,7 @@ namespace xdeequ.Analyzers
         public override double MetricValue() => _sum;
     }
 
-    public sealed class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    internal sealed class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         public readonly string Column;
         public readonly Option<string> Where;
@@ -44,13 +44,13 @@ namespace xdeequ.Analyzers
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] {Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
+            new[] { Sum(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
 
         public override Option<SumState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new SumState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
 
         public override string ToString()
         {

@@ -10,7 +10,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers.Runners
 {
-    public static class AnalysisRunner
+    internal static class AnalysisRunner
     {
         public static AnalyzerContext DoAnalysisRun
         (
@@ -34,12 +34,12 @@ namespace xdeequ.Analyzers.Runners
 
             AnalyzerContext resultComputedPreviously = (metricsRepositoryOptions?.metricRepository.HasValue,
                     metricsRepositoryOptions?.reuseExistingResultsForKey.HasValue) switch
-                {
-                    (true, true) => metricsRepositoryOptions?.metricRepository.Value
-                        .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
-                        .GetOrElse(AnalyzerContext.Empty()),
-                    _ => AnalyzerContext.Empty()
-                };
+            {
+                (true, true) => metricsRepositoryOptions?.metricRepository.Value
+                    .LoadByKey(metricsRepositoryOptions.reuseExistingResultsForKey.Value)
+                    .GetOrElse(AnalyzerContext.Empty()),
+                _ => AnalyzerContext.Empty()
+            };
 
 
             IEnumerable<IAnalyzer<IMetric>>
@@ -155,10 +155,10 @@ namespace xdeequ.Analyzers.Runners
             InMemoryStateProvider aggregatedStates = new InMemoryStateProvider();
 
             foreach (IAnalyzer<IMetric> analyzer in passedAnalyzers)
-            foreach (IStateLoader state in stateLoaders)
-            {
-                analyzer.AggregateStateTo(aggregatedStates, state, aggregatedStates);
-            }
+                foreach (IStateLoader state in stateLoaders)
+                {
+                    analyzer.AggregateStateTo(aggregatedStates, state, aggregatedStates);
+                }
 
 
             IEnumerable<IGroupAnalyzer<IState, IMetric>> groupingAnalyzers =
@@ -176,7 +176,7 @@ namespace xdeequ.Analyzers.Runners
                         analyzer.CopyStateTo(aggregatedStates, saveStatesWith.Value);
                     }
 
-                    return new[] {new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, metrics)};
+                    return new[] { new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, metrics) };
                 }));
 
 
@@ -515,7 +515,7 @@ namespace xdeequ.Analyzers.Runners
         }
     }
 
-    public class AnalysisRunnerRepositoryOptions
+    internal class AnalysisRunnerRepositoryOptions
     {
         public bool failIfResultsForReusingMissing;
 
@@ -541,7 +541,7 @@ namespace xdeequ.Analyzers.Runners
         }
     }
 
-    public class AnalysisRunnerFileOutputOptions
+    internal class AnalysisRunnerFileOutputOptions
     {
         public Option<bool> overwriteOutputFiles = Option<bool>.None;
         public Option<string> saveSuccessMetricsJsonToPath = Option<string>.None;

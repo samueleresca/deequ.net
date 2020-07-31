@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class MaxLength : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer,
+    internal sealed class MaxLength : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer,
         IAnalyzer<DoubleMetric>
     {
         public readonly string Column;
@@ -33,7 +33,7 @@ namespace xdeequ.Analyzers
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
 
         public override string ToString()
         {

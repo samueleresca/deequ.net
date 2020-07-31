@@ -7,7 +7,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers.Runners
 {
-    public class AnalysisRunBuilder
+    internal class AnalysisRunBuilder
     {
         protected IEnumerable<IAnalyzer<IMetric>> _analyzers = new List<IAnalyzer<IMetric>>();
         protected DataFrame data;
@@ -88,7 +88,7 @@ namespace xdeequ.Analyzers.Runners
                 ));
     }
 
-    public class AnalysisRunBuilderWithRepository : AnalysisRunBuilder
+    internal class AnalysisRunBuilderWithRepository : AnalysisRunBuilder
     {
         public AnalysisRunBuilderWithRepository(AnalysisRunBuilder analysisRunBuilder,
             Option<IMetricsRepository> usingMetricRepository) : base(analysisRunBuilder) =>
@@ -109,7 +109,7 @@ namespace xdeequ.Analyzers.Runners
         }
     }
 
-    public class AnalysisRunBuilderWithSparkSession : AnalysisRunBuilder
+    internal class AnalysisRunBuilderWithSparkSession : AnalysisRunBuilder
     {
         public AnalysisRunBuilderWithSparkSession(AnalysisRunBuilder analysisRunBuilder,
             Option<SparkSession> usingSparkSession) : base(analysisRunBuilder) =>

@@ -6,8 +6,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public class Correlation : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer,
-        IAnalyzer<DoubleMetric>
+    internal class Correlation : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         public Correlation(string name, string instance, Entity entity) : base(name, instance, entity)
         {

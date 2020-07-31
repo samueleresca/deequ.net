@@ -2,7 +2,7 @@ using xdeequ.Util;
 
 namespace xdeequ.Analyzers
 {
-    public interface IFilterableAnalyzer
+    internal interface IFilterableAnalyzer
     {
         Option<string> FilterCondition();
     }

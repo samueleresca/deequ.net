@@ -2,38 +2,37 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using xdeequ.Analyzers;
-using xdeequ.Analyzers.States;
 using xdeequ.Metrics;
 using xdeequ.Util;
 
 namespace xdeequ.Constraints
 {
-    public class AnalysisBasedConstraint<S, M, V> : IAnalysisBasedConstraint
-        where S : IState
+    internal class AnalysisBasedConstraint<M, V> : IAnalysisBasedConstraint
     {
-        private readonly Func<V, bool> assertion;
         public string AssertionException = "Can't execute the assertion";
-        private Option<string> hint;
-
         public string MissingAnalysis = "Missing Analysis, can't run the constraint!";
         public string ProblematicMetricPicker = "Can't retrieve the value to assert on";
-        private Option<Func<M, V>> valuePicker;
+
+        private readonly Func<V, bool> _assertion;
+        private Option<Func<M, V>> _valuePicker;
+        private Option<string> _hint;
+
 
         public AnalysisBasedConstraint(IAnalyzer<IMetric> analyzer,
             Func<V, bool> assertion, Option<Func<M, V>> valuePicker, Option<string> hint)
         {
             Analyzer = analyzer;
-            this.assertion = assertion;
-            this.valuePicker = valuePicker;
-            this.hint = hint;
+            _assertion = assertion;
+            _valuePicker = valuePicker;
+            _hint = hint;
         }
 
         public AnalysisBasedConstraint(IAnalyzer<IMetric> analyzer,
             Func<V, bool> assertion, Option<string> hint)
         {
             Analyzer = analyzer;
-            this.assertion = assertion;
-            this.hint = hint;
+            _assertion = assertion;
+            _hint = hint;
         }
 
         public IAnalyzer<IMetric> Analyzer { get; }
@@ -73,7 +72,7 @@ namespace xdeequ.Constraints
                 }
 
                 string errorMessage = $"Value: {assertOn} does not meet the constraint requirement!";
-                errorMessage += hint.GetOrElse(string.Empty);
+                errorMessage += _hint.GetOrElse(string.Empty);
 
                 return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage, metric);
             }
@@ -98,9 +97,9 @@ namespace xdeequ.Constraints
             try
             {
                 Option<V> result;
-                if (valuePicker.HasValue)
+                if (_valuePicker.HasValue)
                 {
-                    result = valuePicker.Select(func => func(metricValue));
+                    result = _valuePicker.Select(func => func(metricValue));
                 }
                 else
                 {
@@ -119,7 +118,7 @@ namespace xdeequ.Constraints
         {
             try
             {
-                return assertion(assertOn);
+                return _assertion(assertOn);
             }
             catch (Exception e)
             {
@@ -130,18 +129,18 @@ namespace xdeequ.Constraints
         public ConstraintResult CalculateAndEvaluate(DataFrame df)
         {
             Metric<M> metric = Analyzer.Calculate(df) as Metric<M>;
-            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> {{Analyzer, metric}});
+            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> { { Analyzer, metric } });
         }
     }
 
-    public class ValuePickerException : Exception
+    internal class ValuePickerException : Exception
     {
         public ValuePickerException(string message) : base(message)
         {
         }
     }
 
-    public class ConstraintAssertionException : Exception
+    internal class ConstraintAssertionException : Exception
     {
         public ConstraintAssertionException(string message) : base(message)
         {

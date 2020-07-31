@@ -16,7 +16,7 @@ namespace xdeequ.tests.Analyzers
 
         private readonly SparkSession _session;
 
-        public Distribution GetDefaultDistribution() =>
+        private Distribution GetDefaultDistribution() =>
             new Distribution(
                 new Dictionary<string, DistributionValue>
                 {

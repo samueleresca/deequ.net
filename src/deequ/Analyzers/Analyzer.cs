@@ -133,7 +133,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public abstract class StandardScanShareableAnalyzer<S> : ScanShareableAnalyzer<S, DoubleMetric>,
+    internal abstract class StandardScanShareableAnalyzer<S> : ScanShareableAnalyzer<S, DoubleMetric>,
         IScanSharableAnalyzer<IState, DoubleMetric>
         where S : DoubleValuedState<S>, IState
     {
@@ -199,7 +199,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public abstract class PredicateMatchingAnalyzer : StandardScanShareableAnalyzer<NumMatchesAndCount>
+    internal abstract class PredicateMatchingAnalyzer : StandardScanShareableAnalyzer<NumMatchesAndCount>
     {
         protected PredicateMatchingAnalyzer(string name, string instance, Entity entity,
             Column predicate, Option<string> where) : base(name, instance, entity)
@@ -225,7 +225,7 @@ namespace xdeequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column selection = AnalyzersExt.ConditionalSelection(Predicate, Where);
-            return new[] {selection, Count("*")}.AsEnumerable();
+            return new[] { selection, Count("*") }.AsEnumerable();
         }
     }
 

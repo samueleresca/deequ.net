@@ -9,7 +9,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    internal sealed class Compliance : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         public readonly Column Predicate;
         public readonly Option<string> Where;
@@ -27,7 +27,7 @@ namespace xdeequ.Analyzers
         {
             Column summation = Sum(AnalyzersExt.ConditionalSelection(Predicate, Where).Cast("int"));
 
-            return new[] {summation, AnalyzersExt.ConditionalCount(Where)};
+            return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
         }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>

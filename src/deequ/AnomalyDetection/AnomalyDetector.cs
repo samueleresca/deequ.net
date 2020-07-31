@@ -5,7 +5,7 @@ using xdeequ.Util;
 
 namespace xdeequ.AnomalyDetection
 {
-    public class DataPoint<M>
+    class DataPoint<M>
     {
         public Option<M> MetricValue;
         public long Time;
@@ -17,7 +17,7 @@ namespace xdeequ.AnomalyDetection
         }
     }
 
-    public class AnomalyDetector
+    class AnomalyDetector
     {
         private readonly IAnomalyDetectionStrategy _strategy;
 
@@ -80,7 +80,7 @@ namespace xdeequ.AnomalyDetection
         private int FindIndexForBound(List<long> sortedTimestamps, long boundValue)
         {
             var withinTheArray = sortedTimestamps
-                .Select((value, index) => new {value, index})
+                .Select((value, index) => new { value, index })
                 .FirstOrDefault(x => x.value >= boundValue);
 
             return withinTheArray?.index ?? sortedTimestamps.Count;

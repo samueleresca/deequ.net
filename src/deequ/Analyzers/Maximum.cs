@@ -28,7 +28,7 @@ namespace xdeequ.Analyzers
         public override double MetricValue() => _maxValue;
     }
 
-    public sealed class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer
+    internal sealed class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;
@@ -43,13 +43,13 @@ namespace xdeequ.Analyzers
 
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] {Max(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double")};
+            new[] { Max(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
 
         public override Option<MaxState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
 
         public override string ToString()
         {

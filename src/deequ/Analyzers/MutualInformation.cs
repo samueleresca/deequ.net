@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
@@ -9,9 +10,10 @@ using xdeequ.Metrics;
 using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 
+
 namespace xdeequ.Analyzers
 {
-    public sealed class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
+    internal sealed class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
     {
         public readonly IEnumerable<string> Columns;
         public readonly Option<string> Where;

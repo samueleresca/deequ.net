@@ -16,8 +16,6 @@ namespace xdeequ.AnomalyDetection
             Value = value;
         }
 
-        public bool CanEqual(object that) => that is Anomaly;
-
         public override bool Equals(object obj)
         {
             if (obj is Anomaly anomaly)
@@ -44,7 +42,7 @@ namespace xdeequ.AnomalyDetection
     }
 
 
-    public class DetectionResult
+    class DetectionResult
     {
         public IEnumerable<(long, Anomaly)> Anomalies;
 

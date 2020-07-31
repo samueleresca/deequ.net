@@ -14,7 +14,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public enum DataTypeInstances
+    internal enum DataTypeInstances
     {
         Unknown = 0,
         Fractional = 1,
@@ -23,7 +23,7 @@ namespace xdeequ.Analyzers
         String = 4
     }
 
-    public class DataTypeHistogram : State<DataTypeHistogram>, IState
+    internal class DataTypeHistogram : State<DataTypeHistogram>
     {
         private const int SIZE_IN_BITES = 5;
         private const int NULL_POS = 0;
@@ -101,7 +101,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
+    internal sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;
@@ -118,7 +118,7 @@ namespace xdeequ.Analyzers
             new HistogramMetric(Column, new Try<Distribution>(e));
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column)}.Concat(base.Preconditions());
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) }.Concat(base.Preconditions());
 
         public override HistogramMetric ComputeMetricFrom(Option<DataTypeHistogram> state)
         {
@@ -156,7 +156,7 @@ namespace xdeequ.Analyzers
         }
 
         public override IEnumerable<Column> AggregationFunctions() =>
-            new[] {AnalyzersExt.ConditionalSelection(Column, Where)};
+            new[] { AnalyzersExt.ConditionalSelection(Column, Where) };
 
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,

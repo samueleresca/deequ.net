@@ -13,7 +13,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Repository.Serde
 {
-    public class AnalyzerSerializer : JsonConverter<IAnalyzer<IMetric>>
+    internal class AnalyzerSerializer : JsonConverter<IAnalyzer<IMetric>>
     {
         public override IAnalyzer<IMetric> Read(ref Utf8JsonReader reader, Type typeToConvert,
             JsonSerializerOptions options)

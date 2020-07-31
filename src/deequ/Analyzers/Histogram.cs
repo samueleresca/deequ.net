@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class Histogram : Analyzer<FrequenciesAndNumRows, HistogramMetric>, IFilterableAnalyzer
+    internal sealed class Histogram : Analyzer<FrequenciesAndNumRows, HistogramMetric>, IFilterableAnalyzer
     {
         public static int DEFAULT_MAX_DETAIL_BINS = 1000;
         public static string NULL_FIELD_REPLACEMENT = "NullValue";
@@ -32,7 +32,7 @@ namespace xdeequ.Analyzers
         public Option<string> FilterCondition() => Where;
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
-            new[] {PARAM_CHECK(), AnalyzersExt.HasColumn(Column)};
+            new[] { PARAM_CHECK(), AnalyzersExt.HasColumn(Column) };
 
         public override HistogramMetric ToFailureMetric(Exception e) =>
             new HistogramMetric(Column, new Try<Distribution>(ExceptionExt.WrapIfNecessary(e)));
@@ -97,16 +97,16 @@ namespace xdeequ.Analyzers
 
         private DataFrame BinOptional(Option<Func<Column, Column>> binningUdf, DataFrame dataFrame) =>
             binningUdf.HasValue switch
-            {
-                true => dataFrame.WithColumn(Column, binningUdf.Value(Col(Column))),
-                false => dataFrame
-            };
+        {
+            true => dataFrame.WithColumn(Column, binningUdf.Value(Col(Column))),
+            false => dataFrame
+        };
 
         private DataFrame FilterOptional(Option<string> where, DataFrame dataFrame) =>
             where.HasValue switch
-            {
-                true => dataFrame.Filter(where.Value),
-                false => dataFrame
-            };
+        {
+            true => dataFrame.Filter(where.Value),
+            false => dataFrame
+        };
     }
 }

@@ -7,7 +7,7 @@ using xdeequ.Repository.Serde;
 
 namespace xdeequ.Extensions
 {
-    public static class SerdeExt
+    internal static class SerdeExt
     {
         public static string ANALYZER_FIELD = "analyzer";
         public static string ANALYZER_NAME_FIELD = "analyzerName";

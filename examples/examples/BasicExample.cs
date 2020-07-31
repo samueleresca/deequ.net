@@ -1,23 +1,17 @@
 using System.Collections.Generic;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using xdeequ;
 using xdeequ.Checks;
-using Xunit;
 
-
-namespace xdeequ.tests.Examples
+namespace examples
 {
-    [Collection("Spark instance")]
     public class BasicExample
     {
-        private readonly SparkSession _session;
-
-        public BasicExample(SparkFixture fixture) => _session = fixture.Spark;
-
-        [Fact]
-        public void VerificationSuite_example()
+        public void ExecuteSimpleVerificationSuite()
         {
-            var data = _session.CreateDataFrame(
+
+            var data = SparkSession.Builder().GetOrCreate().CreateDataFrame(
                 new List<GenericRow>
                 {
                     new GenericRow(new object[] {1, "Thingy A", "awesome thing.", "high", 0}),
@@ -51,8 +45,6 @@ namespace xdeequ.tests.Examples
                         .ContainsURL("description", x => x == .5)
                 )
                 .Run();
-
-            Assert.True(verificationResult.Status == CheckStatus.Error);
         }
     }
 }

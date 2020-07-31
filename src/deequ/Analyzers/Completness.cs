@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.Analyzers
 {
-    public sealed class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    internal sealed class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         public readonly Option<string> Column;
         public readonly Option<string> Where;
@@ -44,11 +44,11 @@ namespace xdeequ.Analyzers
 
             Column conditional = AnalyzersExt.ConditionalCount(Where);
 
-            return new[] {summarization, conditional};
+            return new[] { summarization, conditional };
         }
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column.Value), AnalyzersExt.IsNotNested(Column.Value)};
+            new[] { AnalyzersExt.HasColumn(Column.Value), AnalyzersExt.IsNotNested(Column.Value) };
 
         public override string ToString()
         {

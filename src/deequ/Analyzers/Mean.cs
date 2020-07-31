@@ -37,7 +37,7 @@ namespace xdeequ.Analyzers
         }
     }
 
-    public sealed class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer
+    internal sealed class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;
@@ -64,7 +64,7 @@ namespace xdeequ.Analyzers
                     (int)result.Get(offset + 1)), 2);
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] {AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column)};
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
 
         public override string ToString()
         {

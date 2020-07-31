@@ -91,9 +91,9 @@ namespace xdeequ.tests.Repository
         private static Analysis CreateAnalysis() =>
             new Analysis()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
-                .AddAnalyzer(Initializers.Distinctness(new[] {"item"}, Option<string>.None))
+                .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
-                .AddAnalyzer(Initializers.Uniqueness(new[] {"att1", "att2"}));
+                .AddAnalyzer(Initializers.Uniqueness(new[] { "att1", "att2" }));
 
         private static IMetricsRepository CreateRepository() => new InMemoryMetricsRepository();
 
