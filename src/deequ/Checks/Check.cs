@@ -82,6 +82,15 @@ namespace xdeequ.Checks
             Constraints = new List<IConstraint>();
         }
 
+        /// <summary>
+        /// Constructor of class <see cref="Check"/>
+        /// </summary>
+        /// <param name="level">Assertion level of the check group of type <see cref="CheckLevel"/> . If any of the constraints fail this level is used for the status of the check.</param>
+        public Check(CheckLevel level)
+        {
+            Level = level;
+            Constraints = new List<IConstraint>();
+        }
 
         /// <summary>
         /// Returns a new Check instance with the given constraint added to the constraints list.
@@ -173,6 +182,17 @@ namespace xdeequ.Checks
         /// <returns></returns>
         public CheckWithLastConstraintFilterable IsUnique(string column, Option<string> hint = default) =>
             AddFilterableConstraint(filter => UniquenessConstraint(column, IsOne, filter, hint));
+
+
+        /// <summary>
+        /// Creates a constraint that asserts on a columns uniqueness.
+        /// </summary>
+        /// <param name="columns">Key columns.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
+        public CheckWithLastConstraintFilterable AreUnique(IEnumerable<string> columns, Option<string> hint = default) =>
+            AddFilterableConstraint(filter => UniquenessConstraint(columns, IsOne, filter, hint));
+
 
         /// <summary>
         /// Creates a constraint that asserts on a column(s) primary key characteristics. Currently only checks uniqueness, but reserved for primary key checks if there is another assertion to run on primary key columns.

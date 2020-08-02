@@ -5,7 +5,7 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <Copyright />
-      <Version>0.0.1-alpha</Version>
+      <Version>0.0.2-alpha</Version>
       <PackageLicenseUrl></PackageLicenseUrl>
       <RepositoryUrl>https://github.com/samueleresca/deequ.NET</RepositoryUrl>
       <Authors>Samuele Resca</Authors>
