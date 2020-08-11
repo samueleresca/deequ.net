@@ -1,10 +1,10 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Extensions;
+using deequ.Analyzers.Runners;
+using deequ.Extensions;
 
-namespace xdeequ.Repository.Serde
+namespace deequ.Repository.Serde
 {
     internal class AnalysisResultSerializer : JsonConverter<AnalysisResult>
     {

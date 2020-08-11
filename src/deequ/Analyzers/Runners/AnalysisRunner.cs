@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Analyzers.States;
+using deequ.Metrics;
+using deequ.Repository;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ.Analyzers.States;
-using xdeequ.Metrics;
-using xdeequ.Repository;
-using xdeequ.Util;
 
-namespace xdeequ.Analyzers.Runners
+namespace deequ.Analyzers.Runners
 {
     internal static class AnalysisRunner
     {

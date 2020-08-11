@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Analyzers.States;
+using deequ.Extensions;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ.Analyzers.States;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 
 
-namespace xdeequ.Analyzers
+namespace deequ.Analyzers
 {
     public interface IAnalyzer<out M>
     {

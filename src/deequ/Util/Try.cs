@@ -1,6 +1,6 @@
 using System;
 
-namespace xdeequ.Util
+namespace deequ.Util
 {
     public class Try<T>
     {

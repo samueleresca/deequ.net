@@ -1,4 +1,4 @@
-namespace xdeequ.Constraints
+namespace deequ.Constraints
 {
 
     /// <summary>

@@ -1,6 +1,6 @@
-using xdeequ.Analyzers.Runners;
+using deequ.Analyzers.Runners;
 
-namespace xdeequ.Repository
+namespace deequ.Repository
 {
     public class AnalysisResult
     {

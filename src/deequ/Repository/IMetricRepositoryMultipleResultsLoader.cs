@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using deequ.Analyzers;
+using deequ.Metrics;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Metrics;
 
-namespace xdeequ.Repository
+namespace deequ.Repository
 {
     public interface IMetricRepositoryMultipleResultsLoader
     {

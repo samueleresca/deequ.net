@@ -1,12 +1,12 @@
+using deequ.Analyzers;
+using deequ.Constraints;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
-using xdeequ.Analyzers;
-using xdeequ.Constraints;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using Xunit;
-using Functions = xdeequ.Constraints.Functions;
+using Functions = deequ.Constraints.Functions;
 
 namespace xdeequ.tests.Constraints
 {

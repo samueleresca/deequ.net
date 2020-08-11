@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ.AnomalyDetection;
+using deequ.Util;
 using Shouldly;
-using xdeequ.AnomalyDetection;
-using xdeequ.Util;
 using Xunit;
 
 namespace xdeequ.tests.AnomalyDetection

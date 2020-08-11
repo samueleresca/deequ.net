@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using deequ.Repository.Serde;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ.Repository.Serde;
 
-namespace xdeequ.Extensions
+namespace deequ.Extensions
 {
     internal static class SerdeExt
     {

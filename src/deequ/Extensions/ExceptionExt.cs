@@ -1,7 +1,7 @@
 using System;
-using xdeequ.Analyzers.Runners;
+using deequ.Analyzers.Runners;
 
-namespace xdeequ.Extensions
+namespace deequ.Extensions
 {
     internal static class ExceptionExt
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace xdeequ.Util
+namespace deequ.Util
 {
     public struct Option<T>
     {

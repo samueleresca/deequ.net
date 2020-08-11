@@ -1,12 +1,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Metrics;
-using xdeequ.Util;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Metrics;
+using deequ.Util;
 
-namespace xdeequ.Repository.InMemory
+namespace deequ.Repository.InMemory
 {
     internal class InMemoryMetricsRepository : IMetricsRepository
     {

@@ -1,4 +1,4 @@
-namespace xdeequ.Checks
+namespace deequ.Checks
 {
     /// <summary>
     /// Defines the check status

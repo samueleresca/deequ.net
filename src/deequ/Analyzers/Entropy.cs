@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using deequ.Extensions;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 
 
-namespace xdeequ.Analyzers
+namespace deequ.Analyzers
 {
     internal sealed class Entropy : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {

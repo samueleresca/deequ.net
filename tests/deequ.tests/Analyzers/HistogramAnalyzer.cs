@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
-using static xdeequ.Analyzers.Initializers;
-using Histogram = xdeequ.Analyzers.Histogram;
+using static deequ.Analyzers.Initializers;
+using Histogram = deequ.Analyzers.Histogram;
 
 
 namespace xdeequ.tests.Analyzers

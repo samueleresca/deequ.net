@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using deequ.Analyzers;
+using deequ.Analyzers.States;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.States;
-using xdeequ.Metrics;
-using xdeequ.Util;
-using static xdeequ.Analyzers.Initializers;
+using static deequ.Analyzers.Initializers;
 
-namespace xdeequ.Constraints
+namespace deequ.Constraints
 {
     /// <summary>
     /// Interface that represent a constraint

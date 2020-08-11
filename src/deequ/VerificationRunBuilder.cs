@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Analyzers.States;
+using deequ.AnomalyDetection;
+using deequ.Checks;
+using deequ.Metrics;
+using deequ.Repository;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Analyzers.States;
-using xdeequ.AnomalyDetection;
-using xdeequ.Checks;
-using xdeequ.Metrics;
-using xdeequ.Repository;
-using xdeequ.Util;
 
-namespace xdeequ
+namespace deequ
 {
     /// <summary>
     /// A class to build a Verification run using a fluent API

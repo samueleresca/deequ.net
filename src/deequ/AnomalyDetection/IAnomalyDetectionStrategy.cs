@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace xdeequ.AnomalyDetection
+namespace deequ.AnomalyDetection
 {
     /**
      * Interface for all strategies that spot anomalies in a series of data points.

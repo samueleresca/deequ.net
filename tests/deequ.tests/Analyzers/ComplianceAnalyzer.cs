@@ -1,9 +1,9 @@
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using Xunit;
-using static xdeequ.Analyzers.Initializers;
+using static deequ.Analyzers.Initializers;
 using static Microsoft.Spark.Sql.Functions;
 
 

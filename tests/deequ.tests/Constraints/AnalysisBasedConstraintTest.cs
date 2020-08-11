@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Analyzers;
+using deequ.Constraints;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Analyzers;
-using xdeequ.Constraints;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using Xunit;
 
 namespace xdeequ.tests.Constraints

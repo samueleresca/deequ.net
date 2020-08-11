@@ -1,11 +1,11 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
-using xdeequ.Analyzers.States;
-using xdeequ.Metrics;
-using xdeequ.Util;
+using deequ.Analyzers.States;
+using deequ.Metrics;
+using deequ.Util;
 
-namespace xdeequ.Analyzers
+namespace deequ.Analyzers
 {
     public interface IStatePersister
     {

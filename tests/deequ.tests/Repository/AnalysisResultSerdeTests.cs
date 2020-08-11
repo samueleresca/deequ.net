@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Extensions;
+using deequ.Metrics;
+using deequ.Repository;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
-using xdeequ.Repository;
-using xdeequ.Util;
 using Xunit;
 
 namespace xdeequ.tests.Repository

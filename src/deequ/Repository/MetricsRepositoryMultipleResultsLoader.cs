@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Extensions;
+using deequ.Metrics;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace xdeequ.Repository
+namespace deequ.Repository
 {
     public abstract class MetricsRepositoryMultipleResultsLoader : IMetricRepositoryMultipleResultsLoader
     {

@@ -1,6 +1,6 @@
-using xdeequ.Util;
+using deequ.Util;
 
-namespace xdeequ.Analyzers
+namespace deequ.Analyzers
 {
     internal interface IFilterableAnalyzer
     {

@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Metrics;
+using deequ.Repository;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Metrics;
-using xdeequ.Repository;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace xdeequ.Extensions
+namespace deequ.Extensions
 {
     internal static class AnalysisResultExtensions
     {

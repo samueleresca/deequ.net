@@ -1,7 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace xdeequ.Analyzers.Catalyst
+namespace deequ.Analyzers.Catalyst
 {
     [Serializable]
     public class StatefulDataType

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Extensions;
+using deequ.Metrics;
 
-namespace xdeequ.Repository.Serde
+namespace deequ.Repository.Serde
 {
     internal class AnalyzerContextSerializer : JsonConverter<AnalyzerContext>
     {

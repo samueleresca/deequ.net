@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using deequ.Analyzers;
+using deequ.Extensions;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace xdeequ.Repository.Serde
+namespace deequ.Repository.Serde
 {
     internal class AnalyzerSerializer : JsonConverter<IAnalyzer<IMetric>>
     {

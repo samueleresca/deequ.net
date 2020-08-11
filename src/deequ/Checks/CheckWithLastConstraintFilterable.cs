@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using xdeequ.Constraints;
-using xdeequ.Util;
+using deequ.Constraints;
+using deequ.Util;
 
-namespace xdeequ.Checks
+namespace deequ.Checks
 {
     /// <summary>
     /// Allows to replace the last configured constraint in a check with a filtered version

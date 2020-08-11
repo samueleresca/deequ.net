@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using deequ.Analyzers;
+using deequ.Analyzers.Applicability;
+using deequ.Analyzers.Runners;
+using deequ.Checks;
+using deequ.Metrics;
+using deequ.Repository;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Applicability;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Checks;
-using xdeequ.Metrics;
-using xdeequ.Repository;
-using xdeequ.Util;
+
 [assembly: InternalsVisibleTo("deequ.tests")]
-namespace xdeequ
+namespace deequ
 {
     internal class VerificationMetricsRepositoryOptions
     {

@@ -2,34 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Analyzers.States;
+using deequ.AnomalyDetection;
+using deequ.Constraints;
+using deequ.Metrics;
+using deequ.Repository;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Analyzers.States;
-using xdeequ.AnomalyDetection;
-using xdeequ.Constraints;
-using xdeequ.Metrics;
-using xdeequ.Repository;
-using xdeequ.Util;
-using static xdeequ.Constraints.Functions;
+using static deequ.Constraints.Functions;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace xdeequ.Checks
+namespace deequ.Checks
 {
-    public class CheckResult
-    {
-        public CheckResult(Check check, CheckStatus status, IEnumerable<ConstraintResult> constraintResult)
-        {
-            Check = check;
-            Status = status;
-            ConstraintResults = constraintResult;
-        }
-
-        public Check Check { get; set; }
-        public CheckStatus Status { get; set; }
-        public IEnumerable<ConstraintResult> ConstraintResults { get; set; }
-    }
-
     /// <summary>
     /// A class representing a list of constraints that can be applied to a given
     /// <see cref="DataFrame"/>. In order to run the checks, use the `run` method. You can

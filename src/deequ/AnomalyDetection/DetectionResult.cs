@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using xdeequ.Util;
+using deequ.Util;
 
-namespace xdeequ.AnomalyDetection
+namespace deequ.AnomalyDetection
 {
     public class Anomaly
     {

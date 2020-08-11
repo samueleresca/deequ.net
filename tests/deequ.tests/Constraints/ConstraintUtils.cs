@@ -1,6 +1,6 @@
+using deequ.Analyzers.States;
+using deequ.Constraints;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers.States;
-using xdeequ.Constraints;
 
 namespace xdeequ.tests.Constraints
 {

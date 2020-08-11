@@ -1,6 +1,6 @@
 using System;
 
-namespace xdeequ.Analyzers.Runners
+namespace deequ.Analyzers.Runners
 {
     public abstract class MetricCalculationException : Exception
     {

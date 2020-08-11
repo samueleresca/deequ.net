@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using deequ.Analyzers.States;
+using deequ.Extensions;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ.Analyzers.States;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
-using xdeequ.Util;
 
-namespace xdeequ.Analyzers
+namespace deequ.Analyzers
 {
     public class NumMatches : DoubleValuedState<NumMatches>, IState
     {

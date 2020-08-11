@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Util;
 
-namespace xdeequ.Analyzers
+namespace deequ.Analyzers
 {
     internal static class Initializers
     {

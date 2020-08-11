@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
 
-namespace xdeequ.Checks
+namespace deequ.Checks
 {
     internal static class ChecksExt
     {

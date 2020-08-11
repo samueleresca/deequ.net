@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.CompilerServices;
+using deequ.Metrics;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Metrics;
 using Xunit;
-using static xdeequ.Analyzers.Initializers;
+using static deequ.Analyzers.Initializers;
 
 
 namespace xdeequ.tests.Analyzers

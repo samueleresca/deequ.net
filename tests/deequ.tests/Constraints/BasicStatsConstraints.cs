@@ -1,10 +1,10 @@
+using deequ.Analyzers;
+using deequ.Constraints;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Analyzers;
-using xdeequ.Constraints;
-using xdeequ.Util;
 using Xunit;
-using static xdeequ.Constraints.Functions;
+using static deequ.Constraints.Functions;
 
 namespace xdeequ.tests.Constraints
 {

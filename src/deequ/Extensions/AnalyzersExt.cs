@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Analyzers.States;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Analyzers.States;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using static Microsoft.Spark.Sql.Functions;
 using DataType = Microsoft.Spark.Sql.Types.DataType;
 
-namespace xdeequ.Extensions
+namespace deequ.Extensions
 {
     internal static class AnalyzersExt
     {

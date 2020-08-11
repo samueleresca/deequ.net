@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Analyzers.Runners;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Metrics;
-using xdeequ.Util;
 
-namespace xdeequ.Analyzers
+namespace deequ.Analyzers
 {
     public class Analysis
     {

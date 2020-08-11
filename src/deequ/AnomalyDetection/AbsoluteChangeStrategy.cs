@@ -1,6 +1,6 @@
-using xdeequ.Util;
+using deequ.Util;
 
-namespace xdeequ.AnomalyDetection
+namespace deequ.AnomalyDetection
 {
     class AbsoluteChangeStrategy : BaseChangeStrategy
     {

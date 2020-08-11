@@ -1,11 +1,11 @@
 using System.Collections.Generic;
+using deequ.Analyzers;
+using deequ.Metrics;
 using Microsoft.Spark.Sql;
 using Shouldly;
-using xdeequ.Analyzers;
-using xdeequ.Metrics;
 using Xunit;
 using static Microsoft.Spark.Sql.Functions;
-using static xdeequ.Analyzers.Initializers;
+using static deequ.Analyzers.Initializers;
 
 namespace xdeequ.tests.Analyzers
 {

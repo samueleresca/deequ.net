@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Checks;
+using deequ.Constraints;
+using deequ.Extensions;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ.Checks;
-using xdeequ.Constraints;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
-using xdeequ.Util;
 
-namespace xdeequ.Analyzers.Applicability
+namespace deequ.Analyzers.Applicability
 {
     class ApplicabilityResult
     {

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
-using xdeequ.Util;
 using Xunit.Abstractions;
 using static Microsoft.Spark.Sql.Functions;
 

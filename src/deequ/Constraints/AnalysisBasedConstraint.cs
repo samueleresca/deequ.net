@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using deequ.Analyzers;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Metrics;
-using xdeequ.Util;
 
-namespace xdeequ.Constraints
+namespace deequ.Constraints
 {
     internal class AnalysisBasedConstraint<M, V> : IAnalysisBasedConstraint
     {

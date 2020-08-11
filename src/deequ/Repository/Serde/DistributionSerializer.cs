@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using xdeequ.Metrics;
+using deequ.Metrics;
 
-namespace xdeequ.Repository.Serde
+namespace deequ.Repository.Serde
 {
     internal class DistributionSerializer : JsonConverter<Distribution>
     {

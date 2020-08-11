@@ -1,11 +1,11 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
-using xdeequ.Util;
+using deequ.Extensions;
+using deequ.Metrics;
+using deequ.Util;
 
-namespace xdeequ.Repository.Serde
+namespace deequ.Repository.Serde
 {
     internal class MetricSerializer : JsonConverter<IMetric>
     {

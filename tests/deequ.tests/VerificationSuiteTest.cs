@@ -1,23 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Analyzers.States;
+using deequ.AnomalyDetection;
+using deequ.Checks;
+using deequ.Constraints;
+using deequ.Metrics;
+using deequ.Repository;
+using deequ.Repository.InMemory;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Moq;
 using Shouldly;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Analyzers.States;
-using xdeequ.AnomalyDetection;
-using xdeequ.Checks;
-using xdeequ.Constraints;
-using xdeequ.Metrics;
-using xdeequ.Repository;
-using xdeequ.Repository.InMemory;
-using xdeequ.Util;
 using Xunit;
 using Xunit.Abstractions;
-using static xdeequ.Constraints.Functions;
+using static deequ.Constraints.Functions;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.tests

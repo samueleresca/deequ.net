@@ -1,6 +1,6 @@
 using System;
 
-namespace xdeequ.Analyzers.States
+namespace deequ.Analyzers.States
 {
     public interface IState
     {

@@ -1,7 +1,7 @@
 using System;
-using xdeequ.Metrics;
+using deequ.Metrics;
 
-namespace xdeequ.Analyzers.Runners
+namespace deequ.Analyzers.Runners
 {
     internal class SimpleMetricOutput
     {

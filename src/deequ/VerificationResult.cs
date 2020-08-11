@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Checks;
+using deequ.Extensions;
+using deequ.Metrics;
 using Microsoft.Spark.Sql;
-using xdeequ.Analyzers;
-using xdeequ.Analyzers.Runners;
-using xdeequ.Checks;
-using xdeequ.Extensions;
-using xdeequ.Metrics;
 
-namespace xdeequ
+namespace deequ
 {
     /**
   * The result returned from the VerificationSuite
@@ -100,7 +100,7 @@ namespace xdeequ
         }
     }
 
-    public class SimpleCheckResultOutput
+    internal class SimpleCheckResultOutput
     {
         public readonly string CheckDescription;
         public readonly string CheckLevel;

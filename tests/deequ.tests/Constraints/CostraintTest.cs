@@ -1,6 +1,6 @@
+using deequ.Constraints;
+using deequ.Util;
 using Shouldly;
-using xdeequ.Constraints;
-using xdeequ.Util;
 using Xunit;
 
 namespace xdeequ.tests.Constraints

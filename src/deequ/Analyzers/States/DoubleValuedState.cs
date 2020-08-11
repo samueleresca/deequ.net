@@ -1,4 +1,4 @@
-namespace xdeequ.Analyzers.States
+namespace deequ.Analyzers.States
 {
     public abstract class DoubleValuedState<S> : State<S> where S : State<S>
     {

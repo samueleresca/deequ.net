@@ -1,9 +1,9 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using xdeequ.Analyzers.Runners;
+using deequ.Analyzers.Runners;
 
-namespace xdeequ.Repository.Serde
+namespace deequ.Repository.Serde
 {
     internal class SimpleResultSerializer : JsonConverter<SimpleMetricOutput>
     {

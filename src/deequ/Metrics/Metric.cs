@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using xdeequ.Util;
+using deequ.Util;
 
-namespace xdeequ.Metrics
+namespace deequ.Metrics
 {
     public enum Entity
     {

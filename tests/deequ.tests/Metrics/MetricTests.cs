@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ.Metrics;
+using deequ.Util;
 using Shouldly;
-using xdeequ.Metrics;
-using xdeequ.Util;
 using Xunit;
 
 namespace xdeequ.tests.Metrics

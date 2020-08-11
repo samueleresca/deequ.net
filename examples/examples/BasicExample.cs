@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using deequ;
+using deequ.Checks;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using xdeequ;
-using xdeequ.Checks;
 
 namespace examples
 {
@@ -110,8 +110,5 @@ namespace examples
                 )
                 .Run();
         }
-
-
-
     }
 }

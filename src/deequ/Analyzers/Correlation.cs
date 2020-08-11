@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Sql;
-using xdeequ.Metrics;
-using xdeequ.Util;
 
-namespace xdeequ.Analyzers
+namespace deequ.Analyzers
 {
     internal class Correlation : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
