@@ -5,14 +5,11 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <Copyright />
-      <Version>0.0.2-alpha</Version>
       <PackageLicenseUrl></PackageLicenseUrl>
       <RepositoryUrl>https://github.com/samueleresca/deequ.NET</RepositoryUrl>
       <Authors>Samuele Resca</Authors>
       <Company />
       <PackageProjectUrl>https://github.com/samueleresca/deequ.NET</PackageProjectUrl>
-      <AssemblyVersion>1.1.0.0</AssemblyVersion>
-      <FileVersion>1.1.0.0</FileVersion>
       <PackageTags>Spark Spark.NET awslabs/deequ data-quality bigdata</PackageTags>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
