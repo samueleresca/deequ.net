@@ -2,7 +2,8 @@ name: deequ.NET
 
 on:
     push:
-        branches: [ master ]
+        tags:
+            - '[0-9]+\.[0-9]+\.[0-9]+'
 
 jobs:
     publish-nuget:
@@ -46,7 +47,10 @@ jobs:
                 working-directory: ./src/deequ
 
             -   name: Publish nuget package
-                run: find . -name *.nupkg -type f -print0 | xargs -0 -I pkg dotnet nuget push pkg -k $nuget_api_key -s "https://api.nuget.org/v3/index.json" --skip-duplicate
-                env:
-                    nuget_api_key: ${{ secrets.NUGET_API_KEY }}
-                working-directory: ./src/deequ/nupkg/
+                run: dotnet tool install --global GitReleaseManager.Tool
+                    tag="${GITHUB_REF:10}"
+                    owner="${GITHUB_REPOSITORY%/*}"
+                    repo="${GITHUB_REPOSITORY#*/}"
+                    dotnet-gitreleasemanager create -m ${tag} --token ${{secrets.GITHUB_TOKEN}} -o ${owner} -r ${repo}
+                    dotnet-gitreleasemanager close -m ${tag} --token ${{secrets.GITHUB_TOKEN}} -o ${owner} -r ${repo}
+                    dotnet-gitreleasemanager publish -t ${tag} --token ${{secrets.GITHUB_TOKEN}} -o ${owner} -r ${repo}
