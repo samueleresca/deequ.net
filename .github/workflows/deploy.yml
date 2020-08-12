@@ -47,7 +47,8 @@ jobs:
                 working-directory: ./src/deequ
 
             -   name: Publish nuget package
-                run: dotnet tool install --global GitReleaseManager.Tool
+                run: |
+                    dotnet tool install --global GitReleaseManager.Tool
                     tag="${GITHUB_REF:10}"
                     owner="${GITHUB_REPOSITORY%/*}"
                     repo="${GITHUB_REPOSITORY#*/}"
