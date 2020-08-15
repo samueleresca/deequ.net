@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using deequ;
 using deequ.Checks;
+using deequ.Constraints;
+using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 
@@ -77,9 +81,7 @@ namespace examples
                 .AddCheck(new Check(CheckLevel.Error)
                     .AreComplete(new []{ "customerId", "title", "impressionStart", "impressionEnd", "deviceType", "priority"})
                     .AreUnique(new []{ "customerId", "countryResidence",  "deviceType", "title"})
-                    .HasApproxCountDistinct("title", value => value <= numTitles)
-                    .HasHistogramValues("deviceType",
-                        distribution => distribution["phone"].Ratio <= maxExpectedPhoneRatio))
+                    .HasApproxCountDistinct("title", value => value <= numTitles))
 
                 .AddCheck(new Check(CheckLevel.Error)
                     .IsNonNegative("count")
@@ -93,22 +95,21 @@ namespace examples
                 .Run();
 
 
-            var verificationResult = new VerificationSuite()
-                .OnData(data)
-                .AddCheck(
-                    new Check(CheckLevel.Error, "integrity checks")
-                        .HasSize(x => x == 5)
-                        .IsComplete("id")
-                        .IsUnique("id")
-                        .IsComplete("productName")
-                        .IsContainedIn("priority", new[] { "high", "low" })
-                        .IsNonNegative("numViews")
-                )
-                .AddCheck(
-                    new Check(CheckLevel.Warning, "distribution checks")
-                        .ContainsURL("description", x => x == .5)
-                )
-                .Run();
+            if (result.Status == CheckStatus.Success) {
+                Console.WriteLine("Success");
+            } else {
+                Console.WriteLine("Errors:");
+
+                IEnumerable<ConstraintResult> constraints = result
+                        .CheckResults
+                        .SelectMany(pair => pair.Value.ConstraintResults)
+                        .Where(c=> c.Status == ConstraintStatus.Failure);
+
+                constraints
+                    .Select(constraintResult => constraintResult
+                        .Message.GetOrElse(string.Empty))
+                    .ToList().ForEach(Console.WriteLine);
+            }
         }
     }
 }
