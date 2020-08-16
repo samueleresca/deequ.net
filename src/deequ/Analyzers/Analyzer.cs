@@ -14,8 +14,7 @@ namespace deequ.Analyzers
 {
     public interface IAnalyzer<out M>
     {
-        public M Calculate(DataFrame data);
-        public M Calculate(DataFrame data, Option<IStateLoader> aggregateWith, Option<IStatePersister> saveStateWith);
+        public M Calculate(DataFrame data, Option<IStateLoader> aggregateWith = default, Option<IStatePersister> saveStateWith = default);
         public IEnumerable<Action<StructType>> Preconditions();
         public M ToFailureMetric(Exception e);
         public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target);
@@ -34,18 +33,15 @@ namespace deequ.Analyzers
 
         public M MetricFromAggregationResult(Row result, int offset, Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStatesWith);
-
-        public new M Calculate(DataFrame data, Option<IStateLoader> aggregateWith,
-            Option<IStatePersister> saveStateWith);
     }
 
-    public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>
+    internal abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>
     {
         public abstract M ToFailureMetric(Exception e);
 
         public virtual IEnumerable<Action<StructType>> Preconditions() => Enumerable.Empty<Action<StructType>>();
 
-        public M Calculate(DataFrame data, Option<IStateLoader> aggregateWith, Option<IStatePersister> saveStateWith)
+        public virtual M Calculate(DataFrame data, Option<IStateLoader> aggregateWith = default, Option<IStatePersister> saveStateWith = default)
         {
             try
             {
@@ -62,8 +58,6 @@ namespace deequ.Analyzers
                 return ToFailureMetric(e);
             }
         }
-
-        public M Calculate(DataFrame data) => Calculate(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
 
         public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
         {
@@ -107,7 +101,7 @@ namespace deequ.Analyzers
         }
     }
 
-    public abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M>, IScanSharableAnalyzer<S, M>
+    internal abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M>, IScanSharableAnalyzer<S, M>
         where S : State<S>, IState
     {
         public abstract IEnumerable<Column> AggregationFunctions();
@@ -172,7 +166,7 @@ namespace deequ.Analyzers
     }
 
 
-    public class NumMatchesAndCount : DoubleValuedState<NumMatchesAndCount>, IState
+    internal class NumMatchesAndCount : DoubleValuedState<NumMatchesAndCount>, IState
     {
         public long Count;
         public long NumMatches;
@@ -208,8 +202,8 @@ namespace deequ.Analyzers
             Where = where;
         }
 
-        public Column Predicate { get; set; }
-        public Option<string> Where { get; set; }
+        public Column Predicate { get; }
+        public Option<string> Where { get; }
 
         public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
@@ -229,11 +223,9 @@ namespace deequ.Analyzers
         }
     }
 
-    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupAnalyzer<IState, M> where S : State<S>
+    internal abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupAnalyzer<IState, M> where S : State<S>
     {
         public abstract IEnumerable<string> GroupingColumns();
-
-        public new M Calculate(DataFrame data) => base.Calculate(data);
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
             GroupingColumns().Select(HasColumn).Concat(base.Preconditions());

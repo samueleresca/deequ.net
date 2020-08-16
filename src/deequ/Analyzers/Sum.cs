@@ -39,7 +39,7 @@ namespace deequ.Analyzers
             Where = where;
         }
 
-        public new DoubleMetric Calculate(DataFrame data) => base.Calculate(data);
+        public DoubleMetric Calculate(DataFrame data) => base.Calculate(data);
 
         public Option<string> FilterCondition() => Where;
 

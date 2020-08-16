@@ -37,7 +37,7 @@ namespace deequ.Analyzers
         public override HistogramMetric ToFailureMetric(Exception e) =>
             new HistogramMetric(Column, new Try<Distribution>(ExceptionExt.WrapIfNecessary(e)));
 
-        public new HistogramMetric Calculate(DataFrame data) => base.Calculate(data);
+        public HistogramMetric Calculate(DataFrame data) => base.Calculate(data);
 
         public override Option<FrequenciesAndNumRows> ComputeStateFrom(DataFrame dataFrame)
         {

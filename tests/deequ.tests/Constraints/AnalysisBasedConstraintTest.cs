@@ -11,13 +11,13 @@ using Xunit;
 
 namespace xdeequ.tests.Constraints
 {
-    internal class SampleAnalyzer : Analyzer<NumMatches, DoubleMetric>, IAnalyzer<DoubleMetric>
+    internal class SampleAnalyzer : Analyzer<NumMatches, DoubleMetric>
     {
         public readonly string _column;
 
         public SampleAnalyzer(string column) => _column = column;
 
-        public DoubleMetric Calculate(DataFrame data)
+        public override DoubleMetric Calculate(DataFrame data, Option<IStateLoader> aggregateWith = default, Option<IStatePersister> saveStateWith = default)
         {
             Try<double> valueTry = Try<double>.From(() =>
             {
