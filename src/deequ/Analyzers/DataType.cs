@@ -41,11 +41,11 @@ namespace deequ.Analyzers
             NumString = numString;
         }
 
-        public long NonNull { get; set; }
-        public long NumFractional { get; set; }
-        public long NumIntegral { get; set; }
-        public long NumBoolean { get; set; }
-        public long NumString { get; set; }
+        public long NonNull { get; }
+        public long NumFractional { get; }
+        public long NumIntegral { get; }
+        public long NumBoolean { get; }
+        public long NumString { get; }
 
         public IState Sum(IState other) => throw new NotImplementedException();
 

@@ -12,29 +12,6 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public interface IAnalyzer<out M>
-    {
-        public M Calculate(DataFrame data, Option<IStateLoader> aggregateWith = default, Option<IStatePersister> saveStateWith = default);
-        public IEnumerable<Action<StructType>> Preconditions();
-        public M ToFailureMetric(Exception e);
-        public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target);
-        public M LoadStateAndComputeMetric(IStateLoader source);
-        public void CopyStateTo(IStateLoader source, IStatePersister target);
-    }
-
-    public interface IGroupAnalyzer<S, out M> : IAnalyzer<M>
-    {
-        public IEnumerable<string> GroupingColumns();
-    }
-
-    public interface IScanSharableAnalyzer<S, out M> : IAnalyzer<M>
-    {
-        public IEnumerable<Column> AggregationFunctions();
-
-        public M MetricFromAggregationResult(Row result, int offset, Option<IStateLoader> aggregateWith,
-            Option<IStatePersister> saveStatesWith);
-    }
-
     internal abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>
     {
         public abstract M ToFailureMetric(Exception e);
