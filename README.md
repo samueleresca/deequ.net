@@ -1,6 +1,9 @@
 # deequ.NET
 
-![deequ.NET](https://github.com/samueleresca/deequ.net/workflows/deequ.NET/badge.svg) [![codecov](https://codecov.io/gh/samueleresca/deequ.net/branch/master/graph/badge.svg)](https://codecov.io/gh/samueleresca/deequ.net)
+[![deequ.NET](https://github.com/samueleresca/deequ.net/workflows/deequ.NET/badge.svg)](https://github.com/samuelereca/deeuqu.NET)
+[![codecov](https://codecov.io/gh/samueleresca/deequ.net/branch/master/graph/badge.svg)](https://codecov.io/gh/samueleresca/deequ.net)
+[![Nuget](https://img.shields.io/nuget/vpre/deequ)](https://www.nuget.org/packages/deequ)
+[![NuGet](https://img.shields.io/nuget/dt/deequ)](https://www.nuget.org/packages/deequ)
 
 **deequ.NET** is a port of the [awslabs/deequ](https://github.com/awslabs/deequ) library built on top of Apache Spark for defining "unit tests for data", which measure data quality in large datasets.
 deequ.NET runs on [dotnet/spark](https://github.com/dotnet/spark).
