@@ -53,8 +53,8 @@ namespace deequ.Analyzers.Runners
 
             AnalyzerContext preconditionFailures = ComputePreconditionFailureMetrics(failedAnalyzers, data.Schema());
 
-            IEnumerable<IGroupAnalyzer<IState, IMetric>> groupingAnalyzers =
-                passedAnalyzers.OfType<IGroupAnalyzer<IState, IMetric>>();
+            IEnumerable<IGroupAnalyzer<IMetric>> groupingAnalyzers =
+                passedAnalyzers.OfType<IGroupAnalyzer<IMetric>>();
 
             IEnumerable<IAnalyzer<IMetric>> allScanningAnalyzers =
                 passedAnalyzers.Except(groupingAnalyzers).Select(x => x);
@@ -74,12 +74,12 @@ namespace deequ.Analyzers.Runners
 
             AnalyzerContext groupedMetrics = AnalyzerContext.Empty();
 
-            IEnumerable<IGrouping<(IOrderedEnumerable<string>, Option<string>), IGroupAnalyzer<IState, IMetric>>>
+            IEnumerable<IGrouping<(IOrderedEnumerable<string>, Option<string>), IGroupAnalyzer<IMetric>>>
                 sortedAndFilteredGroupingAnalyzers = groupingAnalyzers
                     .Select(x => x)
                     .GroupBy(x => (x.GroupingColumns().OrderBy(x => x), GetFilterCondition(x)));
 
-            foreach (IGrouping<(IOrderedEnumerable<string>, Option<string>), IGroupAnalyzer<IState, IMetric>>
+            foreach (IGrouping<(IOrderedEnumerable<string>, Option<string>), IGroupAnalyzer<IMetric>>
                 analyzerGroup in sortedAndFilteredGroupingAnalyzers)
             {
                 (long numRows, AnalyzerContext metrics) =
@@ -161,8 +161,8 @@ namespace deequ.Analyzers.Runners
                 }
 
 
-            IEnumerable<IGroupAnalyzer<IState, IMetric>> groupingAnalyzers =
-                passedAnalyzers.OfType<IGroupAnalyzer<IState, IMetric>>();
+            IEnumerable<IGroupAnalyzer<IMetric>> groupingAnalyzers =
+                passedAnalyzers.OfType<IGroupAnalyzer<IMetric>>();
 
             IEnumerable<IAnalyzer<IMetric>> scanningAnalyzers = passedAnalyzers.Except(groupingAnalyzers);
 
@@ -189,7 +189,7 @@ namespace deequ.Analyzers.Runners
             else
             {
                 groupedResults = groupingAnalyzers
-                    .Select(analyzer => (IGroupAnalyzer<IState, IMetric>)analyzers)
+                    .Select(analyzer => (IGroupAnalyzer<IMetric>)analyzers)
                     .GroupBy(x => x.GroupingColumns().OrderBy(x => x))
                     .Select(analyzerForGrouping =>
                     {
@@ -205,7 +205,7 @@ namespace deequ.Analyzers.Runners
             return results;
         }
 
-        private static FrequenciesAndNumRows FindStateForParticularGrouping(IEnumerable<IGroupAnalyzer<IState, IMetric>>
+        private static FrequenciesAndNumRows FindStateForParticularGrouping(IEnumerable<IGroupAnalyzer<IMetric>>
             analyzers, IStateLoader stateLoader)
         {
             /* One of the analyzers must have the state persisted */
@@ -365,7 +365,7 @@ namespace deequ.Analyzers.Runners
             DataFrame dataFrame,
             IEnumerable<string> groupingColumns,
             Option<string> filterConditions,
-            IEnumerable<IGroupAnalyzer<IState, IMetric>> analyzers,
+            IEnumerable<IGroupAnalyzer<IMetric>> analyzers,
             Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStateTo,
             StorageLevel storageLevelOfGroupedDataForMultiplePasses,
@@ -396,7 +396,7 @@ namespace deequ.Analyzers.Runners
 
         private static AnalyzerContext RunAnalyzersForParticularGrouping(
             FrequenciesAndNumRows frequenciesAndNumRows,
-            IEnumerable<IGroupAnalyzer<IState, IMetric>> analyzers,
+            IEnumerable<IGroupAnalyzer<IMetric>> analyzers,
             Option<IStatePersister> saveStatesTo
         )
         {
@@ -405,7 +405,7 @@ namespace deequ.Analyzers.Runners
             IEnumerable<ScanShareableFrequencyBasedAnalyzer> shareable = analyzers
                 .OfType<ScanShareableFrequencyBasedAnalyzer>();
 
-            IEnumerable<IGroupAnalyzer<IState, IMetric>> others = analyzers.Except(shareable);
+            IEnumerable<IGroupAnalyzer<IMetric>> others = analyzers.Except(shareable);
 
             if (!others.Any())
             {
