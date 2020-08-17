@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 namespace deequ.Analyzers
 {
     internal class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer,
-        IGroupAnalyzer<DoubleMetric>
+        IGroupingAnalyzer<DoubleMetric>
     {
         public readonly Option<string> Where;
         public IEnumerable<string> Columns;

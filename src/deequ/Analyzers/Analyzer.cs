@@ -200,7 +200,7 @@ namespace deequ.Analyzers
         }
     }
 
-    internal abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupAnalyzer<M> where S : State<S>
+    internal abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupingAnalyzer<M> where S : State<S>
     {
         public abstract IEnumerable<string> GroupingColumns();
 
