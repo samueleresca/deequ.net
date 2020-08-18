@@ -12,7 +12,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    internal abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S>
+    internal abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S> where M : IMetric
     {
         public abstract M ToFailureMetric(Exception e);
 
@@ -79,7 +79,7 @@ namespace deequ.Analyzers
     }
 
     internal abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M>, IScanSharableAnalyzer<S, M>
-        where S : State<S>, IState
+        where S : State<S>, IState where M : IMetric
     {
         public abstract IEnumerable<Column> AggregationFunctions();
 
@@ -200,7 +200,7 @@ namespace deequ.Analyzers
         }
     }
 
-    internal abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupingAnalyzer<M> where S : State<S>
+    internal abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupingAnalyzer<M> where S : State<S> where M : IMetric
     {
         public abstract IEnumerable<string> GroupingColumns();
 
