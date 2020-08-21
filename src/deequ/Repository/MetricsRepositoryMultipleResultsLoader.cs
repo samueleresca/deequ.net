@@ -35,9 +35,9 @@ namespace deequ.Repository
             }
 
             return analysisResults
-                .Select(x => x.GetSuccessMetricsAsDataFrame(session,
+                .Select(analysisResult => analysisResult.GetSuccessMetricsAsDataFrame(session,
                     Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
-                .Aggregate((x, y) => { return DataFrameUnion(x, y); });
+                .Aggregate((dataFrameOne, dataFrameTwo) => { return DataFrameUnion(dataFrameOne, dataFrameTwo); });
         }
 
         public string GetSuccessMetricsAsJson(IEnumerable<string> withTags)
@@ -52,8 +52,8 @@ namespace deequ.Repository
             }
 
             return analysisResults
-                .Select(x => x.GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
-                .Aggregate((x, y) => JsonUnion(x, y));
+                .Select(analysisResult => analysisResult.GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
+                .Aggregate((jsonOne, jsonTwo) => JsonUnion(jsonOne, jsonTwo));
         }
 
         private DataFrame DataFrameUnion(DataFrame dataFrameOne, DataFrame dataFrameTwo)
@@ -75,7 +75,7 @@ namespace deequ.Repository
 
             IEnumerable<string> columnsTotal = objectOne.FirstOrDefault()?.Keys
                 .Concat(objectTwo.FirstOrDefault()?.Keys ?? Enumerable.Empty<string>());
-            IEnumerable<Dictionary<string, object>> unioned = objectOne.Concat(objectTwo).Select(x =>
+            IEnumerable<Dictionary<string, object>> unioned = objectOne.Concat(objectTwo).Select(dictionary =>
             {
                 Dictionary<string, object> columnsToAdd = new Dictionary<string, object>();
 
@@ -84,22 +84,22 @@ namespace deequ.Repository
                     columnsToAdd.Add(column, null);
                 }
 
-                x.Merge(columnsToAdd);
-                return x;
+                dictionary.Merge(columnsToAdd);
+                return dictionary;
             });
 
             return JsonSerializer.Serialize(unioned);
         }
 
         private static Column[] WithAllColumns(IEnumerable<string> myCols, IEnumerable<string> allCols) =>
-            allCols.Select(x =>
+            allCols.Select(columnName =>
             {
-                if (myCols.Contains(x))
+                if (myCols.Contains(columnName))
                 {
-                    return Column(x);
+                    return Column(columnName);
                 }
 
-                return Lit(null).As(x);
+                return Lit(null).As(columnName);
             }).ToArray();
     }
 }

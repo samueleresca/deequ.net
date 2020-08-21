@@ -82,7 +82,7 @@ namespace deequ.Extensions
             return ConditionalSelectionFromColumns(selection, conditionColumn);
         }
 
-        public static bool HasColumn(StructType schema, string column) => schema.Fields.Select(x => x.Name)
+        public static bool HasColumn(StructType schema, string column) => schema.Fields.Select(field => field.Name)
             .Contains(column, StringComparer.InvariantCultureIgnoreCase);
 
         public static Action<StructType> HasColumn(string column) =>
@@ -166,7 +166,7 @@ namespace deequ.Extensions
 
         public static StructField StructField(string column, StructType schema)
         {
-            StructField structFields = schema.Fields.First(x => x.Name == column);
+            StructField structFields = schema.Fields.First(field => field.Name == column);
             return structFields;
         }
 
@@ -191,11 +191,11 @@ namespace deequ.Extensions
 
         public static void Merge<K, V>(this IDictionary<K, V> target, IDictionary<K, V> source,
             bool overwrite = false) =>
-            source.ToList().ForEach(_ =>
+            source.ToList().ForEach(keyValuePair =>
             {
-                if (!target.ContainsKey(_.Key) || overwrite)
+                if (!target.ContainsKey(keyValuePair.Key) || overwrite)
                 {
-                    target[_.Key] = _.Value;
+                    target[keyValuePair.Key] = keyValuePair.Value;
                 }
             });
 
@@ -207,7 +207,7 @@ namespace deequ.Extensions
         public static Action<StructType> AtLeastOne(IEnumerable<string> columns) =>
             type =>
             {
-                if (columns.Any(x => x == string.Empty))
+                if (columns.Any(column => column == string.Empty))
                 {
                     throw new Exception("At least one column needs to be specified!");
                 }

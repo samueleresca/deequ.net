@@ -9,12 +9,12 @@ namespace deequ.Checks
     {
         public static Column IsEachNotNull(IEnumerable<string> cols) =>
             cols
-                .Select(x => Col(x).IsNotNull())
+                .Select(value => Col(value).IsNotNull())
                 .Aggregate((acc, x) => acc.And(x));
 
         public static Column IsAnyNotNull(IEnumerable<string> cols) =>
             cols
-                .Select(x => Col(x).IsNotNull())
+                .Select(value => Col(value).IsNotNull())
                 .Aggregate((acc, x) => acc.Or(x));
     }
 }

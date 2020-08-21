@@ -254,7 +254,7 @@ namespace deequ.Repository.Serde
             if (analyzer is Distinctness distinctness)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Distinctness");
-                writer.WriteArray(SerdeExt.COLUMN_FIELD, distinctness.Columns.Select(x => x.ToString()));
+                writer.WriteArray(SerdeExt.COLUMN_FIELD, distinctness.Columns.Select(col => col.ToString()));
                 writer.WriteString(SerdeExt.WHERE_FIELD, distinctness.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
@@ -271,7 +271,7 @@ namespace deequ.Repository.Serde
             if (analyzer is MutualInformation mutual)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "MutualInformation");
-                writer.WriteArray(SerdeExt.COLUMN_FIELD, mutual.Columns.Select(x => x.ToString()));
+                writer.WriteArray(SerdeExt.COLUMN_FIELD, mutual.Columns.Select(col => col.ToString()));
                 writer.WriteEndObject();
                 return;
             }
@@ -279,7 +279,7 @@ namespace deequ.Repository.Serde
             if (analyzer is UniqueValueRatio uniqueValueRatio)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "UniqueValueRatio");
-                writer.WriteArray(SerdeExt.COLUMN_FIELD, uniqueValueRatio.Columns.Select(x => x.ToString()));
+                writer.WriteArray(SerdeExt.COLUMN_FIELD, uniqueValueRatio.Columns.Select(col => col.ToString()));
                 writer.WriteEndObject();
                 return;
             }
@@ -287,7 +287,7 @@ namespace deequ.Repository.Serde
             if (analyzer is Uniqueness uniqueness)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Uniqueness");
-                writer.WriteArray(SerdeExt.COLUMN_FIELD, uniqueness.Columns.Select(x => x.ToString()));
+                writer.WriteArray(SerdeExt.COLUMN_FIELD, uniqueness.Columns.Select(col => col.ToString()));
                 writer.WriteEndObject();
                 return;
             }
@@ -373,6 +373,6 @@ namespace deequ.Repository.Serde
         }
 
         private IEnumerable<string> GetColumnAsSequence(JsonElement jsonElement) =>
-            jsonElement.EnumerateArray().Select(x => x.GetString());
+            jsonElement.EnumerateArray().Select(jsonArray => jsonArray.GetString());
     }
 }

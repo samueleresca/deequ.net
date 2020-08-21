@@ -18,7 +18,7 @@ namespace deequ.Repository.InMemory
         public void Save(ResultKey resultKey, AnalyzerContext analyzerContext)
         {
             IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> successfulMetrics =
-                analyzerContext.MetricMap.Where(x => x.Value.IsSuccess());
+                analyzerContext.MetricMap.Where(keyValuePair => keyValuePair.Value.IsSuccess());
 
             AnalyzerContext analyzerContextWithSuccessfulValues =
                 new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(successfulMetrics));
@@ -75,16 +75,16 @@ namespace deequ.Repository.InMemory
                 .Where(pair => !after.HasValue || after.Value <= pair.Key.DataSetDate)
                 .Where(pair => !before.HasValue || pair.Key.DataSetDate <= before.Value)
                 .Where(pair => !tagValues.HasValue || tagValues.Value == null || tagValues.Value.Count == 0 ||
-                               pair.Key.Tags.Any(x =>
-                                   tagValues.Value.TryGetValue(x.Key, out string found) && found == x.Value))
-                .Select(x =>
+                               pair.Key.Tags.Any(keyValuePair =>
+                                   tagValues.Value.TryGetValue(keyValuePair.Key, out string found) && found == keyValuePair.Value))
+                .Select(keyValuePair =>
                 {
-                    IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> requestedMetrics = x.Value
+                    IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> requestedMetrics = keyValuePair.Value
                         .AnalyzerContext
                         .MetricMap
                         .Where(analyzer => !forAnalyzers.HasValue || forAnalyzers.Value.Contains(analyzer.Key));
 
-                    return new AnalysisResult(x.Value.ResultKey,
+                    return new AnalysisResult(keyValuePair.Value.ResultKey,
                         new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(requestedMetrics)));
                 });
     }

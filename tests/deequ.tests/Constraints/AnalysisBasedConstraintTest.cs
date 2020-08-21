@@ -21,7 +21,7 @@ namespace xdeequ.tests.Constraints
         {
             Try<double> valueTry = Try<double>.From(() =>
             {
-                if (data.Columns().All(x => x != _column))
+                if (data.Columns().All(predicate => predicate != _column))
                 {
                     throw new Exception($"requirement failed: Missing column {_column}");
                 }
@@ -54,7 +54,7 @@ namespace xdeequ.tests.Constraints
 
             ConstraintResult resultA = ConstraintUtils.Calculate<NumMatches, double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("att1"), _ => _ == 1.0, Option<string>.None), df);
+                    new SampleAnalyzer("att1"), val => val == 1.0, Option<string>.None), df);
 
             resultA.Status.ShouldBe(ConstraintStatus.Success);
             resultA.Message.ShouldBe(Option<string>.None);
@@ -63,7 +63,7 @@ namespace xdeequ.tests.Constraints
 
             ConstraintResult resultB = ConstraintUtils.Calculate<NumMatches, double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("att1"), _ => _ != 1.0, Option<string>.None), df);
+                    new SampleAnalyzer("att1"), val => val != 1.0, Option<string>.None), df);
 
             resultB.Status.ShouldBe(ConstraintStatus.Failure);
             resultB.Message.ShouldBe("Value: 1 does not meet the constraint requirement!");
@@ -72,7 +72,7 @@ namespace xdeequ.tests.Constraints
 
             ConstraintResult resultC = ConstraintUtils.Calculate<NumMatches, double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("someMissingColumn"), _ => _ == 1.0, Option<string>.None), df);
+                    new SampleAnalyzer("someMissingColumn"), val => val == 1.0, Option<string>.None), df);
 
             resultC.Status.ShouldBe(ConstraintStatus.Failure);
             resultC.Message.ShouldBe("requirement failed: Missing column someMissingColumn");
@@ -86,21 +86,21 @@ namespace xdeequ.tests.Constraints
 
             ConstraintResult resultA = ConstraintUtils.Calculate<NumMatches, double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("att1"), _ => _ == 2.0, new Option<Func<double, double>>(value => value * 2),
+                    new SampleAnalyzer("att1"), val => val == 2.0, new Option<Func<double, double>>(value => value * 2),
                     Option<string>.None), df);
 
             resultA.Status.ShouldBe(ConstraintStatus.Success);
 
             ConstraintResult resultB = ConstraintUtils.Calculate<NumMatches, double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("att1"), _ => _ != 2.0, new Option<Func<double, double>>(value => value * 2),
+                    new SampleAnalyzer("att1"), val => val != 2.0, new Option<Func<double, double>>(value => value * 2),
                     Option<string>.None), df);
 
             resultB.Status.ShouldBe(ConstraintStatus.Failure);
 
             ConstraintResult resultC = ConstraintUtils.Calculate<NumMatches, double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("someMissingColumn"), _ => _ != 2.0,
+                    new SampleAnalyzer("someMissingColumn"), val => val != 2.0,
                     new Option<Func<double, double>>(value => value * 2), Option<string>.None), df);
 
             resultC.Status.ShouldBe(ConstraintStatus.Failure);
@@ -118,8 +118,8 @@ namespace xdeequ.tests.Constraints
                 {att1Analyzer, new SampleAnalyzer("att1").Calculate(df)}
             };
 
-            new AnalysisBasedConstraint<double, double>(att1Analyzer, _ => _ == 2.0,
-                    new Option<Func<double, double>>(_ => _ * 2), Option<string>.None)
+            new AnalysisBasedConstraint<double, double>(att1Analyzer, val => val == 2.0,
+                    new Option<Func<double, double>>(val => val * 2), Option<string>.None)
                 .Evaluate(validResults)
                 .Status.ShouldBe(ConstraintStatus.Success);
         }
@@ -139,7 +139,7 @@ namespace xdeequ.tests.Constraints
             };
 
             AnalysisBasedConstraint<double, double> constraint =
-                new AnalysisBasedConstraint<double, double>(att1Analyzer, _ => _ == 2.0,
+                new AnalysisBasedConstraint<double, double>(att1Analyzer, val => val == 2.0,
                     new Option<Func<double, double>>(problematicValuePicker), Option<string>.None);
 
             ConstraintResult result = ConstraintUtils.Calculate<NumMatches, double, double>(constraint, df);
@@ -168,7 +168,7 @@ namespace xdeequ.tests.Constraints
             DataFrame df = FixtureSupport.GetDFMissing(_session);
 
             AnalysisBasedConstraint<double, double> failingConstraint =
-                new AnalysisBasedConstraint<double, double>(att1Analyzer, _ => _ == 0.9,
+                new AnalysisBasedConstraint<double, double>(att1Analyzer, val => val == 0.9,
                     new Option<string>("Value should be like ...!"));
 
             ConstraintResult result = ConstraintUtils.Calculate<NumMatches, double, double>(failingConstraint, df);
@@ -193,22 +193,22 @@ namespace xdeequ.tests.Constraints
                 {someMissingColumn, new SampleAnalyzer("someMissingColumn").Calculate(df)}
             };
 
-            new AnalysisBasedConstraint<double, double>(att1Analyzer, _ => _ == 1.0, Option<string>.None)
+            new AnalysisBasedConstraint<double, double>(att1Analyzer, val => val == 1.0, Option<string>.None)
                 .Evaluate(validResults)
                 .Status.ShouldBe(ConstraintStatus.Success);
 
-            new AnalysisBasedConstraint<double, double>(att1Analyzer, _ => _ != 1.0, Option<string>.None)
+            new AnalysisBasedConstraint<double, double>(att1Analyzer, val => val != 1.0, Option<string>.None)
                 .Evaluate(validResults)
                 .Status.ShouldBe(ConstraintStatus.Failure);
 
-            new AnalysisBasedConstraint<double, double>(someMissingColumn, _ => _ != 1.0,
+            new AnalysisBasedConstraint<double, double>(someMissingColumn, val => val != 1.0,
                     Option<string>.None)
                 .Evaluate(validResults)
                 .Status.ShouldBe(ConstraintStatus.Failure);
 
 
             ConstraintResult result = new AnalysisBasedConstraint<double, double>(att1Analyzer,
-                    _ => _ == 1.0,
+                    val => val == 1.0,
                     Option<string>.None)
                 .Evaluate(emptyResult);
 

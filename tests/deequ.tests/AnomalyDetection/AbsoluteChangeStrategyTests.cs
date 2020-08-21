@@ -12,19 +12,19 @@ namespace xdeequ.tests.AnomalyDetection
     {
         private readonly AbsoluteChangeStrategy _strategy = new AbsoluteChangeStrategy(-2.0, 2.0);
 
-        private readonly double[] data = Enumerable.Range(0, 50).Select(x =>
+        private readonly double[] data = Enumerable.Range(0, 50).Select(value =>
         {
-            if (x < 20 || x > 30)
+            if (value < 20 || value > 30)
             {
                 return 1.0;
             }
 
-            if (x % 2 == 0)
+            if (value % 2 == 0)
             {
-                return x;
+                return value;
             }
 
-            return -x;
+            return -value;
         }).ToArray();
 
         [Fact]
@@ -101,7 +101,7 @@ namespace xdeequ.tests.AnomalyDetection
         {
             IEnumerable<(int, Anomaly)> anomalyResult = _strategy.Detect(data.ToArray(), (0, int.MaxValue));
             IEnumerable<(int x, Anomaly)> expected = Enumerable.Range(20, 12)
-                .Select(x => (x, new Anomaly(data[x], 1.0, Option<string>.None)));
+                .Select(value => (value, new Anomaly(data[value], 1.0, Option<string>.None)));
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -124,7 +124,7 @@ namespace xdeequ.tests.AnomalyDetection
 
             IEnumerable<(int, Anomaly)> anomalyResult = strategy.Detect(data.ToArray(), (0, int.MaxValue));
             IEnumerable<(int x, Anomaly)> expected = Enumerable.Range(21, 12).Where(i => i % 2 != 0)
-                .Select(x => (x, new Anomaly(data[x], 1.0, Option<string>.None)));
+                .Select(value => (value, new Anomaly(data[value], 1.0, Option<string>.None)));
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -136,7 +136,7 @@ namespace xdeequ.tests.AnomalyDetection
 
             IEnumerable<(int, Anomaly)> anomalyResult = strategy.Detect(data.ToArray(), (0, int.MaxValue));
             IEnumerable<(int x, Anomaly)> expected = Enumerable.Range(20, 12).Where(i => i % 2 == 0)
-                .Select(x => (x, new Anomaly(data[x], 1.0, Option<string>.None)));
+                .Select(value => (value, new Anomaly(data[value], 1.0, Option<string>.None)));
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -146,7 +146,7 @@ namespace xdeequ.tests.AnomalyDetection
         {
             IEnumerable<(int, Anomaly)> anomalyResult = _strategy.Detect(data.ToArray(), (25, 50));
             IEnumerable<(int x, Anomaly)> expected = Enumerable.Range(25, 7)
-                .Select(x => (x, new Anomaly(data[x], 1.0, Option<string>.None)));
+                .Select(value => (value, new Anomaly(data[value], 1.0, Option<string>.None)));
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }

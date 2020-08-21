@@ -10,8 +10,34 @@ using Microsoft.Spark.Sql.Types;
 
 namespace deequ.Analyzers.Runners
 {
-    internal static class AnalysisRunner
+    public static class AnalysisRunner
     {
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="analyzers"></param>
+        /// <param name="aggregateWith"></param>
+        /// <param name="saveStatesWith"></param>
+        /// <param name="storageLevelOfGroupedDataForMultiplePasses"></param>
+        /// <returns></returns>
+        public static AnalyzerContext Run(
+            DataFrame data,
+            Analysis analysis,
+            Option<IStateLoader> aggregateWith = default,
+            Option<IStatePersister> saveStatesWith = default,
+            StorageLevel storageLevelOfGroupedDataForMultiplePasses = StorageLevel.MEMORY_AND_DISK
+            )
+        {
+            return DoAnalysisRun(data,
+                analysis.Analyzers,
+                aggregateWith,
+                saveStatesWith,
+                storageLevelOfGroupedDataForMultiplePasses);
+        }
+
+
         public static AnalyzerContext DoAnalysisRun
         (
             DataFrame data,
@@ -27,7 +53,7 @@ namespace deequ.Analyzers.Runners
                 return AnalyzerContext.Empty();
             }
 
-            IEnumerable<IAnalyzer<IMetric>> allAnalyzers = analyzers.Select(x => x);
+            IEnumerable<IAnalyzer<IMetric>> allAnalyzers = analyzers.Select(analyzer => analyzer);
             IAnalyzer<IMetric>[] enumerable = allAnalyzers as IAnalyzer<IMetric>[] ?? allAnalyzers.ToArray();
             IEnumerable<IAnalyzer<IMetric>> distinctAnalyzers = enumerable.Distinct();
 
@@ -57,14 +83,14 @@ namespace deequ.Analyzers.Runners
                 passedAnalyzers.OfType<IGroupingAnalyzer<IMetric>>();
 
             IEnumerable<IAnalyzer<IMetric>> allScanningAnalyzers =
-                passedAnalyzers.Except(groupingAnalyzers).Select(x => x);
+                passedAnalyzers.Except(groupingAnalyzers).Select(analyzer => analyzer);
 
             AnalyzerContext nonGroupedMetrics =
                 RunScanningAnalyzers(data, allScanningAnalyzers, aggregateWith, saveStatesWith);
 
-            Option<double> numRowsOfData = nonGroupedMetrics.Metric(Initializers.Size(Option<string>.None)).Select(x =>
+            Option<double> numRowsOfData = nonGroupedMetrics.Metric(Initializers.Size()).Select(metric =>
             {
-                if (x is DoubleMetric dm)
+                if (metric is DoubleMetric dm)
                 {
                     return dm.Value.Success.Value;
                 }
@@ -76,8 +102,8 @@ namespace deequ.Analyzers.Runners
 
             IEnumerable<IGrouping<(IOrderedEnumerable<string>, Option<string>), IGroupingAnalyzer<IMetric>>>
                 sortedAndFilteredGroupingAnalyzers = groupingAnalyzers
-                    .Select(x => x)
-                    .GroupBy(x => (x.GroupingColumns().OrderBy(x => x), GetFilterCondition(x)));
+                    .Select(analyzer => analyzer)
+                    .GroupBy(analyzer => (analyzer.GroupingColumns().OrderBy(columnName => columnName), GetFilterCondition(analyzer)));
 
             foreach (IGrouping<(IOrderedEnumerable<string>, Option<string>), IGroupingAnalyzer<IMetric>>
                 analyzerGroup in sortedAndFilteredGroupingAnalyzers)
@@ -131,10 +157,10 @@ namespace deequ.Analyzers.Runners
             StructType schema,
             Analysis analysis,
             IEnumerable<IStateLoader> stateLoaders,
-            Option<IStatePersister> saveStatesWith,
-            Option<IMetricsRepository> metricsRepository,
-            Option<ResultKey> saveOrAppendResultsWithKey,
-            StorageLevel storageLevelOfGroupedDataForMultiplePasses)
+            Option<IStatePersister> saveStatesWith = default,
+            Option<IMetricsRepository> metricsRepository = default,
+            Option<ResultKey> saveOrAppendResultsWithKey = default,
+            StorageLevel storageLevelOfGroupedDataForMultiplePasses = StorageLevel.MEMORY_AND_DISK)
         {
             if (analysis.Analyzers == null || stateLoaders == null)
             {
@@ -145,7 +171,7 @@ namespace deequ.Analyzers.Runners
 
             /* Find all analyzers which violate their preconditions */
             IEnumerable<IAnalyzer<IMetric>> passedAnalyzers = analyzers
-                .Where(x => FindFirstFailing(schema, x.Preconditions()).HasValue);
+                .Where(analyzer => FindFirstFailing(schema, analyzer.Preconditions()).HasValue);
 
             IEnumerable<IAnalyzer<IMetric>> failedAnalyzers = analyzers.Except(passedAnalyzers);
 
@@ -190,7 +216,7 @@ namespace deequ.Analyzers.Runners
             {
                 groupedResults = groupingAnalyzers
                     .Select(analyzer => (IGroupingAnalyzer<IMetric>)analyzers)
-                    .GroupBy(x => x.GroupingColumns().OrderBy(x => x))
+                    .GroupBy(analyzer => analyzer.GroupingColumns().OrderBy(columnName => columnName))
                     .Select(analyzerForGrouping =>
                     {
                         FrequenciesAndNumRows state =
@@ -231,16 +257,16 @@ namespace deequ.Analyzers.Runners
                     Dictionary<string, IAnalyzer<IMetric>> dictEquality =
                         valueToSave.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
 
-                    resultingAnalyzerContext.MetricMap.ToList().ForEach(_ =>
+                    resultingAnalyzerContext.MetricMap.ToList().ForEach(keyValuePair =>
                     {
-                        if (dictEquality.ContainsKey(_.Key.ToString()) &&
-                            valueToSave.MetricMap.ContainsKey(dictEquality[_.Key.ToString()]))
+                        if (dictEquality.ContainsKey(keyValuePair.Key.ToString()) &&
+                            valueToSave.MetricMap.ContainsKey(dictEquality[keyValuePair.Key.ToString()]))
                         {
-                            valueToSave.MetricMap[dictEquality[_.Key.ToString()]] = _.Value;
+                            valueToSave.MetricMap[dictEquality[keyValuePair.Key.ToString()]] = keyValuePair.Value;
                         }
                         else
                         {
-                            valueToSave.MetricMap.Add(_.Key, _.Value);
+                            valueToSave.MetricMap.Add(keyValuePair.Key, keyValuePair.Value);
                         }
                     });
 
@@ -271,7 +297,7 @@ namespace deequ.Analyzers.Runners
                         return new Option<Exception>(e);
                     }
                 })
-                .FirstOrDefault(x => x.HasValue);
+                .FirstOrDefault(exception => exception.HasValue);
 
         private static AnalyzerContext ComputePreconditionFailureMetrics(
             IEnumerable<IAnalyzer<IMetric>> failedAnalyzers, StructType schema)
@@ -315,7 +341,7 @@ namespace deequ.Analyzers.Runners
                 try
                 {
                     IEnumerable<Column> aggregations = sharable
-                        .SelectMany(x => x.AggregationFunctions());
+                        .SelectMany(analyzer => analyzer.AggregationFunctions());
 
                     int i = 0;
 
@@ -379,7 +405,7 @@ namespace deequ.Analyzers.Runners
                 analyzers.First() as Analyzer<FrequenciesAndNumRows, IMetric>;
 
             Option<FrequenciesAndNumRows> previousFrequenciesAndNumRows = aggregateWith
-                .Select(x => x.Load<FrequenciesAndNumRows>(sampleAnalyzer))
+                .Select(stateLoader => stateLoader.Load<FrequenciesAndNumRows>(sampleAnalyzer))
                 .GetOrElse(Option<FrequenciesAndNumRows>.None);
 
             if (previousFrequenciesAndNumRows.HasValue)
@@ -412,7 +438,7 @@ namespace deequ.Analyzers.Runners
                 frequenciesAndNumRows.Frequencies.Persist(); // TODO: storageLevelOfGroupedDataForMultiplePasses
             }
 
-            IEnumerable<ScanShareableFrequencyBasedAnalyzer> sharableAnalyzers = shareable.Select(x => x);
+            IEnumerable<ScanShareableFrequencyBasedAnalyzer> sharableAnalyzers = shareable;
 
 
             IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> metricsByAnalyzer;
@@ -426,7 +452,7 @@ namespace deequ.Analyzers.Runners
                 try
                 {
                     IEnumerable<Column> aggregations = sharableAnalyzers
-                        .SelectMany(x => x.AggregationFunctions(numRows));
+                        .SelectMany(analyzer => analyzer.AggregationFunctions(numRows));
 
                     int i = 0;
                     List<int> offsets = sharableAnalyzers.Select(analyzer =>
@@ -449,8 +475,8 @@ namespace deequ.Analyzers.Runners
                 }
                 catch (Exception e)
                 {
-                    metricsByAnalyzer = sharableAnalyzers.Select(x =>
-                        new KeyValuePair<IAnalyzer<IMetric>, IMetric>(x, x.ToFailureMetric(e)));
+                    metricsByAnalyzer = sharableAnalyzers.Select(analyzer =>
+                        new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, analyzer.ToFailureMetric(e)));
                 }
             }
 
@@ -459,9 +485,9 @@ namespace deequ.Analyzers.Runners
             try
             {
                 otherMetrics = others
-                    .Select(x => (FrequencyBasedAnalyzer)x)
-                    .Select(x => new KeyValuePair<IAnalyzer<IMetric>, IMetric>(x,
-                        x.ComputeMetricFrom(new Option<FrequenciesAndNumRows>(frequenciesAndNumRows))));
+                    .Select(analyzer => (FrequencyBasedAnalyzer)analyzer)
+                    .Select(analyzer => new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer,
+                        analyzer.ComputeMetricFrom(new Option<FrequenciesAndNumRows>(frequenciesAndNumRows))));
             }
             catch (Exception e)
             {
@@ -469,8 +495,8 @@ namespace deequ.Analyzers.Runners
                     new KeyValuePair<IAnalyzer<IMetric>, IMetric>(analyzer, analyzer.ToFailureMetric(e)));
             }
 
-            saveStatesTo.Select(_ =>
-                _.Persist(new Option<IAnalyzer<IMetric>>(analyzers.First()), frequenciesAndNumRows));
+            saveStatesTo.Select(statePersister =>
+                statePersister.Persist(new Option<IAnalyzer<IMetric>>(analyzers.First()), frequenciesAndNumRows));
             frequenciesAndNumRows.Frequencies.Unpersist();
 
             ;
@@ -515,7 +541,7 @@ namespace deequ.Analyzers.Runners
         }
     }
 
-    internal class AnalysisRunnerRepositoryOptions
+    public class AnalysisRunnerRepositoryOptions
     {
         public bool failIfResultsForReusingMissing;
 
@@ -541,7 +567,7 @@ namespace deequ.Analyzers.Runners
         }
     }
 
-    internal class AnalysisRunnerFileOutputOptions
+    public class AnalysisRunnerFileOutputOptions
     {
         public Option<bool> overwriteOutputFiles = Option<bool>.None;
         public Option<string> saveSuccessMetricsJsonToPath = Option<string>.None;
@@ -579,7 +605,10 @@ namespace deequ.Analyzers.Runners
         public Dictionary<string, string> Tags { get; set; }
     }
 
-    public class StorageLevel
+
+    //TODO: Missing API from dotnet/spark, see: https://github.com/dotnet/spark/issues/617
+    public enum StorageLevel
     {
+        MEMORY_AND_DISK = 0
     }
 }

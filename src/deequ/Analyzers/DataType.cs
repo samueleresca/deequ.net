@@ -162,7 +162,7 @@ namespace deequ.Analyzers
 
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
-                () => { return DataTypeHistogram.FromArray(result.Values.Select(x => (int)x).ToArray()); });
+                () => { return DataTypeHistogram.FromArray(result.Values.Select(value => (int)value).ToArray()); });
 
         public override string ToString()
         {

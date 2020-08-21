@@ -17,12 +17,10 @@ namespace deequ.Analyzers.Runners
         public AnalyzerContext(Dictionary<IAnalyzer<IMetric>, IMetric> metricMap) => MetricMap = metricMap;
 
         public bool Equals(AnalyzerContext other) =>
-            MetricMap.OrderBy(x => x.Key.ToString())
-                .SequenceEqual(other.MetricMap.OrderBy(x => x.Key.ToString()));
+            MetricMap.OrderBy(keyValuePair => keyValuePair.Key.ToString())
+                .SequenceEqual(other.MetricMap.OrderBy(keyValuePair => keyValuePair.Key.ToString()));
 
         public static AnalyzerContext Empty() => new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>());
-
-        public IEnumerable<IMetric> AllMetrics() => MetricMap.Values.AsEnumerable();
 
         public static AnalyzerContext operator +(AnalyzerContext current, AnalyzerContext other)
         {
@@ -48,7 +46,7 @@ namespace deequ.Analyzers.Runners
         {
             IEnumerable<GenericRow> metricList =
                 GetSimplifiedMetricOutputForSelectedAnalyzers(forAnalyzers)
-                    .Select(x => new GenericRow(new object[] { x.Entity.ToString(), x.Instance, x.Name, x.Value }));
+                    .Select(simpleMetric => new GenericRow(new object[] { simpleMetric.Entity.ToString(), simpleMetric.Instance, simpleMetric.Name, simpleMetric.Value }));
 
             DataFrame df = sparkSession.CreateDataFrame(metricList,
                 new StructType(new[]
@@ -77,9 +75,9 @@ namespace deequ.Analyzers.Runners
                 .SelectMany(pair =>
                 {
                     DoubleMetric dm = pair.Value as DoubleMetric;
-                    return dm.Flatten().Select(x => RenameMetric(x, DescribeAnalyzer(pair.Key)));
+                    return dm.Flatten().Select(doubleMetric => RenameMetric(doubleMetric, DescribeAnalyzer(pair.Key)));
                 })
-                .Select(x => new SimpleMetricOutput(x));
+                .Select(doubleMetric => new SimpleMetricOutput(doubleMetric));
 
         private static string DescribeAnalyzer(IAnalyzer<IMetric> analyzer)
         {
@@ -92,7 +90,7 @@ namespace deequ.Analyzers.Runners
                 filter = filterable.FilterCondition();
             }
 
-            return filter.Select(x => $"{name} (where: {x} )").GetOrElse(name);
+            return filter.Select(filter => $"{name} (where: {filter} )").GetOrElse(name);
         }
 
         private static DoubleMetric RenameMetric(DoubleMetric doubleMetric, string newName) =>

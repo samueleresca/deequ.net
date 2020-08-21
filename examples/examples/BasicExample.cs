@@ -37,7 +37,7 @@ namespace examples
                 .OnData(data)
                 .AddCheck(
                     new Check(CheckLevel.Error, "integrity checks")
-                        .HasSize(x => x == 5)
+                        .HasSize(value => value == 5)
                         .IsComplete("id")
                         .IsUnique("id")
                         .IsComplete("productName")
@@ -46,11 +46,10 @@ namespace examples
                 )
                 .AddCheck(
                     new Check(CheckLevel.Warning, "distribution checks")
-                        .ContainsURL("description", x => x == .5)
+                        .ContainsURL("description", value => value == .5)
                 )
                 .Run();
         }
-
 
         public void ExecuteComplexVerificationSuite()
         {

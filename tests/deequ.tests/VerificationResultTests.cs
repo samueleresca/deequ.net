@@ -45,11 +45,11 @@ namespace xdeequ.tests
                 .IsComplete("att1", Option<string>.None);
 
             CheckWithLastConstraintFilterable checkToErrorOut = new Check(CheckLevel.Error, "group-2-E")
-                .HasSize(_ => _ > 5, "Should be greater than 5!")
-                .HasCompleteness("att2", _ => _ == 1.0, "Should equal 1!");
+                .HasSize(val => val > 5, "Should be greater than 5!")
+                .HasCompleteness("att2", val => val == 1.0, "Should equal 1!");
 
             CheckWithLastConstraintFilterable checkToWarn = new Check(CheckLevel.Warning, "group-2-W")
-                .HasDistinctness(new[] { "item" }, _ => _ < 0.8, "Should be smaller than 0.8!");
+                .HasDistinctness(new[] { "item" }, val => val < 0.8, "Should be smaller than 0.8!");
 
 
             return new[] { checkToSucceed, checkToErrorOut, checkToWarn };
@@ -67,10 +67,10 @@ namespace xdeequ.tests
 
             foreach (SimpleMetricOutput rowA in resultA)
             {
-                resultB.Any(x => rowA.Entity == x.Entity
-                                 && rowA.Instance == x.Instance
-                                 && rowA.Name == x.Name
-                                 && rowA.Value == x.Value).ShouldBeTrue();
+                resultB.Any(simpleMetricOutput => rowA.Entity == simpleMetricOutput.Entity
+                                 && rowA.Instance == simpleMetricOutput.Instance
+                                 && rowA.Name == simpleMetricOutput.Name
+                                 && rowA.Value == simpleMetricOutput.Value).ShouldBeTrue();
             }
         }
 
@@ -86,8 +86,8 @@ namespace xdeequ.tests
 
             foreach (Dictionary<string, string> value in resultA)
             {
-                resultB.Any(x => x.OrderBy(y => y.Key)
-                    .SequenceEqual(value.OrderBy(y => y.Key))).ShouldBeTrue();
+                resultB.Any(dict => dict.OrderBy(keyValuePair => keyValuePair.Key)
+                    .SequenceEqual(value.OrderBy(keyValuePair => keyValuePair.Key))).ShouldBeTrue();
             }
         }
 

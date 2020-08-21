@@ -19,7 +19,7 @@ namespace deequ
     {
         private readonly DataFrame _data;
 
-        protected IEnumerable<Check> checks;
+        public IEnumerable<Check> checks;
         protected bool failIfResultsForReusingMissing;
         protected Option<IMetricsRepository> metricsRepository;
         protected bool overwriteOutputFiles;

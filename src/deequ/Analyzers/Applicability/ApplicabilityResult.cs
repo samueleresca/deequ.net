@@ -51,22 +51,22 @@ namespace deequ.Analyzers.Applicability
             DataFrame data = GenerateRandomData(schema, 1000);
 
             IEnumerable<KeyValuePair<string, IMetric>> namedMetrics = check.Constraints
-                .Select(x => new KeyValuePair<string, IConstraint>(x.ToString(), x))
-                .Select(x =>
+                .Select(constraint => new KeyValuePair<string, IConstraint>(constraint.ToString(), constraint))
+                .Select(keyValuePair =>
                 {
-                    if (x.Value is ConstraintDecorator cd)
+                    if (keyValuePair.Value is ConstraintDecorator cd)
                     {
-                        return new KeyValuePair<string, IConstraint>(x.Key, cd.Inner);
+                        return new KeyValuePair<string, IConstraint>(keyValuePair.Key, cd.Inner);
                     }
 
-                    return x;
+                    return keyValuePair;
                 })
-                .Select(x =>
+                .Select(keyValuePair =>
                 {
-                    IAnalysisBasedConstraint analyzer = (IAnalysisBasedConstraint)x.Value;
+                    IAnalysisBasedConstraint analyzer = (IAnalysisBasedConstraint)keyValuePair.Value;
                     IMetric metric = analyzer.Analyzer.Calculate(data);
 
-                    return new KeyValuePair<string, IMetric>(x.Key, metric);
+                    return new KeyValuePair<string, IMetric>(keyValuePair.Key, metric);
                 });
 
             IEnumerable<KeyValuePair<IConstraint, bool>> constraintApplicabilities = check.Constraints
@@ -90,7 +90,7 @@ namespace deequ.Analyzers.Applicability
             DataFrame data = GenerateRandomData(schema, 1000);
 
             IEnumerable<KeyValuePair<string, IAnalyzer<IMetric>>> analyzersByName = analyzers
-                .Select(x => new KeyValuePair<string, IAnalyzer<IMetric>>(x.ToString(), x));
+                .Select(analyzer => new KeyValuePair<string, IAnalyzer<IMetric>>(analyzer.ToString(), analyzer));
 
             IEnumerable<KeyValuePair<string, Option<Exception>>> failures = analyzersByName
                 .Select(pair =>
@@ -107,60 +107,60 @@ namespace deequ.Analyzers.Applicability
         {
             IEnumerable<GenericRow> rows = Enumerable.Range(0, numRows).Select(field =>
             {
-                IEnumerable<object> cells = schema.Fields.Select<StructField, object>(x =>
+                IEnumerable<object> cells = schema.Fields.Select(field =>
                 {
-                    if (x is StringType)
+                    if (field is StringType)
                     {
-                        return RandomString(x.IsNullable);
+                        return RandomString(field.IsNullable);
                     }
 
-                    if (x is IntegerType)
+                    if (field is IntegerType)
                     {
-                        return RandomInteger(x.IsNullable);
+                        return RandomInteger(field.IsNullable);
                     }
 
-                    if (x is FloatType)
+                    if (field is FloatType)
                     {
-                        return RandomFloat(x.IsNullable);
+                        return RandomFloat(field.IsNullable);
                     }
 
-                    if (x is DoubleType)
+                    if (field is DoubleType)
                     {
-                        return RandomDouble(x.IsNullable);
+                        return RandomDouble(field.IsNullable);
                     }
 
-                    if (x is ByteType)
+                    if (field is ByteType)
                     {
-                        return RandomByte(x.IsNullable);
+                        return RandomByte(field.IsNullable);
                     }
 
-                    if (x is ShortType)
+                    if (field is ShortType)
                     {
-                        return RandomShort(x.IsNullable);
+                        return RandomShort(field.IsNullable);
                     }
 
-                    if (x is LongType)
+                    if (field is LongType)
                     {
-                        return RandomLong(x.IsNullable);
+                        return RandomLong(field.IsNullable);
                     }
 
-                    if (x is DecimalType)
+                    if (field is DecimalType)
                     {
-                        return RandomDecimal(x.IsNullable);
+                        return RandomDecimal(field.IsNullable);
                     }
 
-                    if (x is TimestampType)
+                    if (field is TimestampType)
                     {
-                        return RandomTimestamp(x.IsNullable);
+                        return RandomTimestamp(field.IsNullable);
                     }
 
-                    if (x is BooleanType)
+                    if (field is BooleanType)
                     {
-                        return RandomBoolean(x.IsNullable);
+                        return RandomBoolean(field.IsNullable);
                     }
 
                     throw new ArgumentException(
-                        $"Applicability check can only handle basic datatypes for columns (string, integer, float, double, decimal, boolean) not {x.DataType}");
+                        $"Applicability check can only handle basic datatypes for columns (string, integer, float, double, decimal, boolean) not {field.DataType}");
                 });
                 return new GenericRow(cells.ToArray());
             });

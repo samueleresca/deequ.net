@@ -32,7 +32,7 @@ namespace xdeequ.tests.Checks
         public static AnalyzerContext RunChecks(DataFrame data, Check check, Check[] checks)
         {
             IEnumerable<IAnalyzer<IMetric>> analyzers = check.RequiredAnalyzers()
-                .Concat(checks.SelectMany(x => x.RequiredAnalyzers())).AsEnumerable();
+                .Concat(checks.SelectMany(check => check.RequiredAnalyzers())).AsEnumerable();
 
             return new AnalysisRunBuilder()
                 .OnData(data)
@@ -72,10 +72,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsCreditCardNumber(col, _ => _ == .5);
+                .ContainsCreditCardNumber(col, val => val == .5);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .ContainsCreditCardNumber(col, _ => _ == 1).Where("type = 'valid'");
+                .ContainsCreditCardNumber(col, val => val == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
                 RunChecks(df, check, new[] { checkWithFilter });
@@ -103,10 +103,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .HasDataType("value", ConstrainableDataTypes.Integral, _ => _ == .5, Option<string>.None);
+                .HasDataType("value", ConstrainableDataTypes.Integral, val => val == .5, Option<string>.None);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .HasDataType("value", ConstrainableDataTypes.Integral, _ => _ == 1, Option<string>.None)
+                .HasDataType("value", ConstrainableDataTypes.Integral, val => val == 1, Option<string>.None)
                 .Where("type = 'integral'");
 
             AnalyzerContext context =
@@ -137,10 +137,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsEmail(col, _ => _ == .5);
+                .ContainsEmail(col, val => val == .5);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .ContainsEmail(col, _ => _ == 1).Where("type = 'valid'");
+                .ContainsEmail(col, val => val == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
                 RunChecks(df, check, new[] { checkWithFilter });
@@ -169,10 +169,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsSSN(col, _ => _ == .5);
+                .ContainsSSN(col, val => val == .5);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .ContainsSSN(col, _ => _ == 1).Where("type = 'valid'");
+                .ContainsSSN(col, val => val == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
                 RunChecks(df, check, new[] { checkWithFilter });
@@ -201,10 +201,10 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsURL(col, _ => _ == .5);
+                .ContainsURL(col, val => val == .5);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "some description")
-                .ContainsURL(col, _ => _ == 1).Where("type = 'valid'");
+                .ContainsURL(col, val => val == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
                 RunChecks(df, check, new[] { checkWithFilter });
@@ -227,11 +227,11 @@ namespace xdeequ.tests.Checks
 
             CheckWithLastConstraintFilterable greaterThanCheckWithCustomAssertionFunction
                 = new Check(CheckLevel.Error, "a")
-                    .IsGreaterThan("att2", "att1", _ => _ == 0.5, Option<string>.None);
+                    .IsGreaterThan("att2", "att1", val => val == 0.5, Option<string>.None);
 
             CheckWithLastConstraintFilterable incorrectGreaterThanCheckWithCustomAssertionFunction =
                 new Check(CheckLevel.Error, "a")
-                    .IsGreaterThan("att2", "att1", _ => _ == 0.4, Option<string>.None);
+                    .IsGreaterThan("att2", "att1", val => val == 0.4, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(df, greaterThanCheck,
@@ -260,11 +260,11 @@ namespace xdeequ.tests.Checks
 
             CheckWithLastConstraintFilterable greaterThanCheckWithCustomAssertionFunction
                 = new Check(CheckLevel.Error, "a")
-                    .IsGreaterOrEqualTo("att3", "att1", _ => _ == 0.5, Option<string>.None);
+                    .IsGreaterOrEqualTo("att3", "att1", val => val == 0.5, Option<string>.None);
 
             CheckWithLastConstraintFilterable incorrectGreatThanCheckWithCustomAssertionFunction =
                 new Check(CheckLevel.Error, "a")
-                    .IsGreaterOrEqualTo("att3", "att1", _ => _ == 0.4, Option<string>.None);
+                    .IsGreaterOrEqualTo("att3", "att1", val => val == 0.4, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(df, greaterThanCheck,
@@ -299,11 +299,11 @@ namespace xdeequ.tests.Checks
 
             CheckWithLastConstraintFilterable lessThanCheckWithCustomAssertionFunction
                 = new Check(CheckLevel.Error, "a")
-                    .IsLessThan("att1", "att2", _ => _ == 0.5, Option<string>.None);
+                    .IsLessThan("att1", "att2", val => val == 0.5, Option<string>.None);
 
             CheckWithLastConstraintFilterable incorrectLessThanCheckWithCustomAssertionFunction =
                 new Check(CheckLevel.Error, "a")
-                    .IsLessThan("att1", "att2", _ => _ == 0.4, Option<string>.None);
+                    .IsLessThan("att1", "att2", val => val == 0.4, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(df, lessThanCheck,
@@ -332,11 +332,11 @@ namespace xdeequ.tests.Checks
 
             CheckWithLastConstraintFilterable lessThanCheckWithCustomAssertionFunction
                 = new Check(CheckLevel.Error, "a")
-                    .IsLessThanOrEqualTo("att1", "att3", _ => _ == 0.5, Option<string>.None);
+                    .IsLessThanOrEqualTo("att1", "att3", val => val == 0.5, Option<string>.None);
 
             CheckWithLastConstraintFilterable incorrectLessThanCheckWithCustomAssertionFunction =
                 new Check(CheckLevel.Error, "a")
-                    .IsLessThanOrEqualTo("att1", "att3", _ => _ == 0.4, Option<string>.None);
+                    .IsLessThanOrEqualTo("att1", "att3", val => val == 0.4, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(df, lessThanCheck,
@@ -356,10 +356,10 @@ namespace xdeequ.tests.Checks
         public void should_correctly_evaluate_mean_constraints()
         {
             CheckWithLastConstraintFilterable meanCheck = new Check(CheckLevel.Error, "a")
-                .HasMean("att1", _ => _ == 3.5, Option<string>.None);
+                .HasMean("att1", val => val == 3.5, Option<string>.None);
 
             Check meanCheckFiltered = new Check(CheckLevel.Error, "a")
-                .HasMean("att1", _ => _ == 5.0, Option<string>.None).Where("att2 > 0");
+                .HasMean("att1", val => val == 5.0, Option<string>.None).Where("att2 > 0");
 
             AnalyzerContext context =
                 RunChecks(FixtureSupport.GetDfWithNumericValues(_session), meanCheck, new[] { meanCheckFiltered });
@@ -400,7 +400,7 @@ namespace xdeequ.tests.Checks
 
             CheckWithLastConstraintFilterable inCorrectRangeCheckWithCustomAssertionFunction =
                 new Check(CheckLevel.Error, "a")
-                    .IsContainedIn("att1", new[] { "a" }, _ => _ == 0.5);
+                    .IsContainedIn("att1", new[] { "a" }, val => val == 0.5);
 
             AnalyzerContext context =
                 RunChecks(df, rangeCheck, new[] { inCorrectRangeCheck, inCorrectRangeCheckWithCustomAssertionFunction });
@@ -466,13 +466,13 @@ namespace xdeequ.tests.Checks
             double expectedValue = -(0.75 * Math.Log(0.75) + 0.25 * Math.Log(0.25));
 
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "group-1")
-                .HasEntropy("att1", _ => _ == expectedValue, Option<string>.None);
+                .HasEntropy("att1", val => val == expectedValue, Option<string>.None);
 
             Check check2 = new Check(CheckLevel.Error, "group-1")
-                .HasEntropy("att1", _ => _ == 0, Option<string>.None).Where("att2 = 'c'");
+                .HasEntropy("att1", val => val == 0, Option<string>.None).Where("att2 = 'c'");
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Error, "group-1")
-                .HasEntropy("att1", _ => _ != expectedValue, Option<string>.None);
+                .HasEntropy("att1", val => val != expectedValue, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(df, check1, new[] { check2, check3 });
@@ -489,7 +489,7 @@ namespace xdeequ.tests.Checks
                 .HasMutualInformation("att1", "att2", _ => Math.Abs(_ - 0.5623) < 0.0001, Option<string>.None);
 
             Check checkWithFilter = new Check(CheckLevel.Error, "check")
-                .HasMutualInformation("att1", "att2", _ => _ == 0, Option<string>.None).Where("att2 = 'c'");
+                .HasMutualInformation("att1", "att2", val => val == 0, Option<string>.None).Where("att2 = 'c'");
 
             AnalyzerContext context =
                 RunChecks(FixtureSupport.GetDFFull(_session), check, new[] { checkWithFilter });
@@ -507,12 +507,12 @@ namespace xdeequ.tests.Checks
             DataFrame dfInformative = FixtureSupport.GetDfWithConditionallyInformativeColumns(_session);
             DataFrame dfUninformative = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
 
-            CheckWithLastConstraintFilterable hasMinimum = check.HasMin("att1", _ => _ == 1.0, Option<string>.None);
-            CheckWithLastConstraintFilterable hasMaximum = check.HasMax("att1", _ => _ == 6.0, Option<string>.None);
-            CheckWithLastConstraintFilterable hasMean = check.HasMean("att1", _ => _ == 3.5, Option<string>.None);
-            CheckWithLastConstraintFilterable hasSum = check.HasSum("att1", _ => _ == 21.0, Option<string>.None);
+            CheckWithLastConstraintFilterable hasMinimum = check.HasMin("att1", val => val == 1.0, Option<string>.None);
+            CheckWithLastConstraintFilterable hasMaximum = check.HasMax("att1", val => val == 6.0, Option<string>.None);
+            CheckWithLastConstraintFilterable hasMean = check.HasMean("att1", val => val == 3.5, Option<string>.None);
+            CheckWithLastConstraintFilterable hasSum = check.HasSum("att1", val => val == 21.0, Option<string>.None);
             CheckWithLastConstraintFilterable hasStandardDeviation =
-                check.HasStandardDeviation("att1", _ => _ == 1.707825127659933, Option<string>.None);
+                check.HasStandardDeviation("att1", val => val == 1.707825127659933, Option<string>.None);
 
             /* Analysis numericAnalysis = new Analysis().AddAnalyzers(new IAnalyzer<IMetric>[]
              {
@@ -598,7 +598,7 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsCreditCardNumber(col, _ => _ == 1);
+                .ContainsCreditCardNumber(col, val => val == 1);
 
             AnalyzerContext context =
                 RunChecks(df, check, new Check[] { });
@@ -622,7 +622,7 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsEmail(col, _ => _ == 1);
+                .ContainsEmail(col, val => val == 1);
 
             AnalyzerContext context =
                 RunChecks(df, check, new Check[] { });
@@ -646,7 +646,7 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsSSN(col, _ => _ == 1);
+                .ContainsSSN(col, val => val == 1);
 
             AnalyzerContext context =
                 RunChecks(df, check, new Check[] { });
@@ -673,7 +673,7 @@ namespace xdeequ.tests.Checks
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
             CheckWithLastConstraintFilterable check = new Check(CheckLevel.Error, "some description")
-                .ContainsURL(col, _ => _ == 1);
+                .ContainsURL(col, val => val == 1);
 
             AnalyzerContext context =
                 RunChecks(df, check, new Check[] { });
@@ -686,13 +686,13 @@ namespace xdeequ.tests.Checks
         {
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "group-1")
                 .AreAnyComplete(new[] { "item", "att1" }, Option<string>.None)
-                .HaveAnyCompleteness(new[] { "item", "att1" }, _ => _ == 1.0, Option<string>.None);
+                .HaveAnyCompleteness(new[] { "item", "att1" }, val => val == 1.0, Option<string>.None);
 
             CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-2-E")
-                .HaveAnyCompleteness(new[] { "att1", "att2" }, _ => _ > 0.917, Option<string>.None);
+                .HaveAnyCompleteness(new[] { "att1", "att2" }, val => val > 0.917, Option<string>.None);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Warning, "group-2-W")
-                .HaveAnyCompleteness(new[] { "att1", "att2" }, _ => _ > 0.917, Option<string>.None);
+                .HaveAnyCompleteness(new[] { "att1", "att2" }, val => val > 0.917, Option<string>.None);
 
 
             AnalyzerContext context =
@@ -708,13 +708,13 @@ namespace xdeequ.tests.Checks
         {
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "group-1")
                 .AreComplete(new[] { "item", "att1" }, Option<string>.None)
-                .HaveCompleteness(new[] { "item", "att1" }, _ => _ == 1.0, Option<string>.None);
+                .HaveCompleteness(new[] { "item", "att1" }, val => val == 1.0, Option<string>.None);
 
             CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-2-E")
-                .HaveCompleteness(new[] { "item", "att1", "att2" }, _ => _ > 0.8, Option<string>.None);
+                .HaveCompleteness(new[] { "item", "att1", "att2" }, val => val > 0.8, Option<string>.None);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Warning, "group-2-W")
-                .HaveCompleteness(new[] { "item", "att1", "att2" }, _ => _ > 0.8, Option<string>.None);
+                .HaveCompleteness(new[] { "item", "att1", "att2" }, val => val > 0.8, Option<string>.None);
 
 
             AnalyzerContext context =
@@ -731,13 +731,13 @@ namespace xdeequ.tests.Checks
         {
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "group-1")
                 .IsComplete("att1", Option<string>.None)
-                .HasCompleteness("att1", _ => _ == 1.0, Option<string>.None);
+                .HasCompleteness("att1", val => val == 1.0, Option<string>.None);
 
             CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-2-E")
-                .HasCompleteness("att2", _ => _ > 0.8, Option<string>.None);
+                .HasCompleteness("att2", val => val > 0.8, Option<string>.None);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Warning, "group-2-W")
-                .HasCompleteness("att2", _ => _ > 0.8, Option<string>.None);
+                .HasCompleteness("att2", val => val > 0.8, Option<string>.None);
 
 
             AnalyzerContext context =
@@ -761,7 +761,7 @@ namespace xdeequ.tests.Checks
                 .Satisfies("att2 > 0", "rule2", Option<string>.None).Where("att1 > 0");
 
             Check check3 = new Check(CheckLevel.Error, "group-1")
-                .Satisfies("att2 > 0", "rule3", _ => _ == .5, Option<string>.None).Where("att1 > 0");
+                .Satisfies("att2 > 0", "rule3", val => val == .5, Option<string>.None).Where("att1 > 0");
 
             AnalyzerContext context =
                 RunChecks(df, check1, new[] { check2, check3 });
@@ -784,7 +784,7 @@ namespace xdeequ.tests.Checks
                 .Satisfies("att1 > 3", "rule2", Option<string>.None);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Error, "group-2-to-succeed")
-                .Satisfies("att1 > 3", "rule3", _ => _ == .5, Option<string>.None);
+                .Satisfies("att1 > 3", "rule3", val => val == .5, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(df, check1, new Check[] { check2, check3 });
@@ -798,17 +798,17 @@ namespace xdeequ.tests.Checks
         public void should_return_the_correct_status_for_distinctness()
         {
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "distinctness-check")
-                .HasDistinctness(new[] { "att1" }, _ => _ == 3.0 / 5, Option<string>.None)
-                .HasDistinctness(new[] { "att1" }, _ => _ == 2.0 / 3, Option<string>.None).Where("att2 is not null")
-                .HasDistinctness(new[] { "att1", "att2" }, _ => _ == 4.0 / 6, Option<string>.None)
-                .HasDistinctness(new[] { "att2" }, _ => _ == 1.0, Option<string>.None);
+                .HasDistinctness(new[] { "att1" }, val => val == 3.0 / 5, Option<string>.None)
+                .HasDistinctness(new[] { "att1" }, val => val == 2.0 / 3, Option<string>.None).Where("att2 is not null")
+                .HasDistinctness(new[] { "att1", "att2" }, val => val == 4.0 / 6, Option<string>.None)
+                .HasDistinctness(new[] { "att2" }, val => val == 1.0, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(FixtureSupport.GetDfWithDistinctValues(_session), check1, new Check[] { });
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Error);
-            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(x => x.Status);
+            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(constraintResult => constraintResult.Status);
             constraintStatuses.First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(1).First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(2).First().ShouldBe(ConstraintStatus.Success);
@@ -839,7 +839,7 @@ namespace xdeequ.tests.Checks
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Success);
-            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(x => x.Status);
+            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(constraintResult => constraintResult.Status);
             // Half of nonUnique column are duplicates
             constraintStatuses.First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(1).First().ShouldBe(ConstraintStatus.Success);
@@ -864,7 +864,7 @@ namespace xdeequ.tests.Checks
         public void should_return_the_correct_status_for_hasUniqueValueRatio()
         {
             Check check1 = new Check(CheckLevel.Error, "unique-value-ratio-check")
-                .HasUniqueValueRatio(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, _ => _ == .75)
+                .HasUniqueValueRatio(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, val => val == .75)
                 .HasUniqueValueRatio(new[] { "nonUnique", "halfUniqueCombinedWithNonUnique" }, Check.IsOne,
                     Option<string>.None)
                 .Where("nonUnique > 0")
@@ -876,7 +876,7 @@ namespace xdeequ.tests.Checks
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Success);
-            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(x => x.Status);
+            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(constraintResult => constraintResult.Status);
             constraintStatuses.First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(1).First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(2).First().ShouldBe(ConstraintStatus.Success);
@@ -888,29 +888,29 @@ namespace xdeequ.tests.Checks
             DataFrame df = FixtureSupport.GetDfCompleteAndInCompleteColumns(_session);
 
             Check check1 = new Check(CheckLevel.Error, "group-1")
-                .HasNumberOfDistinctValues("att1", _ => _ < 10)
-                .HasHistogramValues("att1", _ => _["a"].Absolute == 4)
-                .HasHistogramValues("att1", _ => _["b"].Absolute == 2)
-                .HasHistogramValues("att1", _ => _["a"].Ratio > .6)
-                .HasHistogramValues("att1", _ => _["b"].Ratio < .4)
-                .HasHistogramValues("att1", _ => _["a"].Absolute == 3)
+                .HasNumberOfDistinctValues("att1", val => val < 10)
+                .HasHistogramValues("att1", val => val["a"].Absolute == 4)
+                .HasHistogramValues("att1", val => val["b"].Absolute == 2)
+                .HasHistogramValues("att1", val => val["a"].Ratio > .6)
+                .HasHistogramValues("att1", val => val["b"].Ratio < .4)
+                .HasHistogramValues("att1", val => val["a"].Absolute == 3)
                 .Where("att2 is not null")
-                .HasHistogramValues("att1", _ => _["b"].Absolute == 1)
+                .HasHistogramValues("att1", val => val["b"].Absolute == 1)
                 .Where("att2 is not null");
 
             CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-1")
-                .HasNumberOfDistinctValues("att2", _ => _ == 3)
-                .HasNumberOfDistinctValues("att2", _ => _ == 2)
+                .HasNumberOfDistinctValues("att2", val => val == 3)
+                .HasNumberOfDistinctValues("att2", val => val == 2)
                 .Where("att1 = 'a'")
-                .HasHistogramValues("att2", _ => _["f"].Absolute == 3)
-                .HasHistogramValues("att2", _ => _["d"].Absolute == 1)
-                .HasHistogramValues("att2", _ => _[Histogram.NULL_FIELD_REPLACEMENT].Absolute == 2)
-                .HasHistogramValues("att2", _ => _["f"].Ratio == 3 / 6.0)
-                .HasHistogramValues("att2", _ => _["d"].Ratio == 1 / 6.0)
-                .HasHistogramValues("att2", _ => _[Histogram.NULL_FIELD_REPLACEMENT].Ratio == 2 / 6.0);
+                .HasHistogramValues("att2", val => val["f"].Absolute == 3)
+                .HasHistogramValues("att2", val => val["d"].Absolute == 1)
+                .HasHistogramValues("att2", val => val[Histogram.NULL_FIELD_REPLACEMENT].Absolute == 2)
+                .HasHistogramValues("att2", val => val["f"].Ratio == 3 / 6.0)
+                .HasHistogramValues("att2", val => val["d"].Ratio == 1 / 6.0)
+                .HasHistogramValues("att2", val => val[Histogram.NULL_FIELD_REPLACEMENT].Ratio == 2 / 6.0);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Error, "group-1")
-                .HasNumberOfDistinctValues("unknownColumn", _ => _ == 3);
+                .HasNumberOfDistinctValues("unknownColumn", val => val == 3);
 
             AnalyzerContext context =
                 RunChecks(df, check1, new Check[] { check2, check3 });
@@ -937,7 +937,7 @@ namespace xdeequ.tests.Checks
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Error);
-            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(x => x.Status);
+            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(constraintResult => constraintResult.Status);
             constraintStatuses.First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(1).First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(2).First().ShouldBe(ConstraintStatus.Success);
@@ -954,13 +954,13 @@ namespace xdeequ.tests.Checks
             long numberOfRows = df.Count();
 
             CheckWithLastConstraintFilterable check1 = new Check(CheckLevel.Error, "group-1-S-1")
-                .HasSize(_ => _ == numberOfRows, Option<string>.None);
+                .HasSize(val => val == numberOfRows, Option<string>.None);
             CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Warning, "group-1-S-2")
-                .HasSize(_ => _ == numberOfRows, Option<string>.None);
+                .HasSize(val => val == numberOfRows, Option<string>.None);
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Error, "group-1-E")
-                .HasSize(_ => _ != numberOfRows, Option<string>.None);
+                .HasSize(val => val != numberOfRows, Option<string>.None);
             CheckWithLastConstraintFilterable check4 = new Check(CheckLevel.Warning, "group-1-W")
-                .HasSize(_ => _ != numberOfRows, Option<string>.None);
+                .HasSize(val => val != numberOfRows, Option<string>.None);
             CheckWithLastConstraintFilterable check5 = new Check(CheckLevel.Warning, "group-1-W-Range")
                 .HasSize(size => size > 0 && size < numberOfRows + 1, Option<string>.None);
 
@@ -989,7 +989,7 @@ namespace xdeequ.tests.Checks
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Error);
-            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(x => x.Status);
+            IEnumerable<ConstraintStatus> constraintStatuses = result.ConstraintResults.Select(constraintResult => constraintResult.Status);
             constraintStatuses.First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(1).First().ShouldBe(ConstraintStatus.Success);
             constraintStatuses.Skip(2).First().ShouldBe(ConstraintStatus.Success);
@@ -1063,11 +1063,11 @@ namespace xdeequ.tests.Checks
 
             CheckWithLastConstraintFilterable hasPattern =
                 new Check(CheckLevel.Error, "some description")
-                    .HasPattern(col, Patterns.Email, _ => _ == .5, Option<string>.None);
+                    .HasPattern(col, Patterns.Email, val => val == .5, Option<string>.None);
 
             Check hasPatternWithFilter =
                 new Check(CheckLevel.Error, "some description")
-                    .HasPattern(col, Patterns.Email, _ => _ == 1, Option<string>.None)
+                    .HasPattern(col, Patterns.Email, val => val == 1, Option<string>.None)
                     .Where("type = 'valid'");
 
             AnalyzerContext context =
@@ -1081,10 +1081,10 @@ namespace xdeequ.tests.Checks
         public void should_yield_correct_results_for_minimum_and_maximum_length_stats()
         {
             CheckWithLastConstraintFilterable hasMin = new Check(CheckLevel.Error, "a")
-                .HasMinLength("att1", _ => _ == 0.0, Option<string>.None);
+                .HasMinLength("att1", val => val == 0.0, Option<string>.None);
 
             CheckWithLastConstraintFilterable hasMax = new Check(CheckLevel.Error, "a")
-                .HasMaxLength("att1", _ => _ == 4.0, Option<string>.None);
+                .HasMaxLength("att1", val => val == 4.0, Option<string>.None);
 
             AnalyzerContext context =
                 RunChecks(FixtureSupport.GetDfWithVariableStringLengthValues(_session), hasMin, new[] { hasMax });

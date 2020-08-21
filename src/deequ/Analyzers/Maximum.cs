@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public class MaxState : DoubleValuedState<MaxState>, IState
+    public class MaxState : DoubleValuedState<MaxState>
     {
         private readonly double _maxValue;
 

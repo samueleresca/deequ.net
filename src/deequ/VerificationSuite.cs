@@ -84,7 +84,7 @@ namespace deequ
             VerificationFileOutputOptions fileOutputOptions = null)
         {
             IEnumerable<IAnalyzer<IMetric>> analyzers =
-                requiredAnalyzers.Concat(checks.SelectMany(x => x.RequiredAnalyzers()));
+                requiredAnalyzers.Concat(checks.SelectMany(check => check.RequiredAnalyzers()));
 
             AnalysisRunnerRepositoryOptions options = new AnalysisRunnerRepositoryOptions(
                 metricsRepositoryOptions.metricRepository,
@@ -133,16 +133,16 @@ namespace deequ
                     Dictionary<string, IAnalyzer<IMetric>> alreadySavedDict =
                         alreadySavedResult.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
 
-                    resultingAnalyzerContext.MetricMap.ToList().ForEach(_ =>
+                    resultingAnalyzerContext.MetricMap.ToList().ForEach(keyValuePair =>
                     {
-                        if (alreadySavedDict.ContainsKey(_.Key.ToString()) &&
-                            alreadySavedResult.MetricMap.ContainsKey(alreadySavedDict[_.Key.ToString()]))
+                        if (alreadySavedDict.ContainsKey(keyValuePair.Key.ToString()) &&
+                            alreadySavedResult.MetricMap.ContainsKey(alreadySavedDict[keyValuePair.Key.ToString()]))
                         {
-                            alreadySavedResult.MetricMap[alreadySavedDict[_.Key.ToString()]] = _.Value;
+                            alreadySavedResult.MetricMap[alreadySavedDict[keyValuePair.Key.ToString()]] = keyValuePair.Value;
                         }
                         else
                         {
-                            alreadySavedResult.MetricMap.Add(_.Key, _.Value);
+                            alreadySavedResult.MetricMap.Add(keyValuePair.Key, keyValuePair.Value);
                         }
                     });
 
@@ -173,7 +173,7 @@ namespace deequ
             Option<IMetricsRepository> metricsRepository,
             Option<ResultKey> saveOrAppendResultsWithKey)
         {
-            Analysis analysis = requiredAnalysis.AddAnalyzers(checks.SelectMany(x => x.RequiredAnalyzers()));
+            Analysis analysis = requiredAnalysis.AddAnalyzers(checks.SelectMany(check => check.RequiredAnalyzers()));
 
             AnalyzerContext analysisResults = AnalysisRunner.RunOnAggregatedStates(
                 schema,
@@ -201,7 +201,7 @@ namespace deequ
 
             CheckStatus verificationStatus;
 
-            verificationStatus = !checkResult.Any() ? CheckStatus.Success : checkResult.Max(x => x.Value.Status);
+            verificationStatus = !checkResult.Any() ? CheckStatus.Success : checkResult.Max(check => check.Value.Status);
 
             return new VerificationResult(verificationStatus,
                 new Dictionary<Check, CheckResult>(checkResult), analyzerContext.MetricMap);

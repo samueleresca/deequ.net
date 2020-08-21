@@ -20,7 +20,7 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
             ConstraintResult result = ConstraintUtils.Calculate<MaxState, double, double>(
-                MaxLengthConstraint("att1", _ => _ == 4.0, Option<string>.None, Option<string>.None), df);
+                MaxLengthConstraint("att1", val => val == 4.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
 
@@ -29,7 +29,7 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
             ConstraintResult result = ConstraintUtils.Calculate<MinState, double, double>(
-                MinLengthConstraint("att1", _ => _ == 0.0, Option<string>.None, Option<string>.None), df);
+                MinLengthConstraint("att1", val => val == 0.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
     }

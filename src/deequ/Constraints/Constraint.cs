@@ -175,7 +175,7 @@ namespace deequ.Constraints
 
             AnalysisBasedConstraint<Distribution, long> constraint =
                 new AnalysisBasedConstraint<Distribution, long>(histogram, assertion,
-                    new Func<Distribution, long>(_ => _.NumberOfBins),
+                    new Func<Distribution, long>(target => target.NumberOfBins),
                     hint);
 
 
@@ -540,7 +540,7 @@ namespace deequ.Constraints
                 return 0;
             }
 
-            long numValues = distribution.Values.Sum(x => x.Value.Absolute);
+            long numValues = distribution.Values.Sum(keyValuePair => keyValuePair.Value.Absolute);
             long numUnknown = distribution
                 .Values[DataTypeInstances.Unknown.ToString()]?
                 .Absolute ?? 0L;
