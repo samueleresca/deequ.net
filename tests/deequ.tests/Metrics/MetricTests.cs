@@ -38,11 +38,11 @@ namespace xdeequ.tests.Metrics
                 new DoubleMetric(Entity.Column, "Histogram.bins", "instance-name",
                     Try<double>.From(() => throw sampleException))
             };
-            metric.Flatten().Any(x => x.Name == "Histogram.bins").ShouldBeTrue();
-            metric.Flatten().Any(x => x.Name == "Histogram.abs.a").ShouldBeFalse();
-            metric.Flatten().Any(x => x.Name == "Histogram.abs.b").ShouldBeFalse();
-            metric.Flatten().Any(x => x.Name == "Histogram.ratio.a").ShouldBeFalse();
-            metric.Flatten().Any(x => x.Name == "Histogram.ratio.b").ShouldBeFalse();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.bins").ShouldBeTrue();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.abs.a").ShouldBeFalse();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.abs.b").ShouldBeFalse();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.ratio.a").ShouldBeFalse();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.ratio.b").ShouldBeFalse();
         }
 
         [Fact]
@@ -66,11 +66,11 @@ namespace xdeequ.tests.Metrics
                 new DoubleMetric(Entity.Column, "Histogram.ratio.b", "instance-name", Try<double>.From(() => .4))
             };
 
-            metric.Flatten().Any(x => x.Name == "Histogram.bins").ShouldBeTrue();
-            metric.Flatten().Any(x => x.Name == "Histogram.abs.a").ShouldBeTrue();
-            metric.Flatten().Any(x => x.Name == "Histogram.abs.b").ShouldBeTrue();
-            metric.Flatten().Any(x => x.Name == "Histogram.ratio.a").ShouldBeTrue();
-            metric.Flatten().Any(x => x.Name == "Histogram.ratio.b").ShouldBeTrue();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.bins").ShouldBeTrue();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.abs.a").ShouldBeTrue();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.abs.b").ShouldBeTrue();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.ratio.a").ShouldBeTrue();
+            metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.ratio.b").ShouldBeTrue();
         }
     }
 }

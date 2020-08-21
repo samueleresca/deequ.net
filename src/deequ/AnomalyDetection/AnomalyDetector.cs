@@ -31,7 +31,7 @@ namespace deequ.AnomalyDetection
                 throw new ArgumentException("historicalDataPoints must not be empty!");
             }
 
-            IOrderedEnumerable<DataPoint<double>> sortedDataPoints = historicalDataPoints.OrderBy(x => x.Time);
+            IOrderedEnumerable<DataPoint<double>> sortedDataPoints = historicalDataPoints.OrderBy(dataPoint => dataPoint.Time);
 
             long firstDataPointTime = sortedDataPoints.First().Time;
             long lastDataPointTime = sortedDataPoints.Last().Time;
@@ -60,15 +60,15 @@ namespace deequ.AnomalyDetection
                 throw new ArgumentException("The first interval element has to be smaller or equal to the last.");
             }
 
-            IEnumerable<DataPoint<double>> removeMissingValues = dataSeries.Where(x => x.MetricValue.HasValue);
-            IOrderedEnumerable<DataPoint<double>> sortedSeries = removeMissingValues.OrderBy(x => x.Time);
-            IEnumerable<long> sortedTimestamps = sortedSeries.Select(x => x.Time);
+            IEnumerable<DataPoint<double>> removeMissingValues = dataSeries.Where(dataPoint => dataPoint.MetricValue.HasValue);
+            IOrderedEnumerable<DataPoint<double>> sortedSeries = removeMissingValues.OrderBy(dataPoint => dataPoint.Time);
+            IEnumerable<long> sortedTimestamps = sortedSeries.Select(dataPoint => dataPoint.Time);
 
             int lowerBoundIndex = FindIndexForBound(sortedTimestamps.ToList(), searchStart);
             int upperBoundIndex = FindIndexForBound(sortedTimestamps.ToList(), searchEnd);
 
             IEnumerable<(int, Anomaly)> anomalies = _strategy.Detect(
-                sortedSeries.Select(x => x.MetricValue.Value).ToArray(), (lowerBoundIndex, upperBoundIndex));
+                sortedSeries.Select(dataPoint => dataPoint.MetricValue.Value).ToArray(), (lowerBoundIndex, upperBoundIndex));
 
 
             IEnumerable<(long, Anomaly)> detectionAnomalies = anomalies
@@ -81,7 +81,7 @@ namespace deequ.AnomalyDetection
         {
             var withinTheArray = sortedTimestamps
                 .Select((value, index) => new { value, index })
-                .FirstOrDefault(x => x.value >= boundValue);
+                .FirstOrDefault(valueIndexPair => valueIndexPair.value >= boundValue);
 
             return withinTheArray?.index ?? sortedTimestamps.Count;
         }

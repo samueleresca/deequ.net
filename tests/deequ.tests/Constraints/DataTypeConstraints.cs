@@ -24,7 +24,7 @@ namespace xdeequ.tests.Constraints
                 new[] { new GenericRow(new object[] { 1.0 }), new GenericRow(new object[] { 2.0 }) });
 
             ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
-                Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, _ => _ == 1.0,
+                Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, val => val == 1.0,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
         }
 
@@ -35,7 +35,7 @@ namespace xdeequ.tests.Constraints
                 new[] { new GenericRow(new object[] { "1" }), new GenericRow(new object[] { "2.0" }) });
 
             ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
-                Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, _ => _ == 0.5,
+                Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, val => val == 0.5,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
         }
 
@@ -46,7 +46,7 @@ namespace xdeequ.tests.Constraints
                 new[] { new GenericRow(new object[] { "1" }), new GenericRow(new object[] { "2.0" }) });
 
             ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
-                Functions.DataTypeConstraint("column", ConstrainableDataTypes.Numeric, _ => _ == 1.0,
+                Functions.DataTypeConstraint("column", ConstrainableDataTypes.Numeric, val => val == 1.0,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
         }
     }

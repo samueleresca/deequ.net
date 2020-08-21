@@ -45,12 +45,12 @@ namespace xdeequ.tests
         {
             Column[] dfAOrderedColumns = dataFrameA
                 .Columns()
-                .OrderByDescending(x => x)
+                .OrderByDescending(val => val)
                 .Select(Column)
                 .ToArray();
             Column[] dfBOrderedColumns = dataFrameB
                 .Columns()
-                .OrderByDescending(x => x)
+                .OrderByDescending(val => val)
                 .Select(Column)
                 .ToArray();
 
@@ -68,7 +68,7 @@ namespace xdeequ.tests
             int i = 0;
             foreach (Row rowA in dfASeq)
             {
-                dfBSeq.Select(x => x.Values.ToString()).ShouldContain(rowA.Values.ToString());
+                dfBSeq.Select(row => row.Values.ToString()).ShouldContain(rowA.Values.ToString());
             }
         }
 
@@ -104,9 +104,9 @@ namespace xdeequ.tests
                 });
 
             return sparkSession.CreateDataFrame(
-                Enumerable.Range(1, N).Select(x =>
+                Enumerable.Range(1, N).Select(value =>
                 {
-                    return new GenericRow(new object[] { $"{x}", $"c1-r{x}", $"c2-r{x}" });
+                    return new GenericRow(new object[] { $"{value}", $"c1-r{value}", $"c2-r{value}" });
                 }).ToList(), schema);
         }
 

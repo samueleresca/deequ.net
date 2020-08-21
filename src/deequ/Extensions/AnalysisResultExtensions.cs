@@ -24,9 +24,9 @@ namespace deequ.Extensions
 
             IEnumerable<KeyValuePair<string, string>> analyzerTags = analysisResult.ResultKey.Tags
                 .Where(pair => !withTags.Any() || withTags.Contains(pair.Key))
-                .Select(x =>
-                    new KeyValuePair<string, string>(FormatTagColumnNameInDataFrame(x.Key, analyzerContextDF),
-                        x.Value));
+                .Select(keyValue =>
+                    new KeyValuePair<string, string>(FormatTagColumnNameInDataFrame(keyValue.Key, analyzerContextDF),
+                        keyValue.Value));
 
             foreach (KeyValuePair<string, string> tag in analyzerTags)
             {
@@ -49,9 +49,9 @@ namespace deequ.Extensions
                 serializableResult, SerdeExt.DATASET_DATE_FIELD, analysisResult.ResultKey.DataSetDate);
 
             foreach ((string key, string value) in analysisResult.ResultKey.Tags.Where(
-                x => withTags.Any()
-                     && !withTags.Contains(x.Key)
-            ).Select(x => (FormatTagColumnNameInJson(x.Key, enanchedResult), x.Value)))
+                keyValue => withTags.Any()
+                     && !withTags.Contains(keyValue.Key)
+            ).Select(keyValue => (FormatTagColumnNameInJson(keyValue.Key, enanchedResult), keyValue.Value)))
             {
                 enanchedResult = AddColumnToSerializableResult(enanchedResult, key, value);
             }
@@ -63,10 +63,10 @@ namespace deequ.Extensions
             IEnumerable<SimpleMetricOutput> serializableResult,
             string tagName, object serializableTagValue)
         {
-            IEnumerable<Dictionary<string, object>> fields = serializableResult.Select(x =>
+            IEnumerable<Dictionary<string, object>> fields = serializableResult.Select(simpleMetric =>
                 new Dictionary<string, object>
                 {
-                    {"name", x.Name}, {"instance", x.Instance}, {"entity", x.Entity}, {"value", x.Value}
+                    {"name", simpleMetric.Name}, {"instance", simpleMetric.Instance}, {"entity", simpleMetric.Entity}, {"value", simpleMetric.Value}
                 });
 
             return AddColumnToSerializableResult(fields, tagName, serializableTagValue);
@@ -76,12 +76,12 @@ namespace deequ.Extensions
             IEnumerable<Dictionary<string, object>> fields, string tagName, object serializableTagValue
         )
         {
-            if (fields.FirstOrDefault() != null && fields.All(x => !x.ContainsKey(tagName)))
+            if (fields.FirstOrDefault() != null && fields.All(dictionary => !dictionary.ContainsKey(tagName)))
             {
-                fields = fields.Select(x =>
+                fields = fields.Select(dict =>
                 {
-                    x.Add(tagName, serializableTagValue);
-                    return x;
+                    dict.Add(tagName, serializableTagValue);
+                    return dict;
                 });
 
                 return fields;
@@ -107,7 +107,7 @@ namespace deequ.Extensions
         {
             string tagColumnName = tagName.Replace("[^A-Za-z0-9_]", "").ToLowerInvariant();
 
-            if (sequence.Any() && sequence.Any(x => x.ContainsKey(tagColumnName)))
+            if (sequence.Any() && sequence.Any(dict => dict.ContainsKey(tagColumnName)))
             {
                 tagColumnName += "_2";
             }

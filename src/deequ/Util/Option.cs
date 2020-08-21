@@ -19,7 +19,7 @@ namespace deequ.Util
 
         public static implicit operator Option<T>(T value) => new Option<T>(value);
 
-        public T GetOrElse(T fallbackValue) => HasValue ? Value : fallbackValue;
+        public readonly T GetOrElse(T fallbackValue) => HasValue ? Value : fallbackValue;
 
         public Option<TNew> Select<TNew>(Func<T, TNew> selector)
         {

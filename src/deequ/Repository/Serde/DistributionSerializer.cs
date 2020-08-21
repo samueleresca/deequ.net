@@ -15,10 +15,10 @@ namespace deequ.Repository.Serde
 
             JsonElement values = document.RootElement.GetProperty("values");
             IEnumerable<KeyValuePair<string, DistributionValue>> distributionValues = values.EnumerateArray().Select(
-                x =>
-                    new KeyValuePair<string, DistributionValue>(x.GetProperty("key").GetString(),
-                        new DistributionValue(x.GetProperty("absolute").GetInt64(),
-                            x.GetProperty("ratio").GetDouble())));
+                jsonElement =>
+                    new KeyValuePair<string, DistributionValue>(jsonElement.GetProperty("key").GetString(),
+                        new DistributionValue(jsonElement.GetProperty("absolute").GetInt64(),
+                            jsonElement.GetProperty("ratio").GetDouble())));
 
             return new Distribution(new Dictionary<string, DistributionValue>(distributionValues),
                 document.RootElement.GetProperty("numberOfBins").GetInt64());

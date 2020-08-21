@@ -39,7 +39,7 @@ namespace xdeequ.tests.Constraints
 
             ConstraintResult metric = ConstraintUtils.Calculate<FrequenciesAndNumRows, Distribution, Distribution>(
                 HistogramConstraint("att1",
-                    _ => _["non-existent-column-value"].Ratio == 3, Option<Func<Column, Column>>.None,
+                    val => val["non-existent-column-value"].Ratio == 3, Option<Func<Column, Column>>.None,
                     Option<string>.None,
                     Option<string>.None), df);
 

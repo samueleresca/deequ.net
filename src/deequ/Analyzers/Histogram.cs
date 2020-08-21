@@ -77,8 +77,8 @@ namespace deequ.Analyzers
                     return new KeyValuePair<string, DistributionValue>(discreteValue,
                         new DistributionValue(absolute, ratio));
                 })
-                .ToDictionary(x => x.Key,
-                    x => x.Value);
+                .ToDictionary(keyValuePair => keyValuePair.Key,
+                    keyValuePair => keyValuePair.Value);
 
             Distribution distribution = new Distribution(histogramDetails, binCount);
 
@@ -86,7 +86,7 @@ namespace deequ.Analyzers
         }
 
         private Action<StructType> PARAM_CHECK() =>
-            _ =>
+            structType =>
             {
                 if (MaxDetailBins > DEFAULT_MAX_DETAIL_BINS)
                 {

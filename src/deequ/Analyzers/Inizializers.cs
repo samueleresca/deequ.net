@@ -8,7 +8,7 @@ namespace deequ.Analyzers
 {
     internal static class Initializers
     {
-        public static Size Size(Option<string> where) => new Size(where);
+        public static Size Size(Option<string> where = default) => new Size(where);
 
         internal static Histogram Histogram(string column) =>
             new Histogram(column, Option<string>.None,

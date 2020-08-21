@@ -92,7 +92,7 @@ namespace xdeequ.tests
 
             CheckWithLastConstraintFilterable checkToSucceed = new Check(CheckLevel.Error, "group-1")
                 .IsComplete("att1", Option<string>.None)
-                .HasCompleteness("att1", _ => _ == 1.0, Option<string>.None);
+                .HasCompleteness("att1", val => val == 1.0, Option<string>.None);
 
             IAnalyzer<IMetric>[] analyzers =
             {
@@ -231,8 +231,8 @@ namespace xdeequ.tests
                 .MetricMap
                 .ToDictionary(pair => pair.Key, pair => (DoubleMetric)pair.Value);
 
-            actual.OrderBy(x => x.Key.ToString())
-                .SequenceEqual(expected.OrderBy(x => x.Key.ToString()));
+            actual.OrderBy(keyValuePair => keyValuePair.Key.ToString())
+                .SequenceEqual(expected.OrderBy(keyValuePair => keyValuePair.Key.ToString()));
         }
 
         [Fact]
@@ -275,13 +275,13 @@ namespace xdeequ.tests
 
             CheckWithLastConstraintFilterable checkToSucceed = new Check(CheckLevel.Error, "group-1")
                 .IsComplete("att1", Option<string>.None)
-                .HasCompleteness("att1", _ => _ == 1.0, Option<string>.None);
+                .HasCompleteness("att1", val => val == 1.0, Option<string>.None);
 
             CheckWithLastConstraintFilterable checkToErrorOut = new Check(CheckLevel.Error, "group-2-E")
-                .HasCompleteness("att2", _ => _ > 0.8, Option<string>.None);
+                .HasCompleteness("att2", val => val > 0.8, Option<string>.None);
 
             CheckWithLastConstraintFilterable checkToWarn = new Check(CheckLevel.Warning, "group-2-W")
-                .HasCompleteness("item", _ => _ < 0.8, Option<string>.None);
+                .HasCompleteness("item", val => val < 0.8, Option<string>.None);
 
 
             AssertStatusFor(df, checkToSucceed, CheckStatus.Success);
@@ -320,7 +320,7 @@ namespace xdeequ.tests
                 analyzerToTestReusingResults, new Uniqueness(new[] {"item", "att2"}, Option<string>.None)
             };
 
-            IEnumerable<IMetric> separateResults = analyzers.Select(x => x.Calculate(df));
+            IEnumerable<IMetric> separateResults = analyzers.Select(analyzer => analyzer.Calculate(df));
 
             Dictionary<IAnalyzer<IMetric>, IMetric>.ValueCollection runnerResults = new VerificationSuite()
                 .OnData(df)
@@ -331,11 +331,11 @@ namespace xdeequ.tests
 
 
             separateResults
-                .OrderBy(x => x.Name)
-                .Select(x => (DoubleMetric)x)
+                .OrderBy(metric => metric.Name)
+                .Select(metric => (DoubleMetric)metric)
                 .SequenceEqual(runnerResults
-                    .OrderBy(x => x.Name)
-                    .Select(x => (DoubleMetric)x)
+                    .OrderBy(metric => metric.Name)
+                    .Select(metric => (DoubleMetric)metric)
                 ).ShouldBeTrue();
         }
 
@@ -399,7 +399,7 @@ namespace xdeequ.tests
             var statePersister = new Mock<IStatePersister>();
 
             statePersister
-                .Setup(x => x
+                .Setup(statePersister => statePersister
                     .Persist(It.IsAny<Option<IAnalyzer<IMetric>>>(), It.IsAny<IState>()));
 
             var df = FixtureSupport.GetDfWithNumericValues(_session);
@@ -419,13 +419,13 @@ namespace xdeequ.tests
                 .Zip(states, (analyzer, state) => (analyzer, state));
 
 
-            statePersister.Verify(x => x.Persist(
-                    It.Is<Option<IAnalyzer<IMetric>>>(x => x.Value.ToString() == analyzers.First().ToString()),
-                    It.Is<Option<SumState>>(x => x.Value.MetricValue() == 18)), Times.AtLeastOnce);
+            statePersister.Verify(statePersister => statePersister.Persist(
+                    It.Is<Option<IAnalyzer<IMetric>>>(analyzer => analyzer.Value.ToString() == analyzers.First().ToString()),
+                    It.Is<Option<SumState>>(state => state.Value.MetricValue() == 18)), Times.AtLeastOnce);
 
-            statePersister.Verify(x => x.Persist(
-                It.Is<Option<IAnalyzer<IMetric>>>(x => x.Value.ToString() == analyzers.Skip(1).First().ToString()),
-                It.Is<Option<NumMatchesAndCount>>(x => x.Value.MetricValue() == 6 / 6)), Times.AtLeastOnce);
+            statePersister.Verify(statePerister => statePerister.Persist(
+                It.Is<Option<IAnalyzer<IMetric>>>(analyzer => analyzer.Value.ToString() == analyzers.Skip(1).First().ToString()),
+                It.Is<Option<NumMatchesAndCount>>(analyzer => analyzer.Value.MetricValue() == 6 / 6)), Times.AtLeastOnce);
         }
 
         [Fact]
@@ -436,15 +436,15 @@ namespace xdeequ.tests
             IAnalyzer<IMetric>[] analyzers = { new Sum("att2", Option<string>.None),
                 new Completeness("att1")};
             statePersister
-                .Setup(x => x
+                .Setup(stateLoader => stateLoader
                     .Load<SumState>(
-                        It.Is<Option<IAnalyzer<IMetric>>>(x => x.Value.ToString() == "Sum(att2,None)")
+                        It.Is<Option<IAnalyzer<IMetric>>>(analyzer => analyzer.Value.ToString() == "Sum(att2,None)")
                         )).Returns(new SumState(18.0));
 
             statePersister
-                .Setup(x => x
+                .Setup(stateLoader => stateLoader
                     .Load<NumMatchesAndCount>(
-                        It.Is<Option<IAnalyzer<IMetric>>>(x => x.Value.ToString() == "Completeness(att1,None)")
+                        It.Is<Option<IAnalyzer<IMetric>>>(analyzer => analyzer.Value.ToString() == "Completeness(att1,None)")
                     )).Returns(new NumMatchesAndCount(0, 6));
 
 
@@ -470,8 +470,8 @@ namespace xdeequ.tests
 
             var expectedConstraints = new IConstraint[]
             {
-                CompletenessConstraint("att1", _ => _ == 1.0, Option<string>.None, Option<string>.None),
-                ComplianceConstraint("att1 is positive", Column("att1"), _ => _ == 1.0, Option<string>.None, Option<string>.None)
+                CompletenessConstraint("att1", val => val == 1.0, Option<string>.None, Option<string>.None),
+                ComplianceConstraint("att1 is positive", Column("att1"), val => val == 1.0, Option<string>.None, Option<string>.None)
             };
 
             var check = expectedConstraints.Aggregate(new Check(CheckLevel.Error, "check"),

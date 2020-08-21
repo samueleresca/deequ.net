@@ -25,7 +25,7 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
             ConstraintResult result = ConstraintUtils.Calculate<MaxState, double, double>(
-                MaxConstraint("att1", _ => _ == 6.0, Option<string>.None, Option<string>.None), df);
+                MaxConstraint("att1", val => val == 6.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
 
@@ -34,7 +34,7 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
             ConstraintResult result = ConstraintUtils.Calculate<MeanState, double, double>(
-                MeanConstraint("att1", _ => _ == 3.5, Option<string>.None, Option<string>.None), df);
+                MeanConstraint("att1", val => val == 3.5, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
 
@@ -43,7 +43,7 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
             ConstraintResult result = ConstraintUtils.Calculate<MinState, double, double>(
-                MinConstraint("att1", _ => _ == 1.0, Option<string>.None, Option<string>.None), df);
+                MinConstraint("att1", val => val == 1.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
 
@@ -52,7 +52,7 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
             ConstraintResult result = ConstraintUtils.Calculate<SumState, double, double>(
-                SumConstraint("att1", _ => _ == 21, Option<string>.None, Option<string>.None), df);
+                SumConstraint("att1", val => val == 21, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
     }

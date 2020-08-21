@@ -28,7 +28,7 @@ namespace deequ.Checks
         /// <summary>
         ///
         /// </summary>
-        public static readonly Func<double, bool> IsOne = _ => _ == 1.0;
+        public static readonly Func<double, bool> IsOne = val => val == 1.0;
 
         /// <summary>
         ///
@@ -93,7 +93,7 @@ namespace deequ.Checks
         /// </summary>
         /// <param name="assertion">Function that receives a long input parameter and returns a boolean
         ///                  Assertion functions might refer to the data frame size by "_"
-        ///                  <code>.HasSize(x => x > 5)</code> meaning the number of rows should be greater than 5
+        ///                  <code>.HasSize(value => value > 5)</code> meaning the number of rows should be greater than 5
         ///                  Or more elaborate function might be provided
         ///                  <code>.HasSize(aNameForSize => aNmeForSize > 0 &amp;&amp; aNmeForSize &lt; 10 </code></param>
         /// <param name="hint">A hint to provide additional context why a constraint could have failed</param>
@@ -922,8 +922,8 @@ namespace deequ.Checks
         /// <returns></returns>
         public CheckResult Evaluate(AnalyzerContext context)
         {
-            IEnumerable<ConstraintResult> constraintResults = Constraints.Select(x => x.Evaluate(context.MetricMap));
-            bool anyFailure = constraintResults.Any(x => x.Status == ConstraintStatus.Failure);
+            IEnumerable<ConstraintResult> constraintResults = Constraints.Select(constraint => constraint.Evaluate(context.MetricMap));
+            bool anyFailure = constraintResults.Any(constraintResult => constraintResult.Status == ConstraintStatus.Failure);
 
             CheckStatus checkStatus = (anyFailure, Level) switch
             {
@@ -952,7 +952,7 @@ namespace deequ.Checks
                     return nc.Inner;
                 })
                 .OfType<IAnalysisBasedConstraint>()
-                .Select(x => x.Analyzer);
+                .Select(constraint => constraint.Analyzer);
 
         private CheckWithLastConstraintFilterable AddFilterableConstraint(
             Func<Option<string>, IConstraint> constraintDefinition)
@@ -1015,7 +1015,7 @@ namespace deequ.Checks
                         return (dataSetDate, doubleMetricOption);
                     });
 
-            long testDateTime = analysisResults.Select(x => x.ResultKey.DataSetDate).Max() + 1;
+            long testDateTime = analysisResults.Select(analysisResult => analysisResult.ResultKey.DataSetDate).Max() + 1;
 
             if (testDateTime == long.MaxValue)
             {

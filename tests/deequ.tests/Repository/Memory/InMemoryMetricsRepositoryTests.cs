@@ -325,9 +325,9 @@ namespace xdeequ.tests.Repository.Memory
             AnalyzerContext resultsWithMixedValues = new AnalyzerContext(metrics);
             IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> successMetrics =
                 resultsWithMixedValues.MetricMap.Where(
-                    x =>
+                    keyValuePair =>
                     {
-                        DoubleMetric dm = x.Value as DoubleMetric;
+                        DoubleMetric dm = keyValuePair.Value as DoubleMetric;
                         return dm.Value.IsSuccess;
                     });
 
