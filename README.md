@@ -25,11 +25,13 @@ For a detailed instructions,  see [dotnet/spark - Getting started](https://githu
 The following example implements a set of checks on some records and it submits the execution using the `spark-submit` command.
 
 
-- Use the `dotnet` CLI to create a console application.
+- Use the `dotnet` CLI to create a console application:
+
    ```shell
    dotnet new console -o DeequExample
    ```
 - Install `Microsoft.Spark` and the `deequ` Nuget packages into the project:
+
     ```shell
     cd DeequExample
 
@@ -37,6 +39,7 @@ The following example implements a set of checks on some records and it submits 
     dotnet add package deequ
     ```
 - Replace the contents of the `Program.cs` file with the following code:
+
     ```csharp
     using System;
     using System.Collections.Generic;
@@ -95,6 +98,7 @@ The following example implements a set of checks on some records and it submits 
     }
     ```
 - Use the `dotnet` CLI to build the application:
+
     ```shell
     dotnet build
     ```
@@ -102,10 +106,12 @@ The following example implements a set of checks on some records and it submits 
 ### Running the example
 
 - Open your terminal and navigate into your app folder.
+
     ```shell
     cd <your-app-output-directory>
     ```
 - Create `inventory.json` with the following content:
+
     ```json
     {"id":1, "productName":"Thingy A", "description":"awesome thing. http://thingb.com", "priority":"high", "numViews":0}
     {"id":2, "productName":"Thingy B", "description":"available at http://thingb.com","priority":null, "numViews":0}
@@ -114,6 +120,7 @@ The following example implements a set of checks on some records and it submits 
     {"id":5, "productName":"Thingy E", "description":null, "priority":"high","numViews": 12}
     ```
 - Run your app.
+
     ```shell
     spark-submit \
         --class org.apache.spark.deploy.dotnet.DotnetRunner \
@@ -123,6 +130,7 @@ The following example implements a set of checks on some records and it submits 
     ```
     **Note**: This command requires Apache Spark in your PATH environment variable to be able to use `spark-submit`. For detailed instructions, you can see [Building .NET for Apache Spark from Source on Ubuntu](../building/ubuntu-instructions.md).
 - The output of the application should look similar to the output below:
+
     ```text
         +-++-++-++-++-++-++-++-++-+
         |d||e||e||q||u||.||N||E||T|
