@@ -55,7 +55,7 @@ jobs:
         env:
             DOTNET_WORKER_DIR: /usr/local/bin/
             SPARK_RUNNER_DIR: /usr/local/bin/
-            example_project: examples/examples/
+            $example_project_dir: examples/examples/
 
         steps:
             -   uses: actions/checkout@v2
@@ -79,21 +79,20 @@ jobs:
             -   name: Install .NET Worker
                 run: deploy/install-worker.sh github https://github.com/dotnet/spark/releases/download/v0.12.1/Microsoft.Spark.Worker.netcoreapp3.1.linux-x64-0.12.1.tar.gz /usr/local/bin/
 
+            -   name: Move to example folder
+                run: cd $example_project_dir
+
             -   name: Install dependencies
                 run: dotnet restore
-                working_directory: $example_project
 
             -   name: Build
                 run: dotnet build --configuration Release --no-restore
-                working_directory: $example_project
 
             -   name: Scripts permissions
                 run: chmod +x ci-scripts/execute-examples-projects.sh
-                working_directory: $example_project
 
             -   name: Execute examples project
                 run: ci-scripts/execute-examples-projects.sh example.dll Release 0.12.1 netcoreapp3.1
-                working_directory: $example_project
 #    tests-windows:
 #        runs-on: windows-latest
 #        env:
