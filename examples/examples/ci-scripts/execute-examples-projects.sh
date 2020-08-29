@@ -4,13 +4,11 @@
 
 set +e
 
-PROJECT_NAME=$1
-PROJECT_CONFIG=$2
-DOTNET_SPARK_VERSION=$3
-DOTNET_ALIAS=$4
-SPARK_PATH=$5
+PROJECT_CONFIG=$1
+DOTNET_SPARK_VERSION=$2
+DOTNET_ALIAS=$3
+SPARK_PATH=$4
 
-echo "PROJECT_NAME ${PROJECT_NAME}"
 echo "PROJECT_CONFIG ${PROJECT_CONFIG}"
 echo "DOTNET_SPARK_VERSION ${DOTNET_SPARK_VERSION}"
 echo "DOTNET_ALIAS ${DOTNET_ALIAS}"
@@ -22,4 +20,4 @@ cd bin/$PROJECT_CONFIG/$DOTNET_ALIAS/
     --class org.apache.spark.deploy.dotnet.DotnetRunner \
     --master local \
     microsoft-spark-2.4.x-$DOTNET_SPARK_VERSION.jar \
-    dotnet $PROJECT_NAME.dll
+    dotnet example.dll
