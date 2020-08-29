@@ -17,13 +17,13 @@ namespace deequ.Extensions
             " |_|   \n                    | |                             \n   " +
             "                 |_|                             \n\n\n";
 
-        public static void Debug(this VerificationResult verificationResult)
+        internal static void Debug(this VerificationResult verificationResult, Action<string> printFunc)
         {
-            Console.WriteLine(HEADER);
+            printFunc(HEADER);
             if (verificationResult.Status == CheckStatus.Success) {
-                Console.WriteLine("Success");
+                printFunc("Success");
             } else {
-                Console.WriteLine("Errors:");
+                printFunc("Errors:");
                 IEnumerable<ConstraintResult> constraints = verificationResult
                     .CheckResults
                     .SelectMany(pair => pair.Value.ConstraintResults)
@@ -32,9 +32,13 @@ namespace deequ.Extensions
                 constraints
                     .Select(constraintResult => $"{constraintResult.Metric.Value.Name} " +
                                                 $"of field {constraintResult.Metric.Value.Instance} has the following error: '{constraintResult.Message.GetOrElse(string.Empty)}'")
-                    .ToList().ForEach(Console.WriteLine);
+                    .ToList().ForEach(printFunc);
             }
         }
 
+        public static void Debug(this VerificationResult verificationResult)
+        {
+            verificationResult.Debug(Console.WriteLine);
+        }
     }
 }

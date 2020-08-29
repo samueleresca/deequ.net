@@ -6,6 +6,7 @@ using deequ.Analyzers;
 using deequ.Analyzers.Runners;
 using deequ.Checks;
 using deequ.Constraints;
+using deequ.Extensions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Xunit;
@@ -64,9 +65,11 @@ namespace xdeequ.tests.Examples
                         .ContainsURL("description", val => val >= .5)
                 )
                 .Run();
+
+            result.Debug(_helper.WriteLine);
         }
 
-                [Fact]
+        [Fact]
         public void should_execute_incremental_metrics_example()
         {
             DataFrame dataSetDE = LoadData(
