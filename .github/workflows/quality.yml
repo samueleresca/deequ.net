@@ -88,7 +88,7 @@ jobs:
                 run: dotnet build --configuration Release --no-restore
 
             -   name: Scripts permissions
-                run: chmod +x deploy/execute-examples-projects.sh
+                run: chmod +x ci-scripts/execute-examples-projects.sh
 
             -   name: Execute examples project
                 run: execute-examples-projects.sh example.dll Release 0.12.1 netcoreapp3.1
