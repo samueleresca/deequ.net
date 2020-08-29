@@ -1,4 +1,4 @@
-name: execute example
+name: Deequ.NET
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
         branches: [ master ]
 
 jobs:
-    tests-linux:
+    run-examples:
         runs-on: ubuntu-latest
 
         env:
