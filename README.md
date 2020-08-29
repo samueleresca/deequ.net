@@ -5,8 +5,11 @@
 [![Nuget](https://img.shields.io/nuget/vpre/deequ)](https://www.nuget.org/packages/deequ)
 [![NuGet](https://img.shields.io/nuget/dt/deequ)](https://www.nuget.org/packages/deequ)
 
+⚠️*Warning*: The library is still in alpha, and it is not fully tested.
+
 **deequ.NET** is a port of the [awslabs/deequ](https://github.com/awslabs/deequ) library built on top of Apache Spark for defining "unit tests for data", which measure data quality in large datasets.
 deequ.NET runs on [dotnet/spark](https://github.com/dotnet/spark).
+
 
 ## Requirements and Installation
 
