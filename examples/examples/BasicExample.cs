@@ -53,7 +53,7 @@ namespace examples
         public static void ExecuteSimpleVerificationSuiteWithExternalFile()
         {
             var spark = SparkSession.Builder().GetOrCreate();
-            var data = spark.Read().Json("inventory.json");
+            var data = spark.Read().Json("data/inventory.json");
 
             data.Show();
 
