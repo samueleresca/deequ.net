@@ -41,12 +41,9 @@ The following example implements a set of checks on some records and it submits 
 - Replace the contents of the `Program.cs` file with the following code:
 
     ```csharp
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using deequ;
     using deequ.Checks;
-    using deequ.Constraints;
+    using deequ.Extensions;
     using Microsoft.Spark.Sql;
 
     namespace DeequExample
@@ -55,12 +52,12 @@ The following example implements a set of checks on some records and it submits 
         {
             static void Main(string[] args)
             {
-                var spark = SparkSession.Builder().GetOrCreate();
-                var data = spark.Read().Json("inventory.json");
+                SparkSession spark = SparkSession.Builder().GetOrCreate();
+                DataFrame data = spark.Read().Json("inventory.json");
 
                 data.Show();
 
-                var result = new VerificationSuite()
+                VerificationResult verificationResult = new VerificationSuite()
                     .OnData(data)
                     .AddCheck(
                         new Check(CheckLevel.Error, "integrity checks")
@@ -77,22 +74,7 @@ The following example implements a set of checks on some records and it submits 
                     )
                     .Run();
 
-
-                Console.WriteLine("\n+-++-++-++-++-++-++-++-++-+\n|d||e||e||q||u||.||N||E||T|\n+-++-++-++-++-++-++-++-++-+\n\n");
-                if (result.Status == CheckStatus.Success) {
-                    Console.WriteLine("Success");
-                } else {
-                    Console.WriteLine("Errors:");
-                    IEnumerable<ConstraintResult> constraints = result
-                            .CheckResults
-                            .SelectMany(pair => pair.Value.ConstraintResults)
-                            .Where(c=> c.Status == ConstraintStatus.Failure);
-
-                    constraints
-                        .Select(constraintResult => $"{constraintResult.Metric.Value.Name} " +
-                                                    $"of field {constraintResult.Metric.Value.Instance} has the following error: `{constraintResult.Message.GetOrElse(string.Empty)}`")
-                        .ToList().ForEach(Console.WriteLine);
-                }
+                verificationResult.Debug();
             }
         }
     }
@@ -132,11 +114,19 @@ The following example implements a set of checks on some records and it submits 
 - The output of the application should look similar to the output below:
 
     ```text
-        +-++-++-++-++-++-++-++-++-+
-        |d||e||e||q||u||.||N||E||T|
-        +-++-++-++-++-++-++-++-++-+
 
-        Success
+         _                         _   _ ______ _______
+        | |                       | \ | |  ____|__   __|
+      __| | ___  ___  __ _ _   _  |  \| | |__     | |
+     / _` |/ _ \/ _ \/ _` | | | | | . ` |  __|    | |
+    | (_| |  __/  __/ (_| | |_| |_| |\  | |____   | |
+     \__,_|\___|\___|\__, |\__,_(_)_| \_|______|  |_|
+                        | |
+                        |_|
+
+
+
+    Success
     ```
 
 ## Citation
