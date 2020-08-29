@@ -1,16 +1,76 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ;
 using deequ.Analyzers;
 using deequ.Analyzers.Runners;
 using deequ.Checks;
+using deequ.Constraints;
+using deequ.Extensions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
-namespace examples
+
+namespace xdeequ.tests.Examples
 {
-    public static class IncrementalMetrics
+    [Collection("Spark instance")]
+    public class Examples
     {
-        public static void IncrementalChangesOnManufacturers()
+        private readonly SparkSession _session;
+        private readonly ITestOutputHelper _helper;
+
+        public Examples(SparkFixture fixture, ITestOutputHelper helper)
+        {
+            _session = fixture.Spark;
+            _helper = helper;
+        }
+
+        [Fact]
+        public void should_execute_a_basic_example()
+        {
+            var data = _session.CreateDataFrame(
+                new List<GenericRow>
+                {
+                    new GenericRow(new object[] {1, "Thingy A", "awesome thing. http://thingb.com", "high", 0}),
+                    new GenericRow(new object[] {2, "Thingy B", "available at http://thingb.com", null, 0}),
+                    new GenericRow(new object[] {3, null, null, "low", 5}),
+                    new GenericRow(new object[] {4, "Thingy D", "checkout https://thingd.ca", "low", 10}),
+                    new GenericRow(new object[] {5, "Thingy E", null, "high", 12})
+                },
+                new StructType(new List<StructField>
+                {
+                    new StructField("id", new IntegerType()),
+                    new StructField("productName", new StringType()),
+                    new StructField("description", new StringType()),
+                    new StructField("priority", new StringType()),
+                    new StructField("numViews", new IntegerType()),
+                }));
+
+            var result = new VerificationSuite()
+                .OnData(data)
+                .AddCheck(
+                    new Check(CheckLevel.Error, "integrity checks")
+                        .HasSize(val => val == 5)
+                        .IsComplete("id")
+                        .IsUnique("id")
+                        .IsComplete("productName")
+                        .IsContainedIn("priority", new[] { "high", "low" })
+                        .IsNonNegative("numViews")
+                )
+                .AddCheck(
+                    new Check(CheckLevel.Warning, "distribution checks")
+                        .ContainsURL("description", val => val >= .5)
+                )
+                .Run();
+
+            result.Debug(_helper.WriteLine);
+        }
+
+        [Fact]
+        public void should_execute_incremental_metrics_example()
         {
             DataFrame dataSetDE = LoadData(
                 new[] {new object[] {1, "ManufacturerA", "DE"}, new object[] {2, "ManufacturerB", "DE"},

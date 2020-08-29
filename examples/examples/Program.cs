@@ -5,8 +5,12 @@ namespace examples
     {
         static void Main(string[] args)
         {
-            new BasicExample().ExecuteSimpleVerificationSuite();
-            //new BasicExample().ExecuteComplexVerificationSuite();
+            // Basic examples
+           // BasicExample.ExecuteSimpleVerificationSuite();
+           // BasicExample.ExecuteSimpleVerificationSuiteWithExternalFile();
+
+            // Advanced examples
+           // IncrementalMetrics.IncrementalChangesOnManufacturers();
         }
     }
 }

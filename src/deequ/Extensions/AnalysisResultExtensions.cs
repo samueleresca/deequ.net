@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Extensions
 {
-    internal static class AnalysisResultExtensions
+    internal static class AnalysisResultExt
     {
         public static DataFrame GetSuccessMetricsAsDataFrame(this AnalysisResult analysisResult,
             SparkSession sparkSession,

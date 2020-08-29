@@ -1,0 +1,5 @@
+{"id": 1, "productName":"Thingy A", "description":"awesome thing. http://thingb.com", "priority":"high", "numViews":0}
+{"id":2, "productName":"Thingy B", "description":"available at http://thingb.com","priority":null, "numViews":0}
+{"id":3, "productName":"Thingy C", "description": null, "priority":"low", "numViews":5}
+{"id":4, "productName":"Thingy D", "description": "checkout https://thingd.ca", "priority":"low","numViews": 10}
+{"id":5, "productName":"Thingy E", "description":null, "priority":"high","numViews": 12}

@@ -10,4 +10,10 @@
       <PackageReference Include="deequ" Version="0.0.6-alpha" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="data\inventory.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

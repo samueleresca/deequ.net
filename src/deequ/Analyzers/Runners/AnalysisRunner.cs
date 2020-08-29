@@ -171,7 +171,7 @@ namespace deequ.Analyzers.Runners
 
             /* Find all analyzers which violate their preconditions */
             IEnumerable<IAnalyzer<IMetric>> passedAnalyzers = analyzers
-                .Where(analyzer => FindFirstFailing(schema, analyzer.Preconditions()).HasValue);
+                .Where(analyzer => !FindFirstFailing(schema, analyzer.Preconditions()).HasValue);
 
             IEnumerable<IAnalyzer<IMetric>> failedAnalyzers = analyzers.Except(passedAnalyzers);
 
