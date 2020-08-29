@@ -14,10 +14,12 @@ echo "PROJECT_NAME ${PROJECT_NAME}"
 echo "PROJECT_CONFIG ${PROJECT_CONFIG}"
 echo "DOTNET_SPARK_VERSION ${DOTNET_SPARK_VERSION}"
 echo "DOTNET_ALIAS ${DOTNET_ALIAS}"
-echo "$SPARK_PATH ${SPARK_PATH}"
+echo "SPARK_PATH ${SPARK_PATH}"
 
- $SPARK_PATH/spark-submit \
+export PATH="${PATH}:${SPARK_PATH}"
+
+exec spark-submit \
     --class org.apache.spark.deploy.dotnet.DotnetRunner \
     --master local \
     microsoft-spark-2.4.x-$DOTNET_SPARK_VERSION.jar \
-    dotnet "/bin/$PROJECT_CONFIG/$DOTNET_ALIAS/$PROJECT_NAME.dll"
+    dotnet "./bin/$PROJECT_CONFIG/$DOTNET_ALIAS/$PROJECT_NAME.dll"
