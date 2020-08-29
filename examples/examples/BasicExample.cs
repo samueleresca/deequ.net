@@ -4,7 +4,6 @@ using System.Linq;
 using deequ;
 using deequ.Checks;
 using deequ.Constraints;
-using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 
@@ -79,8 +78,7 @@ namespace examples
                 .OnData(data)
                 .AddCheck(new Check(CheckLevel.Error)
                     .AreComplete(new []{ "customerId", "title", "impressionStart", "impressionEnd", "deviceType", "priority"})
-                    .AreUnique(new []{ "customerId", "countryResidence",  "deviceType", "title"})
-                    .HasApproxCountDistinct("title", value => value <= numTitles))
+                    .AreUnique(new []{ "customerId", "countryResidence",  "deviceType", "title"}))
 
                 .AddCheck(new Check(CheckLevel.Error)
                     .IsNonNegative("count")
@@ -88,9 +86,7 @@ namespace examples
                     .IsContainedIn("priority", new[] {"hi", "lo"}))
 
                 .AddCheck(new Check(CheckLevel.Warning)
-                    .IsLessThan("impressionStart", "impressionEnd")
-                    .HasCorrelation("countryResidence", "cityResidence", corr => corr >= .99)
-                    .HasCorrelation("countryResidence", "zipCode", corr => corr >= .99 ))
+                    .IsLessThan("impressionStart", "impressionEnd"))
                 .Run();
 
 

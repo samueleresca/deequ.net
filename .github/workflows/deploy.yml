@@ -1,4 +1,4 @@
-name: deploy nuget
+name: Deequ.NET
 
 on:
     create:
