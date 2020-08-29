@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using deequ;
 using deequ.Checks;
-using deequ.Constraints;
+using deequ.Extensions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 
@@ -48,6 +46,8 @@ namespace examples
                         .ContainsURL("description", value => value == .5)
                 )
                 .Run();
+
+            verificationResult.Debug();
         }
 
         public static void ExecuteSimpleVerificationSuiteWithExternalFile()
@@ -57,7 +57,7 @@ namespace examples
 
             data.Show();
 
-            var result = new VerificationSuite()
+            VerificationResult verificationResult = new VerificationSuite()
                 .OnData(data)
                 .AddCheck(
                     new Check(CheckLevel.Error, "integrity checks")
@@ -73,6 +73,8 @@ namespace examples
                         .ContainsURL("description", value => value >= .5)
                 )
                 .Run();
+
+            verificationResult.Debug();
         }
     }
 }
