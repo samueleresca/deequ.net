@@ -23,7 +23,7 @@ deequ.NET runs on Apache Spark and depends on [dotnet/spark](https://github.com/
 It is also necessary to install the [Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases) on your local machine and configure the path into the `PATH` env var.
 For a detailed instructions,  see [dotnet/spark - Getting started](https://github.com/dotnet/spark/tree/master/docs/getting-started)
 
-## Example
+## Usage
 
 The following example implements a set of checks on some records and it submits the execution using the `spark-submit` command.
 
@@ -132,9 +132,12 @@ The following example implements a set of checks on some records and it submits 
     Success
     ```
 
+
+## Related projects
+- [awslabs/deequ](https://github.com/awslabs/deequ)
+- [dotnet/spark](https://github.com/dotnet/spark)
+- [akkadotnet/akka.net - Scala to C# conversion guide](https://github.com/akkadotnet/akka.net/wiki/Scala-to-C%23-Conversion-Guide)
+
 ## Citation
-
-If you would like to reference this package in a research paper, please cite:
-
 Sebastian Schelter, Dustin Lange, Philipp Schmidt, Meltem Celikel, Felix Biessmann, and Andreas Grafberger. 2018. [Automating large-scale data quality verification](http://www.vldb.org/pvldb/vol11/p1781-schelter.pdf). Proc. VLDB Endow. 11, 12 (August 2018), 1781-1794.
-##
+
