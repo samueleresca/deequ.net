@@ -1,4 +1,4 @@
-name: quality
+name: deequ tests
 
 on:
     push:

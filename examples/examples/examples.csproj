@@ -6,7 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\deequ\deequ.csproj" />
+      <PackageReference Include="Microsoft.Spark" Version="0.12.1" />
+      <PackageReference Include="deequ" Version="0.0.6-alpha" />
     </ItemGroup>
 
 </Project>
