@@ -1,5 +1,5 @@
 
-# Path where packaged worker file (tgz) exists.
+# example Release 0.12.1 netcoreapp3.1 $SPARK_RUNNER_244
 
 
 set +e
@@ -20,4 +20,4 @@ echo "$SPARK_PATH ${SPARK_PATH}"
     --class org.apache.spark.deploy.dotnet.DotnetRunner \
     --master local \
     microsoft-spark-2.4.x-$DOTNET_SPARK_VERSION.jar \
-    dotnet "/bin/$PROJECT_CONFIG/$DOTNET_ALIAS/$PROJECT_NAME"
+    dotnet "/bin/$PROJECT_CONFIG/$DOTNET_ALIAS/$PROJECT_NAME.dll"
