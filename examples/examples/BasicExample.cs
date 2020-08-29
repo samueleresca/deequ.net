@@ -9,7 +9,7 @@ using Microsoft.Spark.Sql.Types;
 
 namespace examples
 {
-    public static class  BasicExample
+    public static class BasicExample
     {
         public static void ExecuteSimpleVerificationSuite()
         {
@@ -74,6 +74,5 @@ namespace examples
                 )
                 .Run();
         }
-
     }
 }
