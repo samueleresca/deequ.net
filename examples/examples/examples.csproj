@@ -6,8 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="deequ" Version="0.0.8-alpha" />
       <PackageReference Include="Microsoft.Spark" Version="0.12.1" />
-      <PackageReference Include="deequ" Version="0.0.6-alpha" />
     </ItemGroup>
 
     <ItemGroup>

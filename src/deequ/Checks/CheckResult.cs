@@ -11,17 +11,17 @@ namespace deequ.Checks
         /// <summary>
         /// The check related to the check result
         /// </summary>
-        public Check Check { get;}
+        public Check Check { get; }
 
         /// <summary>
         /// The status of the check
         /// </summary>
-        public CheckStatus Status { get;}
+        public CheckStatus Status { get; }
 
         /// <summary>
         /// The list of constraint results
         /// </summary>
-        public IEnumerable<ConstraintResult> ConstraintResults { get;}
+        public IEnumerable<ConstraintResult> ConstraintResults { get; }
 
         /// <summary>
         /// Ctor of class <see cref="CheckResult"/>

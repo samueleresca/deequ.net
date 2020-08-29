@@ -5,8 +5,11 @@
 [![Nuget](https://img.shields.io/nuget/vpre/deequ)](https://www.nuget.org/packages/deequ)
 [![NuGet](https://img.shields.io/nuget/dt/deequ)](https://www.nuget.org/packages/deequ)
 
+⚠️*Warning*: The library is still in alpha, and it is not fully tested.
+
 **deequ.NET** is a port of the [awslabs/deequ](https://github.com/awslabs/deequ) library built on top of Apache Spark for defining "unit tests for data", which measure data quality in large datasets.
 deequ.NET runs on [dotnet/spark](https://github.com/dotnet/spark).
+
 
 ## Requirements and Installation
 
@@ -20,7 +23,7 @@ deequ.NET runs on Apache Spark and depends on [dotnet/spark](https://github.com/
 It is also necessary to install the [Microsoft.Spark.Worker](https://github.com/dotnet/spark/releases) on your local machine and configure the path into the `PATH` env var.
 For a detailed instructions,  see [dotnet/spark - Getting started](https://github.com/dotnet/spark/tree/master/docs/getting-started)
 
-## Example
+## Usage
 
 The following example implements a set of checks on some records and it submits the execution using the `spark-submit` command.
 
@@ -41,12 +44,9 @@ The following example implements a set of checks on some records and it submits 
 - Replace the contents of the `Program.cs` file with the following code:
 
     ```csharp
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using deequ;
     using deequ.Checks;
-    using deequ.Constraints;
+    using deequ.Extensions;
     using Microsoft.Spark.Sql;
 
     namespace DeequExample
@@ -55,12 +55,12 @@ The following example implements a set of checks on some records and it submits 
         {
             static void Main(string[] args)
             {
-                var spark = SparkSession.Builder().GetOrCreate();
-                var data = spark.Read().Json("inventory.json");
+                SparkSession spark = SparkSession.Builder().GetOrCreate();
+                DataFrame data = spark.Read().Json("inventory.json");
 
                 data.Show();
 
-                var result = new VerificationSuite()
+                VerificationResult verificationResult = new VerificationSuite()
                     .OnData(data)
                     .AddCheck(
                         new Check(CheckLevel.Error, "integrity checks")
@@ -77,22 +77,7 @@ The following example implements a set of checks on some records and it submits 
                     )
                     .Run();
 
-
-                Console.WriteLine("\n+-++-++-++-++-++-++-++-++-+\n|d||e||e||q||u||.||N||E||T|\n+-++-++-++-++-++-++-++-++-+\n\n");
-                if (result.Status == CheckStatus.Success) {
-                    Console.WriteLine("Success");
-                } else {
-                    Console.WriteLine("Errors:");
-                    IEnumerable<ConstraintResult> constraints = result
-                            .CheckResults
-                            .SelectMany(pair => pair.Value.ConstraintResults)
-                            .Where(c=> c.Status == ConstraintStatus.Failure);
-
-                    constraints
-                        .Select(constraintResult => $"{constraintResult.Metric.Value.Name} " +
-                                                    $"of field {constraintResult.Metric.Value.Instance} has the following error: `{constraintResult.Message.GetOrElse(string.Empty)}`")
-                        .ToList().ForEach(Console.WriteLine);
-                }
+                verificationResult.Debug();
             }
         }
     }
@@ -132,16 +117,27 @@ The following example implements a set of checks on some records and it submits 
 - The output of the application should look similar to the output below:
 
     ```text
-        +-++-++-++-++-++-++-++-++-+
-        |d||e||e||q||u||.||N||E||T|
-        +-++-++-++-++-++-++-++-++-+
 
-        Success
+         _                         _   _ ______ _______
+        | |                       | \ | |  ____|__   __|
+      __| | ___  ___  __ _ _   _  |  \| | |__     | |
+     / _` |/ _ \/ _ \/ _` | | | | | . ` |  __|    | |
+    | (_| |  __/  __/ (_| | |_| |_| |\  | |____   | |
+     \__,_|\___|\___|\__, |\__,_(_)_| \_|______|  |_|
+                        | |
+                        |_|
+
+
+
+    Success
     ```
 
+
+## Related projects
+- [awslabs/deequ](https://github.com/awslabs/deequ)
+- [dotnet/spark](https://github.com/dotnet/spark)
+- [akkadotnet/akka.net - Scala to C# conversion guide](https://github.com/akkadotnet/akka.net/wiki/Scala-to-C%23-Conversion-Guide)
+
 ## Citation
-
-If you would like to reference this package in a research paper, please cite:
-
 Sebastian Schelter, Dustin Lange, Philipp Schmidt, Meltem Celikel, Felix Biessmann, and Andreas Grafberger. 2018. [Automating large-scale data quality verification](http://www.vldb.org/pvldb/vol11/p1781-schelter.pdf). Proc. VLDB Endow. 11, 12 (August 2018), 1781-1794.
-##
+

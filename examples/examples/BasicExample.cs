@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using deequ;
 using deequ.Checks;
-using deequ.Constraints;
+using deequ.Extensions;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 
@@ -48,16 +46,18 @@ namespace examples
                         .ContainsURL("description", value => value == .5)
                 )
                 .Run();
+
+            verificationResult.Debug();
         }
 
         public static void ExecuteSimpleVerificationSuiteWithExternalFile()
         {
             var spark = SparkSession.Builder().GetOrCreate();
-            var data = spark.Read().Json("inventory.json");
+            var data = spark.Read().Json("data/inventory.json");
 
             data.Show();
 
-            var result = new VerificationSuite()
+            VerificationResult verificationResult = new VerificationSuite()
                 .OnData(data)
                 .AddCheck(
                     new Check(CheckLevel.Error, "integrity checks")
@@ -65,7 +65,7 @@ namespace examples
                         .IsComplete("id")
                         .IsUnique("id")
                         .IsComplete("productName")
-                        .IsContainedIn("priority", new[] {"high", "low"})
+                        .IsContainedIn("priority", new[] { "high", "low" })
                         .IsNonNegative("numViews")
                 )
                 .AddCheck(
@@ -73,6 +73,8 @@ namespace examples
                         .ContainsURL("description", value => value >= .5)
                 )
                 .Run();
+
+            verificationResult.Debug();
         }
     }
 }
