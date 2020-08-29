@@ -10,19 +10,21 @@ using Microsoft.Spark.Sql;
 
 namespace deequ
 {
-    /**
-  * The result returned from the VerificationSuite
-  *
-  * @param status The overall status of the Verification run
-  * @param checkResults Checks and their CheckResults
-  * @param metrics Analyzers and their Metric results
-  */
+    /// <summary>
+    /// The result returned from the VerificationSuite
+    /// </summary>
     public class VerificationResult
     {
         public Dictionary<Check, CheckResult> CheckResults;
         public Dictionary<IAnalyzer<IMetric>, IMetric> Metrics;
         public CheckStatus Status;
 
+        /// <summary>
+        /// ctor of class <see cref="VerificationResult"/>
+        /// </summary>
+        /// <param name="status">The overall status of the Verification run</param>
+        /// <param name="checkResults">Checks and their CheckResults</param>
+        /// <param name="metrics">Analyzers and their Metric results</param>
         public VerificationResult(CheckStatus status, Dictionary<Check, CheckResult> checkResults,
             Dictionary<IAnalyzer<IMetric>, IMetric> metrics)
         {
@@ -31,6 +33,10 @@ namespace deequ
             Metrics = metrics;
         }
 
+        /// <summary>
+        /// ctor of class <see cref="VerificationResult"/>
+        /// </summary>
+        /// <param name="verificationResult">VerificationResult to use</param>
         public VerificationResult(VerificationResult verificationResult)
         {
             CheckResults = verificationResult.CheckResults;

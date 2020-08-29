@@ -23,9 +23,20 @@ namespace deequ.Analyzers
         private readonly ConcurrentDictionary<IAnalyzer<IMetric>, IState> statesByAnalyzer
             = new ConcurrentDictionary<IAnalyzer<IMetric>, IState>();
 
-        public Option<S> Load<S>(Option<IAnalyzer<IMetric>> analyzer) where S : IState => !analyzer.HasValue
-            ? Option<S>.None
-            : new Option<S>((S)statesByAnalyzer[analyzer.Value]);
+        public Option<S> Load<S>(Option<IAnalyzer<IMetric>> analyzer) where S : IState
+        {
+            if (!analyzer.HasValue)
+            {
+                return Option<S>.None;
+            }
+
+            if (statesByAnalyzer.TryGetValue(analyzer.Value, out IState value))
+            {
+                return new Option<S>((S)value);
+            }
+
+            return Option<S>.None;
+        }
 
         public S Persist<S>(Option<IAnalyzer<IMetric>> analyzer, Option<S> state) where S : IState
         {
@@ -34,7 +45,7 @@ namespace deequ.Analyzers
                 return (S)(IState)null;
             }
 
-            statesByAnalyzer[(IAnalyzer<IMetric>)analyzer.Value] = state.Value;
+            statesByAnalyzer[analyzer.Value] = state.Value;
             return state.Value;
         }
 

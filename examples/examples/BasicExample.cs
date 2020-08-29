@@ -65,7 +65,7 @@ namespace examples
                         .IsComplete("id")
                         .IsUnique("id")
                         .IsComplete("productName")
-                        .IsContainedIn("priority", new[] { "high", "low" })
+                        .IsContainedIn("priority", new[] {"high", "low"})
                         .IsNonNegative("numViews")
                 )
                 .AddCheck(
@@ -73,7 +73,7 @@ namespace examples
                         .ContainsURL("description", value => value >= .5)
                 )
                 .Run();
-            }
+        }
 
     }
 }

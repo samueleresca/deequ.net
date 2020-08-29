@@ -42,9 +42,9 @@ namespace examples
             InMemoryStateProvider cnStates = new InMemoryStateProvider();
 
             // These call will store the resulting metrics in the separate states providers for each dataSet
-            AnalysisRunner.Run(dataSetDE, analysis, deStates);
-            AnalysisRunner.Run(dataSetUS, analysis, usStates);
-            AnalysisRunner.Run(dataSetCN, analysis, cnStates);
+            AnalysisRunner.Run(dataSetDE, analysis, saveStatesWith: deStates);
+            AnalysisRunner.Run(dataSetUS, analysis, saveStatesWith: usStates);
+            AnalysisRunner.Run(dataSetCN, analysis, saveStatesWith: cnStates);
 
             // Next, we are able to compute the metrics for the whole table from the partition states
             // This just aggregates the previously calculated metrics, it doesn't performs computation on the data
