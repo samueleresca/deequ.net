@@ -24,13 +24,13 @@ namespace examples
                 });
 
             DataFrame dataSetCN = LoadData(
-                new[] {new object[] {6, "ManufacturerG", "CN"}, new object[] {7, "ManufacturerH", "CN"},});
+                new[] { new object[] { 6, "ManufacturerG", "CN" }, new object[] { 7, "ManufacturerH", "CN" }, });
 
             // We initialize a new check for the following data fields
             var check = new Check(CheckLevel.Warning, "generic check")
                 .IsComplete("manufacturerName")
                 .ContainsURL("manufacturerName", val => val == 0.0)
-                .IsContainedIn("countryCode", new[] {"DE", "US", "CN"});
+                .IsContainedIn("countryCode", new[] { "DE", "US", "CN" });
 
 
             // We create a new Analysis instance with the corresponding RequiredAnalyzers defined in the check
@@ -49,7 +49,7 @@ namespace examples
             // Next, we are able to compute the metrics for the whole table from the partition states
             // This just aggregates the previously calculated metrics, it doesn't performs computation on the data
             AnalyzerContext tableMetrics = AnalysisRunner.RunOnAggregatedStates(dataSetDE.Schema(), analysis,
-                new[] {deStates, usStates, cnStates});
+                new[] { deStates, usStates, cnStates });
 
             // Lets now assume that a single partition changes. We only need to recompute the state of this
             // partition in order to update the metrics for the whole table.
@@ -65,7 +65,7 @@ namespace examples
 
             // Recompute metrics for whole tables from states. We do not need to touch old data!
             AnalyzerContext updatedTableMetrics = AnalysisRunner.RunOnAggregatedStates(dataSetDE.Schema(), analysis,
-                new[] {deStates, usStates, cnStates});
+                new[] { deStates, usStates, cnStates });
         }
 
         private static DataFrame LoadData(IEnumerable<object[]> rows) =>

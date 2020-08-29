@@ -157,8 +157,8 @@ namespace deequ.Analyzers
 
 
         //TODO: Wrap aggregation function
-       public override IEnumerable<Column> AggregationFunctions() =>
-           new[] { AnalyzersExt.ConditionalSelection(Column, Where) };
+        public override IEnumerable<Column> AggregationFunctions() =>
+            new[] { AnalyzersExt.ConditionalSelection(Column, Where) };
 
         public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,

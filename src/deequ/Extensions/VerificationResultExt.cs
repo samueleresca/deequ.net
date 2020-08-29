@@ -20,14 +20,17 @@ namespace deequ.Extensions
         internal static void Debug(this VerificationResult verificationResult, Action<string> printFunc)
         {
             printFunc(HEADER);
-            if (verificationResult.Status == CheckStatus.Success) {
+            if (verificationResult.Status == CheckStatus.Success)
+            {
                 printFunc("Success");
-            } else {
+            }
+            else
+            {
                 printFunc("Errors:");
                 IEnumerable<ConstraintResult> constraints = verificationResult
                     .CheckResults
                     .SelectMany(pair => pair.Value.ConstraintResults)
-                    .Where(c=> c.Status == ConstraintStatus.Failure);
+                    .Where(c => c.Status == ConstraintStatus.Failure);
 
                 constraints
                     .Select(constraintResult => $"{constraintResult.Metric.Value.Name} " +
