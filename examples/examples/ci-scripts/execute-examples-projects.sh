@@ -16,7 +16,7 @@ echo "DOTNET_SPARK_VERSION ${DOTNET_SPARK_VERSION}"
 echo "DOTNET_ALIAS ${DOTNET_ALIAS}"
 echo "SPARK_PATH ${SPARK_PATH}"
 
-cd ./bin/$PROJECT_CONFIG/$DOTNET_ALIAS/
+cd bin/$PROJECT_CONFIG/$DOTNET_ALIAS/
 
  $SPARK_PATH/spark-submit \
     --class org.apache.spark.deploy.dotnet.DotnetRunner \
