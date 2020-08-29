@@ -54,7 +54,7 @@ jobs:
         env:
             DOTNET_WORKER_DIR: /usr/local/bin/
             SPARK_RUNNER_DIR: /home/runner/bin/
-            SPARK_RUNNER_244: /home/runner/bin/spark-2.4.4-bin-hadoop2.7
+            SPARK_RUNNER_244: /home/runner/bin/spark-2.4.4-bin-hadoop2.7/bin
         steps:
             -   uses: actions/checkout@v2
 

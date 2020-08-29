@@ -1,6 +1,9 @@
 
 # Path where packaged worker file (tgz) exists.
 
+
+set +e
+
 PROJECT_NAME=$1
 PROJECT_CONFIG=$2
 DOTNET_SPARK_VERSION=$3
@@ -13,7 +16,7 @@ echo "DOTNET_SPARK_VERSION ${DOTNET_SPARK_VERSION}"
 echo "DOTNET_ALIAS ${DOTNET_ALIAS}"
 echo "$SPARK_PATH ${SPARK_PATH}"
 
- $SPARK_PATH/bin/spark-submit \
+ $SPARK_PATH/spark-submit \
     --class org.apache.spark.deploy.dotnet.DotnetRunner \
     --master local \
     microsoft-spark-2.4.x-$DOTNET_SPARK_VERSION.jar \
