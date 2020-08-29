@@ -5,7 +5,8 @@ namespace examples
     {
         static void Main(string[] args)
         {
-            new BasicExample().ExecuteSimpleVerificationSuite();
+            BasicExample.ExecuteSimpleVerificationSuite();
+            IncrementalMetrics.IncrementalChangesOnManufacturers();
             //new BasicExample().ExecuteComplexVerificationSuite();
         }
     }

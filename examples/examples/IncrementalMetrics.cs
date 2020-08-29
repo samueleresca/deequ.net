@@ -8,9 +8,9 @@ using Microsoft.Spark.Sql.Types;
 
 namespace examples
 {
-    public class IncrementalMetrics
+    public static class IncrementalMetrics
     {
-        public void IncrementalChangesOnManufacturers()
+        public static void IncrementalChangesOnManufacturers()
         {
             DataFrame dataSetDE = LoadData(
                 new[] {new object[] {1, "ManufacturerA", "DE"}, new object[] {2, "ManufacturerB", "DE"},

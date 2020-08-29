@@ -9,9 +9,9 @@ using Microsoft.Spark.Sql.Types;
 
 namespace examples
 {
-    public class BasicExample
+    public static class  BasicExample
     {
-        public void ExecuteSimpleVerificationSuite()
+        public static void ExecuteSimpleVerificationSuite()
         {
 
             var data = SparkSession.Builder().GetOrCreate().CreateDataFrame(
@@ -50,7 +50,7 @@ namespace examples
                 .Run();
         }
 
-        public void ExecuteComplexVerificationSuite()
+        public static void ExecuteComplexVerificationSuite()
         {
 
             var data = SparkSession.Builder().GetOrCreate().CreateDataFrame(
