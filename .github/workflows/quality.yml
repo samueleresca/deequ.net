@@ -8,7 +8,6 @@ on:
 
 jobs:
     run-tests:
-
         runs-on: ubuntu-latest
         env:
             DOTNET_WORKER_DIR: /usr/local/bin/
@@ -52,11 +51,9 @@ jobs:
                     fail_ci_if_error: true
     run-examples:
         runs-on: ubuntu-latest
-
         env:
             DOTNET_WORKER_DIR: /usr/local/bin/
             SPARK_RUNNER_DIR: /usr/local/bin/
-
         steps:
             -   uses: actions/checkout@v2
 
@@ -81,19 +78,19 @@ jobs:
 
             -   name: Install dependencies
                 run: dotnet restore
-                working_directory: examples/examples
+                working-directory: examples/examples
 
             -   name: Build
                 run: dotnet build --configuration Release --no-restore
-                working_directory: examples/examples
+                working-directory: examples/examples
 
             -   name: Scripts permissions
                 run: chmod +x ci-scripts/execute-examples-projects.sh
-                working_directory: examples/examples
+                working-directory: examples/examples
 
             -   name: Execute examples project
                 run: ci-scripts/execute-examples-projects.sh example.dll Release 0.12.1 netcoreapp3.1
-                working_directory: examples/examples
+                working-directory: examples/examples
 
 #    tests-windows:
 #        runs-on: windows-latest
