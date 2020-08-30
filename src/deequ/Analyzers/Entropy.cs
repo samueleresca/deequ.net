@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    internal sealed class Entropy : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
+    public sealed class Entropy : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {
         public readonly Option<string> Column;
         public readonly Option<string> Where;

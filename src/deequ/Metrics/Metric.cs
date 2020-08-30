@@ -23,7 +23,7 @@ namespace deequ.Metrics
         public Option<Exception> Exception();
     }
 
-    internal abstract class Metric<T> : IMetric
+    public abstract class Metric<T> : IMetric
     {
         public Try<T> Value;
 
@@ -45,7 +45,7 @@ namespace deequ.Metrics
         public abstract IEnumerable<DoubleMetric> Flatten();
     }
 
-    internal class DoubleMetric : Metric<double>, IEquatable<DoubleMetric>
+    public class DoubleMetric : Metric<double>, IEquatable<DoubleMetric>
     {
         public DoubleMetric(Entity entity, string name, string instance, Try<double> value)
             : base(entity, name, instance, value)

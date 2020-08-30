@@ -37,7 +37,7 @@ namespace deequ.Analyzers
         }
     }
 
-    internal sealed class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer
+    public sealed class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;

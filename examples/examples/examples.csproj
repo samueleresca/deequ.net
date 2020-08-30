@@ -6,7 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="deequ" Version="0.0.8-alpha" />
       <PackageReference Include="Microsoft.Spark" Version="0.12.1" />
     </ItemGroup>
 
@@ -14,6 +13,10 @@
       <None Update="data\inventory.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\deequ\deequ.csproj" />
     </ItemGroup>
 
 </Project>

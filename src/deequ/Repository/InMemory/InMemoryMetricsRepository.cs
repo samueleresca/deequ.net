@@ -8,7 +8,7 @@ using deequ.Util;
 
 namespace deequ.Repository.InMemory
 {
-    internal class InMemoryMetricsRepository : IMetricsRepository
+    public class InMemoryMetricsRepository : IMetricsRepository
     {
         private readonly ConcurrentDictionary<ResultKey, AnalysisResult> _resultsRepository;
 

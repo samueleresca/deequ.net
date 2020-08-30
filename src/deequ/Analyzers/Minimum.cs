@@ -28,7 +28,7 @@ namespace deequ.Analyzers
         public override double MetricValue() => _minValue;
     }
 
-    internal class Minimum : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
+    public class Minimum : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;

@@ -5,7 +5,7 @@ using deequ.Util;
 
 namespace deequ.AnomalyDetection
 {
-    abstract class BaseChangeStrategy : IAnomalyDetectionStrategy
+    public abstract class BaseChangeStrategy : IAnomalyDetectionStrategy
     {
         private readonly Option<double> _maxRateDecrease;
         private readonly Option<double> _maxRateIncrease;
@@ -69,7 +69,7 @@ namespace deequ.AnomalyDetection
         }
 
 
-        public IEnumerable<double> Diff(IEnumerable<double> dataSeries, int order)
+        public virtual IEnumerable<double> Diff(IEnumerable<double> dataSeries, int order)
         {
             if (order < 0)
             {

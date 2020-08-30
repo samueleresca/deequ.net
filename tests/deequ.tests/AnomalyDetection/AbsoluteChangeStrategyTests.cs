@@ -135,7 +135,8 @@ namespace xdeequ.tests.AnomalyDetection
             AbsoluteChangeStrategy strategy = new AbsoluteChangeStrategy(Option<double>.None, 1.0);
 
             IEnumerable<(int, Anomaly)> anomalyResult = strategy.Detect(data.ToArray(), (0, int.MaxValue));
-            IEnumerable<(int x, Anomaly)> expected = Enumerable.Range(20, 12).Where(i => i % 2 == 0)
+            IEnumerable<(int x, Anomaly)> expected = Enumerable.Range(20, 12)
+                .Where(i => i % 2 == 0)
                 .Select(value => (value, new Anomaly(data[value], 1.0, Option<string>.None)));
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();

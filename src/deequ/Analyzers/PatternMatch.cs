@@ -12,7 +12,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    internal sealed class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    public sealed class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Regex Regex;

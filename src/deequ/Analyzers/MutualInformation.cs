@@ -12,7 +12,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    internal sealed class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
+    public sealed class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
     {
         public readonly IEnumerable<string> Columns;
         public readonly Option<string> Where;

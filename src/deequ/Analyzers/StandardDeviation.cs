@@ -40,7 +40,7 @@ namespace deequ.Analyzers
         public override double MetricValue() => StdDevPop;
     }
 
-    internal sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
+    public sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;

@@ -28,7 +28,7 @@ namespace deequ.Analyzers
         public override double MetricValue() => numMatches;
     }
 
-    internal sealed class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
+    public sealed class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
     {
         public readonly Option<string> Where;
 

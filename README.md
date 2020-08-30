@@ -133,6 +133,13 @@ The following example implements a set of checks on some records and it submits 
     ```
 
 
+## More examples
+
+The following list shows more examples/showcases of the deequ.NET API:
+
+- [Incremental metrics computation](examples/examples/incremental_metrics_example.md)
+- [Anomaly detection](examples/examples/)
+
 ## Related projects
 - [awslabs/deequ](https://github.com/awslabs/deequ)
 - [dotnet/spark](https://github.com/dotnet/spark)

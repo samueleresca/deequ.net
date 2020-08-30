@@ -6,60 +6,60 @@ using Microsoft.Spark.Sql;
 
 namespace deequ.Analyzers
 {
-    internal static class Initializers
+    public static class Initializers
     {
         public static Size Size(Option<string> where = default) => new Size(where);
 
-        internal static Histogram Histogram(string column) =>
+        public static Histogram Histogram(string column) =>
             new Histogram(column, Option<string>.None,
                 Option<Func<Column, Column>>.None, 1000);
 
-        internal static Histogram Histogram(string column, Option<string> where) =>
+        public static Histogram Histogram(string column, Option<string> where) =>
             new Histogram(column, where, Option<Func<Column, Column>>.None, 1000);
 
-        internal static Histogram Histogram(string column, Option<Func<Column, Column>> binningFunc) =>
+        public static Histogram Histogram(string column, Option<Func<Column, Column>> binningFunc) =>
             new Histogram(column, Option<string>.None, binningFunc, 1000);
 
-        internal static Histogram Histogram(string column, Option<Func<Column, Column>> binningFunc,
+        public static Histogram Histogram(string column, Option<Func<Column, Column>> binningFunc,
             Option<string> where,
             int maxDetailBins) =>
             new Histogram(column, where, binningFunc, maxDetailBins);
 
-        internal static Histogram Histogram(string column, Option<string> where, int maxDetailBins) =>
+        public static Histogram Histogram(string column, Option<string> where, int maxDetailBins) =>
             new Histogram(column, where, Option<Func<Column, Column>>.None, maxDetailBins);
 
-        internal static Completeness Completeness(Option<string> column) => new Completeness(column);
+        public static Completeness Completeness(Option<string> column) => new Completeness(column);
 
-        internal static Completeness Completeness(Option<string> column, Option<string> where) =>
+        public static Completeness Completeness(Option<string> column, Option<string> where) =>
             new Completeness(column, where);
 
-        internal static Uniqueness Uniqueness(IEnumerable<string> columns) => new Uniqueness(columns);
+        public static Uniqueness Uniqueness(IEnumerable<string> columns) => new Uniqueness(columns);
 
-        internal static Uniqueness Uniqueness(IEnumerable<string> columns, Option<string> where) =>
+        public static Uniqueness Uniqueness(IEnumerable<string> columns, Option<string> where) =>
             new Uniqueness(columns, where);
 
-        internal static Uniqueness Uniqueness(Option<string> column, Option<string> where) =>
+        public static Uniqueness Uniqueness(Option<string> column, Option<string> where) =>
             new Uniqueness(new[] { column.Value }, where);
 
-        internal static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where) =>
+        public static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where) =>
             new Distinctness(columns, where);
 
-        internal static UniqueValueRatio UniqueValueRatio(IEnumerable<string> columns, Option<string> where) =>
+        public static UniqueValueRatio UniqueValueRatio(IEnumerable<string> columns, Option<string> where) =>
             new UniqueValueRatio(columns, where);
 
-        internal static Compliance Compliance(string instance, Column predicate, Option<string> where) =>
+        public static Compliance Compliance(string instance, Column predicate, Option<string> where) =>
             new Compliance(instance, predicate, where);
 
-        internal static Compliance Compliance(string instance, Column predicate) =>
+        public static Compliance Compliance(string instance, Column predicate) =>
             new Compliance(instance, predicate, Option<string>.None);
 
-        internal static MutualInformation MutualInformation(IEnumerable<string> columns) =>
+        public static MutualInformation MutualInformation(IEnumerable<string> columns) =>
             new MutualInformation(columns);
 
-        internal static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where) =>
+        public static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where) =>
             new MutualInformation(columns, where);
 
-        internal static MutualInformation MutualInformation(Option<string> column, Option<string> where) =>
+        public static MutualInformation MutualInformation(Option<string> column, Option<string> where) =>
             new MutualInformation(new[] { column.Value }, where);
 
         public static MaxLength MaxLength(string column) => new MaxLength(column, new Option<string>());
@@ -83,9 +83,9 @@ namespace deequ.Analyzers
 
         public static Mean Mean(string column, Option<string> where) => new Mean(column, where);
 
-        internal static Sum Sum(string column) => new Sum(column, Option<string>.None);
+        public static Sum Sum(string column) => new Sum(column, Option<string>.None);
 
-        internal static Sum Sum(string column, Option<string> where) => new Sum(column, where);
+        public static Sum Sum(string column, Option<string> where) => new Sum(column, where);
 
         public static StandardDeviation StandardDeviation(string column) =>
             new StandardDeviation(column, Option<string>.None);
@@ -93,9 +93,9 @@ namespace deequ.Analyzers
         public static StandardDeviation StandardDeviation(string column, Option<string> where) =>
             new StandardDeviation(column, where);
 
-        internal static Entropy Entropy(Option<string> column) => new Entropy(column);
+        public static Entropy Entropy(Option<string> column) => new Entropy(column);
 
-        internal static Entropy Entropy(Option<string> column, Option<string> where) => new Entropy(column, where);
+        public static Entropy Entropy(Option<string> column, Option<string> where) => new Entropy(column, where);
 
         public static PatternMatch PatternMatch(string column, Regex pattern) =>
             new PatternMatch(column, pattern, new Option<string>());
@@ -103,8 +103,8 @@ namespace deequ.Analyzers
         public static PatternMatch PatternMatch(string column, Regex pattern, Option<string> where) =>
             new PatternMatch(column, pattern, where);
 
-        internal static DataType DataType(string column) => new DataType(column, Option<string>.None);
+        public static DataType DataType(string column) => new DataType(column, Option<string>.None);
 
-        internal static DataType DataType(string column, Option<string> where) => new DataType(column, where);
+        public static DataType DataType(string column, Option<string> where) => new DataType(column, where);
     }
 }

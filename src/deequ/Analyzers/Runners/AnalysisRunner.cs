@@ -597,6 +597,12 @@ namespace deequ.Analyzers.Runners
             Tags = tags;
         }
 
+        public ResultKey(long dataSetDate)
+        {
+            DataSetDate = dataSetDate;
+            Tags = new Dictionary<string, string>();
+        }
+
         public ResultKey()
         {
         }

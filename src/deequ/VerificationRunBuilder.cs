@@ -273,7 +273,7 @@ namespace deequ
         public VerificationRunBuilderWithRepository AddAnomalyCheck(
             IAnomalyDetectionStrategy anomalyDetectionStrategy,
             IAnalyzer<IMetric> analyzer,
-            Option<AnomalyCheckConfig> anomalyCheckConfig)
+            Option<AnomalyCheckConfig> anomalyCheckConfig = default)
         {
             string checkDescription = $"Anomaly check for {analyzer}";
 
