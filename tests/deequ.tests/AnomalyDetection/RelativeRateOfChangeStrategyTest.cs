@@ -86,10 +86,10 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void derive_first_order_correctly()
         {
-            var data = new[] {1.0, 2.0, 4.0, 1.0, 2.0, 8.0};
+            var data = new[] { 1.0, 2.0, 4.0, 1.0, 2.0, 8.0 };
 
             IEnumerable<double> anomalyResult = _strategy.Diff(data, 1);
-            var expected = new[] {2.0, 2.0, 0.25, 2.0, 4.0};
+            var expected = new[] { 2.0, 2.0, 0.25, 2.0, 4.0 };
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -97,10 +97,10 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void derive_second_order_correctly()
         {
-            var data = new[] {1.0, 2.0, 4.0, 1.0, 2.0, 8.0};
+            var data = new[] { 1.0, 2.0, 4.0, 1.0, 2.0, 8.0 };
 
             IEnumerable<double> anomalyResult = _strategy.Diff(data, 2);
-            var expected = new[] {4.0, 0.5, 0.5, 8.0};
+            var expected = new[] { 4.0, 0.5, 0.5, 8.0 };
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -108,10 +108,10 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void derive_third_order_correctly()
         {
-            var data = new[] {1.0, 2.0, 4.0, 1.0, 2.0, 8.0};
+            var data = new[] { 1.0, 2.0, 4.0, 1.0, 2.0, 8.0 };
 
             IEnumerable<double> anomalyResult = _strategy.Diff(data, 2);
-            var expected = new[] {4.0, 0.5, 0.5, 8.0};
+            var expected = new[] { 4.0, 0.5, 0.5, 8.0 };
 
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
@@ -120,7 +120,7 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void attribute_indices_correctly_for_higher_orders_without_search_interval()
         {
-            var data = new[] {0.0, 1.0, 3.0, 6.0, 18.0, 72.0};
+            var data = new[] { 0.0, 1.0, 3.0, 6.0, 18.0, 72.0 };
 
             var strategy = new RelativeRateOfChangeStrategy(Option<double>.None, 8.0, 2);
             var anomalyResult = strategy.Detect(data, (0, int.MaxValue));
@@ -136,7 +136,7 @@ namespace xdeequ.tests.AnomalyDetection
         [Fact]
         public void attribute_indices_correctly_for_higher_orders_with_search_interval()
         {
-            var data = new[] {0.0, 1.0, 3.0, 6.0, 18.0, 72.0};
+            var data = new[] { 0.0, 1.0, 3.0, 6.0, 18.0, 72.0 };
 
             var strategy = new RelativeRateOfChangeStrategy(Option<double>.None, 8.0, 2);
             var anomalyResult = strategy.Detect(data, (5, 6));

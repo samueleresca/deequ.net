@@ -10,7 +10,7 @@ namespace examples
 {
     public static class IncrementalMetrics
     {
-        public static void IncrementalChangesOnManufacturers()
+        public static void IncrementalMetricsOnManufacturers()
         {
             DataFrame dataSetDE = LoadData(
                 new[] {new object[] {1, "ManufacturerA", "DE"}, new object[] {2, "ManufacturerB", "DE"},

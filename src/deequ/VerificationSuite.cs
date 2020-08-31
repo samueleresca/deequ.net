@@ -80,8 +80,8 @@ namespace deequ
             IEnumerable<IAnalyzer<IMetric>> requiredAnalyzers,
             Option<IStateLoader> aggregateWith = default,
             Option<IStatePersister> saveStatesWith = default,
-            VerificationMetricsRepositoryOptions metricsRepositoryOptions = null,
-            VerificationFileOutputOptions fileOutputOptions = null)
+            VerificationMetricsRepositoryOptions metricsRepositoryOptions = default,
+            VerificationFileOutputOptions fileOutputOptions = default)
         {
             IEnumerable<IAnalyzer<IMetric>> analyzers =
                 requiredAnalyzers.Concat(checks.SelectMany(check => check.RequiredAnalyzers()));
@@ -89,7 +89,8 @@ namespace deequ
             AnalysisRunnerRepositoryOptions options = new AnalysisRunnerRepositoryOptions(
                 metricsRepositoryOptions.metricRepository,
                 metricsRepositoryOptions.reuseExistingResultsForKey,
-                metricsRepositoryOptions.saveOrAppendResultsWithKey);
+                metricsRepositoryOptions.saveOrAppendResultsWithKey,
+                metricsRepositoryOptions.failIfResultsForReusingMissing);
 
             AnalyzerContext analysisResults = AnalysisRunner.DoAnalysisRun(
                 data,
@@ -103,7 +104,9 @@ namespace deequ
 
             AnalyzerContext analyzerContext = new AnalyzerContext(verificationResult.Metrics);
 
-            SaveOrAppendResultsIfNecessary(analyzerContext, metricsRepositoryOptions.metricRepository,
+
+            SaveOrAppendResultsIfNecessary(analyzerContext,
+                metricsRepositoryOptions.metricRepository,
                 metricsRepositoryOptions.saveOrAppendResultsWithKey);
 
             SaveJsonOutputsToFilesystemIfNecessary(fileOutputOptions, verificationResult);

@@ -12,7 +12,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-   public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S> where M : IMetric
+    public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S> where M : IMetric
     {
         public abstract M ToFailureMetric(Exception e);
 

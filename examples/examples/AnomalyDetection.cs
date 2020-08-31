@@ -16,7 +16,7 @@ namespace examples
     public static class AnomalyDetection
     {
 
-        public static void test()
+        public static void AnomalyDetectionExample()
         {
             // Anomaly detection operates on metrics stored in a metric repository, so lets create one
             InMemoryMetricsRepository metricsRepository = new InMemoryMetricsRepository();
@@ -83,7 +83,7 @@ namespace examples
             /* Lets have a look at the actual metrics. */
             metricsRepository
                 .Load()
-                .ForAnalyzers(new []{Size()})
+                .ForAnalyzers(new[] { Size() })
                 .GetSuccessMetricsAsDataFrame(SparkSession.Active())
                 .Show();
         }

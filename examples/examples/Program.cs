@@ -10,7 +10,8 @@ namespace examples
             BasicExample.ExecuteSimpleVerificationSuiteWithExternalFile();
 
             // Advanced examples
-            IncrementalMetrics.IncrementalChangesOnManufacturers();
+            IncrementalMetrics.IncrementalMetricsOnManufacturers();
+            AnomalyDetection.AnomalyDetectionExample();
         }
     }
 }

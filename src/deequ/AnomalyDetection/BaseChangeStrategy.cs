@@ -37,7 +37,7 @@ namespace deequ.AnomalyDetection
         }
 
 
-        public IEnumerable<(int, Anomaly)> Detect(double[] dataSeries, (int, int) searchInterval)
+        public virtual IEnumerable<(int, Anomaly)> Detect(double[] dataSeries, (int, int) searchInterval)
         {
             (int start, int end) = searchInterval;
 
