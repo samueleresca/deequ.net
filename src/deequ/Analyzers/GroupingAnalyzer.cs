@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    internal abstract class ScanShareableFrequencyBasedAnalyzer : FrequencyBasedAnalyzer
+    public abstract class ScanShareableFrequencyBasedAnalyzer : FrequencyBasedAnalyzer
     {
         protected ScanShareableFrequencyBasedAnalyzer(string name, IEnumerable<string> columnsToGroupOn) : base(name,
             columnsToGroupOn)
@@ -58,7 +58,7 @@ namespace deequ.Analyzers
         }
     }
 
-    internal abstract class FrequencyBasedAnalyzer : GroupingAnalyzer<FrequenciesAndNumRows, DoubleMetric>
+    public abstract class FrequencyBasedAnalyzer : GroupingAnalyzer<FrequenciesAndNumRows, DoubleMetric>
     {
         public FrequencyBasedAnalyzer(string name, IEnumerable<string> columnsToGroupOn)
         {
@@ -113,7 +113,7 @@ namespace deequ.Analyzers
     }
 
 
-    internal class FrequenciesAndNumRows : State<FrequenciesAndNumRows>
+    public class FrequenciesAndNumRows : State<FrequenciesAndNumRows>
     {
         public DataFrame Frequencies;
         public long NumRows;

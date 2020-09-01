@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using deequ.Analyzers;
 using deequ.Metrics;
 using Microsoft.Spark.Sql;
@@ -12,7 +13,7 @@ namespace deequ.Repository
         public IMetricRepositoryMultipleResultsLoader After(long dateTime);
         public IMetricRepositoryMultipleResultsLoader Before(long dateTime);
         public IEnumerable<AnalysisResult> Get();
-        public DataFrame GetSuccessMetricsAsDataFrame(SparkSession session, IEnumerable<string> withTags);
+        public DataFrame GetSuccessMetricsAsDataFrame(SparkSession session, IEnumerable<string> withTags = default);
         public string GetSuccessMetricsAsJson(IEnumerable<string> withTags);
     }
 }

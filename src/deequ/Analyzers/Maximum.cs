@@ -28,7 +28,7 @@ namespace deequ.Analyzers
         public override double MetricValue() => _maxValue;
     }
 
-    internal sealed class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer
+    public sealed class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;

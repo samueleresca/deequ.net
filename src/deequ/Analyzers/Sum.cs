@@ -28,7 +28,7 @@ namespace deequ.Analyzers
         public override double MetricValue() => _sum;
     }
 
-    internal sealed class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public sealed class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
     {
         public readonly string Column;
         public readonly Option<string> Where;

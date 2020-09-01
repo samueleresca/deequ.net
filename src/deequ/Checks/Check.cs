@@ -970,75 +970,76 @@ namespace deequ.Checks
             Option<long> valueBeforeDate,
             IAnalyzer<IMetric> analyzer)
         {
-            // Get history keys
-            IMetricRepositoryMultipleResultsLoader repositoryLoader = metricsRepository.Load();
-
-            withTagValues.OnSuccess(value => { repositoryLoader = repositoryLoader.WithTagValues(value); });
-
-
-            valueBeforeDate.OnSuccess(value => { repositoryLoader = repositoryLoader.Before(value); });
-
-            valueAfterDate.OnSuccess(value => { repositoryLoader = repositoryLoader.After(value); });
-
-            repositoryLoader = repositoryLoader.ForAnalyzers(new[] { analyzer });
-
-            IEnumerable<AnalysisResult> analysisResults = repositoryLoader.Get();
-
-            if (!analysisResults.Any())
-            {
-                throw new ArgumentException("There have to be previous results in the MetricsRepository!");
-            }
-
-
-            IEnumerable<(long dataSetDate, Option<Metric<double>> doubleMetricOption)> historicalMetrics =
-                analysisResults
-                    //TODO: Order by tags in case you have multiple data points .OrderBy(x => x.ResultKey.Tags.Values)
-                    .Select(analysisResults =>
-                    {
-                        Dictionary<IAnalyzer<IMetric>, IMetric> analyzerContextMetricMap =
-                            analysisResults.AnalyzerContext.MetricMap;
-                        KeyValuePair<IAnalyzer<IMetric>, IMetric> onlyAnalyzerMetricEntryInLoadedAnalyzerContext =
-                            analyzerContextMetricMap.FirstOrDefault();
-                        Metric<double> doubleMetric =
-                            (Metric<double>)onlyAnalyzerMetricEntryInLoadedAnalyzerContext.Value;
-
-                        Option<Metric<double>> doubleMetricOption = Option<Metric<double>>.None;
-
-                        if (doubleMetric != null)
-                        {
-                            doubleMetricOption = new Option<Metric<double>>(doubleMetric);
-                        }
-
-
-                        long dataSetDate = analysisResults.ResultKey.DataSetDate;
-
-                        return (dataSetDate, doubleMetricOption);
-                    });
-
-            long testDateTime = analysisResults.Select(analysisResult => analysisResult.ResultKey.DataSetDate).Max() + 1;
-
-            if (testDateTime == long.MaxValue)
-            {
-                throw new ArgumentException("Test DateTime cannot be Long.MaxValue, otherwise the" +
-                                            "Anomaly Detection, which works with an open upper interval bound, won't test anything");
-            }
-
-            AnomalyDetector anomalyDetector = new AnomalyDetector(anomalyDetectionStrategy);
-            IEnumerable<DataPoint<double>> metricsOptions = historicalMetrics
-                .Select(pair =>
-                {
-                    Option<double> valueOption = Option<double>.None;
-
-                    if (pair.doubleMetricOption.HasValue && pair.doubleMetricOption.Value.IsSuccess())
-                    {
-                        valueOption = new Option<double>(pair.doubleMetricOption.Value.Value.Get());
-                    }
-
-                    return new DataPoint<double>(pair.dataSetDate, valueOption);
-                });
-
             return d =>
             {
+                // Get history keys
+                IMetricRepositoryMultipleResultsLoader repositoryLoader = metricsRepository.Load();
+
+                withTagValues.OnSuccess(value => { repositoryLoader = repositoryLoader.WithTagValues(value); });
+
+
+                valueBeforeDate.OnSuccess(value => { repositoryLoader = repositoryLoader.Before(value); });
+
+                valueAfterDate.OnSuccess(value => { repositoryLoader = repositoryLoader.After(value); });
+
+                repositoryLoader = repositoryLoader.ForAnalyzers(new[] { analyzer });
+
+                IEnumerable<AnalysisResult> analysisResults = repositoryLoader.Get();
+
+                if (!analysisResults.Any())
+                {
+                    throw new ArgumentException("There have to be previous results in the MetricsRepository!");
+                }
+
+
+                IEnumerable<(long dataSetDate, Option<Metric<double>> doubleMetricOption)> historicalMetrics =
+                    analysisResults
+                        //TODO: Order by tags in case you have multiple data points .OrderBy(x => x.ResultKey.Tags.Values)
+                        .Select(analysisResults =>
+                        {
+                            Dictionary<IAnalyzer<IMetric>, IMetric> analyzerContextMetricMap =
+                                analysisResults.AnalyzerContext.MetricMap;
+                            KeyValuePair<IAnalyzer<IMetric>, IMetric> onlyAnalyzerMetricEntryInLoadedAnalyzerContext =
+                                analyzerContextMetricMap.FirstOrDefault();
+                            Metric<double> doubleMetric =
+                                (Metric<double>)onlyAnalyzerMetricEntryInLoadedAnalyzerContext.Value;
+
+                            Option<Metric<double>> doubleMetricOption = Option<Metric<double>>.None;
+
+                            if (doubleMetric != null)
+                            {
+                                doubleMetricOption = new Option<Metric<double>>(doubleMetric);
+                            }
+
+
+                            long dataSetDate = analysisResults.ResultKey.DataSetDate;
+
+                            return (dataSetDate, doubleMetricOption);
+                        });
+
+                long testDateTime = analysisResults.Select(analysisResult => analysisResult.ResultKey.DataSetDate).Max() + 1;
+
+                if (testDateTime == long.MaxValue)
+                {
+                    throw new ArgumentException("Test DateTime cannot be Long.MaxValue, otherwise the" +
+                                                "Anomaly Detection, which works with an open upper interval bound, won't test anything");
+                }
+
+                AnomalyDetector anomalyDetector = new AnomalyDetector(anomalyDetectionStrategy);
+                IEnumerable<DataPoint<double>> metricsOptions = historicalMetrics
+                    .Select(pair =>
+                    {
+                        Option<double> valueOption = Option<double>.None;
+
+                        if (pair.doubleMetricOption.HasValue && pair.doubleMetricOption.Value.IsSuccess())
+                        {
+                            valueOption = new Option<double>(pair.doubleMetricOption.Value.Value.Get());
+                        }
+
+                        return new DataPoint<double>(pair.dataSetDate, valueOption);
+                    });
+
+
                 DetectionResult detectedAnomalies = anomalyDetector.IsNewPointAnomalous(metricsOptions,
                     new DataPoint<double>(testDateTime, new Option<double>(d)));
 

@@ -9,7 +9,7 @@ namespace deequ.AnomalyDetection
         public Option<string> Detail;
         public Option<double> Value;
 
-        public Anomaly(Option<double> value, double confidence, Option<string> detail)
+        public Anomaly(Option<double> value, double confidence, Option<string> detail = default)
         {
             Confidence = confidence;
             Detail = detail;

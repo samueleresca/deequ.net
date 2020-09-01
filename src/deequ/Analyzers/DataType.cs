@@ -23,7 +23,7 @@ namespace deequ.Analyzers
         String = 4
     }
 
-    internal class DataTypeHistogram : State<DataTypeHistogram>
+    public class DataTypeHistogram : State<DataTypeHistogram>
     {
         private const int SIZE_IN_BITES = 5;
         private const int NULL_POS = 0;
@@ -101,7 +101,7 @@ namespace deequ.Analyzers
         }
     }
 
-    internal sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
+    public sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
     {
         public readonly string Column;
         public readonly Option<string> Where;

@@ -152,7 +152,7 @@ namespace xdeequ.tests.Repository.Memory
 
                 DataFrame df = _session.CreateDataFrame(elements, schema);
 
-                AssertSameRows(analysisResultsAsDataFrame, df);
+                FixtureSupport.AssertSameRows(analysisResultsAsDataFrame, df, new Option<ITestOutputHelper>(_helper));
             });
 
         [Fact]

@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    internal sealed class Distinctness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
+    public sealed class Distinctness : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {
         public readonly IEnumerable<string> Columns;
         public readonly Option<string> Where;

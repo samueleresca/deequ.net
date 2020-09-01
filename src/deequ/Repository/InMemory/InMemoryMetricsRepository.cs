@@ -8,7 +8,7 @@ using deequ.Util;
 
 namespace deequ.Repository.InMemory
 {
-    internal class InMemoryMetricsRepository : IMetricsRepository
+    public class InMemoryMetricsRepository : IMetricsRepository
     {
         private readonly ConcurrentDictionary<ResultKey, AnalysisResult> _resultsRepository;
 
@@ -82,7 +82,10 @@ namespace deequ.Repository.InMemory
                     IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> requestedMetrics = keyValuePair.Value
                         .AnalyzerContext
                         .MetricMap
-                        .Where(analyzer => !forAnalyzers.HasValue || forAnalyzers.Value.Contains(analyzer.Key));
+                        //TODO:Fix equality
+                        .Where(analyzer => !forAnalyzers.HasValue || forAnalyzers.Value
+                            .Select(value => value.ToString())
+                            .Contains(analyzer.Key.ToString()));
 
                     return new AnalysisResult(keyValuePair.Value.ResultKey,
                         new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(requestedMetrics)));

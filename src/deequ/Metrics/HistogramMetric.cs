@@ -34,7 +34,7 @@ namespace deequ.Metrics
         }
     }
 
-    internal class HistogramMetric : Metric<Distribution>
+    public class HistogramMetric : Metric<Distribution>
     {
         public string Column;
 
