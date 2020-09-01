@@ -31,7 +31,7 @@ namespace xdeequ.tests.Repository
             _helper = helper;
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public void work_using_the_InMemoryMetricsRepository()
         {
             var repository = new InMemoryMetricsRepository();
@@ -64,8 +64,10 @@ namespace xdeequ.tests.Repository
         {
             var schema = new StructType(new[]
             {
-                new StructField("item", new StringType()), new StructField("origin", new StringType()),
-                new StructField("sales", new IntegerType()), new StructField("marketplace", new StringType())
+                new StructField("item", new StringType(), false),
+                new StructField("origin", new StringType()),
+                new StructField("sales", new IntegerType(), false),
+                new StructField("marketplace", new StringType(), false)
             });
 
 
@@ -74,8 +76,10 @@ namespace xdeequ.tests.Repository
                 new GenericRow(new object[] {"item1", "US", 100, "EU"}),
                 new GenericRow(new object[] {"item1", "US", 1000, "EU"}),
                 new GenericRow(new object[] {"item1", "US", 20, "EU"}),
+
                 new GenericRow(new object[] {"item2", "DE", 20, "EU"}),
                 new GenericRow(new object[] {"item2", "DE", 333, "EU"}),
+
                 new GenericRow(new object[] {"item3", null, 12, "EU"}),
                 new GenericRow(new object[] {"item4", null, 45, "EU"}),
                 new GenericRow(new object[] {"item5", null, 123, "EU"})
@@ -86,7 +90,9 @@ namespace xdeequ.tests.Repository
 
         private void FillRepositoryWithPreviousResults(IMetricsRepository repository)
         {
-            Enumerable.Range(1, 31).Select(pastDay =>
+            Enumerable.Range(1, 31)
+                .ToList()
+                .ForEach(pastDay =>
             {
                 var pastResultsEU = new Dictionary<IAnalyzer<IMetric>, IMetric>
                 {
@@ -110,8 +116,6 @@ namespace xdeequ.tests.Repository
 
                 repository.Save(new ResultKey(dateTime, new Dictionary<string, string> { { "marketplace", "NA" } }),
                     analyzerContextNA);
-
-                return pastDay;
             });
         }
 
@@ -189,8 +193,7 @@ namespace xdeequ.tests.Repository
 
             var (_, checkResultSizeAnomalyCheck) = sizeAnomalyCheckWithResult;
 
-
-            CheckStatus.Error.ShouldBe(checkResultSizeAnomalyCheck.Status);
+            checkResultSizeAnomalyCheck.Status.ShouldBe(CheckStatus.Error);
 
             // New Mean sales value is 206.625, that is not an anomaly because the previous values are
             // (1 to 30) * 7 and it is within the range of 2 standard deviations
@@ -201,7 +204,7 @@ namespace xdeequ.tests.Repository
 
             var (_, checkResultMeanSalesAnomalyCheck) = meanSalesAnomalyCheckWithResult;
 
-            CheckStatus.Success.ShouldBe(checkResultMeanSalesAnomalyCheck.Status);
+            checkResultMeanSalesAnomalyCheck.Status.ShouldBe(CheckStatus.Success);
         }
 
         private void PrintConstraintResults(VerificationResult result)
@@ -223,7 +226,7 @@ namespace xdeequ.tests.Repository
 
         private long CreateDate(int year, int month, int day)
         {
-            return new DateTime(year, month, day, 0, 0, 0).Ticks;
+            return new DateTime(year, month, day, 0, 0, 0).ToUniversalTime().Ticks;
         }
     }
 }
