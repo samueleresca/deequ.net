@@ -63,7 +63,7 @@ namespace xdeequ.tests.AnomalyDetection
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
 
-        [Fact(Skip = "")]
+        [Fact(Skip = "Ignore test")]
         public void ignore_lower_factor_if_none_is_given()
         {
             var dataCopy = data;
@@ -79,7 +79,7 @@ namespace xdeequ.tests.AnomalyDetection
             anomalyResult.SequenceEqual(expected).ShouldBeTrue();
         }
 
-        [Fact(Skip = "")]
+        [Fact(Skip = "Ignore test")]
         public void ignore_upper_factor_if_none_is_given()
         {
 

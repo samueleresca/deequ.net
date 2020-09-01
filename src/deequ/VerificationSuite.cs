@@ -89,7 +89,7 @@ namespace deequ
             AnalysisRunnerRepositoryOptions options = new AnalysisRunnerRepositoryOptions(
                 metricsRepositoryOptions.metricRepository,
                 metricsRepositoryOptions.reuseExistingResultsForKey,
-                metricsRepositoryOptions.saveOrAppendResultsWithKey,
+                Option<ResultKey>.None,
                 metricsRepositoryOptions.failIfResultsForReusingMissing);
 
             AnalyzerContext analysisResults = AnalysisRunner.DoAnalysisRun(

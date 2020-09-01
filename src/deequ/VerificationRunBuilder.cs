@@ -281,17 +281,17 @@ namespace deequ
             AnomalyCheckConfig anomalyCheckConfigOrDefault = anomalyCheckConfig.GetOrElse(defaultConfig);
 
 
-            checks = checks.Append(
-                new Check(anomalyCheckConfigOrDefault.Level, anomalyCheckConfigOrDefault.Description)
-                    .IsNewestPointNonAnomalous<IState>(
-                        metricsRepository.Value,
-                        anomalyDetectionStrategy,
-                        analyzer,
-                        anomalyCheckConfigOrDefault.WithTagValues,
-                        anomalyCheckConfigOrDefault.AfterDate,
-                        anomalyCheckConfigOrDefault.BeforeDate
-                    ));
+            var tailCheck =   new Check(anomalyCheckConfigOrDefault.Level, anomalyCheckConfigOrDefault.Description)
+                .IsNewestPointNonAnomalous<IState>(
+                    metricsRepository.Value,
+                    anomalyDetectionStrategy,
+                    analyzer,
+                    anomalyCheckConfigOrDefault.WithTagValues,
+                    anomalyCheckConfigOrDefault.AfterDate,
+                    anomalyCheckConfigOrDefault.BeforeDate
+                );
 
+            checks = checks.Append(tailCheck);
             return this;
         }
     }
