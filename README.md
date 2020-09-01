@@ -140,7 +140,7 @@ The following list shows more examples/showcases of the deequ.NET API:
 - [Incremental metrics computation](examples/examples/incremental_metrics_example.md)
 - [Anomaly detection](examples/examples/anomaly_detection.md)
 
-## Related projects
+## Credits
 - [awslabs/deequ](https://github.com/awslabs/deequ)
 - [dotnet/spark](https://github.com/dotnet/spark)
 - [akkadotnet/akka.net - Scala to C# conversion guide](https://github.com/akkadotnet/akka.net/wiki/Scala-to-C%23-Conversion-Guide)
