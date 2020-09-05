@@ -158,7 +158,8 @@ namespace xdeequ.tests.Examples
                     new RelativeRateOfChangeStrategy(maxRateIncrease: 2.0),
                     Size()
                 )
-                .Run();
+                .Run()
+                .Debug(_helper.WriteLine);
 
 
             /* Todays data has five rows, so the data size more than doubled and our anomaly check should

@@ -17,7 +17,7 @@ namespace deequ.Extensions
             " |_|   \n                    | |                             \n   " +
             "                 |_|                             \n\n\n";
 
-        internal static void Debug(this VerificationResult verificationResult, Action<string> printFunc)
+        internal static VerificationResult Debug(this VerificationResult verificationResult, Action<string> printFunc)
         {
             printFunc(HEADER);
             if (verificationResult.Status == CheckStatus.Success)
@@ -37,11 +37,13 @@ namespace deequ.Extensions
                                                 $"of field {constraintResult.Metric.Value.Instance} has the following error: '{constraintResult.Message.GetOrElse(string.Empty)}'")
                     .ToList().ForEach(printFunc);
             }
+
+            return verificationResult;
         }
 
-        public static void Debug(this VerificationResult verificationResult)
+        public static VerificationResult Debug(this VerificationResult verificationResult)
         {
-            verificationResult.Debug(Console.WriteLine);
+            return verificationResult.Debug(Console.WriteLine);
         }
     }
 }
