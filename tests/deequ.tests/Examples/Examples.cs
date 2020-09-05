@@ -10,6 +10,7 @@ using deequ.Extensions;
 using deequ.Repository.InMemory;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
 using static deequ.Analyzers.Initializers;
@@ -137,7 +138,7 @@ namespace xdeequ.tests.Examples
             InMemoryMetricsRepository metricsRepository = new InMemoryMetricsRepository();
             // This is the key which we use to store the metrics for the dataset from yesterday
             ResultKey yesterdayKeys =
-                new ResultKey(DateTime.Now.Ticks - 24 * 60 * 1000, new Dictionary<string, string>());
+                new ResultKey(DateTime.Now.Ticks - 24 * 60 * 1000);
             /* In this simple example, we assume that we compute metrics on a dataset every day and we want
            to ensure that they don't change drastically. For sake of simplicity, we just look at the
            size of the data */
@@ -175,7 +176,7 @@ namespace xdeequ.tests.Examples
 
 
             /* The key for today's result */
-            var todaysKey = new ResultKey(DateTime.Now.Ticks - 24 * 60 * 1000, new Dictionary<string, string>());
+            var todaysKey = new ResultKey(DateTime.Now.Ticks - 24 * 60 * 1000);
 
             /* Repeat the anomaly check for today's data */
             var verificationResult = new VerificationSuite()
@@ -183,16 +184,12 @@ namespace xdeequ.tests.Examples
                 .UseRepository(metricsRepository)
                 .SaveOrAppendResult(todaysKey)
                 .AddAnomalyCheck(
-                    new RelativeRateOfChangeStrategy(2.0),
+                    new RelativeRateOfChangeStrategy(maxRateIncrease:2.0),
                     Size()
                 )
                 .Run();
 
-            /* Did we find an anomaly? */
-            if (verificationResult.Status == CheckStatus.Success)
-            {
-                return;
-            }
+            verificationResult.Status.ShouldBe(CheckStatus.Warning);
 
             _helper.WriteLine("Anomaly detected in the Size() metric!");
 

@@ -62,14 +62,14 @@ Now it is necessary repeat the anomaly check using the same metrics repository:
         .UseRepository(metricsRepository)
         .SaveOrAppendResult(todaysKey)
         .AddAnomalyCheck(
-            new RelativeRateOfChangeStrategy(2.0),
+            new RelativeRateOfChangeStrategy(maxRateIncrease:2.0),
             Size()
         )
         .Run()
         .Debug();
 ```
 
-Once the `VerificationSuite` completes, the `VerificationResult` status should contain an error because the dataset increased with a ratio greater than 2x:
+Once the `VerificationSuite` completes, the `VerificationResult` status should contain an warning because the dataset increased with a ratio greater than 2x:
 
 ```c#
     /* Did we find an anomaly? */

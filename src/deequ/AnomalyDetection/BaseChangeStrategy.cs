@@ -48,7 +48,7 @@ namespace deequ.AnomalyDetection
 
             int startPoint = Math.Max(start - _order, 0);
 
-            IEnumerable<double> data = Diff(dataSeries.Skip(startPoint).Take(end), _order);
+            IEnumerable<double> data = Diff(dataSeries.Skip(startPoint).Take(end - startPoint), _order);
 
             IEnumerable<int> indexes = Enumerable.Range(0, data.Count());
 

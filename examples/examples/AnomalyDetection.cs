@@ -69,7 +69,7 @@ namespace examples
                 .UseRepository(metricsRepository)
                 .SaveOrAppendResult(todaysKey)
                 .AddAnomalyCheck(
-                    new RelativeRateOfChangeStrategy(2.0),
+                    new RelativeRateOfChangeStrategy(maxRateIncrease:2.0),
                     Size()
                 )
                 .Run()
