@@ -281,7 +281,7 @@ namespace deequ
             AnomalyCheckConfig anomalyCheckConfigOrDefault = anomalyCheckConfig.GetOrElse(defaultConfig);
 
 
-            var tailCheck =   new Check(anomalyCheckConfigOrDefault.Level, anomalyCheckConfigOrDefault.Description)
+            var tailCheck = new Check(anomalyCheckConfigOrDefault.Level, anomalyCheckConfigOrDefault.Description)
                 .IsNewestPointNonAnomalous<IState>(
                     metricsRepository.Value,
                     anomalyDetectionStrategy,
