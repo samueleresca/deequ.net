@@ -89,5 +89,5 @@ AnalyzerContext updatedTableMetrics = AnalysisRunner.RunOnAggregatedStates(dataS
     new[] { deStates, usStates, cnStates });
 ```
 
-An [executable version of this example](IncrementalMetrics.cs) is part of our codebase.
+An [executable version of this example](IncrementalMetrics.cs) is part of the codebase.
 
