@@ -143,7 +143,7 @@ namespace deequ.Analyzers
     }
 
 
-    public class NumMatchesAndCount : DoubleValuedState<NumMatchesAndCount>, IState
+    public class NumMatchesAndCount : DoubleValuedState<NumMatchesAndCount>
     {
         public long Count;
         public long NumMatches;
@@ -153,8 +153,6 @@ namespace deequ.Analyzers
             NumMatches = numMatches;
             Count = count;
         }
-
-        public IState Sum(IState other) => throw new NotImplementedException();
 
         public override NumMatchesAndCount Sum(NumMatchesAndCount other) =>
             new NumMatchesAndCount(NumMatches + other.NumMatches, Count + other.Count);

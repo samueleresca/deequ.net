@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public class StandardDeviationState : DoubleValuedState<StandardDeviationState>, IState
+    public class StandardDeviationState : DoubleValuedState<StandardDeviationState>
     {
         public double Avg;
         public double N;
