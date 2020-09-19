@@ -499,7 +499,7 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void should_correctly_yield_correct_results_for_basic_stats()
+        public void should_yield_correct_results_for_basic_stats()
         {
             // TODO: missing HasApproxQuantile HasCountDistinct, HasCorrelation
             Check check = new Check(CheckLevel.Error, "a description");
@@ -531,6 +531,15 @@ namespace xdeequ.tests.Checks
             AssertEvaluatesTo(hasMean, context, CheckStatus.Success);
             AssertEvaluatesTo(hasSum, context, CheckStatus.Success);
             AssertEvaluatesTo(hasStandardDeviation, context, CheckStatus.Success);
+
+            var correlationAnalysis = new Analysis().AddAnalyzer(new Correlation("att1", "att2"));
+            var contextInformative = correlationAnalysis.Run(dfInformative);
+            var contextUninformative = correlationAnalysis.Run(dfUninformative);
+
+            AssertEvaluatesTo(check.HasCorrelation("att1", "att2", _ => _ == 1.0), contextInformative, CheckStatus.Success);
+            AssertEvaluatesTo(check.HasCorrelation("att1", "att2", _ => _ == Double.NaN),
+                contextUninformative, CheckStatus.Success);
+
         }
 
         [Fact]

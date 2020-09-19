@@ -93,6 +93,9 @@ namespace deequ.Analyzers
         public static StandardDeviation StandardDeviation(string column, Option<string> where) =>
             new StandardDeviation(column, where);
 
+        public static Correlation Correlation(string columnA, string columnB, Option<string> where = default) =>
+            new Correlation(columnA, columnB, where);
+            
         public static Entropy Entropy(Option<string> column) => new Entropy(column);
 
         public static Entropy Entropy(Option<string> column, Option<string> where) => new Entropy(column, where);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using deequ.Analyzers.States;
 using deequ.Extensions;
 using deequ.Metrics;
@@ -10,13 +11,13 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    internal class Correlation : StandardScanShareableAnalyzer<CorrelationState>, IFilterableAnalyzer
+    public class Correlation : StandardScanShareableAnalyzer<CorrelationState>, IFilterableAnalyzer
     {
         private string firstCol;
         private string secondCol;
         private Option<string> where;
 
-        public Correlation(string firstCol, string secondCol, Option<string> where) : base("Correlation",
+        public Correlation(string firstCol, string secondCol, Option<string> where = default) : base("Correlation",
             $"{firstCol},{secondCol}", Entity.Multicolumn)
         {
             this.firstCol = firstCol;
@@ -75,9 +76,25 @@ namespace deequ.Analyzers
                 AnalyzersExt.HasColumn(secondCol), AnalyzersExt.IsNumeric(secondCol)
             };
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(firstCol)
+                .Append(",")
+                .Append(secondCol)
+                .Append(",")
+                .Append(where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 
-    internal class CorrelationState : DoubleValuedState<CorrelationState>
+    public class CorrelationState : DoubleValuedState<CorrelationState>
     {
 
         private double n;
@@ -104,7 +121,7 @@ namespace deequ.Analyzers
 
         public override CorrelationState Sum(CorrelationState other)
         {
-            var n1 = this.n;
+            var n1 = n;
             var n2 = other.n;
             var newN = n1 + n2;
 
