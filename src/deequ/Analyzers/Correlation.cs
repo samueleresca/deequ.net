@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using deequ.Analyzers.States;
 using deequ.Extensions;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
@@ -24,7 +24,7 @@ namespace deequ.Analyzers
             this.where = where;
         }
 
-        public Option<string> FilterCondition() => throw new NotImplementedException();
+        public Option<string> FilterCondition() => where;
 
         public override IEnumerable<Column> AggregationFunctions()
         {
@@ -32,14 +32,15 @@ namespace deequ.Analyzers
             var firstSelection = AnalyzersExt.ConditionalSelection(firstCol, where);
             var secondSelection = AnalyzersExt.ConditionalSelection(secondCol, where);
 
-
             var count = Count(firstSelection);
+            var sumX2 = Sum(firstSelection * firstSelection);
+            var sumY2 = Sum(secondSelection * secondSelection);
             var sumX = Sum(firstSelection);
             var sumY = Sum(secondSelection);
-            var meanX = sumX / count;
-            var meanY = sumY / count;
-            var correlation = Corr(firstSelection, secondSelection);
-            return Enumerable.Empty<Column>();
+            var sumXY = Sum(sumX * sumY);
+
+            //double n, double sumX, double sumY, double sumXY, double sumX2, double sumY2
+            return new[] {count, sumX, sumY, sumXY, sumX2, sumY2};
         }
 
         public override Option<CorrelationState> FromAggregationResult(Row result, int offset)
@@ -65,31 +66,55 @@ namespace deequ.Analyzers
 
             return Option<CorrelationState>.None;
         }
+
+        public override IEnumerable<Action<StructType>> AdditionalPreconditions()
+        {
+            return new[]
+            {
+                AnalyzersExt.HasColumn(firstCol), AnalyzersExt.IsNumeric(firstCol),
+                AnalyzersExt.HasColumn(secondCol), AnalyzersExt.IsNumeric(secondCol)
+            };
+        }
     }
 
     internal class CorrelationState : DoubleValuedState<CorrelationState>
     {
 
         private double n;
-        private double xAvg;
-        private double yAvg;
-        private double ck;
-        private double xMk;
-        private double yMk;
+        private double sumX;
+        private double sumX2;
+        private double sumY;
+        private double sumY2;
+        private double sumXY;
 
-        public CorrelationState(double n, double xAvg, double yAvg, double ck, double xMk, double yMk)
+        public CorrelationState(double n, double sumX, double sumY, double sumXY, double sumX2, double sumY2)
         {
             this.n = n;
-            this.xAvg = xAvg;
-            this.yAvg = yAvg;
-            this.ck = ck;
-            this.xMk = xMk;
-            this.yMk = yMk;
+            this.sumX = sumX;
+            this.sumY = sumY;
+            this.sumXY = sumXY;
+            this.sumX2 = sumX2;
+            this.sumY2 = sumY2;
         }
 
         public override double MetricValue()
         {
-            return ck / Math.Sqrt(xMk * yMk);
+            return n * sumXY - (sumX * sumY);
+        }
+
+        public override CorrelationState Sum(CorrelationState other)
+        {
+            var n1 = this.n;
+            var n2 = other.n;
+            var newN = n1 + n2;
+
+            var newSumX = sumX + other.sumX;
+            var newSumY = sumY + other.sumY;
+            var newSumXY = sumXY + other.sumXY;
+            var newSumX2 = sumX2 + other.sumX2;
+            var newSumY2 = sumY2 + other.sumY2;
+
+            return new CorrelationState(newN, newSumX, newSumY, newSumXY, newSumX2, newSumY2);
         }
     }
 }
