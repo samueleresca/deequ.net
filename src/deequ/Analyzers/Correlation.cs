@@ -113,7 +113,8 @@ namespace deequ.Analyzers
 
         public override double MetricValue()
         {
-            return n * sumXY - (sumX * sumY);
+            return (n * sumXY - (sumX * sumY)) /
+                   (Math.Sqrt(n * sumX2 - Math.Pow(sumX, 2)) * Math.Sqrt(n * sumY2 - Math.Pow(sumY, 2)));
         }
 
         public override CorrelationState Sum(CorrelationState other)
