@@ -38,10 +38,9 @@ namespace deequ.Analyzers
             var sumY2 = Sum(secondSelection * secondSelection);
             var sumX = Sum(firstSelection);
             var sumY = Sum(secondSelection);
-            var sumXY = Sum(sumX * sumY);
 
             //double n, double sumX, double sumY, double sumXY, double sumX2, double sumY2
-            return new[] {count, sumX, sumY, sumXY, sumX2, sumY2};
+            return new[] {count, sumX, sumY, sumX2, sumY2};
         }
 
         public override Option<CorrelationState> FromAggregationResult(Row result, int offset)
@@ -49,19 +48,17 @@ namespace deequ.Analyzers
             if (result[offset] == null) {
                 return Option<CorrelationState>.None;
             }
-
-            var row = result.GetAs<Row>(offset);
-            var n = row.GetAs<double>(0);
+            var n = result.GetAs<Int32>(0);
 
             if (n > 0.0)
             {
                 return new CorrelationState(
                     n,
-                    row.GetAs<double>(1),
-                    row.GetAs<double>(2),
-                    row.GetAs<double>(3),
-                    row.GetAs<double>(4),
-                    row.GetAs<double>(5)
+                    result.GetAs<Int32>(1),
+                    result.GetAs<Int32>(2),
+                    result.GetAs<Int32>(1) * result.GetAs<Int32>(2),
+                    result.GetAs<Int32>(3),
+                    result.GetAs<Int32>(4)
                 );
             }
 
