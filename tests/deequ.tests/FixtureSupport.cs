@@ -339,6 +339,73 @@ namespace xdeequ.tests
             return dfr.Json("nested-test.json");
         }
 
+        public static DataFrame GetDfWithStrongPositiveCorrelation(SparkSession session)
+        {
+            List<GenericRow> elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] { 1, 2}),
+                new GenericRow(new object[] { 2, 4}),
+                new GenericRow(new object[] { 3, 6}),
+                new GenericRow(new object[] { 4, 8}),
+                new GenericRow(new object[] { 5, 10}),
+                new GenericRow(new object[] { 6, 12})
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("att1", new IntegerType()),
+                    new StructField("att2", new IntegerType())
+                });
+
+            return session.CreateDataFrame(elements, schema);
+        }
+
+
+        public static DataFrame GetDfWithStrongNegativeCorrelation(SparkSession session)
+        {
+            List<GenericRow> elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] { 1, 12}),
+                new GenericRow(new object[] { 2, 10}),
+                new GenericRow(new object[] { 3, 8}),
+                new GenericRow(new object[] { 4, 6}),
+                new GenericRow(new object[] { 5, 4}),
+                new GenericRow(new object[] { 6, 2})
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("att1", new IntegerType()),
+                    new StructField("att2", new IntegerType())
+                });
+
+            return session.CreateDataFrame(elements, schema);
+        }
+
+        public static DataFrame GetDfWithLowCorrelation(SparkSession session)
+        {
+            List<GenericRow> elements = new List<GenericRow>
+            {
+                new GenericRow(new object[] { 12, 8}),
+                new GenericRow(new object[] { 10, 12}),
+                new GenericRow(new object[] { 8, 1}),
+                new GenericRow(new object[] { 6, 30}),
+                new GenericRow(new object[] { 4, 9}),
+                new GenericRow(new object[] { 2, 7})
+            };
+
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("att1", new IntegerType()),
+                    new StructField("att2", new IntegerType())
+                });
+
+            return session.CreateDataFrame(elements, schema);
+        }
+
         public static DataFrame DataFrameWithColumn(string name, DataType sparkDt, SparkSession session,
             GenericRow[] values) =>
             session.CreateDataFrame(values,

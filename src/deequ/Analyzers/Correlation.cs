@@ -34,13 +34,14 @@ namespace deequ.Analyzers
             var secondSelection = AnalyzersExt.ConditionalSelection(secondCol, where);
 
             var count = Count(firstSelection);
-            var sumX2 = Sum(firstSelection * firstSelection);
-            var sumY2 = Sum(secondSelection * secondSelection);
             var sumX = Sum(firstSelection);
             var sumY = Sum(secondSelection);
+            var sumXY = Sum(firstSelection * secondSelection);
+            var sumX2 = Sum(firstSelection * firstSelection);
+            var sumY2 = Sum(secondSelection * secondSelection);
 
             //double n, double sumX, double sumY, double sumXY, double sumX2, double sumY2
-            return new[] {count, sumX, sumY, sumX2, sumY2};
+            return new[] {count, sumX, sumY, sumXY, sumX2, sumY2};
         }
 
         public override Option<CorrelationState> FromAggregationResult(Row result, int offset)
@@ -56,9 +57,9 @@ namespace deequ.Analyzers
                     n,
                     result.GetAs<Int32>(1),
                     result.GetAs<Int32>(2),
-                    result.GetAs<Int32>(1) * result.GetAs<Int32>(2),
                     result.GetAs<Int32>(3),
-                    result.GetAs<Int32>(4)
+                    result.GetAs<Int32>(4),
+                    result.GetAs<Int32>(5)
                 );
             }
 
