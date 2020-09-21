@@ -486,8 +486,16 @@ namespace deequ.Constraints
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
-        ) =>
-            throw new NotImplementedException();
+        )
+        {
+            Correlation correlation = Correlation(columnA, columnB, where);
+
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(correlation, assertion,
+                    Option<Func<double, double>>.None, hint);
+
+            return new NamedConstraint(constraint, $"CorrelationConstraint({constraint})");
+        }
 
         public static IConstraint DataTypeConstraint(
             string column,

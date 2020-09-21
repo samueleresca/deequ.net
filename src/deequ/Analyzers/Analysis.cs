@@ -21,9 +21,9 @@ namespace deequ.Analyzers
             new Analysis(Analyzers.Concat(analyzers));
 
         public AnalyzerContext Run(DataFrame data,
-            Option<IStateLoader> aggregateWith,
-            Option<IStatePersister> saveStateWith,
-            StorageLevel storageLevelOfGroupedDataForMultiplePasses) =>
+            Option<IStateLoader> aggregateWith = default,
+            Option<IStatePersister> saveStateWith = default,
+            StorageLevel storageLevelOfGroupedDataForMultiplePasses = StorageLevel.MEMORY_AND_DISK) =>
             AnalysisRunner.DoAnalysisRun(
                 data,
                 Analyzers, aggregateWith, saveStateWith, storageLevelOfGroupedDataForMultiplePasses);

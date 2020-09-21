@@ -80,12 +80,18 @@ namespace xdeequ.tests.Repository
                         Initializers.Distinctness(new[] {"columnA", "columnB"}, Option<string>.None),
                         new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
-                    //TODO: Correlation
+                    {
+                        Initializers.Correlation("firstColumn", "secondColumn", "test"),
+                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", 5.0)
+                    },
                     {
                         Initializers.UniqueValueRatio(new[] {"columnA", "columnB"}, Option<string>.None),
                         new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
-                    //TODO: Correlation
+                    {
+                        Initializers.Correlation("firstColumn", "secondColumn", "test"),
+                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", 5.0)
+                    },
                     {
                         Initializers.Uniqueness(new[] {"ColumnA"}, Option<string>.None),
                         new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))

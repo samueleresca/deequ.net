@@ -499,14 +499,13 @@ namespace xdeequ.tests.Checks
         }
 
         [Fact]
-        public void should_correctly_yield_correct_results_for_basic_stats()
+        public void should_yield_correct_results_for_basic_stats()
         {
             // TODO: missing HasApproxQuantile HasCountDistinct, HasCorrelation
             Check check = new Check(CheckLevel.Error, "a description");
             DataFrame dfNumeric = FixtureSupport.GetDfWithNumericValues(_session);
             DataFrame dfInformative = FixtureSupport.GetDfWithConditionallyInformativeColumns(_session);
             DataFrame dfUninformative = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
-
             CheckWithLastConstraintFilterable hasMinimum = check.HasMin("att1", val => val == 1.0, Option<string>.None);
             CheckWithLastConstraintFilterable hasMaximum = check.HasMax("att1", val => val == 6.0, Option<string>.None);
             CheckWithLastConstraintFilterable hasMean = check.HasMean("att1", val => val == 3.5, Option<string>.None);
@@ -531,6 +530,12 @@ namespace xdeequ.tests.Checks
             AssertEvaluatesTo(hasMean, context, CheckStatus.Success);
             AssertEvaluatesTo(hasSum, context, CheckStatus.Success);
             AssertEvaluatesTo(hasStandardDeviation, context, CheckStatus.Success);
+
+            var hasCorrelation = check.HasCorrelation("att1", "att2", _ => Math.Abs(_ - 1.0) < 0.00001);
+
+            var contextInformative = RunChecks(dfInformative, hasCorrelation, Enumerable.Empty<Check>().ToArray());
+
+            AssertEvaluatesTo(hasCorrelation, contextInformative, CheckStatus.Success);
         }
 
         [Fact]
