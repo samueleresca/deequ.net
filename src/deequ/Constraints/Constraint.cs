@@ -490,9 +490,9 @@ namespace deequ.Constraints
         {
             Correlation correlation = Correlation(columnA, columnB, where);
 
-            AnalysisBasedConstraint<CorrelationState, double> constraint =
-                new AnalysisBasedConstraint<CorrelationState, double>(correlation, assertion,
-                    Option<Func<CorrelationState, double>>.None, hint);
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(correlation, assertion,
+                    Option<Func<double, double>>.None, hint);
 
             return new NamedConstraint(constraint, $"CorrelationConstraint({constraint})");
         }

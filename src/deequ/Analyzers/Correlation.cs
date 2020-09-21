@@ -92,7 +92,7 @@ namespace deequ.Analyzers
         }
     }
 
-    public class CorrelationState : DoubleValuedState<CorrelationState>
+    public class CorrelationState : DoubleValuedState<CorrelationState>, IState
     {
 
         private double n;
@@ -131,6 +131,23 @@ namespace deequ.Analyzers
             var newSumY2 = sumY2 + other.sumY2;
 
             return new CorrelationState(newN, newSumX, newSumY, newSumXY, newSumX2, newSumY2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is CorrelationState))
+            {
+                return false;
+            }
+
+            var other = (CorrelationState) obj;
+
+            return n == other.n &&
+                   sumX == other.sumX &&
+                               sumY == other.sumY &&
+                                             sumXY == other.sumXY &&
+                                                            sumX2 == other.sumX2 &&
+                                                                           sumY2 == other.sumY2;
         }
     }
 }
