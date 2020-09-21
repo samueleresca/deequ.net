@@ -41,12 +41,13 @@ namespace deequ.Analyzers
             var sumY2 = Sum(secondSelection * secondSelection);
 
             //double n, double sumX, double sumY, double sumXY, double sumX2, double sumY2
-            return new[] {count, sumX, sumY, sumXY, sumX2, sumY2};
+            return new[] { count, sumX, sumY, sumXY, sumX2, sumY2 };
         }
 
         public override Option<CorrelationState> FromAggregationResult(Row result, int offset)
         {
-            if (result[offset] == null) {
+            if (result[offset] == null)
+            {
                 return Option<CorrelationState>.None;
             }
             var n = result.GetAs<Int32>(0);
@@ -140,7 +141,7 @@ namespace deequ.Analyzers
                 return false;
             }
 
-            var other = (CorrelationState) obj;
+            var other = (CorrelationState)obj;
 
             return n == other.n &&
                    sumX == other.sumX &&
