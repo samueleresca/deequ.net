@@ -361,6 +361,38 @@ namespace xdeequ.tests
             return session.CreateDataFrame(elements, schema);
         }
 
+        public static (DataFrame, DataFrame) GetDfWithStrongPositiveCorrelationPartitioned(SparkSession session)
+        {
+            StructType schema = new StructType(
+                new List<StructField>
+                {
+                    new StructField("att1", new IntegerType()),
+                    new StructField("att2", new IntegerType())
+                });
+
+
+            List<GenericRow> first = new List<GenericRow>
+            {
+                new GenericRow(new object[] { 1, 2}),
+                new GenericRow(new object[] { 2, 4}),
+                new GenericRow(new object[] { 3, 6})
+            };
+
+
+            var firstDataframe = session.CreateDataFrame(first, schema);
+
+            List<GenericRow> second = new List<GenericRow>
+            {
+                new GenericRow(new object[] { 4, 8}),
+                new GenericRow(new object[] { 5, 10}),
+                new GenericRow(new object[] { 6, 12})
+            };
+
+            var secondDataframe = session.CreateDataFrame(second, schema);
+
+            return (firstDataframe, secondDataframe);
+        }
+
         public static DataFrame GetDfWithStrongPositiveCorrelationFilter(SparkSession session)
         {
             List<GenericRow> elements = new List<GenericRow>

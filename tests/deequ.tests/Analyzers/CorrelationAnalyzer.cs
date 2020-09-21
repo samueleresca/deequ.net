@@ -1,4 +1,6 @@
 using System.Linq;
+using deequ.Analyzers;
+using deequ.Analyzers.States;
 using deequ.Metrics;
 using Microsoft.Spark.Sql;
 using Shouldly;
@@ -101,6 +103,21 @@ namespace xdeequ.tests.Analyzers
             attCorrelation.Name.ShouldBe(expected1.Name);
             attCorrelation.Value.Failure.HasValue.ShouldBeTrue();
 
+        }
+
+        [Fact]
+        public void compute_combined_correlation_coefficient_with_a_partitioned_dataset()
+        {
+            (DataFrame dfA, DataFrame dfB) = FixtureSupport.GetDfWithStrongPositiveCorrelationPartitioned(_session);
+
+            var corrA = Correlation("att1", "att2").ComputeStateFrom(dfA);
+            var corrB = Correlation("att1", "att2").ComputeStateFrom(dfB);
+
+            var corrAB = corrA.Value.Sum(corrB.Value);
+
+            var totalCorr = Correlation("att1", "att2").ComputeStateFrom(dfA.Union(dfB));
+
+            corrAB.Equals(totalCorr.Value).ShouldBeTrue();
         }
     }
 }
