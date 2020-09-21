@@ -126,7 +126,11 @@ namespace deequ.Repository.Serde
 
             if (analyzerType == "Correlation")
             {
-                throw new NotImplementedException();
+                return new Correlation(
+                        document.RootElement.GetProperty("firstColumn").GetString(),
+                        document.RootElement.GetProperty("secondColumn").GetString(),
+                        GetOptionalWhereParam(document.RootElement)
+                        );
             }
 
             if (analyzerType == "DataType")
@@ -323,7 +327,12 @@ namespace deequ.Repository.Serde
 
             if (analyzer is Correlation correlation)
             {
-                throw new NotImplementedException();
+                writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Correlation");
+                writer.WriteString("firstColumn", correlation.firstCol);
+                writer.WriteString("secondColumn", correlation.secondCol);
+                writer.WriteString(SerdeExt.WHERE_FIELD, correlation.where.GetOrElse(string.Empty));
+                writer.WriteEndObject();
+                return;
             }
 
             if (analyzer is StandardDeviation stDev)

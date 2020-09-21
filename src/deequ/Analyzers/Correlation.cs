@@ -13,9 +13,9 @@ namespace deequ.Analyzers
 {
     public class Correlation : StandardScanShareableAnalyzer<CorrelationState>, IFilterableAnalyzer
     {
-        private string firstCol;
-        private string secondCol;
-        private Option<string> where;
+        public string firstCol;
+        public string secondCol;
+        public Option<string> where;
 
         public Correlation(string firstCol, string secondCol, Option<string> where = default) : base("Correlation",
             $"{firstCol},{secondCol}", Entity.Multicolumn)
