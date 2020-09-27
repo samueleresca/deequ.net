@@ -82,7 +82,36 @@ namespace deequ.Extensions
             return ConditionalSelectionFromColumns(selection, conditionColumn);
         }
 
-        public static bool HasColumn(StructType schema, string column) => schema.Fields.Select(field => field.Name)
+        private static string[] findNested(DataType field, string fieldName = "")
+        {
+            if (!(field is StructType structField))
+            {
+                return new []{fieldName};
+            }
+
+            return structField.Fields
+                .SelectMany(x=> findNested(x.DataType, fieldName + "." + x.Name))
+                .ToArray();
+        }
+
+        private static KeyValuePair<string, string>[] getNestedTypes(DataType field, string fieldName = "")
+        {
+            if (!(field is StructType structField))
+            {
+                return new []{new KeyValuePair<string, string>(fieldName, field.TypeName) };
+            }
+
+            return structField.Fields
+                .SelectMany(x=> getNestedTypes(x.DataType, fieldName + "." + x.Name))
+                .ToArray();
+        }
+
+        private static Dictionary<string, string> GetTypes(StructType schema)
+        {
+            return schema.Fields.SelectMany(field => getNestedTypes(field.DataType, field.Name))
+                .ToDictionary(k=>k.Key, v=>v.Value);
+        }
+        public static bool HasColumn(StructType schema, string column) => schema.Fields.SelectMany(field => findNested(field.DataType, field.Name))
             .Contains(column, StringComparer.InvariantCultureIgnoreCase);
 
         public static Action<StructType> HasColumn(string column) =>
@@ -116,9 +145,21 @@ namespace deequ.Extensions
         public static Action<StructType> IsString(string column) =>
             schema =>
             {
-                DataType columnDataType = StructField(column, schema).DataType;
+                bool hasNumericType;
+                string columnDataType;
 
-                bool hasNumericType = columnDataType.TypeName == new StringType().TypeName;
+                if (column.Contains('.'))
+                {
+                    columnDataType = GetTypes(schema)[column];
+
+                    hasNumericType = columnDataType == new StringType().TypeName;
+                }
+                else
+                {
+                    columnDataType = StructField(column, schema).DataType.TypeName;
+                    hasNumericType = columnDataType == new StringType().TypeName;
+                }
+
 
                 if (!hasNumericType)
                 {
