@@ -4,9 +4,13 @@ using deequ.Analyzers;
 using deequ.Metrics;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using Microsoft.VisualBasic.CompilerServices;
 using Shouldly;
 using Xunit;
 using static deequ.Analyzers.Initializers;
+using DoubleType = Microsoft.Spark.Sql.Types.DoubleType;
+using StringType = Microsoft.Spark.Sql.Types.StringType;
+using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.tests.Analyzers
 {
@@ -86,6 +90,18 @@ namespace xdeequ.tests.Analyzers
 
             result.Value.IsSuccess.ShouldBeTrue();
             result.Value.Get().ShouldBe(0.5);
+        }
+
+        [Fact]
+        public void match_integers_in_a_nested_column()
+        {
+            DataFrame df = FixtureSupport.GetDfWithNestedColumn(_session);
+            df.Select(Column("source.sensor-igauge.id")).Show();
+            DoubleMetric result = PatternMatch($"source.sensor-igauge.ip", new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b"))
+                .Calculate(df);
+
+            result.Value.IsSuccess.ShouldBeTrue();
+            result.Value.Get().ShouldBe(1d);
         }
 
         [Fact]
