@@ -11,39 +11,38 @@ namespace YelpAcademicDataTests
 {
     class Program
     {
-        
         static void Main(string[] args)
         {
             var environmentName = Environment.GetEnvironmentVariable("ENVIRONMENT");
-            
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
                 .AddJsonFile($"appsettings.{environmentName}.json", true)
                 .AddEnvironmentVariables();
-            
-            IConfigurationRoot configuration = builder.Build(); 
+
+            IConfigurationRoot configuration = builder.Build();
             SparkSession spark = SparkSession.Builder().GetOrCreate();
-            
+
             spark
                 .SparkContext
                 .SetLogLevel("WARN");
-            
+
             DataFrame dataReview = spark
                 .Read()
                 .Json(configuration["dataset_review"]);
            var reviewsResult = ReviewsDataTests(dataReview);
-            
+
            reviewsResult
             .CheckResultsAsDataFrame()
               .Show();
-            
+
             DataFrame dataBusiness = spark
                 .Read()
                 .Json(configuration["dataset_business"]);
 
             var businessResult = BusinessDataTests(dataBusiness);
-            
+
             businessResult
                 .CheckResultsAsDataFrame()
                 .Show();
@@ -51,7 +50,7 @@ namespace YelpAcademicDataTests
 
         private static VerificationResult ReviewsDataTests(DataFrame data)
         {
-            
+
             VerificationResult verificationResult = new VerificationSuite()
                 .OnData(data)
                 .AddCheck(
@@ -76,7 +75,7 @@ namespace YelpAcademicDataTests
             verificationResult.Debug();
             return verificationResult;
         }
-        
+
         private static VerificationResult BusinessDataTests(DataFrame data)
         {
             Regex timeMatching = new Regex("^([0-1]?[0-9]|2[0-3]):[0-5]?[0-9]|-([0-1]?[0-9]|2[0-3]):[0-5]?[0-9]$");
