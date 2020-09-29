@@ -70,6 +70,8 @@ az storage container create \
     --auth-mode login
 ```
 
+## Deploy the dataset
+
 Once we have the following information: `<storage_account>`, `<containier_name>` we can proceed by copying the files of the [Yelp dataset](https://www.kaggle.com/yelp-dataset/yelp-dataset) into the container
 using the [AzCopy CLI](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10):
 
@@ -88,9 +90,7 @@ Once the files are uploaded to Azure Storage we can proceed by creating a new `a
 }
 ```
 
-
-### Deploy the dataset
-### Deploy the solution files
+## Deploy the solution files
 
 ## Create the cluster for processing data
 
