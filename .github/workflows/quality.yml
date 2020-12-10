@@ -30,7 +30,7 @@ jobs:
                 run: chmod +x deploy/install-worker.sh && chmod +x deploy/download-spark.sh
 
             -   name: Download OpenJDK
-                uses: sormuras/download-jdk@v1
+                uses: sormuras/download-jdk@v1.1
                 with:
                     feature: 8
 
