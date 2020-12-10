@@ -28,9 +28,9 @@ jobs:
                 run: chmod +x deploy/install-worker.sh && chmod +x deploy/download-spark.sh
 
             -   name: Download OpenJDK
-                uses: sormuras/download-jdk@v1.1
+                uses: sormuras/download-jdk@v1
                 with:
-                    feature: 8
+                    feature: 15
 
             -   name: Install Apache Spark
                 run: deploy/download-spark.sh /home/runner/bin/
