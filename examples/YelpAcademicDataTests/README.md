@@ -89,7 +89,6 @@ Once the files are uploaded to Azure Storage we can proceed by creating a new `a
     "dataset_review": "wasbs://<container>@<storage_account>.blob.core.windows.net/yelp_academic_dataset_business.json"
 }
 ```
-
 ## Deploy the solution files
 
 ## Create the cluster for processing data
