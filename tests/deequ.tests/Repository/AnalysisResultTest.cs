@@ -13,6 +13,7 @@ using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
+using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 namespace xdeequ.tests.Repository
 {
@@ -51,8 +52,7 @@ namespace xdeequ.tests.Repository
             DataFrame data = FixtureSupport.GetDFFull(session);
 
             AnalyzerContext results = CreateAnalysis().Run(data, Option<IStateLoader>.None,
-                Option<IStatePersister>.None,
-                new StorageLevel());
+                Option<IStatePersister>.None);
 
             func(results);
         }
@@ -205,8 +205,7 @@ namespace xdeequ.tests.Repository
             DataFrame data = FixtureSupport.GetDFFull(_session);
             ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
 
-            AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
-                new StorageLevel());
+            AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
             DataFrame analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
                 .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
                     Enumerable.Empty<string>());
@@ -235,8 +234,7 @@ namespace xdeequ.tests.Repository
             DataFrame data = FixtureSupport.GetDFFull(_session);
             ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
 
-            AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None,
-                new StorageLevel());
+            AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
             string analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
                 .GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(),
                     Enumerable.Empty<string>());
