@@ -69,8 +69,8 @@ namespace xdeequ.tests
             {
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
-                if (!isSparkReady &&
-                    arguments.Data.Contains("Backend running debug mode"))
+                if (!isSparkReady
+                    && arguments.Data.Contains("Backend running debug mode"))
                 {
                     isSparkReady = true;
                 }
@@ -100,7 +100,7 @@ namespace xdeequ.tests
                 .Config("spark.sql.shuffle.partitions", "3")
                 .Config("spark.ui.enabled", false)
                 .Config("spark.ui.showConsoleProgress", false)
-                .AppName("Microsoft.Spark.E2ETest")
+                .AppName("deequ.NET")
                 .GetOrCreate();
 
         }
