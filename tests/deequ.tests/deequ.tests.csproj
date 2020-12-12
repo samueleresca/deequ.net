@@ -14,13 +14,24 @@
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
         <PackageReference Include="coverlet.collector" Version="1.3.0" />
-        <PackageReference Include="Microsoft.Spark" Version="0.12.1" />
-        <PackageReference Include="Microsoft.Spark.Experimental" Version="0.11.0" />
+        <PackageReference Include="Microsoft.Spark" Version="1.0.0" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="nested-test.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="microsoft-spark-3.0.x\microsoft-spark-3.0.x-1.0.0.jar">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="microsoft-spark-2.4.x\microsoft-spark-2.4.x-1.0.0.jar">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="microsoft-spark-2.3.x\microsoft-spark-2.3.x-1.0.0.jar">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\log4j.properties">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
