@@ -11,6 +11,7 @@ using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
 using Xunit;
+using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 namespace xdeequ.tests.Repository
 {
@@ -40,7 +41,7 @@ namespace xdeequ.tests.Repository
                 .AddAnalyzer(Initializers.MaxLength("att1"));
 
             AnalyzerContext analysisContext = analysis.Run(df, Option<IStateLoader>.None,
-                Option<IStatePersister>.None, new StorageLevel());
+                Option<IStatePersister>.None);
 
             long dateTime = DateTime.UtcNow.Ticks;
 

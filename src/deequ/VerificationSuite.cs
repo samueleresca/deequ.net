@@ -10,6 +10,7 @@ using deequ.Repository;
 using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
+using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 [assembly: InternalsVisibleTo("deequ.tests")]
 namespace deequ
