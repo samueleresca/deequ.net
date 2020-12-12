@@ -58,7 +58,7 @@ namespace xdeequ.tests.Constraints
 
             resultA.Status.ShouldBe(ConstraintStatus.Success);
             resultA.Message.ShouldBe(Option<string>.None);
-            resultA.Metric.ShouldNotBeNull();
+            resultA.Metric.HasValue.ShouldBeTrue();
 
 
             ConstraintResult resultB = ConstraintUtils.Calculate<NumMatches, double, double>(

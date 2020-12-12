@@ -44,7 +44,7 @@ namespace xdeequ.tests.Constraints
                     Option<string>.None), df);
 
             metric.Status.ShouldBe(ConstraintStatus.Failure);
-            metric.Message.ShouldNotBeNull();
+            metric.Message.HasValue.ShouldBeTrue();
             metric.Message.Value.StartsWith("Can't execute the assertion").ShouldBeTrue();
         }
     }
