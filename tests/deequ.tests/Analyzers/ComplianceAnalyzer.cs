@@ -41,7 +41,7 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void completeness_correctly_tostring_instances()
         {
-            Compliance("rule1", Expr("att1 > 3")).ToString().ShouldBe("Compliance(rule1,att1 > 3,None)");
+            Compliance("rule1", Expr("att1 > 3")).ToString().ShouldBe("Compliance(rule1,(att1 > 3),None)");
         }
 
         [Fact]
