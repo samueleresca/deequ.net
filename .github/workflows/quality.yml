@@ -89,7 +89,7 @@ jobs:
                 working-directory: examples/examples
 
             -   name: Execute examples project
-                run: ci-scripts/execute-examples-projects.sh Release microsoft-spark-3-0_2.12-1.0.0.jar netcoreapp3.1 /home/runner/bin/spark-2.4.4-bin-hadoop2.7/bin
+                run: ci-scripts/execute-examples-projects.sh Release microsoft-spark-2-4_2.11-1.0.0.jar netcoreapp3.1 /home/runner/bin/spark-2.4.4-bin-hadoop2.7/bin
                 working-directory: examples/examples
 
 #    tests-windows:
