@@ -13,28 +13,45 @@ using Xunit;
 namespace xdeequ.tests
 {
     /// <summary>
-    ///     SparkFixture acts as a global fixture to start Spark application in a debug
-    ///     mode through the spark-submit. It also provides a default SparkSession
-    ///     object that any tests can use.
+    /// SparkFixture acts as a global fixture to start Spark application in a debug
+    /// mode through the spark-submit. It also provides a default SparkSession
+    /// object that any tests can use.
     /// </summary>
     public sealed class SparkFixture : IDisposable
     {
-        public const string DefaultLogLevel = "ERROR";
+        /// <summary>
+        /// The names of environment variables used by the SparkFixture.
+        /// </summary>
+        public class EnvironmentVariableNames
+        {
+            /// <summary>
+            /// This environment variable specifies extra args passed to spark-submit.
+            /// </summary>
+            public const string ExtraSparkSubmitArgs =
+                "DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS";
+
+            /// <summary>
+            /// This environment variable specifies the path where the DotNet worker is installed.
+            /// </summary>
+            public const string WorkerDir = "DOTNET_WORKER_DIR";
+        }
 
         private readonly Process _process = new Process();
         private readonly TemporaryDirectory _tempDirectory = new TemporaryDirectory();
 
+        internal SparkSession Spark { get; }
 
         public SparkFixture()
         {
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
+            if (string.IsNullOrEmpty(
+                Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
             {
                 throw new Exception(
                     $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
-            BuildSparkCmd(out string filename, out string args);
+            BuildSparkCmd(out var filename, out var args);
 
             // Configure the process using the StartInfo properties.
             _process.StartInfo.FileName = filename;
@@ -81,15 +98,12 @@ namespace xdeequ.tests
                 .Builder()
                 // Lower the shuffle partitions to speed up groupBy() operations.
                 .Config("spark.sql.shuffle.partitions", "3")
-                .Config("spark.ui.enabled", true)
-                .Config("spark.ui.showConsoleProgress", true)
+                .Config("spark.ui.enabled", false)
+                .Config("spark.ui.showConsoleProgress", false)
                 .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
 
-            Spark.SparkContext.SetLogLevel(DefaultLogLevel);
         }
-
-        internal SparkSession Spark { get; }
 
         public void Dispose()
         {
@@ -122,10 +136,10 @@ namespace xdeequ.tests
 
             // Build the arguments for the spark-submit.
             string classArg = "--class org.apache.spark.deploy.dotnet.DotnetRunner";
-            string? curDir = AppDomain.CurrentDomain.BaseDirectory;
+            string curDir = AppDomain.CurrentDomain.BaseDirectory;
             string jarPrefix = GetJarPrefix();
-            string scalaDir = Path.Combine(curDir, "..", "..", "..", "scala");
-            string jarDir = Path.Combine(scalaDir, jarPrefix, "target");
+            string scalaDir = Path.Combine(curDir, "..", "..", "..");
+            string jarDir = Path.Combine(scalaDir, jarPrefix);
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");
 
@@ -138,7 +152,7 @@ namespace xdeequ.tests
                 Path.Combine(_tempDirectory.Path, "spark-warehouse")).AbsoluteUri;
             string warehouseDir = $"--conf spark.sql.warehouse.dir={warehouseUri}";
 
-            string? extraArgs = Environment.GetEnvironmentVariable(
+            string extraArgs = Environment.GetEnvironmentVariable(
                 EnvironmentVariableNames.ExtraSparkSubmitArgs) ?? "";
 
             // If there exists log4j.properties in SPARK_HOME/conf directory, Spark from 2.3.*
@@ -149,7 +163,7 @@ namespace xdeequ.tests
             // works across all Spark versions.
             string resourceUri = new Uri(TestEnvironment.ResourceDirectory).AbsoluteUri;
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
-                               $"{resourceUri}/log4j.properties";
+                $"{resourceUri}/log4j.properties";
 
             args = $"{logOption} {warehouseDir} {extraArgs} {classArg} --master local {jar} debug";
         }
@@ -158,23 +172,6 @@ namespace xdeequ.tests
         {
             Version sparkVersion = SparkSettings.Version;
             return $"microsoft-spark-{sparkVersion.Major}.{sparkVersion.Minor}.x";
-        }
-
-        /// <summary>
-        ///     The names of environment variables used by the SparkFixture.
-        /// </summary>
-        public class EnvironmentVariableNames
-        {
-            /// <summary>
-            ///     This environment variable specifies extra args passed to spark-submit.
-            /// </summary>
-            public const string ExtraSparkSubmitArgs =
-                "DOTNET_SPARKFIXTURE_EXTRA_SPARK_SUBMIT_ARGS";
-
-            /// <summary>
-            ///     This environment variable specifies the path where the DotNet worker is installed.
-            /// </summary>
-            public const string WorkerDir = "DOTNET_WORKER_DIR";
         }
     }
 

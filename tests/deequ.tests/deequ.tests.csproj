@@ -22,6 +22,15 @@
         <None Update="nested-test.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="microsoft-spark-3.0.x\microsoft-spark-3.0.x-1.0.0.jar">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="microsoft-spark-2.4.x\microsoft-spark-2.4.x-1.0.0.jar">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="microsoft-spark-2.3.x\microsoft-spark-2.3.x-1.0.0.jar">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
