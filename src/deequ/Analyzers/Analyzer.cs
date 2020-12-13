@@ -106,15 +106,15 @@ namespace deequ.Analyzers
 
     public abstract class StandardScanShareableAnalyzer<S> : ScanShareableAnalyzer<S, DoubleMetric>,
         IScanSharableAnalyzer<IState, DoubleMetric>
-        where S : DoubleValuedState<S>, IState
+        where S : DoubleValuedState<S>
     {
-        public Entity Entity = Entity.Column;
+        public MetricEntity _metricEntity = MetricEntity.Column;
 
-        public StandardScanShareableAnalyzer(string name, string instance, Entity entity)
+        public StandardScanShareableAnalyzer(string name, string instance, MetricEntity metricEntity)
         {
             Name = name;
             Instance = instance;
-            Entity = entity;
+            _metricEntity = metricEntity;
         }
 
         public string Name { get; set; }
@@ -124,7 +124,7 @@ namespace deequ.Analyzers
             AdditionalPreconditions().Concat(base.Preconditions());
 
         public override DoubleMetric ToFailureMetric(Exception e) =>
-            AnalyzersExt.MetricFromFailure(e, Name, Instance, Entity);
+            AnalyzersExt.MetricFromFailure(e, Name, Instance, _metricEntity);
 
         public virtual IEnumerable<Action<StructType>> AdditionalPreconditions() =>
             Enumerable.Empty<Action<StructType>>();
@@ -133,9 +133,9 @@ namespace deequ.Analyzers
         {
             DoubleMetric metric = state.HasValue switch
             {
-                true => AnalyzersExt.MetricFromValue(new Try<double>(state.Value.MetricValue()), Name, Instance,
-                    Entity),
-                _ => AnalyzersExt.MetricFromEmpty(this, Name, Instance, Entity)
+                true => AnalyzersExt.MetricFromValue(new Try<double>(state.Value.GetMetricValue()), Name, Instance,
+                    _metricEntity),
+                _ => AnalyzersExt.MetricFromEmpty(this, Name, Instance, _metricEntity)
             };
 
             return metric;
@@ -157,7 +157,7 @@ namespace deequ.Analyzers
         public override NumMatchesAndCount Sum(NumMatchesAndCount other) =>
             new NumMatchesAndCount(NumMatches + other.NumMatches, Count + other.Count);
 
-        public override double MetricValue()
+        public override double GetMetricValue()
         {
             if (Count == 0L)
             {
@@ -170,8 +170,8 @@ namespace deequ.Analyzers
 
     internal abstract class PredicateMatchingAnalyzer : StandardScanShareableAnalyzer<NumMatchesAndCount>
     {
-        protected PredicateMatchingAnalyzer(string name, string instance, Entity entity,
-            Column predicate, Option<string> where) : base(name, instance, entity)
+        protected PredicateMatchingAnalyzer(string name, string instance, MetricEntity metricEntity,
+            Column predicate, Option<string> where) : base(name, instance, metricEntity)
         {
             Predicate = predicate;
             Where = where;

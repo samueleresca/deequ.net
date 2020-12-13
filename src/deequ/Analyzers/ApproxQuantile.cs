@@ -13,7 +13,7 @@ namespace deequ.Analyzers
         private readonly Option<string> _where;
 
         public ApproxQuantile(string instance, string column, Option<string> where)
-            : base("ApproxCountDistinct", instance, Entity.Column)
+            : base("ApproxCountDistinct", instance, MetricEntity.Column)
         {
             _where = where;
             _column = column;

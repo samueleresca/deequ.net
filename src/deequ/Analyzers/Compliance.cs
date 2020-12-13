@@ -15,7 +15,7 @@ namespace deequ.Analyzers
         public readonly Option<string> Where;
 
         public Compliance(string instance, Column predicate, Option<string> where) : base("Compliance", instance,
-            Entity.Column)
+            MetricEntity.Column)
         {
             Where = where;
             Predicate = predicate;

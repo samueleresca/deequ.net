@@ -26,15 +26,15 @@ namespace xdeequ.tests.Analyzers
             DoubleMetric attr1 = Completeness("att1").Calculate(missing);
             DoubleMetric attr2 = Completeness("att2").Calculate(missing);
 
-            DoubleMetric expected1 = DoubleMetric.Create(Entity.Column, "Completeness", "att1", 0.5);
-            DoubleMetric expected2 = DoubleMetric.Create(Entity.Column, "Completeness", "att2", 0.75);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Completeness", "att1", 0.5);
+            DoubleMetric expected2 = DoubleMetric.Create(MetricEntity.Column, "Completeness", "att2", 0.75);
 
-            attr1.Entity.ShouldBe(expected1.Entity);
+            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
             attr1.Value.Get().ShouldBe(expected1.Value.Get());
 
-            attr2.Entity.ShouldBe(expected2.Entity);
+            attr2.MetricEntity.ShouldBe(expected2.MetricEntity);
             attr2.Instance.ShouldBe(expected2.Instance);
             attr2.Name.ShouldBe(expected2.Name);
             attr2.Value.Get().ShouldBe(expected2.Value.Get());
@@ -48,9 +48,9 @@ namespace xdeequ.tests.Analyzers
             DoubleMetric attr1 = Completeness("att1", new Option<string>("item in ('1', '2')"))
                 .Calculate(missing);
 
-            DoubleMetric expected1 = DoubleMetric.Create(Entity.Column, "Completeness", "att1", 1.0);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Completeness", "att1", 1.0);
 
-            attr1.Entity.ShouldBe(expected1.Entity);
+            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
             attr1.Value.Get().ShouldBe(expected1.Value.Get());
@@ -78,7 +78,7 @@ namespace xdeequ.tests.Analyzers
 
             DoubleMetric attr1 = Completeness("someMissingColumn").Calculate(missing);
 
-            attr1.Entity.ShouldBe(Entity.Column);
+            attr1.MetricEntity.ShouldBe(MetricEntity.Column);
             attr1.Instance.ShouldBe("someMissingColumn");
             attr1.Name.ShouldBe("Completeness");
             attr1.Value.IsSuccess.ShouldBeFalse();

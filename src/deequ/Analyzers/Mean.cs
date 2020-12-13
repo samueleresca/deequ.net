@@ -26,7 +26,7 @@ namespace deequ.Analyzers
 
         public override MeanState Sum(MeanState other) => new MeanState(_sum + other._sum, _count + other._count);
 
-        public override double MetricValue()
+        public override double GetMetricValue()
         {
             if (_count == 0L)
             {
@@ -43,7 +43,7 @@ namespace deequ.Analyzers
         public readonly Option<string> Where;
 
 
-        public Mean(string column, Option<string> where) : base("Mean", column, Entity.Column)
+        public Mean(string column, Option<string> where) : base("Mean", column, MetricEntity.Column)
         {
             Column = column;
             Where = where;

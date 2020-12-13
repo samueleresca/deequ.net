@@ -20,9 +20,9 @@ namespace xdeequ.tests.Analyzers
             DataFrame full = FixtureSupport.GetDFFull(_session);
 
             DoubleMetric actualFull = Size(Option<string>.None).Calculate(full);
-            DoubleMetric expectedFull = DoubleMetric.Create(Entity.Dataset, "Size", "*", full.Count());
+            DoubleMetric expectedFull = DoubleMetric.Create(MetricEntity.Dataset, "Size", "*", full.Count());
 
-            actualFull.Entity.ShouldBe(expectedFull.Entity);
+            actualFull.MetricEntity.ShouldBe(expectedFull.MetricEntity);
             actualFull.Name.ShouldBe(expectedFull.Name);
             actualFull.Instance.ShouldBe(expectedFull.Instance);
             actualFull.Value.Get().ShouldBe(expectedFull.Value.Get());
@@ -34,9 +34,9 @@ namespace xdeequ.tests.Analyzers
             DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
             DoubleMetric actualMissing = Size(Option<string>.None).Calculate(missing);
-            DoubleMetric expectedMissing = DoubleMetric.Create(Entity.Dataset, "Size", "*", missing.Count());
+            DoubleMetric expectedMissing = DoubleMetric.Create(MetricEntity.Dataset, "Size", "*", missing.Count());
 
-            actualMissing.Entity.ShouldBe(expectedMissing.Entity);
+            actualMissing.MetricEntity.ShouldBe(expectedMissing.MetricEntity);
             actualMissing.Name.ShouldBe(expectedMissing.Name);
             actualMissing.Instance.ShouldBe(expectedMissing.Instance);
             actualMissing.Value.Get().ShouldBe(expectedMissing.Value.Get());

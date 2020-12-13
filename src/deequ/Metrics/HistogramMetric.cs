@@ -40,22 +40,22 @@ namespace deequ.Metrics
 
 
         public HistogramMetric(string column, Try<Distribution> value)
-            : base(Entity.Column, "Histogram", column, value)
+            : base(MetricEntity.Column, "Histogram", column, value)
         {
             Column = column;
             Value = value;
         }
 
-        public override IEnumerable<DoubleMetric> Flatten()
+        public virtual IEnumerable<DoubleMetric> Flatten()
         {
             if (!Value.IsSuccess)
             {
-                return new[] { new DoubleMetric(Entity, $"{Name}.bins", Instance, new Try<double>(Value.Failure.Value)) };
+                return new[] { new DoubleMetric(MetricEntity, $"{Name}.bins", Instance, new Try<double>(Value.Failure.Value)) };
             }
 
             DoubleMetric[] numberOfBins =
             {
-                new DoubleMetric(Entity,
+                new DoubleMetric(MetricEntity,
                     $"{Name}.bins", Instance, Value.Get().NumberOfBins)
             };
 
@@ -67,8 +67,8 @@ namespace deequ.Metrics
                     (string key, DistributionValue value) = element;
                     return new[]
                     {
-                        new DoubleMetric(Entity, $"{Name}.abs.{key}", Instance, value.Absolute),
-                        new DoubleMetric(Entity, $"{Name}.ratio.{key}", Instance, value.Ratio)
+                        new DoubleMetric(MetricEntity, $"{Name}.abs.{key}", Instance, value.Absolute),
+                        new DoubleMetric(MetricEntity, $"{Name}.ratio.{key}", Instance, value.Ratio)
                     };
                 });
 

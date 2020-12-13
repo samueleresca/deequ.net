@@ -61,7 +61,7 @@ namespace xdeequ.tests
                 {
                     {
                         new Size(Option<string>.None),
-                        new DoubleMetric(Entity.Column, "", "", Try<double>.From(() => i))
+                        new DoubleMetric(MetricEntity.Column, "", "", Try<double>.From(() => i))
                     }
                 });
 
@@ -75,7 +75,7 @@ namespace xdeequ.tests
                 {
                     {
                         new Size(Option<string>.None),
-                        new DoubleMetric(Entity.Column, "", "", Try<double>.From(() => i))
+                        new DoubleMetric(MetricEntity.Column, "", "", Try<double>.From(() => i))
                     }
                 });
 
@@ -208,7 +208,7 @@ namespace xdeequ.tests
                 {
                     {
                         new Size(Option<string>.None),
-                        new DoubleMetric(Entity.Dataset, "", "", Try<double>.From(() => 100.0))
+                        new DoubleMetric(MetricEntity.Dataset, "", "", Try<double>.From(() => 100.0))
                     }
                 });
 
@@ -421,11 +421,11 @@ namespace xdeequ.tests
 
             statePersister.Verify(statePersister => statePersister.Persist(
                     It.Is<Option<IAnalyzer<IMetric>>>(analyzer => analyzer.Value.ToString() == analyzers.First().ToString()),
-                    It.Is<Option<SumState>>(state => state.Value.MetricValue() == 18)), Times.AtLeastOnce);
+                    It.Is<Option<SumState>>(state => state.Value.GetMetricValue() == 18)), Times.AtLeastOnce);
 
             statePersister.Verify(statePerister => statePerister.Persist(
                 It.Is<Option<IAnalyzer<IMetric>>>(analyzer => analyzer.Value.ToString() == analyzers.Skip(1).First().ToString()),
-                It.Is<Option<NumMatchesAndCount>>(analyzer => analyzer.Value.MetricValue() == 6 / 6)), Times.AtLeastOnce);
+                It.Is<Option<NumMatchesAndCount>>(analyzer => analyzer.Value.GetMetricValue() == 6 / 6)), Times.AtLeastOnce);
         }
 
         [Fact]

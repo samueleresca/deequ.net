@@ -17,7 +17,7 @@ namespace deequ.Repository.Serde
             if (metricName == "DoubleMetric")
             {
                 return new DoubleMetric(
-                    (Entity)Enum.Parse(typeof(Entity), document.RootElement.GetProperty("entity").GetString()),
+                    (MetricEntity)Enum.Parse(typeof(MetricEntity), document.RootElement.GetProperty("entity").GetString()),
                     document.RootElement.GetProperty("name").GetString(),
                     document.RootElement.GetProperty("instance").GetString(),
                     document.RootElement.GetProperty("value").GetDouble()
@@ -48,7 +48,7 @@ namespace deequ.Repository.Serde
                 }
 
                 writer.WriteString("metricName", "DoubleMetric");
-                writer.WriteString("entity", Enum.GetName(typeof(Entity), dm.Entity));
+                writer.WriteString("entity", Enum.GetName(typeof(MetricEntity), dm.MetricEntity));
                 writer.WriteString("instance", dm.Instance);
                 writer.WriteString("name", dm.Name);
                 writer.WriteNumber("value", dm.Value.GetOrElse(() => 0D).Get());

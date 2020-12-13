@@ -18,7 +18,7 @@ namespace deequ.Analyzers
         public Option<string> where;
 
         public Correlation(string firstCol, string secondCol, Option<string> where = default) : base("Correlation",
-            $"{firstCol},{secondCol}", Entity.Multicolumn)
+            $"{firstCol},{secondCol}", MetricEntity.Multicolumn)
         {
             this.firstCol = firstCol;
             this.secondCol = secondCol;
@@ -93,7 +93,7 @@ namespace deequ.Analyzers
         }
     }
 
-    public class CorrelationState : DoubleValuedState<CorrelationState>, IState
+    public class CorrelationState : DoubleValuedState<CorrelationState>
     {
 
         private double n;
@@ -113,7 +113,7 @@ namespace deequ.Analyzers
             this.sumY2 = sumY2;
         }
 
-        public override double MetricValue()
+        public override double GetMetricValue()
         {
             return (n * sumXY - (sumX * sumY)) /
                    (Math.Sqrt(n * sumX2 - Math.Pow(sumX, 2)) * Math.Sqrt(n * sumY2 - Math.Pow(sumY, 2)));

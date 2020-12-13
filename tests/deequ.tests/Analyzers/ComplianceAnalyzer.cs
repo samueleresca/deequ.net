@@ -24,15 +24,15 @@ namespace xdeequ.tests.Analyzers
             DoubleMetric attr1 = Compliance("rule1", Expr("att1 > 3")).Calculate(df);
             DoubleMetric attr2 = Compliance("rule2", Expr("att1 > 2")).Calculate(df);
 
-            DoubleMetric expected1 = DoubleMetric.Create(Entity.Column, "Compliance", "rule1", 3.0 / 6);
-            DoubleMetric expected2 = DoubleMetric.Create(Entity.Column, "Compliance", "rule2", 4.0 / 6);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Compliance", "rule1", 3.0 / 6);
+            DoubleMetric expected2 = DoubleMetric.Create(MetricEntity.Column, "Compliance", "rule2", 4.0 / 6);
 
-            attr1.Entity.ShouldBe(expected1.Entity);
+            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
             attr1.Value.Get().ShouldBe(expected1.Value.Get());
 
-            attr2.Entity.ShouldBe(expected2.Entity);
+            attr2.MetricEntity.ShouldBe(expected2.MetricEntity);
             attr2.Instance.ShouldBe(expected2.Instance);
             attr2.Name.ShouldBe(expected2.Name);
             attr2.Value.Get().ShouldBe(expected2.Value.Get());
@@ -52,9 +52,9 @@ namespace xdeequ.tests.Analyzers
             DoubleMetric attr1 = Compliance("rule1", Expr("att2 = 0"),
                 new Option<string>("att1 < 4")).Calculate(df);
 
-            DoubleMetric expected1 = DoubleMetric.Create(Entity.Column, "Compliance", "rule1", 1.0);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Compliance", "rule1", 1.0);
 
-            attr1.Entity.ShouldBe(expected1.Entity);
+            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
             attr1.Value.Get().ShouldBe(expected1.Value.Get());
@@ -67,9 +67,9 @@ namespace xdeequ.tests.Analyzers
 
             DoubleMetric attr1 = Compliance("rule1", Expr("attNoSuchColumn > 3")).Calculate(df);
 
-            DoubleMetric expected1 = DoubleMetric.Create(Entity.Column, "Compliance", "rule1", 1.0);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Compliance", "rule1", 1.0);
 
-            attr1.Entity.ShouldBe(expected1.Entity);
+            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
             attr1.Value.IsSuccess.ShouldBeFalse();

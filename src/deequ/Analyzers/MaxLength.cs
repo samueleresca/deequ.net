@@ -16,7 +16,7 @@ namespace deequ.Analyzers
         public readonly Option<string> Where;
 
         public MaxLength(string column, Option<string> where)
-            : base("MaxLength", column, Entity.Column)
+            : base("MaxLength", column, MetricEntity.Column)
         {
             Column = column;
             Where = where;

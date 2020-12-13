@@ -25,7 +25,7 @@ namespace deequ.Analyzers
 
         public override SumState Sum(SumState other) => new SumState(_sum + other._sum);
 
-        public override double MetricValue() => _sum;
+        public override double GetMetricValue() => _sum;
     }
 
     public sealed class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
@@ -33,7 +33,7 @@ namespace deequ.Analyzers
         public readonly string Column;
         public readonly Option<string> Where;
 
-        public Sum(string column, Option<string> where) : base("Sum", column, Entity.Column)
+        public Sum(string column, Option<string> where) : base("Sum", column, MetricEntity.Column)
         {
             Column = column;
             Where = where;

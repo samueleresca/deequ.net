@@ -94,7 +94,7 @@ namespace deequ.Analyzers.Runners
         }
 
         private static DoubleMetric RenameMetric(DoubleMetric doubleMetric, string newName) =>
-            new DoubleMetric(doubleMetric.Entity, newName, doubleMetric.Instance, doubleMetric.Value);
+            new DoubleMetric(doubleMetric.MetricEntity, newName, doubleMetric.Instance, doubleMetric.Value);
 
         public override bool Equals(object obj)
         {

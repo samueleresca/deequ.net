@@ -42,10 +42,10 @@ namespace xdeequ.tests.Repository
                 {
                     {
                         Initializers.Size(Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Size", "*", Try<double>.From(() => 5.0))
+                        new DoubleMetric(MetricEntity.Column, "Size", "*", Try<double>.From(() => 5.0))
                     },
                     {
-                        Initializers.Completeness("ColumnA"), new DoubleMetric(Entity.Column, "Completeness", "ColumnA",
+                        Initializers.Completeness("ColumnA"), new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA",
                             Try<double>.From(() => throw sampleException))
                     }
                 });
@@ -68,37 +68,37 @@ namespace xdeequ.tests.Repository
                 {
                     {
                         Initializers.Size(Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Size", "*", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Size", "*", new Try<double>(5.0))
                     },
                     {
                         Initializers.Completeness("ColumnA"),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     //TODO: ApproxCountDistinct
                     //TODO: CountDistinct
                     {
                         Initializers.Distinctness(new[] {"columnA", "columnB"}, Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.Correlation("firstColumn", "secondColumn", "test"),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", 5.0)
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", 5.0)
                     },
                     {
                         Initializers.UniqueValueRatio(new[] {"columnA", "columnB"}, Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.Correlation("firstColumn", "secondColumn", "test"),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", 5.0)
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", 5.0)
                     },
                     {
                         Initializers.Uniqueness(new[] {"ColumnA"}, Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.Uniqueness(new[] {"ColumnA", "ColumnB"}, Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.Histogram("ColumnA"), new HistogramMetric("ColumnA", new Try<Distribution>(
@@ -125,43 +125,43 @@ namespace xdeequ.tests.Repository
                     },
                     {
                         Initializers.Entropy("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.MutualInformation(new[] {"ColumnA", "ColumnB"}, Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.Minimum("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.Maximum("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.Mean("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.Sum("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.StandardDeviation("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.DataType("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.MinLength("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "MinLength", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "MinLength", "ColumnA", new Try<double>(5.0))
                     },
                     {
                         Initializers.MaxLength("ColumnA", Option<string>.None),
-                        new DoubleMetric(Entity.Column, "MaxLength", "ColumnA", new Try<double>(5.0))
+                        new DoubleMetric(MetricEntity.Column, "MaxLength", "ColumnA", new Try<double>(5.0))
                     }
                 });
 

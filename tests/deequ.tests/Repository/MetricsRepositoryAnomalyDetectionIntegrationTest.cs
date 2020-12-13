@@ -96,14 +96,14 @@ namespace xdeequ.tests.Repository
             {
                 var pastResultsEU = new Dictionary<IAnalyzer<IMetric>, IMetric>
                 {
-                    {Initializers.Size(), new DoubleMetric(Entity.Dataset, "*", "Size", Math.Floor(pastDay / 3.0))},
-                    {Initializers.Mean("sales"), new DoubleMetric(Entity.Column, "sales", "Mean", pastDay * 7)}
+                    {Initializers.Size(), new DoubleMetric(MetricEntity.Dataset, "*", "Size", Math.Floor(pastDay / 3.0))},
+                    {Initializers.Mean("sales"), new DoubleMetric(MetricEntity.Column, "sales", "Mean", pastDay * 7)}
                 };
 
                 var pastResultsNA = new Dictionary<IAnalyzer<IMetric>, IMetric>
                 {
-                    {Initializers.Size(), new DoubleMetric(Entity.Dataset, "*", "Size", pastDay)},
-                    {Initializers.Mean("sales"), new DoubleMetric(Entity.Column, "sales", "Mean", pastDay * 9)}
+                    {Initializers.Size(), new DoubleMetric(MetricEntity.Dataset, "*", "Size", pastDay)},
+                    {Initializers.Mean("sales"), new DoubleMetric(MetricEntity.Column, "sales", "Mean", pastDay * 9)}
                 };
 
                 var analyzerContextEU = new AnalyzerContext(pastResultsEU);

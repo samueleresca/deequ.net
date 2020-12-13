@@ -15,7 +15,7 @@ namespace deequ.Analyzers
         public string Column;
         public Option<string> Where;
 
-        public MinLength(string column, Option<string> where) : base("MinLength", column, Entity.Column)
+        public MinLength(string column, Option<string> where) : base("MinLength", column, MetricEntity.Column)
         {
             Column = column;
             Where = where;

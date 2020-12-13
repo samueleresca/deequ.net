@@ -25,7 +25,7 @@ namespace deequ.Analyzers
 
         public override MaxState Sum(MaxState other) => new MaxState(Math.Max(_maxValue, other._maxValue));
 
-        public override double MetricValue() => _maxValue;
+        public override double GetMetricValue() => _maxValue;
     }
 
     public sealed class Maximum : StandardScanShareableAnalyzer<MaxState>, IFilterableAnalyzer
@@ -33,7 +33,7 @@ namespace deequ.Analyzers
         public readonly string Column;
         public readonly Option<string> Where;
 
-        public Maximum(string column, Option<string> where) : base("Maximum", column, Entity.Column)
+        public Maximum(string column, Option<string> where) : base("Maximum", column, MetricEntity.Column)
         {
             Column = column;
             Where = where;

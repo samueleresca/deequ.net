@@ -73,8 +73,8 @@ namespace deequ.Extensions
         }
 
         public static DoubleMetric MetricFromValue(Try<double> value, string name, string instance,
-            Entity entity = Entity.Column) =>
-            DoubleMetric.Create(entity, name, instance, value.Get());
+            MetricEntity metricEntity = MetricEntity.Column) =>
+            DoubleMetric.Create(metricEntity, name, instance, value.Get());
 
         public static Column ConditionalSelection(Column selection, Option<string> condition)
         {
@@ -212,16 +212,16 @@ namespace deequ.Extensions
         }
 
         public static DoubleMetric MetricFromFailure(Exception exception, string name, string instance,
-            Entity entity = Entity.Column) =>
-            DoubleMetric.Create(entity, name, instance,
+            MetricEntity metricEntity = MetricEntity.Column) =>
+            DoubleMetric.Create(metricEntity, name, instance,
                 new Try<double>(ExceptionExt.WrapIfNecessary(exception)));
 
         public static DoubleMetric MetricFromEmpty<S, T>(Analyzer<S, T> analyzer, string name, string instance,
-            Entity entity = Entity.Column) where S : State<S>, IState where T : IMetric
+            MetricEntity metricEntity = MetricEntity.Column) where S : State<S>, IState where T : IMetric
         {
             EmptyStateException emptyState =
                 new EmptyStateException($"Empty state for analyzer {analyzer}, all input values were NULL.");
-            return DoubleMetric.Create(entity, name, instance,
+            return DoubleMetric.Create(metricEntity, name, instance,
                 new Try<double>(ExceptionExt.WrapIfNecessary(emptyState)));
         }
 
@@ -267,7 +267,7 @@ namespace deequ.Extensions
                 })
             }.AsEnumerable();
 
-        public static Entity EntityFrom(IEnumerable<string> enumerable) =>
-            enumerable.Count() == 1 ? Entity.Column : Entity.Multicolumn;
+        public static MetricEntity EntityFrom(IEnumerable<string> enumerable) =>
+            enumerable.Count() == 1 ? MetricEntity.Column : MetricEntity.Multicolumn;
     }
 }

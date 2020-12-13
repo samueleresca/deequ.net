@@ -19,7 +19,7 @@ namespace deequ.Analyzers
         public readonly Option<string> Where;
 
         public PatternMatch(string column, Regex regex, Option<string> where)
-            : base("PatternMatch", column, Entity.Column)
+            : base("PatternMatch", column, MetricEntity.Column)
         {
             Regex = regex;
             Column = column;

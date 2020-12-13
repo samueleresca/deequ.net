@@ -25,14 +25,14 @@ namespace deequ.Analyzers
 
         public override NumMatches Sum(NumMatches other) => new NumMatches(numMatches + other.numMatches);
 
-        public override double MetricValue() => numMatches;
+        public override double GetMetricValue() => numMatches;
     }
 
     public sealed class Size : StandardScanShareableAnalyzer<NumMatches>, IFilterableAnalyzer
     {
         public readonly Option<string> Where;
 
-        public Size(Option<string> where) : base("Size", "*", Entity.Dataset) => Where = where;
+        public Size(Option<string> where) : base("Size", "*", MetricEntity.Dataset) => Where = where;
 
         public Option<string> FilterCondition() => Where;
 
