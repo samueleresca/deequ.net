@@ -160,7 +160,7 @@ namespace deequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions() =>
             new[] { AnalyzersExt.ConditionalSelection(Column, Where) };
 
-        public override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
+        protected override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => { return DataTypeHistogram.FromArray(result.Values.Select(value => (int)value).ToArray()); });
 

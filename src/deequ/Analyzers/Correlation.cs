@@ -44,7 +44,7 @@ namespace deequ.Analyzers
             return new[] { count, sumX, sumY, sumXY, sumX2, sumY2 };
         }
 
-        public override Option<CorrelationState> FromAggregationResult(Row result, int offset)
+        protected override Option<CorrelationState> FromAggregationResult(Row result, int offset)
         {
             if (result[offset] == null)
             {

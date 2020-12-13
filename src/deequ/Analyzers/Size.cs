@@ -39,7 +39,7 @@ namespace deequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions() =>
             new[] { AnalyzersExt.ConditionalCount(Where) }.AsEnumerable();
 
-        public override Option<NumMatches> FromAggregationResult(Row result, int offset) =>
+        protected override Option<NumMatches> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatches(result.GetAs<int>(offset)));
 

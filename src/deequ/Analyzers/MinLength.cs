@@ -28,7 +28,7 @@ namespace deequ.Analyzers
             Min(Length(AnalyzersExt.ConditionalSelection(Column, Where))).Cast("double")
         };
 
-        public override Option<MinState> FromAggregationResult(Row result, int offset) =>
+        protected override Option<MinState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>

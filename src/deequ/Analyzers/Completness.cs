@@ -30,7 +30,7 @@ namespace deequ.Analyzers
 
         public Option<string> FilterCondition() => Where;
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+        protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
                     result.GetAs<int>(offset),

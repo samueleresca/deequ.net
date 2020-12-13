@@ -24,7 +24,7 @@ namespace deequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions() => new[] { ApproxCountDistinct(_column) };
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+        protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             throw new NotImplementedException();
 
         public override string ToString()

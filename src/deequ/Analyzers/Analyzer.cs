@@ -12,12 +12,33 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
+    /// <summary>
+    /// A abstract class that represents all the analyzers which generates metrics from states computed on data frames.
+    /// </summary>
+    /// <typeparam name="S">The input <see cref="State{T}"/> of the analyzer.</typeparam>
+    /// <typeparam name="M">The output <see cref="Metric{T}"/> of the analyzer.</typeparam>
     public abstract class Analyzer<S, M> : IAnalyzer<M> where S : State<S> where M : IMetric
     {
+        /// <summary>
+        /// Wraps an <see cref="Exception"/> in an <see cref="IMetric"/> instance.
+        /// </summary>
+        /// <param name="e">The <see cref="Exception"/> to wrap into a metric</param>
+        /// <returns>The <see cref="Metric{T}"/> instance.</returns>
         public abstract M ToFailureMetric(Exception e);
 
+        /// <summary>
+        /// A set of assertions that must hold on the schema of the data frame.
+        /// </summary>
+        /// <returns>The list of preconditions.</returns>
         public virtual IEnumerable<Action<StructType>> Preconditions() => Enumerable.Empty<Action<StructType>>();
 
+        /// <summary>
+        /// Runs preconditions, calculates and returns the metric
+        /// </summary>
+        /// <param name="data">The <see cref="DataFrame"/> being analyzed.</param>
+        /// <param name="aggregateWith">The <see cref="IStateLoader"/> for previous states to include in the computation.</param>
+        /// <param name="saveStateWith">The <see cref="IStatePersister"/>loader for previous states to include in the computation. </param>
+        /// <returns>Returns the failure <see cref="Metric{T}"/> in case of the preconditions fail.</returns>
         public virtual M Calculate(DataFrame data, Option<IStateLoader> aggregateWith = default, Option<IStatePersister> saveStateWith = default)
         {
             try
@@ -36,7 +57,14 @@ namespace deequ.Analyzers
             }
         }
 
-        public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
+        /// <summary>
+        /// Aggregates two states loaded by the state loader and saves the resulting aggregation using the target state
+        /// persister.
+        /// </summary>
+        /// <param name="sourceA">The first state to load <see cref="IStateLoader"/></param>
+        /// <param name="sourceB">The second state to load <see cref="IStateLoader"/></param>
+        /// <param name="target">The target persister <see cref="IStatePersister"/></param>
+        private void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
         {
             Option<S> maybeStateA = sourceA.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this));
             Option<S> maybeStateB = sourceB.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this));
@@ -52,15 +80,43 @@ namespace deequ.Analyzers
             target.Persist(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this), new Option<S>(aggregated));
         }
 
+        /// <summary>
+        /// Load the <see cref="State{T}"/> from a <see cref="IStateLoader"/> and compute the <see cref="Metric{T}"/>
+        /// </summary>
+        /// <param name="source">The <see cref="IStateLoader"/>.</param>
+        /// <returns>Returns the computed <see cref="Metric{T}"/>.</returns>
         public M LoadStateAndComputeMetric(IStateLoader source) =>
             ComputeMetricFrom(source.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this)));
 
+        /// <summary>
+        /// Copy the state from source to target.
+        /// </summary>
+        /// <param name="source">The <see cref="IStateLoader"/> to read from.</param>
+        /// <param name="target">The <see cref="IStatePersister"/> to write to.</param>
         public void CopyStateTo(IStateLoader source, IStatePersister target) =>
             target.Persist(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this), source.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this)));
 
+        /// <summary>
+        /// Compute the state (sufficient statistics) from the data.
+        /// </summary>
+        /// <param name="dataFrame">The <see cref="DataFrame"/> to compute state from.</param>
+        /// <returns>The computed <see cref="State{T}"/>.</returns>
         public abstract Option<S> ComputeStateFrom(DataFrame dataFrame);
+
+        /// <summary>
+        /// Compute the metric from the state (sufficient statistics)
+        /// </summary>
+        /// <param name="state">The <see cref="State{T}"/> to compute metrics from.</param>
+        /// <returns>The computed <see cref="Metric{T}"/>.</returns>
         public abstract M ComputeMetricFrom(Option<S> state);
 
+        /// <summary>
+        /// Calculate a <see cref="Metric{T}"/> from a <see cref="State{T}"/>
+        /// </summary>
+        /// <param name="state">The <see cref="State{T}"/> to compute metrics from.</param>
+        /// <param name="aggregateWith">The <see cref="IStateLoader"/> for previous states to include in the computation.</param>
+        /// <param name="saveStateWith">The <see cref="IStatePersister"/>loader for previous states to include in the computation. </param>
+        /// <returns></returns>
         public M CalculateMetric(Option<S> state, Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStateWith)
         {
@@ -78,11 +134,28 @@ namespace deequ.Analyzers
         }
     }
 
+    /// <summary>
+    /// An analyzer that runs a set of aggregation functions over the data, can share scans over the data.
+    /// </summary>
+    /// <typeparam name="S">The input <see cref="State{T}"/> of the analyzer.</typeparam>
+    /// <typeparam name="M">The output <see cref="Metric{T}"/> of the analyzer.</typeparam>
     public abstract class ScanShareableAnalyzer<S, M> : Analyzer<S, M>, IScanSharableAnalyzer<S, M>
         where S : State<S>, IState where M : IMetric
     {
+        /// <summary>
+        /// Defines the aggregations to compute on the data.
+        /// </summary>
+        /// <returns>The <see cref="IEnumerable{T}"/> of type <see cref="Column"/> containing the aggregation function.</returns>
         public abstract IEnumerable<Column> AggregationFunctions();
 
+        /// <summary>
+        /// Computes the state from the result of the aggregation functions and calculate the <see cref="Metric{T}"/>.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="offset"></param>
+        /// <param name="aggregateWith"></param>
+        /// <param name="saveStatesWith"></param>
+        /// <returns>Returns the computed <see cref="Metric{M}"/>.</returns>
         public M MetricFromAggregationResult(Row result, int offset, Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStatesWith)
         {
@@ -90,8 +163,15 @@ namespace deequ.Analyzers
             return CalculateMetric(state, aggregateWith, saveStatesWith);
         }
 
-        public abstract Option<S> FromAggregationResult(Row result, int offset);
+        /// <summary>
+        /// Computes the state from the result of the aggregation functions.
+        /// </summary>
+        /// <param name="result">The result of the aggregation function as a data frame <see cref="Row"/>.</param>
+        /// <param name="offset">The offset of the cell containing the aggregation function.</param>
+        /// <returns>Returns the resulting <see cref="State{T}"/>.</returns>
+        protected abstract Option<S> FromAggregationResult(Row result, int offset);
 
+        /// <inheritdoc cref="Analyzer{S,M}.ComputeStateFrom"/>
         public override Option<S> ComputeStateFrom(DataFrame dataFrame)
         {
             IEnumerable<Column> aggregations = AggregationFunctions();
@@ -103,13 +183,31 @@ namespace deequ.Analyzers
             return FromAggregationResult(result, 0);
         }
     }
-
+    /// <summary>
+    /// A scan-shareable analyzer that produces a <see cref="DoubleMetric"/> instance.
+    /// </summary>
+    /// <typeparam name="S">The input <see cref="DoubleValuedState{S}"/> of the analyzer.</typeparam>
     public abstract class StandardScanShareableAnalyzer<S> : ScanShareableAnalyzer<S, DoubleMetric>,
         IScanSharableAnalyzer<IState, DoubleMetric>
         where S : DoubleValuedState<S>
     {
-        public MetricEntity _metricEntity = MetricEntity.Column;
+        /// <summary>
+        /// The <see cref="MetricEntity"/> that represents the analyzer.
+        /// </summary>
+        private readonly MetricEntity _metricEntity = MetricEntity.Column;
 
+        /// <inheritdoc cref="IMetric.Name"/>
+        public string Name { get; }
+
+        /// <inheritdoc cref="IMetric.Instance"/>
+        public string Instance { get; }
+
+        /// <summary>
+        /// Initializes a new instance of type <see cref="StandardScanShareableAnalyzer{S}"/>.
+        /// </summary>
+        /// <param name="name">The name of the metric.</param>
+        /// <param name="instance">The instance of the metric.</param>
+        /// <param name="metricEntity">The entity type of the metric <see cref="MetricEntity"/></param>
         public StandardScanShareableAnalyzer(string name, string instance, MetricEntity metricEntity)
         {
             Name = name;
@@ -117,18 +215,22 @@ namespace deequ.Analyzers
             _metricEntity = metricEntity;
         }
 
-        public string Name { get; set; }
-        public string Instance { get; set; }
-
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.Preconditions"/>
         public override IEnumerable<Action<StructType>> Preconditions() =>
             AdditionalPreconditions().Concat(base.Preconditions());
 
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ToFailureMetric"/>
         public override DoubleMetric ToFailureMetric(Exception e) =>
             AnalyzersExt.MetricFromFailure(e, Name, Instance, _metricEntity);
 
+        /// <summary>
+        /// A set of additional assertions that must hold on the schema of the data frame.
+        /// </summary>
+        /// <returns>The list of preconditions.</returns>
         public virtual IEnumerable<Action<StructType>> AdditionalPreconditions() =>
             Enumerable.Empty<Action<StructType>>();
 
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ComputeMetricFrom"/>
         public override DoubleMetric ComputeMetricFrom(Option<S> state)
         {
             DoubleMetric metric = state.HasValue switch
@@ -142,21 +244,37 @@ namespace deequ.Analyzers
         }
     }
 
-
+    /// <summary>
+    /// A state for computing ratio-based metrics, contains a N rows that match a predicate on overall of TOT rows.
+    /// </summary>
     public class NumMatchesAndCount : DoubleValuedState<NumMatchesAndCount>
     {
+        /// <summary>
+        /// Total number of rows.
+        /// </summary>
         public long Count;
+
+        /// <summary>
+        /// Total number of matches.
+        /// </summary>
         public long NumMatches;
 
+        /// <summary>
+        /// Initializes a new instance of type <see cref="NumMatchesAndCount"/>.
+        /// </summary>
+        /// <param name="numMatches">Total number of matches.</param>
+        /// <param name="count">Total number of rows.</param>
         public NumMatchesAndCount(long numMatches, long count)
         {
             NumMatches = numMatches;
             Count = count;
         }
 
+        /// <inheritdoc cref="DoubleValuedState{S}.Sum"/>
         public override NumMatchesAndCount Sum(NumMatchesAndCount other) =>
             new NumMatchesAndCount(NumMatches + other.NumMatches, Count + other.Count);
 
+        /// <inheritdoc cref="DoubleValuedState{S}.GetMetricValue"/>
         public override double GetMetricValue()
         {
             if (Count == 0L)
@@ -166,6 +284,35 @@ namespace deequ.Analyzers
 
             return (double)NumMatches / Count;
         }
+    }
+
+    /// <summary>
+    /// Base class for analyzers that require to group the data by specific columns.
+    /// </summary>
+    /// <typeparam name="S">The input <see cref="State{T}"/> of the analyzer.</typeparam>
+    /// <typeparam name="M">The output <see cref="Metric{T}"/> of the analyzer.</typeparam>
+    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupingAnalyzer<M> where S : State<S> where M : IMetric
+    {
+        /// <inheritdoc cref="IGroupingAnalyzer{M}.GroupingColumns"/>
+        public abstract IEnumerable<string> GroupingColumns();
+
+        /// <inheritdoc cref="Analyzer{S,M}.Preconditions"/>
+        public override IEnumerable<Action<StructType>> Preconditions() =>
+            GroupingColumns().Select(HasColumn).Concat(base.Preconditions());
+
+        /// <summary>
+        /// Checks if a schema has a specific column name.
+        /// </summary>
+        /// <param name="column">The name of the column to verify.</param>
+        /// <returns>A callback asserting the presence of the column in the schema.</returns>
+        public static Action<StructType> HasColumn(string column) =>
+            schema =>
+            {
+                if (!AnalyzersExt.HasColumn(schema, column))
+                {
+                    throw new Exception("Input data does not include column!");
+                }
+            };
     }
 
     internal abstract class PredicateMatchingAnalyzer : StandardScanShareableAnalyzer<NumMatchesAndCount>
@@ -180,7 +327,7 @@ namespace deequ.Analyzers
         public Column Predicate { get; }
         public Option<string> Where { get; }
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
+        protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {
             if (result[offset] == null || result[offset + 1] == null)
             {
@@ -198,21 +345,5 @@ namespace deequ.Analyzers
         }
     }
 
-    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupingAnalyzer<M> where S : State<S> where M : IMetric
-    {
-        public abstract IEnumerable<string> GroupingColumns();
 
-        public override IEnumerable<Action<StructType>> Preconditions() =>
-            GroupingColumns().Select(HasColumn).Concat(base.Preconditions());
-
-
-        public static Action<StructType> HasColumn(string column) =>
-            schema =>
-            {
-                if (!AnalyzersExt.HasColumn(schema, column))
-                {
-                    throw new Exception("Input data does not include column!");
-                }
-            };
-    }
 }

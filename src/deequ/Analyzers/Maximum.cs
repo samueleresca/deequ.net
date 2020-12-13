@@ -45,7 +45,7 @@ namespace deequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions() =>
             new[] { Max(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
 
-        public override Option<MaxState> FromAggregationResult(Row result, int offset) =>
+        protected override Option<MaxState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>

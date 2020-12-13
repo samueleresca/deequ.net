@@ -58,7 +58,7 @@ namespace deequ.Analyzers
                 Count(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("long")
             };
 
-        public override Option<MeanState> FromAggregationResult(Row result, int offset) =>
+        protected override Option<MeanState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new MeanState((double)result.Get(offset),
                     (int)result.Get(offset + 1)), 2);

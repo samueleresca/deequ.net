@@ -8,6 +8,7 @@ namespace deequ.Analyzers.States
     public interface IState
     {
     }
+
     /// <summary>
     /// Represents a generic State.
     /// </summary>

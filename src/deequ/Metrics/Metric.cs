@@ -67,16 +67,16 @@ namespace deequ.Metrics
         /// </summary>
         public MetricEntity MetricEntity { get; }
 
-        /// <inheritdoc cref="Name"/>
+        /// <inheritdoc cref="IMetric.Name"/>
         public string Name { get; }
 
-        /// <inheritdoc cref="Instance"/>
+        /// <inheritdoc cref="IMetric.Instance"/>
         public string Instance { get; }
 
-        /// <inheritdoc cref="IsSuccess"/>
+        /// <inheritdoc cref="IMetric.IsSuccess"/>
         public bool IsSuccess() => Value.IsSuccess;
 
-        /// <inheritdoc cref="Exception"/>
+        /// <inheritdoc cref="IMetric.Exception"/>
         public Option<Exception> Exception() => Value.Failure;
 
         /// <summary>

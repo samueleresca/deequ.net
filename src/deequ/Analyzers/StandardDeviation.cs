@@ -60,7 +60,7 @@ namespace deequ.Analyzers
             return new[] { Struct(Count(col), Avg(col), StddevPop(col)) };
         }
 
-        public override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
+        protected override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
         {
             if (result[offset] == null)
             {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using deequ.Analyzers.States;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Sql;
@@ -8,30 +9,34 @@ using Microsoft.Spark.Sql.Types;
 namespace deequ.Analyzers
 {
     /// <summary>
-    /// Common interface for all analyzers which generates metrics from states computed on data frames
+    /// A abstract class that represents all the analyzers which generates metrics from states computed on data frames.
     /// </summary>
-    /// <typeparam name="M">The metric associated with the analyzer <see cref="IMetric"/></typeparam>
+    /// <typeparam name="S">The input <see cref="State{T}"/> of the analyzer.</typeparam>
+    /// <typeparam name="M">The output <see cref="Metric{T}"/> of the analyzer.</typeparam>
     public interface IAnalyzer<out M> where M : IMetric
     {
         /// <summary>
-        /// Runs the preconditions, calculation and returns the metric resulting from the analyzer.
+        /// Runs preconditions, calculates and returns the metric
         /// </summary>
-        /// <param name="data">The data to run the calculation on</param>
-        /// <param name="aggregateWith">The provider to load the previously computed state that can be combined with the current dataset</param>
-        /// <param name="saveStateWith">The provider to save the state of the computation.</param>
-        /// <returns></returns>
+        /// <param name="data">The <see cref="DataFrame"/> being analyzed.</param>
+        /// <param name="aggregateWith">The <see cref="IStateLoader"/> for previous states to include in the computation.</param>
+        /// <param name="saveStateWith">The <see cref="IStatePersister"/>loader for previous states to include in the computation. </param>
+        /// <returns>Returns the failure <see cref="Metric{T}"/> in case of the preconditions fail.</returns>
         M Calculate(DataFrame data, Option<IStateLoader> aggregateWith = default, Option<IStatePersister> saveStateWith = default);
+
         /// <summary>
-        /// A set of assertions that must hold on the schema of the data frame
+        /// A set of assertions that must hold on the schema of the data frame.
         /// </summary>
-        /// <returns>The list of preconditions</returns>
+        /// <returns>The list of preconditions.</returns>
         IEnumerable<Action<StructType>> Preconditions();
+
         /// <summary>
-        /// A method that wraps the exception into a metric instance <see cref="IMetric"/>
+        /// Wraps an <see cref="Exception"/> in an <see cref="IMetric"/> instance.
         /// </summary>
-        /// <param name="e">The exception to wrap.</param>
-        /// <returns></returns>
+        /// <param name="e">The <see cref="Exception"/> to wrap into a metric</param>
+        /// <returns>The <see cref="Metric{T}"/> instance.</returns>
         M ToFailureMetric(Exception e);
+
         /// <summary>
         /// Aggregates two states loaded by the state loader and saves the resulting aggregation using the target state
         /// persister.
@@ -39,18 +44,23 @@ namespace deequ.Analyzers
         /// <param name="sourceA">The first state to load <see cref="IStateLoader"/></param>
         /// <param name="sourceB">The second state to load <see cref="IStateLoader"/></param>
         /// <param name="target">The target persister <see cref="IStatePersister"/></param>
-        void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target);
+        private void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
-        /// Load the state and returns the computed metric.
+        /// Load the <see cref="State{T}"/> from a <see cref="IStateLoader"/> and compute the <see cref="Metric{T}"/>
         /// </summary>
-        /// <param name="source">The state loader <see cref="IStateLoader"/></param>
-        /// <returns>The resulting metric</returns>
+        /// <param name="source">The <see cref="IStateLoader"/>.</param>
+        /// <returns>Returns the computed <see cref="Metric{T}"/>.</returns>
         M LoadStateAndComputeMetric(IStateLoader source);
+
         /// <summary>
-        /// Copy and persist the state from a loader.
+        /// Copy the state from source to target.
         /// </summary>
-        /// <param name="source">The loader to use <see cref="IStateLoader"/></param>
-        /// <param name="target">The persister to use <see cref="IStatePersister"/></param>
+        /// <param name="source">The <see cref="IStateLoader"/> to read from.</param>
+        /// <param name="target">The <see cref="IStatePersister"/> to write to.</param>
         void CopyStateTo(IStateLoader source, IStatePersister target);
     }
 }

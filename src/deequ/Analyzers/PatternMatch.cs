@@ -40,7 +40,7 @@ namespace deequ.Analyzers
             return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
         }
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+        protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
                     (int)result.Get(offset), (int)result.Get(offset + 1)), 2);
