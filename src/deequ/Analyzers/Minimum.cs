@@ -25,7 +25,7 @@ namespace deequ.Analyzers
 
         public override MinState Sum(MinState other) => new MinState(Math.Min(_minValue, other._minValue));
 
-        public override double MetricValue() => _minValue;
+        public override double GetMetricValue() => _minValue;
     }
 
     public class Minimum : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
@@ -34,7 +34,7 @@ namespace deequ.Analyzers
         public readonly Option<string> Where;
 
 
-        public Minimum(string column, Option<string> where) : base("Minimum", column, Entity.Column)
+        public Minimum(string column, Option<string> where) : base("Minimum", column, MetricEntity.Column)
         {
             Column = column;
             Where = where;
@@ -46,7 +46,7 @@ namespace deequ.Analyzers
         public override IEnumerable<Column> AggregationFunctions() =>
             new[] { Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
 
-        public override Option<MinState> FromAggregationResult(Row result, int offset) =>
+        protected override Option<MinState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>

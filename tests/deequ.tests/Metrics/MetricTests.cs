@@ -16,14 +16,14 @@ namespace xdeequ.tests.Metrics
         public void DoubleMetric_should_flatten_and_return_itself()
         {
             DoubleMetric metric =
-                new DoubleMetric(Entity.Column, "metric-name", "instance-name", Try<double>.From(() => 50));
+                new DoubleMetric(MetricEntity.Column, "metric-name", "instance-name", Try<double>.From(() => 50));
             metric.Flatten().ShouldBe(new List<DoubleMetric> { metric });
         }
 
         [Fact]
         public void DoubleMetric_should_flatten_in_case_of_error()
         {
-            DoubleMetric metric = new DoubleMetric(Entity.Column, "metric-name", "instance-name",
+            DoubleMetric metric = new DoubleMetric(MetricEntity.Column, "metric-name", "instance-name",
                 Try<double>.From(() => throw sampleException));
             metric.Flatten().ShouldBe(new List<DoubleMetric> { metric });
         }
@@ -35,7 +35,7 @@ namespace xdeequ.tests.Metrics
                 new HistogramMetric("instance-name", Try<Distribution>.From(() => throw sampleException));
             List<DoubleMetric> expected = new List<DoubleMetric>
             {
-                new DoubleMetric(Entity.Column, "Histogram.bins", "instance-name",
+                new DoubleMetric(MetricEntity.Column, "Histogram.bins", "instance-name",
                     Try<double>.From(() => throw sampleException))
             };
             metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.bins").ShouldBeTrue();
@@ -59,11 +59,11 @@ namespace xdeequ.tests.Metrics
 
             List<DoubleMetric> expected = new List<DoubleMetric>
             {
-                new DoubleMetric(Entity.Column, "Histogram.bins", "instance-name", Try<double>.From(() => 2)),
-                new DoubleMetric(Entity.Column, "Histogram.abs.a", "instance-name", Try<double>.From(() => 6)),
-                new DoubleMetric(Entity.Column, "Histogram.abs.b", "instance-name", Try<double>.From(() => 4)),
-                new DoubleMetric(Entity.Column, "Histogram.ratio.a", "instance-name", Try<double>.From(() => .6)),
-                new DoubleMetric(Entity.Column, "Histogram.ratio.b", "instance-name", Try<double>.From(() => .4))
+                new DoubleMetric(MetricEntity.Column, "Histogram.bins", "instance-name", Try<double>.From(() => 2)),
+                new DoubleMetric(MetricEntity.Column, "Histogram.abs.a", "instance-name", Try<double>.From(() => 6)),
+                new DoubleMetric(MetricEntity.Column, "Histogram.abs.b", "instance-name", Try<double>.From(() => 4)),
+                new DoubleMetric(MetricEntity.Column, "Histogram.ratio.a", "instance-name", Try<double>.From(() => .6)),
+                new DoubleMetric(MetricEntity.Column, "Histogram.ratio.b", "instance-name", Try<double>.From(() => .4))
             };
 
             metric.Flatten().Any(flattenMetric => flattenMetric.Name == "Histogram.bins").ShouldBeTrue();

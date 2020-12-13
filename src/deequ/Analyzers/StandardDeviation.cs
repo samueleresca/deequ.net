@@ -37,7 +37,7 @@ namespace deequ.Analyzers
                 Math.Sqrt(Math.Exp(StdDevPop) + Math.Exp(other.StdDevPop)));
         }
 
-        public override double MetricValue() => StdDevPop;
+        public override double GetMetricValue() => StdDevPop;
     }
 
     public sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
@@ -45,7 +45,7 @@ namespace deequ.Analyzers
         public readonly string Column;
         public readonly Option<string> Where;
 
-        public StandardDeviation(string column, Option<string> where) : base("StandardDeviation", column, Entity.Column)
+        public StandardDeviation(string column, Option<string> where) : base("StandardDeviation", column, MetricEntity.Column)
         {
             Column = column;
             Where = where;
@@ -60,7 +60,7 @@ namespace deequ.Analyzers
             return new[] { Struct(Count(col), Avg(col), StddevPop(col)) };
         }
 
-        public override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
+        protected override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
         {
             if (result[offset] == null)
             {

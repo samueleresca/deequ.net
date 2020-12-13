@@ -29,11 +29,11 @@ namespace xdeequ.tests.Constraints
                 return 1.0;
             });
 
-            return new DoubleMetric(Entity.Column, "sample", _column, valueTry);
+            return new DoubleMetric(MetricEntity.Column, "sample", _column, valueTry);
         }
 
         public override DoubleMetric ToFailureMetric(Exception e) =>
-            new DoubleMetric(Entity.Column, "sample", _column, new Try<double>(e));
+            new DoubleMetric(MetricEntity.Column, "sample", _column, new Try<double>(e));
 
         public override Option<NumMatches> ComputeStateFrom(DataFrame dataFrame) => throw new NotImplementedException();
 

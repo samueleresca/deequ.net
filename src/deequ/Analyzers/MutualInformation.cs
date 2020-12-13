@@ -35,7 +35,7 @@ namespace deequ.Analyzers
 
         public override DoubleMetric ToFailureMetric(Exception e) =>
             AnalyzersExt.MetricFromFailure(e, "MutualInformation", string.Join(',', Columns),
-                Entity.Multicolumn);
+                MetricEntity.Multicolumn);
 
 
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
@@ -43,7 +43,7 @@ namespace deequ.Analyzers
             if (!state.HasValue)
             {
                 return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", string.Join(',', Columns),
-                    Entity.Multicolumn);
+                    MetricEntity.Multicolumn);
             }
 
             long total = state.Value.NumRows;
@@ -84,12 +84,12 @@ namespace deequ.Analyzers
             if (resultRow[0] == null)
             {
                 return AnalyzersExt.MetricFromEmpty(this, "MutualInformation", string.Join(',', Columns),
-                    Entity.Multicolumn);
+                    MetricEntity.Multicolumn);
             }
 
             return AnalyzersExt.MetricFromValue(resultRow.GetAs<double>(0), "MutualInformation",
                 string.Join(',', Columns),
-                Entity.Multicolumn);
+                MetricEntity.Multicolumn);
         }
 
         public override string ToString()

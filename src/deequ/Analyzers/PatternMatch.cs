@@ -19,7 +19,7 @@ namespace deequ.Analyzers
         public readonly Option<string> Where;
 
         public PatternMatch(string column, Regex regex, Option<string> where)
-            : base("PatternMatch", column, Entity.Column)
+            : base("PatternMatch", column, MetricEntity.Column)
         {
             Regex = regex;
             Column = column;
@@ -40,7 +40,7 @@ namespace deequ.Analyzers
             return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
         }
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+        protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
                     (int)result.Get(offset), (int)result.Get(offset + 1)), 2);

@@ -16,13 +16,13 @@ namespace deequ.Analyzers
         public readonly Option<string> Where;
 
         public Completeness(Option<string> column, Option<string> where) : base("Completeness", column.Value,
-            Entity.Column)
+            MetricEntity.Column)
         {
             Column = column;
             Where = where;
         }
 
-        public Completeness(Option<string> column) : base("Completeness", column.Value, Entity.Column)
+        public Completeness(Option<string> column) : base("Completeness", column.Value, MetricEntity.Column)
         {
             Column = column;
             Where = Option<string>.None;
@@ -30,7 +30,7 @@ namespace deequ.Analyzers
 
         public Option<string> FilterCondition() => Where;
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+        protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
                     result.GetAs<int>(offset),

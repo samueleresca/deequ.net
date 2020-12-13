@@ -14,7 +14,7 @@ namespace deequ.Analyzers
         private readonly Option<string> _where;
 
         public ApproxCountDistinct(string instance, string column, Option<string> where)
-            : base("ApproxCountDistinct", instance, Entity.Column)
+            : base("ApproxCountDistinct", instance, MetricEntity.Column)
         {
             _where = where;
             _column = column;
@@ -24,7 +24,7 @@ namespace deequ.Analyzers
 
         public override IEnumerable<Column> AggregationFunctions() => new[] { ApproxCountDistinct(_column) };
 
-        public override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
+        protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             throw new NotImplementedException();
 
         public override string ToString()

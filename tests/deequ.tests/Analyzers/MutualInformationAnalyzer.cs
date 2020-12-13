@@ -23,10 +23,10 @@ namespace xdeequ.tests.Analyzers
 
             DoubleMetric attr1 = MutualInformation(new[] { "att1", "att2" }).Calculate(complete);
             DoubleMetric expected1 = DoubleMetric
-                .Create(Entity.Multicolumn, "MutualInformation", "att1,att2",
+                .Create(MetricEntity.Multicolumn, "MutualInformation", "att1,att2",
                     -(0.75 * Math.Log(0.75) + 0.25 * Math.Log(0.25)));
 
-            attr1.Entity.ShouldBe(expected1.Entity);
+            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
             attr1.Value.Get().ShouldBe(expected1.Value.Get());

@@ -314,10 +314,10 @@ namespace xdeequ.tests.Repository.Memory
             {
                 {
                     Initializers.Size(Option<string>.None),
-                    new DoubleMetric(Entity.Column, "Size", "*", Try<double>.From(() => 5.0))
+                    new DoubleMetric(MetricEntity.Column, "Size", "*", Try<double>.From(() => 5.0))
                 },
                 {
-                    Initializers.Completeness("ColumnA"), new DoubleMetric(Entity.Column, "Completeness", "ColumnA",
+                    Initializers.Completeness("ColumnA"), new DoubleMetric(MetricEntity.Column, "Completeness", "ColumnA",
                         Try<double>.From(() => throw new Exception("error")))
                 }
             };
