@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{3A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "example", "examples\example\example.csproj", "{30BEAF2B-E11E-4EC5-9DF8-70E8EB386164}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yelpacademicdatatests", "examples\yelpacademicdatatest\yelpacademicdatatests.csproj", "{0F8D4759-EA7F-453E-9289-F0BF3E6AB0A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yelpacademicdatatests", "examples\yelpacademicdatatests\yelpacademicdatatests.csproj", "{0F8D4759-EA7F-453E-9289-F0BF3E6AB0A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
