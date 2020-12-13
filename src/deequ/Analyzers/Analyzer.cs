@@ -64,7 +64,7 @@ namespace deequ.Analyzers
         /// <param name="sourceA">The first state to load <see cref="IStateLoader"/></param>
         /// <param name="sourceB">The second state to load <see cref="IStateLoader"/></param>
         /// <param name="target">The target persister <see cref="IStatePersister"/></param>
-        private void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
+        public void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
         {
             Option<S> maybeStateA = sourceA.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this));
             Option<S> maybeStateB = sourceB.Load<S>(new Option<IAnalyzer<IMetric>>((IAnalyzer<IMetric>)this));
