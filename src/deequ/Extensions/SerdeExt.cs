@@ -42,7 +42,6 @@ namespace deequ.Extensions
             serializeOptions.Converters.Add(new DistributionSerializer());
             serializeOptions.Converters.Add(new SimpleResultSerializer());
 
-            serializeOptions.Encoder = JavaScriptEncoder.Default;
             serializeOptions.WriteIndented = true;
 
             return serializeOptions;

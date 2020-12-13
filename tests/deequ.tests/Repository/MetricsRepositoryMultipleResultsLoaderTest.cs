@@ -14,6 +14,7 @@ using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
+using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 namespace xdeequ.tests.Repository
 {
@@ -59,7 +60,7 @@ namespace xdeequ.tests.Repository
             DataFrame data = FixtureSupport.GetDFFull(session);
 
             AnalyzerContext results = CreateAnalysis()
-                .Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None, new StorageLevel());
+                .Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
 
             InMemoryMetricsRepository repository = new InMemoryMetricsRepository();
 
