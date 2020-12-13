@@ -44,10 +44,7 @@ namespace deequ.Analyzers
         /// <param name="sourceA">The first state to load <see cref="IStateLoader"/></param>
         /// <param name="sourceB">The second state to load <see cref="IStateLoader"/></param>
         /// <param name="target">The target persister <see cref="IStatePersister"/></param>
-        private void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target)
-        {
-            throw new NotImplementedException();
-        }
+        void AggregateStateTo(IStateLoader sourceA, IStateLoader sourceB, IStatePersister target);
 
         /// <summary>
         /// Load the <see cref="State{T}"/> from a <see cref="IStateLoader"/> and compute the <see cref="Metric{T}"/>
