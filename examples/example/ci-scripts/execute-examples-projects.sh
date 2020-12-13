@@ -20,4 +20,4 @@ cd bin/$PROJECT_CONFIG/$DOTNET_ALIAS/
     --class org.apache.spark.deploy.dotnet.DotnetRunner \
     --master local \
     $SPARK_RUNNER \
-    dotnet examples.dll
+    dotnet example.dll
