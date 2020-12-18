@@ -62,7 +62,7 @@ namespace deequ.Repository.Serde
                 }
 
                 writer.WriteString("metricName", "HistogramMetric");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, hm.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, hm.Column.GetOrElse(string.Empty));
                 writer.WriteString("numberOfBins", hm.Value.Get().NumberOfBins.ToString());
                 writer.WritePropertyName("value");
                 JsonSerializer.Serialize(writer, hm.Value.GetOrElse(null).Get(), options);

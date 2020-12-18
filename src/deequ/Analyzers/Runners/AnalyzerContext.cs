@@ -93,7 +93,7 @@ namespace deequ.Analyzers.Runners
             return filter.Select(filter => $"{name} (where: {filter} )").GetOrElse(name);
         }
 
-        private static DoubleMetric RenameMetric(DoubleMetric doubleMetric, string newName) =>
+        private static DoubleMetric RenameMetric(Metric<double> doubleMetric, string newName) =>
             new DoubleMetric(doubleMetric.MetricEntity, newName, doubleMetric.Instance, doubleMetric.Value);
 
         public override bool Equals(object obj)

@@ -314,7 +314,7 @@ namespace deequ.Repository.Serde
             if (analyzer is DataType dataType)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "DataType");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, dataType.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, dataType.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, dataType.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;

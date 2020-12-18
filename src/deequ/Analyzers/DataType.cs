@@ -118,7 +118,7 @@ namespace deequ.Analyzers
 
 
         public override HistogramMetric ToFailureMetric(Exception e) =>
-            new HistogramMetric(Column, new Try<Distribution>(e));
+            new HistogramMetric(Column.Value, new Try<Distribution>(e));
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
             new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) }.Concat(base.Preconditions());
@@ -131,7 +131,7 @@ namespace deequ.Analyzers
                 return ToFailureMetric(new EmptyStateException(string.Empty));
             }
 
-            return new HistogramMetric(Column, new Try<Distribution>(DataTypeHistogram.ToDistribution(state.Value)));
+            return new HistogramMetric(Column.Value, new Try<Distribution>(DataTypeHistogram.ToDistribution(state.Value)));
         }
 
         public override Option<DataTypeHistogram> ComputeStateFrom(DataFrame dataFrame)
