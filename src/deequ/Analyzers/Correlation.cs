@@ -108,6 +108,9 @@ namespace deequ.Analyzers
         }
     }
 
+    /// <summary>
+    /// Describes the correlation state.
+    /// </summary>
     public class CorrelationState : DoubleValuedState<CorrelationState>
     {
 
@@ -118,6 +121,16 @@ namespace deequ.Analyzers
         private double sumY2;
         private double sumXY;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CorrelationState"/> class.
+        /// </summary>
+        /// <param name="n">Number of records.</param>
+        /// <param name="sumX">Sum of the first column.</param>
+        /// <param name="sumY">Sum of the second column.</param>
+        /// <param name="sumXY">Sum of the multiplication between the columns.</param>
+        /// <param name="sumX2">Sum of each value of the first column ^2.</param>
+        /// <param name="sumY2">Sum of each value of the second column ^2.</param>
         public CorrelationState(double n, double sumX, double sumY, double sumXY, double sumX2, double sumY2)
         {
             this.n = n;
@@ -128,12 +141,14 @@ namespace deequ.Analyzers
             this.sumY2 = sumY2;
         }
 
+        /// <inheritdoc cref="DoubleValuedState{S}.GetMetricValue"/>
         public override double GetMetricValue()
         {
             return (n * sumXY - (sumX * sumY)) /
                    (Math.Sqrt(n * sumX2 - Math.Pow(sumX, 2)) * Math.Sqrt(n * sumY2 - Math.Pow(sumY, 2)));
         }
 
+        /// <inheritdoc cref="State{T}.Sum"/>
         public override CorrelationState Sum(CorrelationState other)
         {
             double n1 = n;
@@ -149,6 +164,11 @@ namespace deequ.Analyzers
             return new CorrelationState(newN, newSumX, newSumY, newSumXY, newSumX2, newSumY2);
         }
 
+        /// <summary>
+        /// Overrides the equality between objects.
+        /// </summary>
+        /// <param name="obj">The object to compare.</param>
+        /// <returns>true if the objects are equals, otherwise false.</returns>
         public override bool Equals(object obj)
         {
             if (!(obj is CorrelationState))

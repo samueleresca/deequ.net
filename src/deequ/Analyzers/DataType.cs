@@ -14,6 +14,9 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
+    /// <summary>
+    /// Data type instances
+    /// </summary>
     internal enum DataTypeInstances
     {
         Unknown = 0,
@@ -22,6 +25,7 @@ namespace deequ.Analyzers
         Boolean = 3,
         String = 4
     }
+
 
     public class DataTypeHistogram : State<DataTypeHistogram>
     {
@@ -101,18 +105,17 @@ namespace deequ.Analyzers
         }
     }
 
+    /// <summary>
+    /// Data type analyzers, analyzes the data type of the target column.
+    /// </summary>
     public sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
     {
-        public readonly string Column;
-        public readonly Option<string> Where;
-
         public DataType(string column, Option<string> where)
         {
             Column = column;
             Where = where;
         }
 
-        public Option<string> FilterCondition() => Where;
 
         public override HistogramMetric ToFailureMetric(Exception e) =>
             new HistogramMetric(Column, new Try<Distribution>(e));
