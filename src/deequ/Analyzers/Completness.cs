@@ -28,7 +28,7 @@ namespace deequ.Analyzers
         /// Initializes a new instance of the <see cref="Completeness"/> class.
         /// </summary>
         /// <param name="column">The target column name.</param>
-        public Completeness(Option<string> column) : base("Completeness", column.Value, MetricEntity.Column)
+        public Completeness(Option<string> column) : base("Completeness", column.Value, MetricEntity.Column, column.Value)
         {
         }
 
