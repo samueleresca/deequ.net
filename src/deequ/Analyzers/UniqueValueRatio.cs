@@ -11,19 +11,12 @@ namespace deequ.Analyzers
 {
     public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
     {
-        public readonly Option<string> Where;
-        public IEnumerable<string> Columns;
-
-        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base("UniqueValueRatio", columns)
+        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base("UniqueValueRatio", columns, where)
         {
-            Columns = columns;
-            Where = where;
         }
 
         public UniqueValueRatio(IEnumerable<string> columns) : base("UniqueValueRatio", columns)
         {
-            Columns = columns;
-            Where = Option<string>.None;
         }
 
         public Option<string> FilterCondition() => Where;
@@ -39,22 +32,6 @@ namespace deequ.Analyzers
             int numDistinctValues = (int)result[offset + 1];
 
             return ToSuccessMetric(numUniqueValues / numDistinctValues);
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append("List(")
-                .Append(string.Join(",", Columns))
-                .Append(")")
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
         }
     }
 }

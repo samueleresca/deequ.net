@@ -231,18 +231,22 @@ namespace deequ.Analyzers
         /// </summary>
         private readonly MetricEntity _metricEntity;
 
-        /// <inheritdoc cref="IMetric.Name"/>
+        /// <summary>
+        /// The name of the analyzer.
+        /// </summary>
         public string Name { get; }
 
-        /// <inheritdoc cref="IMetric.Instance"/>
+        /// <summary>
+        /// A string representing the instance of the analyzer.
+        /// </summary>
         public string Instance { get; }
 
         /// <summary>
         /// Initializes a new instance of type <see cref="StandardScanShareableAnalyzer{S}"/>.
         /// </summary>
-        /// <param name="name">The name of the metric.</param>
+        /// <param name="name">The name of the analyzer.</param>
         /// <param name="instance">The instance of the metric.</param>
-        /// <param name="metricEntity">The entity type of the metric <see cref="MetricEntity"/></param>
+        /// <param name="metricEntity">A string representing the instance of the analyzer.</param>
         protected StandardScanShareableAnalyzer(string name, string instance, MetricEntity metricEntity)
         {
             Name = name;
@@ -346,6 +350,33 @@ namespace deequ.Analyzers
     /// <typeparam name="M">The output <see cref="Metric{T}"/> of the analyzer.</typeparam>
     public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupingAnalyzer<M> where S : State<S> where M : IMetric
     {
+        /// <summary>
+        /// The name of the grouping analyzer.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The target column names subject to the grouping.
+        /// </summary>
+        public IEnumerable<string> Columns { get; protected set; }
+        /// <summary>
+        /// A where clause to filter only some values in a column <see cref="Expr"/>.
+        /// </summary>
+        public Option<string> Where { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of type <see cref="GroupingAnalyzer{S,M}"/> class.
+        /// </summary>
+        /// <param name="name">The name of the grouping analyzer.</param>
+        /// <param name="columns">The target column names subject to the grouping.</param>
+        /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
+        protected GroupingAnalyzer(string name, IEnumerable<string> columns, Option<string> where)
+        {
+            Name = name;
+            Columns = columns;
+            Where = where;
+        }
+
         /// <inheritdoc cref="IGroupingAnalyzer{M}.GroupingColumns"/>
         public abstract IEnumerable<string> GroupingColumns();
 
@@ -370,15 +401,14 @@ namespace deequ.Analyzers
 
     internal abstract class PredicateMatchingAnalyzer : StandardScanShareableAnalyzer<NumMatchesAndCount>
     {
+        public Column Predicate { get; }
+
         protected PredicateMatchingAnalyzer(string name, string instance, MetricEntity metricEntity,
             Column predicate, Option<string> where) : base(name, instance, metricEntity)
         {
             Predicate = predicate;
             Where = where;
         }
-
-        public Column Predicate { get; }
-        public Option<string> Where { get; }
 
         protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset)
         {

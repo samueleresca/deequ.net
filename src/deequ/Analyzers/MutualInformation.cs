@@ -14,19 +14,14 @@ namespace deequ.Analyzers
 {
     public sealed class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
     {
-        public readonly IEnumerable<string> Columns;
-        public readonly Option<string> Where;
-
-        public MutualInformation(IEnumerable<string> columnsToGroupOn, Option<string> where) :
-            base("MutualInformation", columnsToGroupOn)
+        public MutualInformation(IEnumerable<string> columns, Option<string> where) :
+            base("MutualInformation", columns, where)
         {
-            Columns = columnsToGroupOn;
-            Where = where;
         }
 
-        public MutualInformation(IEnumerable<string> columnsToGroupOn) :
-            base("MutualInformation", columnsToGroupOn) =>
-            Columns = columnsToGroupOn;
+        public MutualInformation(IEnumerable<string> columns) :
+            base("MutualInformation", columns) =>
+            Columns = columns;
 
         public Option<string> FilterCondition() => Where;
 
