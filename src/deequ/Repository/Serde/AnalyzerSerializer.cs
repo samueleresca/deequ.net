@@ -267,7 +267,7 @@ namespace deequ.Repository.Serde
             if (analyzer is Entropy entropy)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Entropy");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, entropy.Column.GetOrElse(string.Empty));
+                writer.WriteString(SerdeExt.COLUMN_FIELD, entropy.Columns.First());
                 writer.WriteEndObject();
                 return;
             }

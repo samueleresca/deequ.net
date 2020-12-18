@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using deequ.Extensions;
-using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Sql;
 using static Microsoft.Spark.Sql.Functions;
@@ -11,29 +10,30 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public sealed class Entropy : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
+    /// <summary>
+    /// Entropy is a measure of the level of information contained in a message. Given the probability
+    /// distribution over values in a column, it describes how many bits are required to identify a value.
+    /// </summary>
+    public sealed class Entropy : ScanShareableFrequencyBasedAnalyzer
     {
-        public readonly Option<string> Column;
-        public readonly Option<string> Where;
-
+        /// <summary>
+        /// Initializes a new instance of type <see cref="Entropy"/> class.
+        /// </summary>
+        /// <param name="column">The target column names subject to the grouping.</param>
+        /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
         public Entropy(Option<string> column, Option<string> where) : base("Entropy",
-            new[] { column.Value }.AsEnumerable())
+            new[] { column.Value }.AsEnumerable(), where)
         {
-            Column = column;
-            Where = where;
         }
-
+        /// <summary>
+        /// Initializes a new instance of type <see cref="Entropy"/> class.
+        /// </summary>
+        /// <param name="column">The target column names subject to the grouping.</param>
         public Entropy(Option<string> column) : base("Entropy", new[] { column.Value }.AsEnumerable())
         {
-            Column = column;
-            Where = Option<string>.None;
         }
 
-        public Option<string> FilterCondition() => Where;
-
-        public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
-
-
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions(long numRows)
         {
             Func<Column, Column> summands = Udf<double, double>(count =>
@@ -49,13 +49,14 @@ namespace deequ.Analyzers
             return new[] { Sum(summands(Col(AnalyzersExt.COUNT_COL).Cast("double"))) };
         }
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ToString"/>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb
                 .Append(GetType().Name)
                 .Append("(")
-                .Append(Column)
+                .Append(Columns.First())
                 .Append(",")
                 .Append(Where.GetOrElse("None"))
                 .Append(")");

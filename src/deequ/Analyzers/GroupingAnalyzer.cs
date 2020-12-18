@@ -12,15 +12,26 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
+    /// <summary>
+    /// Base class for all analyzers that compute a (shareable) aggregation over the grouped data.
+    /// </summary>
     public abstract class ScanShareableFrequencyBasedAnalyzer : FrequencyBasedAnalyzer
     {
+        /// <summary>
+        /// Initializes a new instance of type <see cref="ScanShareableFrequencyBasedAnalyzer"/> class.
+        /// </summary>
+        /// <param name="name">The name of the grouping analyzer.</param>
+        /// <param name="columns">The target column names subject to the grouping.</param>
+        /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
         protected ScanShareableFrequencyBasedAnalyzer(string name, IEnumerable<string> columns, Option<string> where = default)
             : base(name, columns, where)
         {
         }
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
         public abstract IEnumerable<Column> AggregationFunctions(long numRows);
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ComputeMetricFrom"/>
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)
@@ -39,14 +50,25 @@ namespace deequ.Analyzers
             return FromAggregationResult(result, 0);
         }
 
+        /// <summary>
+        /// Converts a value to a <see cref="DoubleMetric"/>.
+        /// </summary>
+        /// <param name="value">The value to convert into <see cref="DoubleMetric"/>.</param>
+        /// <returns>The instance of type <see cref="DoubleMetric"/> that represents the value.</returns>
         protected DoubleMetric ToSuccessMetric(double value) =>
             AnalyzersExt.MetricFromValue(value, Name, string.Join(',', Columns),
                 AnalyzersExt.EntityFrom(Columns));
 
+        /// <summary>
+        /// Converts an <see cref="Exception"/> to a <see cref="DoubleMetric"/>.
+        /// </summary>
+        /// <param name="exception">The exception to convert into <see cref="DoubleMetric"/>.</param>
+        /// <returns>The instance of type <see cref="DoubleMetric"/>  that represents the exception.</returns>
         public override DoubleMetric ToFailureMetric(Exception exception) =>
             AnalyzersExt.MetricFromFailure(exception, Name, string.Join(',', Columns),
                 AnalyzersExt.EntityFrom(Columns));
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>
         public virtual DoubleMetric FromAggregationResult(Row result, int offset)
         {
             if (result.Values.Length <= offset || result[offset] == null)
@@ -58,6 +80,10 @@ namespace deequ.Analyzers
             return ToSuccessMetric(result.GetAs<double>(offset));
         }
 
+        /// <summary>
+        /// Overrides the ToString method.
+        /// </summary>
+        /// <returns>Returns the string identifier of the analyzer in the following format: AnalyzerType(List(column_names), where).</returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

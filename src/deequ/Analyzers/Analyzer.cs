@@ -348,7 +348,7 @@ namespace deequ.Analyzers
     /// </summary>
     /// <typeparam name="S">The input <see cref="State{T}"/> of the analyzer.</typeparam>
     /// <typeparam name="M">The output <see cref="Metric{T}"/> of the analyzer.</typeparam>
-    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupingAnalyzer<M> where S : State<S> where M : IMetric
+    public abstract class GroupingAnalyzer<S, M> : Analyzer<S, M>, IGroupingAnalyzer<M>, IFilterableAnalyzer where S : State<S> where M : IMetric
     {
         /// <summary>
         /// The name of the grouping analyzer.
@@ -397,6 +397,12 @@ namespace deequ.Analyzers
                     throw new Exception("Input data does not include column!");
                 }
             };
+
+        /// <summary>
+        /// Retrieve the filter condition assigned to the instance
+        /// </summary>
+        /// <returns>The filter condition assigned to the instance</returns>
+        public virtual Option<string> FilterCondition() => Where;
     }
 
     internal abstract class PredicateMatchingAnalyzer : StandardScanShareableAnalyzer<NumMatchesAndCount>
