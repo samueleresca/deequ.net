@@ -11,7 +11,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public sealed class MinState : DoubleValuedState<MinState>, IState
+    public sealed class MinState : DoubleValuedState<MinState>
     {
         private readonly double _minValue;
 

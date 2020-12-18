@@ -111,8 +111,22 @@ namespace deequ.Extensions
             return schema.Fields.SelectMany(field => getNestedTypes(field.DataType, field.Name))
                 .ToDictionary(k=>k.Key, v=>v.Value);
         }
-        public static bool HasColumn(StructType schema, string column) => schema.Fields.SelectMany(field => findNested(field.DataType, field.Name))
-            .Contains(column, StringComparer.InvariantCultureIgnoreCase);
+
+        public static bool HasColumn(StructType schema, Option<string> column)
+        {
+            if (!column.HasValue) return false;
+            return schema.Fields.SelectMany(field => findNested(field.DataType, field.Name))
+                .Contains(column.Value, StringComparer.InvariantCultureIgnoreCase);
+        }
+
+        public static Action<StructType> HasColumn(Option<string> column) =>
+            schema =>
+            {
+                if (!HasColumn(schema, column))
+                {
+                    throw new Exception($"Input data does not include column {column}!");
+                }
+            };
 
         public static Action<StructType> HasColumn(string column) =>
             schema =>
@@ -122,7 +136,6 @@ namespace deequ.Extensions
                     throw new Exception($"Input data does not include column {column}!");
                 }
             };
-
         public static Action<StructType> IsNumeric(string column) =>
             schema =>
             {
@@ -186,7 +199,7 @@ namespace deequ.Extensions
                 .Select(condition => When(condition, selection))
                 .GetOrElse(selection);
 
-        public static Action<StructType> IsNotNested(string column) =>
+        public static Action<StructType> IsNotNested(Option<string> column) =>
             schema =>
             {
                 if (!HasColumn(schema, column))
@@ -194,6 +207,12 @@ namespace deequ.Extensions
                     return;
                 }
 
+                IsNotNested(column.Value);
+            };
+
+        public static Action<StructType> IsNotNested(string column) =>
+            schema =>
+            {
                 DataType columnDataType = StructField(column, schema).DataType;
                 if (
                     columnDataType.TypeName == "StructType" ||

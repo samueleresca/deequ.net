@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using deequ.Analyzers.States;
 using deequ.Extensions;
 using deequ.Metrics;
@@ -143,6 +144,16 @@ namespace deequ.Analyzers
         where S : State<S>, IState where M : IMetric
     {
         /// <summary>
+        /// The target column name subject to the aggregation.
+        /// </summary>
+        public Option<string> Column;
+
+        /// <summary>
+        /// A where clause to filter only some values in a column <see cref="Expr"/>.
+        /// </summary>
+        public Option<string> Where;
+
+        /// <summary>
         /// Defines the aggregations to compute on the data.
         /// </summary>
         /// <returns>The <see cref="IEnumerable{T}"/> of type <see cref="Column"/> containing the aggregation function.</returns>
@@ -182,6 +193,30 @@ namespace deequ.Analyzers
 
             return FromAggregationResult(result, 0);
         }
+
+        /// <summary>
+        /// Retrieve the filter condition assigned to the instance
+        /// </summary>
+        /// <returns>The filter condition assigned to the instance</returns>
+        public virtual Option<string> FilterCondition() => Where;
+
+        /// <summary>
+        /// Overrides the ToString method.
+        /// </summary>
+        /// <returns>Returns the string identifier of the analyzer in the following format: AnalyzerType(column_name, where).</returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append(Column)
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
     /// <summary>
     /// A scan-shareable analyzer that produces a <see cref="DoubleMetric"/> instance.
@@ -194,7 +229,7 @@ namespace deequ.Analyzers
         /// <summary>
         /// The <see cref="MetricEntity"/> that represents the analyzer.
         /// </summary>
-        private readonly MetricEntity _metricEntity = MetricEntity.Column;
+        private readonly MetricEntity _metricEntity;
 
         /// <inheritdoc cref="IMetric.Name"/>
         public string Name { get; }
@@ -208,10 +243,28 @@ namespace deequ.Analyzers
         /// <param name="name">The name of the metric.</param>
         /// <param name="instance">The instance of the metric.</param>
         /// <param name="metricEntity">The entity type of the metric <see cref="MetricEntity"/></param>
-        public StandardScanShareableAnalyzer(string name, string instance, MetricEntity metricEntity)
+        protected StandardScanShareableAnalyzer(string name, string instance, MetricEntity metricEntity)
         {
             Name = name;
             Instance = instance;
+            _metricEntity = metricEntity;
+        }
+        /// <summary>
+        /// Initializes a new instance of type <see cref="StandardScanShareableAnalyzer{S}"/>.
+        /// </summary>
+        /// <param name="name">The name of the metric.</param>
+        /// <param name="instance">The instance of the metric.</param>
+        /// <param name="metricEntity">The entity type of the metric <see cref="MetricEntity"/></param>
+        /// <param name="column">The target column name.</param>
+        /// <param name="where">The where condition target of the invocation</param>
+        protected StandardScanShareableAnalyzer(string name, string instance, MetricEntity metricEntity,
+            Option<string> column = default, Option<string> where = default)
+        {
+            Name = name;
+            Instance = instance;
+            Column = column;
+            Where = where;
+
             _metricEntity = metricEntity;
         }
 
@@ -305,7 +358,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="column">The name of the column to verify.</param>
         /// <returns>A callback asserting the presence of the column in the schema.</returns>
-        public static Action<StructType> HasColumn(string column) =>
+        private static Action<StructType> HasColumn(string column) =>
             schema =>
             {
                 if (!AnalyzersExt.HasColumn(schema, column))

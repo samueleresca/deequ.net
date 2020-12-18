@@ -328,9 +328,9 @@ namespace deequ.Repository.Serde
             if (analyzer is Correlation correlation)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Correlation");
-                writer.WriteString("firstColumn", correlation.firstCol);
-                writer.WriteString("secondColumn", correlation.secondCol);
-                writer.WriteString(SerdeExt.WHERE_FIELD, correlation.where.GetOrElse(string.Empty));
+                writer.WriteString("firstColumn", correlation.ColumnA);
+                writer.WriteString("secondColumn", correlation.ColumnB);
+                writer.WriteString(SerdeExt.WHERE_FIELD, correlation.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
             }

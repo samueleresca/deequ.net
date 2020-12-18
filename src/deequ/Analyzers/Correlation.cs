@@ -11,27 +11,39 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
+    /// <summary>
+    ///  Computes the pearson correlation coefficient between the two given columns
+    /// </summary>
     public class Correlation : StandardScanShareableAnalyzer<CorrelationState>, IFilterableAnalyzer
     {
-        public string firstCol;
-        public string secondCol;
-        public Option<string> where;
+        /// <summary>
+        /// First input column for computation.
+        /// </summary>
+        public readonly string ColumnA;
+        /// <summary>
+        /// Second input column for computation.
+        /// </summary>
+        public readonly string ColumnB;
 
-        public Correlation(string firstCol, string secondCol, Option<string> where = default) : base("Correlation",
-            $"{firstCol},{secondCol}", MetricEntity.Multicolumn)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Correlation"/> class.
+        /// </summary>
+        /// <param name="columnA">First input column for computation</param>
+        /// <param name="columnB">Second input column for computation.</param>
+        /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
+        public Correlation(string columnA, string columnB, Option<string> where = default) : base("Correlation",
+            $"{columnA},{columnB}", MetricEntity.Multicolumn, Option<string>.None, where)
         {
-            this.firstCol = firstCol;
-            this.secondCol = secondCol;
-            this.where = where;
+            ColumnA = columnA;
+            ColumnB = columnB;
         }
 
-        public Option<string> FilterCondition() => where;
-
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions" />
         public override IEnumerable<Column> AggregationFunctions()
         {
             //https://mathoverflow.net/a/57914
-            var firstSelection = AnalyzersExt.ConditionalSelection(firstCol, where);
-            var secondSelection = AnalyzersExt.ConditionalSelection(secondCol, where);
+            var firstSelection = AnalyzersExt.ConditionalSelection(ColumnA, Where);
+            var secondSelection = AnalyzersExt.ConditionalSelection(ColumnB, Where);
 
             var count = Count(firstSelection);
             var sumX = Sum(firstSelection);
@@ -44,6 +56,7 @@ namespace deequ.Analyzers
             return new[] { count, sumX, sumY, sumXY, sumX2, sumY2 };
         }
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult" />
         protected override Option<CorrelationState> FromAggregationResult(Row result, int offset)
         {
             if (result[offset] == null)
@@ -67,26 +80,28 @@ namespace deequ.Analyzers
             return Option<CorrelationState>.None;
         }
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AdditionalPreconditions" />
         public override IEnumerable<Action<StructType>> AdditionalPreconditions()
         {
             return new[]
             {
-                AnalyzersExt.HasColumn(firstCol), AnalyzersExt.IsNumeric(firstCol),
-                AnalyzersExt.HasColumn(secondCol), AnalyzersExt.IsNumeric(secondCol)
+                AnalyzersExt.HasColumn(ColumnA), AnalyzersExt.IsNumeric(ColumnA),
+                AnalyzersExt.HasColumn(ColumnB), AnalyzersExt.IsNumeric(ColumnB)
             };
         }
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ToString"/>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb
                 .Append(GetType().Name)
                 .Append("(")
-                .Append(firstCol)
+                .Append(ColumnA)
                 .Append(",")
-                .Append(secondCol)
+                .Append(ColumnB)
                 .Append(",")
-                .Append(where.GetOrElse("None"))
+                .Append(Where.GetOrElse("None"))
                 .Append(")");
 
             return sb.ToString();
@@ -121,15 +136,15 @@ namespace deequ.Analyzers
 
         public override CorrelationState Sum(CorrelationState other)
         {
-            var n1 = n;
-            var n2 = other.n;
-            var newN = n1 + n2;
+            double n1 = n;
+            double n2 = other.n;
+            double newN = n1 + n2;
 
-            var newSumX = sumX + other.sumX;
-            var newSumY = sumY + other.sumY;
-            var newSumXY = sumXY + other.sumXY;
-            var newSumX2 = sumX2 + other.sumX2;
-            var newSumY2 = sumY2 + other.sumY2;
+            double newSumX = sumX + other.sumX;
+            double newSumY = sumY + other.sumY;
+            double newSumXY = sumXY + other.sumXY;
+            double newSumX2 = sumX2 + other.sumX2;
+            double newSumY2 = sumY2 + other.sumY2;
 
             return new CorrelationState(newN, newSumX, newSumY, newSumXY, newSumX2, newSumY2);
         }
