@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using deequ.Analyzers.States;
 using deequ.Extensions;
 using deequ.Metrics;
@@ -35,7 +34,7 @@ namespace deequ.Analyzers
     }
 
     /// <summary>
-    /// Returns the max value for the target column.
+    /// Computes the max value for the target column.
     /// </summary>
     public sealed class Maximum : StandardScanShareableAnalyzer<MaxState>
     {

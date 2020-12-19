@@ -12,27 +12,21 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public sealed class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
+    public sealed class PatternMatch : StandardScanShareableAnalyzer<NumMatchesAndCount>
     {
-        public readonly string Column;
         public readonly Regex Regex;
-        public readonly Option<string> Where;
-
         public PatternMatch(string column, Regex regex, Option<string> where)
-            : base("PatternMatch", column, MetricEntity.Column)
+            : base("PatternMatch", column, MetricEntity.Column, column, where)
         {
             Regex = regex;
-            Column = column;
-            Where = where;
         }
 
-        public Option<string> FilterCondition() => Where;
 
 
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column expression =
-                When(RegexpExtract(Column(Column), Regex.ToString(), 0) != Lit(""), 1)
+                When(RegexpExtract(Column(Column.GetOrElse(string.Empty)), Regex.ToString(), 0) != Lit(""), 1)
                     .Otherwise(0);
 
             Column summation = Sum(AnalyzersExt.ConditionalSelection(expression, Where).Cast("integer"));
@@ -46,22 +40,7 @@ namespace deequ.Analyzers
                     (int)result.Get(offset), (int)result.Get(offset + 1)), 2);
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
-
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(string.Join(",", Column))
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column.GetOrElse(string.Empty)) };
     }
 
 

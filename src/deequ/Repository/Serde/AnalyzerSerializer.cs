@@ -208,7 +208,7 @@ namespace deequ.Repository.Serde
             if (analyzer is PatternMatch patternMatch)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "PatternMatch");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, patternMatch.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, patternMatch.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, patternMatch.Where.GetOrElse(string.Empty));
                 writer.WriteString("pattern", patternMatch.Regex.ToString());
                 writer.WriteEndObject();

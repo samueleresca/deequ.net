@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using deequ.Analyzers.States;
 using deequ.Extensions;
 using deequ.Metrics;
@@ -16,12 +15,6 @@ namespace deequ.Analyzers
         private readonly double _minValue;
 
         public MinState(double minValue) => _minValue = minValue;
-
-        public IState Sum(IState other)
-        {
-            MinState otherMin = (MinState)other;
-            return new MinState(Math.Min(_minValue, otherMin._minValue));
-        }
 
         public override MinState Sum(MinState other) => new MinState(Math.Min(_minValue, other._minValue));
 

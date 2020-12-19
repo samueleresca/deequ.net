@@ -272,7 +272,7 @@ namespace deequ.Analyzers
             _metricEntity = metricEntity;
         }
 
-        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.Preconditions"/>
+        /// <inheritdoc cref="Analyzer{S,M}.Preconditions"/>
         public override IEnumerable<Action<StructType>> Preconditions() =>
             AdditionalPreconditions().Concat(base.Preconditions());
 
