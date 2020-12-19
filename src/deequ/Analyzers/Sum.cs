@@ -28,15 +28,10 @@ namespace deequ.Analyzers
         public override double GetMetricValue() => _sum;
     }
 
-    public sealed class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer, IAnalyzer<DoubleMetric>
+    public sealed class Sum : StandardScanShareableAnalyzer<SumState>, IFilterableAnalyzer
     {
-        public readonly string Column;
-        public readonly Option<string> Where;
-
-        public Sum(string column, Option<string> where) : base("Sum", column, MetricEntity.Column)
+        public Sum(string column, Option<string> where) : base("Sum", column, MetricEntity.Column, column, where)
         {
-            Column = column;
-            Where = where;
         }
 
         public DoubleMetric Calculate(DataFrame data) => base.Calculate(data);
@@ -50,20 +45,6 @@ namespace deequ.Analyzers
             AnalyzersExt.IfNoNullsIn(result, offset, () => new SumState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(Column)
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column.GetOrElse(string.Empty)) };
     }
 }

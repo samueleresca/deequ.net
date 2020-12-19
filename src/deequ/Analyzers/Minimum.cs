@@ -30,14 +30,8 @@ namespace deequ.Analyzers
 
     public class Minimum : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
     {
-        public readonly string Column;
-        public readonly Option<string> Where;
-
-
-        public Minimum(string column, Option<string> where) : base("Minimum", column, MetricEntity.Column)
+        public Minimum(string column, Option<string> where) : base("Minimum", column, MetricEntity.Column, column, where)
         {
-            Column = column;
-            Where = where;
         }
 
         public Option<string> FilterCondition() => Where;
@@ -50,20 +44,6 @@ namespace deequ.Analyzers
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(Column)
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column.GetOrElse(string.Empty)) };
     }
 }

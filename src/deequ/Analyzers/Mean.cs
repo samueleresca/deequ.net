@@ -39,14 +39,8 @@ namespace deequ.Analyzers
 
     public sealed class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer
     {
-        public readonly string Column;
-        public readonly Option<string> Where;
-
-
-        public Mean(string column, Option<string> where) : base("Mean", column, MetricEntity.Column)
+        public Mean(string column, Option<string> where) : base("Mean", column, MetricEntity.Column, column, where)
         {
-            Column = column;
-            Where = where;
         }
 
         public Option<string> FilterCondition() => Where;
@@ -64,20 +58,7 @@ namespace deequ.Analyzers
                     (int)result.Get(offset + 1)), 2);
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column.GetOrElse(string.Empty)) };
 
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(Column)
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
     }
 }

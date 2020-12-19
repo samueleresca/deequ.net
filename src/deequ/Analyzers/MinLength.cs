@@ -12,13 +12,8 @@ namespace deequ.Analyzers
 {
     public sealed class MinLength : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
     {
-        public string Column;
-        public Option<string> Where;
-
-        public MinLength(string column, Option<string> where) : base("MinLength", column, MetricEntity.Column)
+        public MinLength(string column, Option<string> where) : base("MinLength", column, MetricEntity.Column, column, where)
         {
-            Column = column;
-            Where = where;
         }
 
         public Option<string> FilterCondition() => Where;
@@ -32,21 +27,7 @@ namespace deequ.Analyzers
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column.GetOrElse(string.Empty)) };
 
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(Column)
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
     }
 }
