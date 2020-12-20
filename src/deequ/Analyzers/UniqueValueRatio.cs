@@ -9,7 +9,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer, IFilterableAnalyzer
+    public class UniqueValueRatio : ScanShareableFrequencyBasedAnalyzer
     {
         public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base("UniqueValueRatio", columns, where)
         {
@@ -18,8 +18,6 @@ namespace deequ.Analyzers
         public UniqueValueRatio(IEnumerable<string> columns) : base("UniqueValueRatio", columns)
         {
         }
-
-        public Option<string> FilterCondition() => Where;
 
         public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
 

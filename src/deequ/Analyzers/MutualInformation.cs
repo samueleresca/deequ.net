@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using deequ.Extensions;
 using deequ.Metrics;
 using deequ.Util;
@@ -12,18 +11,29 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public sealed class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
+    /// <summary>
+    ///
+    /// </summary>
+    public sealed class MutualInformation : FrequencyBasedAnalyzer
     {
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <param name="where"></param>
         public MutualInformation(IEnumerable<string> columns, Option<string> where) :
             base("MutualInformation", columns, where)
         {
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="columns"></param>
         public MutualInformation(IEnumerable<string> columns) :
-            base("MutualInformation", columns) =>
-            Columns = columns;
-
-        public Option<string> FilterCondition() => Where;
+            base("MutualInformation", columns)
+        {
+        }
 
         public override IEnumerable<Action<StructType>> Preconditions() =>
             AnalyzersExt.ExactlyNColumns(Columns, 2).Concat(base.Preconditions());
@@ -85,22 +95,6 @@ namespace deequ.Analyzers
             return AnalyzersExt.MetricFromValue(resultRow.GetAs<double>(0), "MutualInformation",
                 string.Join(',', Columns),
                 MetricEntity.Multicolumn);
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append("List(")
-                .Append(string.Join(",", Columns))
-                .Append(")")
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
         }
     }
 }
