@@ -21,6 +21,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="numMatches">The number of matches.</param>
         public NumMatches(long numMatches) => this.numMatches = numMatches;
+
         /// <summary>
         /// The number of matches.
         /// </summary>
@@ -59,6 +60,10 @@ namespace deequ.Analyzers
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
             Enumerable.Empty<Action<StructType>>();
 
+        /// <summary>
+        /// Overrides the ToString method.
+        /// </summary>
+        /// <returns>Returns the string identifier of the analyzer in the following format: AnalyzerType(column_name, where).</returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

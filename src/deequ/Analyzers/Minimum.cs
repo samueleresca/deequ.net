@@ -41,7 +41,7 @@ namespace deequ.Analyzers
         /// Initializes a new instance of type <see cref="Minimum"/>.
         /// </summary>
         /// <param name="column">The target column name.</param>
-        /// <param name="where">The where condition target of the invocation</param>
+        /// <param name="where">The where condition target of the invocation.</param>
         public Minimum(string column, Option<string> where) : base("Minimum", column, MetricEntity.Column, column, where)
         {
         }
