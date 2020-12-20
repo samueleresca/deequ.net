@@ -6,7 +6,7 @@ using deequ.Checks;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 
-namespace examples
+namespace example
 {
     public static class IncrementalMetrics
     {

@@ -7,7 +7,7 @@ using deequ.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Spark.Sql;
 
-namespace YelpAcademicDataTests
+namespace yelpacademicdatatests
 {
     class Program
     {

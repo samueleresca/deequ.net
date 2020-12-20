@@ -1,5 +1,4 @@
-﻿using System;
-namespace examples
+﻿namespace example
 {
     class Program
     {
