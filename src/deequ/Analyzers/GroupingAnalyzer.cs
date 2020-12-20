@@ -171,6 +171,26 @@ namespace deequ.Analyzers
 
             return new FrequenciesAndNumRows(frequencies, numRows);
         }
+
+        /// <summary>
+        /// Overrides the ToString method.
+        /// </summary>
+        /// <returns>Returns the string identifier of the analyzer in the following format: AnalyzerType(List(column_names), where).</returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append(GetType().Name)
+                .Append("(")
+                .Append("List(")
+                .Append(string.Join(",", Columns))
+                .Append(")")
+                .Append(",")
+                .Append(Where.GetOrElse("None"))
+                .Append(")");
+
+            return sb.ToString();
+        }
     }
 
     /// <summary>

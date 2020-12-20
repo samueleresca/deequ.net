@@ -11,17 +11,11 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public class SumState : DoubleValuedState<SumState>, IState
+    public class SumState : DoubleValuedState<SumState>
     {
         private readonly double _sum;
 
         public SumState(double sum) => _sum = sum;
-
-        public IState Sum(IState other)
-        {
-            SumState sumStateOther = (SumState)other;
-            return new SumState(_sum + sumStateOther._sum);
-        }
 
         public override SumState Sum(SumState other) => new SumState(_sum + other._sum);
 

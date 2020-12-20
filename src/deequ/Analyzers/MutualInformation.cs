@@ -12,37 +12,42 @@ using static Microsoft.Spark.Sql.Functions;
 namespace deequ.Analyzers
 {
     /// <summary>
-    ///
+    /// Mutual Information describes how much information about one column can be inferred from another
+    /// column. If two columns are independent of each other, then nothing can be inferred from one column about
+    /// the other, and mutual information is zero. If there is a functional dependency of one column to
+    /// another and vice versa, then all information of the two columns are shared, and mutual information is the entropy of each column.
     /// </summary>
     public sealed class MutualInformation : FrequencyBasedAnalyzer
     {
         /// <summary>
-        ///
+        /// Initializes a new instance of type <see cref="MutualInformation"/> class.
         /// </summary>
-        /// <param name="columns"></param>
-        /// <param name="where"></param>
+        /// <param name="columns">The target column names.</param>
+        /// <param name="where">The where condition target of the invocation</param>
         public MutualInformation(IEnumerable<string> columns, Option<string> where) :
             base("MutualInformation", columns, where)
         {
         }
 
         /// <summary>
-        ///
+        ///  Initializes a new instance of type <see cref="MutualInformation"/> class.
         /// </summary>
-        /// <param name="columns"></param>
+        /// <param name="columns">The target column names.</param>
         public MutualInformation(IEnumerable<string> columns) :
             base("MutualInformation", columns)
         {
         }
 
+        /// <inheritdoc cref="FrequencyBasedAnalyzer.Preconditions"/>
         public override IEnumerable<Action<StructType>> Preconditions() =>
             AnalyzersExt.ExactlyNColumns(Columns, 2).Concat(base.Preconditions());
 
+        /// <inheritdoc cref="FrequencyBasedAnalyzer.ToFailureMetric"/>
         public override DoubleMetric ToFailureMetric(Exception e) =>
             AnalyzersExt.MetricFromFailure(e, "MutualInformation", string.Join(',', Columns),
                 MetricEntity.Multicolumn);
 
-
+        /// <inheritdoc cref="FrequencyBasedAnalyzer.ComputeMetricFrom"/>
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)

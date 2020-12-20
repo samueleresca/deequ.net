@@ -25,8 +25,6 @@ namespace deequ.Analyzers
             StdDevPop = stdDevPop;
         }
 
-        public IState Sum(IState other) => throw new NotImplementedException();
-
         public override StandardDeviationState Sum(StandardDeviationState other)
         {
             double newN = N + other.N;
@@ -40,14 +38,11 @@ namespace deequ.Analyzers
         public override double GetMetricValue() => StdDevPop;
     }
 
-    public sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
+    public sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>
     {
         public StandardDeviation(string column, Option<string> where) : base("StandardDeviation", column, MetricEntity.Column, column, where)
         {
         }
-
-        public Option<string> FilterCondition() => Where;
-
 
         public override IEnumerable<Column> AggregationFunctions()
         {
