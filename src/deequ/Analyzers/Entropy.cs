@@ -33,7 +33,7 @@ namespace deequ.Analyzers
         {
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions(long numRows)
         {
             Func<Column, Column> summands = Udf<double, double>(count =>
@@ -49,7 +49,7 @@ namespace deequ.Analyzers
             return new[] { Sum(summands(Col(AnalyzersExt.COUNT_COL).Cast("double"))) };
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ToString"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ToString"/>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

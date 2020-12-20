@@ -42,12 +42,12 @@ namespace deequ.Analyzers
         public override IEnumerable<Action<StructType>> Preconditions() =>
             AnalyzersExt.ExactlyNColumns(Columns, 2).Concat(base.Preconditions());
 
-        /// <inheritdoc cref="FrequencyBasedAnalyzer.ToFailureMetric"/>
+        /// <inheritdoc cref="Analyzer{S,M}.ToFailureMetric"/>
         public override DoubleMetric ToFailureMetric(Exception e) =>
             AnalyzersExt.MetricFromFailure(e, "MutualInformation", string.Join(',', Columns),
                 MetricEntity.Multicolumn);
 
-        /// <inheritdoc cref="FrequencyBasedAnalyzer.ComputeMetricFrom"/>
+        /// <inheritdoc cref="Analyzer{S,M}.ComputeMetricFrom"/>
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)

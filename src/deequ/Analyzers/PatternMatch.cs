@@ -38,7 +38,7 @@ namespace deequ.Analyzers
             Regex = regex;
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column expression =
@@ -50,7 +50,7 @@ namespace deequ.Analyzers
             return new[] { summation, AnalyzersExt.ConditionalCount(Where) };
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.FromAggregationResult"/>
         protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(

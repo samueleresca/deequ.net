@@ -28,10 +28,10 @@ namespace deequ.Analyzers
         {
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>
         public abstract IEnumerable<Column> AggregationFunctions(long numRows);
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ComputeMetricFrom"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ComputeMetricFrom"/>
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)
@@ -120,7 +120,7 @@ namespace deequ.Analyzers
         /// <inheritdoc cref="GroupingAnalyzer{S,M}.GroupingColumns"/>
         public override IEnumerable<string> GroupingColumns() => Columns;
 
-        /// <inheritdoc cref="GroupingAnalyzer{S,M}.ComputeStateFrom"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ComputeStateFrom"/>
         public override Option<FrequenciesAndNumRows> ComputeStateFrom(DataFrame dataFrame) =>
             new Option<FrequenciesAndNumRows>(
                 ComputeFrequencies(dataFrame, GroupingColumns(),

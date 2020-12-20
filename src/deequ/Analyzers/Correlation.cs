@@ -38,7 +38,7 @@ namespace deequ.Analyzers
             ColumnB = columnB;
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions" />
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions" />
         public override IEnumerable<Column> AggregationFunctions()
         {
             //https://mathoverflow.net/a/57914
@@ -56,7 +56,7 @@ namespace deequ.Analyzers
             return new[] { count, sumX, sumY, sumXY, sumX2, sumY2 };
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult" />
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.FromAggregationResult" />
         protected override Option<CorrelationState> FromAggregationResult(Row result, int offset)
         {
             if (result[offset] == null)
@@ -90,7 +90,7 @@ namespace deequ.Analyzers
             };
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ToString"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ToString"/>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

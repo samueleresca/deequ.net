@@ -26,7 +26,7 @@ namespace deequ.Analyzers
         /// <param name="maxValue">The max value returned by the state.</param>
         public MaxState(double maxValue) => _maxValue = maxValue;
 
-        /// <inheritdoc cref="DoubleValuedState{S}.Sum"/>
+        /// <inheritdoc cref="State{S}.Sum"/>
         public override MaxState Sum(MaxState other) => new MaxState(Math.Max(_maxValue, other._maxValue));
 
         /// <inheritdoc cref="DoubleValuedState{S}.GetMetricValue"/>
@@ -48,11 +48,11 @@ namespace deequ.Analyzers
         {
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions() =>
             new[] { Max(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.FromAggregationResult"/>
         protected override Option<MaxState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MaxState(result.GetAs<double>(offset)));
 

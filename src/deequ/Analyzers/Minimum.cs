@@ -26,7 +26,7 @@ namespace deequ.Analyzers
         /// <param name="minValue">The max value returned by the state.</param>
         public MinState(double minValue) => _minValue = minValue;
 
-        /// <inheritdoc cref="DoubleValuedState{S}.Sum"/>
+        /// <inheritdoc cref="State{S}.Sum"/>
         public override MinState Sum(MinState other) => new MinState(Math.Min(_minValue, other._minValue));
 
         /// <inheritdoc cref="DoubleValuedState{S}.GetMetricValue"/>
@@ -46,11 +46,11 @@ namespace deequ.Analyzers
         {
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions() =>
             new[] { Min(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("double") };
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.FromAggregationResult"/>
         protected override Option<MinState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 

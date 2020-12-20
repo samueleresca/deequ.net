@@ -276,7 +276,7 @@ namespace deequ.Analyzers
         public override IEnumerable<Action<StructType>> Preconditions() =>
             AdditionalPreconditions().Concat(base.Preconditions());
 
-        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ToFailureMetric"/>
+        /// <inheritdoc cref="Analyzer{S,M}.ToFailureMetric"/>
         public override DoubleMetric ToFailureMetric(Exception e) =>
             AnalyzersExt.MetricFromFailure(e, Name, Instance, _metricEntity);
 
@@ -287,7 +287,7 @@ namespace deequ.Analyzers
         public virtual IEnumerable<Action<StructType>> AdditionalPreconditions() =>
             Enumerable.Empty<Action<StructType>>();
 
-        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ComputeMetricFrom"/>
+        /// <inheritdoc cref="Analyzer{S,M}.ComputeMetricFrom"/>
         public override DoubleMetric ComputeMetricFrom(Option<S> state)
         {
             DoubleMetric metric = state.HasValue switch
@@ -327,7 +327,7 @@ namespace deequ.Analyzers
             Count = count;
         }
 
-        /// <inheritdoc cref="DoubleValuedState{S}.Sum"/>
+        /// <inheritdoc cref="State{S}.Sum"/>
         public override NumMatchesAndCount Sum(NumMatchesAndCount other) =>
             new NumMatchesAndCount(NumMatches + other.NumMatches, Count + other.Count);
 

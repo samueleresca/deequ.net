@@ -64,7 +64,7 @@ namespace deequ.Analyzers
         {
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions() =>
             new[]
             {
@@ -72,7 +72,7 @@ namespace deequ.Analyzers
                 Count(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("long")
             };
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.FromAggregationResult"/>
         protected override Option<MeanState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new MeanState((double)result.Get(offset),

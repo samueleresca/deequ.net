@@ -182,7 +182,7 @@ namespace deequ.Analyzers
 
             return new HistogramMetric(Column.Value, new Try<Distribution>(DataTypeHistogram.ToDistribution(state.Value)));
         }
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ComputeStateFrom"/>.
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ComputeStateFrom"/>.
         public override Option<DataTypeHistogram> ComputeStateFrom(DataFrame dataFrame)
         {
             StatefulDataType statefulDataType = new StatefulDataType();
@@ -207,16 +207,16 @@ namespace deequ.Analyzers
             return FromAggregationResult(result, 0);
         }
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>.
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>.
         public override IEnumerable<Column> AggregationFunctions() =>
             new[] { AnalyzersExt.ConditionalSelection(Column, Where) };
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>.
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.FromAggregationResult"/>.
         protected override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => { return DataTypeHistogram.FromArray(result.Values.Select(value => (int)value).ToArray()); });
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ToString"/>.
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.ToString"/>.
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

@@ -34,7 +34,7 @@ namespace deequ.Analyzers
         /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ToFailureMetric"/>
         public override DoubleMetric ToFailureMetric(Exception e) => base.ToFailureMetric(e);
 
-        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions(long numRows) =>
             new[] { Sum(Col(AnalyzersExt.COUNT_COL).Geq(1).Cast("double")) / numRows };
 
