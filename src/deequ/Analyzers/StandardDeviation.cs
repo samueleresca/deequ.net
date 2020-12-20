@@ -57,7 +57,7 @@ namespace deequ.Analyzers
         }
 
         /// <inheritdoc cref="DoubleValuedState{S}.GetMetricValue"/>
-        public override double GetMetricValue() => Math.Sqrt(StdDev / N);
+        public override double GetMetricValue() => StdDev;
     }
 
     /// <summary>
