@@ -10,19 +10,15 @@ namespace deequ.Analyzers
 {
     internal sealed class ApproxCountDistinct : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
-        private readonly string _column;
-        private readonly Option<string> _where;
 
         public ApproxCountDistinct(string instance, string column, Option<string> where)
-            : base("ApproxCountDistinct", instance, MetricEntity.Column)
+            : base("ApproxCountDistinct", instance, MetricEntity.Column, column, where)
         {
-            _where = where;
-            _column = column;
+            Column = column;
+            Where = where;
         }
 
-        public Option<string> FilterCondition() => _where;
-
-        public override IEnumerable<Column> AggregationFunctions() => new[] { ApproxCountDistinct(_column) };
+        public override IEnumerable<Column> AggregationFunctions() => new[] { ApproxCountDistinct(Column.Value) };
 
         protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             throw new NotImplementedException();
@@ -33,9 +29,9 @@ namespace deequ.Analyzers
             sb
                 .Append(GetType().Name)
                 .Append("(")
-                .Append(_column)
+                .Append(Column)
                 .Append(",")
-                .Append(_where.GetOrElse("None"))
+                .Append(Where.GetOrElse("None"))
                 .Append(")");
 
             return sb.ToString();

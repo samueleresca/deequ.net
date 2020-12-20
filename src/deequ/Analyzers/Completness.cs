@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using deequ.Extensions;
 using deequ.Metrics;
 using deequ.Util;
@@ -10,32 +9,37 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
+    /// <summary>
+    /// Completeness computes the fraction of non-null values ina column of a <see cref="DataFrame"/>
+    /// </summary>
     public sealed class Completeness : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
-        public readonly Option<string> Column;
-        public readonly Option<string> Where;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Completeness"/> class.
+        /// </summary>
+        /// <param name="column">The target column name.</param>
+        /// <param name="where">A string representing the where clause to include <see cref="Functions.Expr"/>.</param>
         public Completeness(Option<string> column, Option<string> where) : base("Completeness", column.Value,
-            MetricEntity.Column)
+            MetricEntity.Column, column, where)
         {
-            Column = column;
-            Where = where;
         }
 
-        public Completeness(Option<string> column) : base("Completeness", column.Value, MetricEntity.Column)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Completeness"/> class.
+        /// </summary>
+        /// <param name="column">The target column name.</param>
+        public Completeness(Option<string> column) : base("Completeness", column.Value, MetricEntity.Column, column.Value)
         {
-            Column = column;
-            Where = Option<string>.None;
         }
 
-        public Option<string> FilterCondition() => Where;
-
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.FromAggregationResult"/>
         protected override Option<NumMatchesAndCount> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new NumMatchesAndCount(
                     result.GetAs<int>(offset),
                     result.GetAs<int>(offset + 1)), 2);
 
+        /// <inheritdoc cref="ScanShareableAnalyzer{S,M}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions()
         {
             Column summarization = Sum(AnalyzersExt.ConditionalSelection(Column, Where)
@@ -47,21 +51,9 @@ namespace deequ.Analyzers
             return new[] { summarization, conditional };
         }
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AdditionalPreconditions"/>
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column.Value), AnalyzersExt.IsNotNested(Column.Value) };
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) };
 
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(Column)
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
     }
 }

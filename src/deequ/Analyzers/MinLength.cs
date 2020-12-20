@@ -10,43 +10,33 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
+    /// <summary>
+    /// Computes the min value for the target column.
+    /// </summary>
     public sealed class MinLength : StandardScanShareableAnalyzer<MinState>, IFilterableAnalyzer
     {
-        public string Column;
-        public Option<string> Where;
-
-        public MinLength(string column, Option<string> where) : base("MinLength", column, MetricEntity.Column)
+        /// <summary>
+        /// Initializes a new instance of type <see cref="MinLength"/>.
+        /// </summary>
+        /// <param name="column">The target column name.</param>
+        /// <param name="where">The where condition target of the invocation</param>
+        public MinLength(string column, Option<string> where) : base("MinLength", column,
+            MetricEntity.Column, column, where)
         {
-            Column = column;
-            Where = where;
         }
-
-        public Option<string> FilterCondition() => Where;
-
-        public override IEnumerable<Column> AggregationFunctions() => new[]
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
+       public override IEnumerable<Column> AggregationFunctions() => new[]
         {
             Min(Length(AnalyzersExt.ConditionalSelection(Column, Where))).Cast("double")
         };
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>
         protected override Option<MinState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset, () => new MinState(result.GetAs<double>(offset)));
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AdditionalPreconditions"/>
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column) };
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsString(Column.GetOrElse(string.Empty)) };
 
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(Column)
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
     }
 }

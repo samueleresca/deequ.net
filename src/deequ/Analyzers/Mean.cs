@@ -11,21 +11,35 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public class MeanState : DoubleValuedState<MeanState>, IState
+    /// <summary>
+    /// Represents the mean result state for the target column.
+    /// </summary>
+    public class MeanState : DoubleValuedState<MeanState>
     {
+        /// <summary>
+        /// The total count of elements.
+        /// </summary>
         private readonly long _count;
+        /// <summary>
+        /// The sum of all the elements.
+        /// </summary>
         private readonly double _sum;
 
+        /// <summary>
+        /// Initializes a new instance of type <see cref="MeanState"/>.
+        /// </summary>
+        /// <param name="sum">The sum of all the elements.</param>
+        /// <param name="count">The total count of elements.</param>
         public MeanState(double sum, long count)
         {
             _sum = sum;
             _count = count;
         }
 
-        public IState Sum(IState other) => throw new NotImplementedException();
-
+        /// <inheritdoc cref="DoubleValuedState{S}.Sum"/>
         public override MeanState Sum(MeanState other) => new MeanState(_sum + other._sum, _count + other._count);
 
+        /// <inheritdoc cref="DoubleValuedState{S}.GetMetricValue"/>
         public override double GetMetricValue()
         {
             if (_count == 0L)
@@ -36,21 +50,21 @@ namespace deequ.Analyzers
             return _sum / _count;
         }
     }
-
-    public sealed class Mean : StandardScanShareableAnalyzer<MeanState>, IFilterableAnalyzer
+    /// <summary>
+    /// Computes the mean for the target column.
+    /// </summary>
+    public sealed class Mean : StandardScanShareableAnalyzer<MeanState>
     {
-        public readonly string Column;
-        public readonly Option<string> Where;
-
-
-        public Mean(string column, Option<string> where) : base("Mean", column, MetricEntity.Column)
+        /// <summary>
+        /// Initializes a new instance of type <see cref="Mean"/>.
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="where"></param>
+        public Mean(string column, Option<string> where) : base("Mean", column, MetricEntity.Column, column, where)
         {
-            Column = column;
-            Where = where;
         }
 
-        public Option<string> FilterCondition() => Where;
-
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions() =>
             new[]
             {
@@ -58,26 +72,15 @@ namespace deequ.Analyzers
                 Count(AnalyzersExt.ConditionalSelection(Column, Where)).Cast("long")
             };
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>
         protected override Option<MeanState> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => new MeanState((double)result.Get(offset),
                     (int)result.Get(offset + 1)), 2);
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AdditionalPreconditions"/>
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column.GetOrElse(string.Empty)) };
 
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(Column)
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
     }
 }

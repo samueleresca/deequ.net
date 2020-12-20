@@ -11,22 +11,41 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
+
+    /// <summary>
+    /// A type representing the standard deviation state.
+    /// </summary>
     public class StandardDeviationState : DoubleValuedState<StandardDeviationState>
     {
-        public double Avg;
-        public double N;
-        public double StdDevPop;
+        /// <summary>
+        /// The average of the state.
+        /// </summary>
+        private readonly double Avg;
+        /// <summary>
+        /// The number of elements in the sequence.
+        /// </summary>
+        private readonly double N;
+        /// <summary>
+        /// The M squared coefficient.
+        /// </summary>
+        private readonly double StdDev;
 
 
-        public StandardDeviationState(double n, double avg, double stdDevPop)
+        /// <summary>
+        /// Initializes a new instance of type <see cref="StandardDeviationState"/> class.
+        /// </summary>
+        /// <param name="n">The number of elements in the sequence.</param>
+        /// <param name="avg">The average of the state.</param>
+        /// <param name="stdDev">The M squared coefficient.</param>
+        public StandardDeviationState(double n, double avg, double stdDev)
         {
             N = n;
             Avg = avg;
-            StdDevPop = stdDevPop;
+            StdDev = stdDev;
         }
 
-        public IState Sum(IState other) => throw new NotImplementedException();
 
+        /// <inheritdoc cref="State{S}.Sum"/>
         public override StandardDeviationState Sum(StandardDeviationState other)
         {
             double newN = N + other.N;
@@ -34,32 +53,36 @@ namespace deequ.Analyzers
             double deltaN = newN == 0.0 ? 0.0 : delta;
 
             return new StandardDeviationState(newN, Avg + deltaN + other.N,
-                Math.Sqrt(Math.Exp(StdDevPop) + Math.Exp(other.StdDevPop)));
+                Math.Sqrt(Math.Exp(StdDev) + Math.Exp(other.StdDev)));
         }
 
-        public override double GetMetricValue() => StdDevPop;
+        /// <inheritdoc cref="DoubleValuedState{S}.GetMetricValue"/>
+        public override double GetMetricValue() => StdDev;
     }
 
-    public sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>, IFilterableAnalyzer
+    /// <summary>
+    /// Computes the standard deviation of a column.
+    /// </summary>
+    public sealed class StandardDeviation : StandardScanShareableAnalyzer<StandardDeviationState>
     {
-        public readonly string Column;
-        public readonly Option<string> Where;
-
-        public StandardDeviation(string column, Option<string> where) : base("StandardDeviation", column, MetricEntity.Column)
+        /// <summary>
+        /// Initializes a new instance of type <see cref="StandardDeviation"/> class.
+        /// </summary>
+        /// <param name="column">The target column name.</param>
+        /// <param name="where">The where condition target of the invocation.</param>
+        public StandardDeviation(string column, Option<string> where)
+            : base("StandardDeviation", column, MetricEntity.Column, column, where)
         {
-            Column = column;
-            Where = where;
         }
 
-        public Option<string> FilterCondition() => Where;
-
-
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>
         public override IEnumerable<Column> AggregationFunctions()
         {
-            Column col = AnalyzersExt.ConditionalSelection(Expr(Column), Where);
+            Column col = AnalyzersExt.ConditionalSelection(Expr(Column.GetOrElse(string.Empty)), Where);
             return new[] { Struct(Count(col), Avg(col), StddevPop(col)) };
         }
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>
         protected override Option<StandardDeviationState> FromAggregationResult(Row result, int offset)
         {
             if (result[offset] == null)
@@ -79,22 +102,9 @@ namespace deequ.Analyzers
                 row.GetAs<double>(1), row.GetAs<double>(2)));
         }
 
-
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AdditionalPreconditions"/>
         public override IEnumerable<Action<StructType>> AdditionalPreconditions() =>
-            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column) };
+            new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNumeric(Column.GetOrElse(string.Empty)) };
 
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append(Column)
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
-        }
     }
 }

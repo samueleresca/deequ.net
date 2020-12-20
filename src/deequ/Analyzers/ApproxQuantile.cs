@@ -9,17 +9,11 @@ namespace deequ.Analyzers
 {
     internal sealed class ApproxQuantile : StandardScanShareableAnalyzer<NumMatchesAndCount>, IFilterableAnalyzer
     {
-        private readonly string _column;
-        private readonly Option<string> _where;
 
         public ApproxQuantile(string instance, string column, Option<string> where)
-            : base("ApproxCountDistinct", instance, MetricEntity.Column)
+            : base("ApproxCountDistinct", instance, MetricEntity.Column, column, where)
         {
-            _where = where;
-            _column = column;
         }
-
-        public Option<string> FilterCondition() => throw new NotImplementedException();
 
         public override IEnumerable<Column> AggregationFunctions() => new Column[] { };
 
@@ -32,9 +26,9 @@ namespace deequ.Analyzers
             sb
                 .Append(GetType().Name)
                 .Append("(")
-                .Append(_column)
+                .Append(Column)
                 .Append(",")
-                .Append(_where.GetOrElse("None"))
+                .Append(Where.GetOrElse("None"))
                 .Append(")");
 
             return sb.ToString();

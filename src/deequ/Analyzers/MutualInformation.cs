@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using deequ.Extensions;
 using deequ.Metrics;
 using deequ.Util;
@@ -12,32 +11,43 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
-    public sealed class MutualInformation : FrequencyBasedAnalyzer, IFilterableAnalyzer
+    /// <summary>
+    /// Mutual Information describes how much information about one column can be inferred from another
+    /// column. If two columns are independent of each other, then nothing can be inferred from one column about
+    /// the other, and mutual information is zero. If there is a functional dependency of one column to
+    /// another and vice versa, then all information of the two columns are shared, and mutual information is the entropy of each column.
+    /// </summary>
+    public sealed class MutualInformation : FrequencyBasedAnalyzer
     {
-        public readonly IEnumerable<string> Columns;
-        public readonly Option<string> Where;
-
-        public MutualInformation(IEnumerable<string> columnsToGroupOn, Option<string> where) :
-            base("MutualInformation", columnsToGroupOn)
+        /// <summary>
+        /// Initializes a new instance of type <see cref="MutualInformation"/> class.
+        /// </summary>
+        /// <param name="columns">The target column names.</param>
+        /// <param name="where">The where condition target of the invocation</param>
+        public MutualInformation(IEnumerable<string> columns, Option<string> where) :
+            base("MutualInformation", columns, where)
         {
-            Columns = columnsToGroupOn;
-            Where = where;
         }
 
-        public MutualInformation(IEnumerable<string> columnsToGroupOn) :
-            base("MutualInformation", columnsToGroupOn) =>
-            Columns = columnsToGroupOn;
+        /// <summary>
+        ///  Initializes a new instance of type <see cref="MutualInformation"/> class.
+        /// </summary>
+        /// <param name="columns">The target column names.</param>
+        public MutualInformation(IEnumerable<string> columns) :
+            base("MutualInformation", columns)
+        {
+        }
 
-        public Option<string> FilterCondition() => Where;
-
+        /// <inheritdoc cref="FrequencyBasedAnalyzer.Preconditions"/>
         public override IEnumerable<Action<StructType>> Preconditions() =>
             AnalyzersExt.ExactlyNColumns(Columns, 2).Concat(base.Preconditions());
 
+        /// <inheritdoc cref="FrequencyBasedAnalyzer.ToFailureMetric"/>
         public override DoubleMetric ToFailureMetric(Exception e) =>
             AnalyzersExt.MetricFromFailure(e, "MutualInformation", string.Join(',', Columns),
                 MetricEntity.Multicolumn);
 
-
+        /// <inheritdoc cref="FrequencyBasedAnalyzer.ComputeMetricFrom"/>
         public override DoubleMetric ComputeMetricFrom(Option<FrequenciesAndNumRows> state)
         {
             if (!state.HasValue)
@@ -90,22 +100,6 @@ namespace deequ.Analyzers
             return AnalyzersExt.MetricFromValue(resultRow.GetAs<double>(0), "MutualInformation",
                 string.Join(',', Columns),
                 MetricEntity.Multicolumn);
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb
-                .Append(GetType().Name)
-                .Append("(")
-                .Append("List(")
-                .Append(string.Join(",", Columns))
-                .Append(")")
-                .Append(",")
-                .Append(Where.GetOrElse("None"))
-                .Append(")");
-
-            return sb.ToString();
         }
     }
 }

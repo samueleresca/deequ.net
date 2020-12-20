@@ -16,16 +16,16 @@ namespace deequ.Analyzers
         /// <summary>
         /// Defines the aggregations to compute on the data.
         /// </summary>
-        /// <returns>The set of aggregations</returns>
+        /// <returns>The set of aggregations.</returns>
         public IEnumerable<Column> AggregationFunctions();
 
         /// <summary>
         /// Produces a metric from the aggregation result
         /// </summary>
         /// <param name="result">The result row to use.</param>
-        /// <param name="offset">The offset to use</param>
-        /// <param name="aggregateWith">The loader to use for the aggregation <see cref="IStateLoader"/></param>
-        /// <param name="saveStatesWith">The persister to use for saving the result <see cref="IStatePersister"/></param>
+        /// <param name="offset">The offset to use.</param>
+        /// <param name="aggregateWith">The loader to use for the aggregation <see cref="IStateLoader"/>.</param>
+        /// <param name="saveStatesWith">The persister to use for saving the result <see cref="IStatePersister"/>.</param>
         /// <returns></returns>
         public M MetricFromAggregationResult(Row result, int offset, Option<IStateLoader> aggregateWith,
             Option<IStatePersister> saveStatesWith);

@@ -208,7 +208,7 @@ namespace deequ.Repository.Serde
             if (analyzer is PatternMatch patternMatch)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "PatternMatch");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, patternMatch.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, patternMatch.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, patternMatch.Where.GetOrElse(string.Empty));
                 writer.WriteString("pattern", patternMatch.Regex.ToString());
                 writer.WriteEndObject();
@@ -218,7 +218,7 @@ namespace deequ.Repository.Serde
             if (analyzer is Sum sum)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Sum");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, sum.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, sum.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, sum.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
@@ -227,7 +227,7 @@ namespace deequ.Repository.Serde
             if (analyzer is Mean mean)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Mean");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, mean.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, mean.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, mean.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
@@ -236,7 +236,7 @@ namespace deequ.Repository.Serde
             if (analyzer is Minimum min)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Minimum");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, min.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, min.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, min.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
@@ -246,7 +246,7 @@ namespace deequ.Repository.Serde
             if (analyzer is Maximum max)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Maximum");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, max.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, max.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, max.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
@@ -267,7 +267,7 @@ namespace deequ.Repository.Serde
             if (analyzer is Entropy entropy)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Entropy");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, entropy.Column.GetOrElse(string.Empty));
+                writer.WriteString(SerdeExt.COLUMN_FIELD, entropy.Columns.First());
                 writer.WriteEndObject();
                 return;
             }
@@ -314,7 +314,7 @@ namespace deequ.Repository.Serde
             if (analyzer is DataType dataType)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "DataType");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, dataType.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, dataType.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, dataType.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
@@ -328,9 +328,9 @@ namespace deequ.Repository.Serde
             if (analyzer is Correlation correlation)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "Correlation");
-                writer.WriteString("firstColumn", correlation.firstCol);
-                writer.WriteString("secondColumn", correlation.secondCol);
-                writer.WriteString(SerdeExt.WHERE_FIELD, correlation.where.GetOrElse(string.Empty));
+                writer.WriteString("firstColumn", correlation.ColumnA);
+                writer.WriteString("secondColumn", correlation.ColumnB);
+                writer.WriteString(SerdeExt.WHERE_FIELD, correlation.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
             }
@@ -338,7 +338,7 @@ namespace deequ.Repository.Serde
             if (analyzer is StandardDeviation stDev)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "StandardDeviation");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, stDev.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, stDev.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, stDev.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
@@ -352,7 +352,7 @@ namespace deequ.Repository.Serde
             if (analyzer is MinLength minLength)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "MinLength");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, minLength.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, minLength.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, minLength.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;
@@ -361,7 +361,7 @@ namespace deequ.Repository.Serde
             if (analyzer is MaxLength maxLength)
             {
                 writer.WriteString(SerdeExt.ANALYZER_NAME_FIELD, "MaxLength");
-                writer.WriteString(SerdeExt.COLUMN_FIELD, maxLength.Column);
+                writer.WriteString(SerdeExt.COLUMN_FIELD, maxLength.Column.GetOrElse(string.Empty));
                 writer.WriteString(SerdeExt.WHERE_FIELD, maxLength.Where.GetOrElse(string.Empty));
                 writer.WriteEndObject();
                 return;

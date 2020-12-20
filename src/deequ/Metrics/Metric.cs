@@ -94,6 +94,11 @@ namespace deequ.Metrics
             Value = value;
         }
 
+        /// <summary>
+        /// Return the metric as IEnumerable
+        /// </summary>
+        /// <returns>The IEnumerable representing the metric <see cref="DoubleMetric"/>. </returns>
+        public virtual IEnumerable<Metric<T>> Flatten() => new[] { this }.AsEnumerable();
     }
 
     /// <summary>
@@ -134,11 +139,6 @@ namespace deequ.Metrics
         public static DoubleMetric Create(MetricEntity metricEntity, string name, string instance, Try<double> value) =>
             new DoubleMetric(metricEntity, name, instance, value);
 
-        /// <summary>
-        /// Return the metric as IEnumerable
-        /// </summary>
-        /// <returns>The IEnumerable representing the metric <see cref="DoubleMetric"/>. </returns>
-        public virtual IEnumerable<DoubleMetric> Flatten() => new[] { this }.AsEnumerable();
 
         /// <summary>
         /// Overrides the equality comparison between two <see cref="DoubleMetric"/> types.

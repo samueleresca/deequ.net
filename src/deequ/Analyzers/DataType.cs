@@ -14,6 +14,9 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Analyzers
 {
+    /// <summary>
+    /// Data type instances
+    /// </summary>
     internal enum DataTypeInstances
     {
         Unknown = 0,
@@ -23,8 +26,14 @@ namespace deequ.Analyzers
         String = 4
     }
 
+
+    /// <summary>
+    /// Represents the data type state.
+    /// </summary>
     public class DataTypeHistogram : State<DataTypeHistogram>
     {
+
+
         private const int SIZE_IN_BITES = 5;
         private const int NULL_POS = 0;
         private const int FRATIONAL_POS = 1;
@@ -32,6 +41,14 @@ namespace deequ.Analyzers
         private const int BOOLEAN_POS = 3;
         private const int STRING_POS = 4;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataTypeHistogram"/> class.
+        /// </summary>
+        /// <param name="nonNull">Count of non null values.</param>
+        /// <param name="numFractional">Count of the fractional values.</param>
+        /// <param name="numIntegral">Count of the integral values.</param>
+        /// <param name="numBoolean">Count of the boolean values.</param>
+        /// <param name="numString">Count of the string values.</param>
         public DataTypeHistogram(long nonNull, long numFractional, long numIntegral, long numBoolean, long numString)
         {
             NonNull = nonNull;
@@ -41,23 +58,46 @@ namespace deequ.Analyzers
             NumString = numString;
         }
 
+        /// <summary>
+        /// Represents the count of non-null values.
+        /// </summary>
         public long NonNull { get; }
+        /// <summary>
+        /// Represents the count of fractional values.
+        /// </summary>
         public long NumFractional { get; }
+        /// <summary>
+        /// Represents the count of integral values.
+        /// </summary>
         public long NumIntegral { get; }
+        /// <summary>
+        /// Represents the count of bool values.
+        /// </summary>
         public long NumBoolean { get; }
+        /// <summary>
+        /// Represents the count of string values.
+        /// </summary>
         public long NumString { get; }
 
+        /// <inheritdoc cref="State{T}.Sum"/>
         public IState Sum(IState other) => throw new NotImplementedException();
 
+        /// <inheritdoc cref="State{T}.Sum"/>
         public override DataTypeHistogram Sum(DataTypeHistogram other) =>
             new DataTypeHistogram(NonNull + other.NonNull, NumFractional + other.NumFractional,
                 NumIntegral + other.NumIntegral, NumBoolean + other.NumBoolean, NumString + other.NumString);
 
+        /// <summary>
+        /// Converts an array to a <see cref="DataTypeHistogram"/>.
+        /// </summary>
+        /// <param name="typesCount">Array that represents the counts of the different types.</param>
+        /// <returns>An instance of the <see cref="DataTypeHistogram"/> instance with the corresponding values.</returns>
+        /// <exception cref="Exception">The SIZE_IN_BITES doesn't correspond to the Length of the array.</exception>
         public static DataTypeHistogram FromArray(int[] typesCount)
         {
             if (typesCount.Length != SIZE_IN_BITES)
             {
-                throw new Exception();
+                throw new Exception("The SIZE_IN_BITES doesn't correspond to the Length of the array.");
             }
 
             int numNull = typesCount[NULL_POS];
@@ -69,57 +109,69 @@ namespace deequ.Analyzers
             return new DataTypeHistogram(numNull, numFractional, numIntegral, numBoolean, numString);
         }
 
-        public static Distribution ToDistribution(DataTypeHistogram hist)
+        /// <summary>
+        /// Converts the a <see cref="DataTypeHistogram"/> instance to a <see cref="Distribution"/> instance.
+        /// </summary>
+        /// <param name="value">The <see cref="DataTypeHistogram"/> to convert.</param>
+        /// <returns>The <see cref="Distribution"/> instance.</returns>
+        public static Distribution ToDistribution(DataTypeHistogram value)
         {
             long totalObservations =
-                hist.NonNull + hist.NumString + hist.NumBoolean + hist.NumIntegral + hist.NumFractional;
+                value.NonNull + value.NumString + value.NumBoolean + value.NumIntegral + value.NumFractional;
 
             return new Distribution(
                 new Dictionary<string, DistributionValue>
                 {
                     {
                         DataTypeInstances.Unknown.ToString(),
-                        new DistributionValue(hist.NonNull, (double)hist.NonNull / totalObservations)
+                        new DistributionValue(value.NonNull, (double)value.NonNull / totalObservations)
                     },
                     {
                         DataTypeInstances.Fractional.ToString(),
-                        new DistributionValue(hist.NumFractional, (double)hist.NumFractional / totalObservations)
+                        new DistributionValue(value.NumFractional, (double)value.NumFractional / totalObservations)
                     },
                     {
                         DataTypeInstances.Integral.ToString(),
-                        new DistributionValue(hist.NumIntegral, (double)hist.NumIntegral / totalObservations)
+                        new DistributionValue(value.NumIntegral, (double)value.NumIntegral / totalObservations)
                     },
                     {
                         DataTypeInstances.Boolean.ToString(),
-                        new DistributionValue(hist.NumBoolean, (double)hist.NumBoolean / totalObservations)
+                        new DistributionValue(value.NumBoolean, (double)value.NumBoolean / totalObservations)
                     },
                     {
                         DataTypeInstances.String.ToString(),
-                        new DistributionValue(hist.NumString, (double)hist.NumString / totalObservations)
+                        new DistributionValue(value.NumString, (double)value.NumString / totalObservations)
                     }
                 }, 5);
         }
     }
 
+    /// <summary>
+    /// Data type analyzers, analyzes the data type of the target column.
+    /// </summary>
     public sealed class DataType : ScanShareableAnalyzer<DataTypeHistogram, HistogramMetric>, IFilterableAnalyzer
     {
-        public readonly string Column;
-        public readonly Option<string> Where;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataType"/> class.
+        /// </summary>
+        /// <param name="column">The target column name.</param>
+        /// <param name="where">A string representing the where clause to include <see cref="Functions.Expr"/>.</param>
         public DataType(string column, Option<string> where)
         {
             Column = column;
             Where = where;
         }
 
-        public Option<string> FilterCondition() => Where;
-
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ToFailureMetric"/>.
         public override HistogramMetric ToFailureMetric(Exception e) =>
-            new HistogramMetric(Column, new Try<Distribution>(e));
+            new HistogramMetric(Column.Value, new Try<Distribution>(e));
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.Preconditions"/>.
         public override IEnumerable<Action<StructType>> Preconditions() =>
             new[] { AnalyzersExt.HasColumn(Column), AnalyzersExt.IsNotNested(Column) }.Concat(base.Preconditions());
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ComputeMetricFrom"/>.
         public override HistogramMetric ComputeMetricFrom(Option<DataTypeHistogram> state)
         {
             //TODO: Empty message as exception
@@ -128,9 +180,9 @@ namespace deequ.Analyzers
                 return ToFailureMetric(new EmptyStateException(string.Empty));
             }
 
-            return new HistogramMetric(Column, new Try<Distribution>(DataTypeHistogram.ToDistribution(state.Value)));
+            return new HistogramMetric(Column.Value, new Try<Distribution>(DataTypeHistogram.ToDistribution(state.Value)));
         }
-
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ComputeStateFrom"/>.
         public override Option<DataTypeHistogram> ComputeStateFrom(DataFrame dataFrame)
         {
             StatefulDataType statefulDataType = new StatefulDataType();
@@ -155,15 +207,16 @@ namespace deequ.Analyzers
             return FromAggregationResult(result, 0);
         }
 
-
-        //TODO: Wrap aggregation function
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.AggregationFunctions"/>.
         public override IEnumerable<Column> AggregationFunctions() =>
             new[] { AnalyzersExt.ConditionalSelection(Column, Where) };
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.FromAggregationResult"/>.
         protected override Option<DataTypeHistogram> FromAggregationResult(Row result, int offset) =>
             AnalyzersExt.IfNoNullsIn(result, offset,
                 () => { return DataTypeHistogram.FromArray(result.Values.Select(value => (int)value).ToArray()); });
 
+        /// <inheritdoc cref="StandardScanShareableAnalyzer{S}.ToString"/>.
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
