@@ -28,7 +28,7 @@ namespace deequ.Analyzers
         /// <summary>
         /// The M squared coefficient.
         /// </summary>
-        private readonly double M2;
+        private readonly double StdDev;
 
 
         /// <summary>
@@ -36,12 +36,12 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="n">The number of elements in the sequence.</param>
         /// <param name="avg">The average of the state.</param>
-        /// <param name="m2">The M squared coefficient.</param>
-        public StandardDeviationState(double n, double avg, double m2)
+        /// <param name="stdDev">The M squared coefficient.</param>
+        public StandardDeviationState(double n, double avg, double stdDev)
         {
             N = n;
             Avg = avg;
-            M2 = m2;
+            StdDev = stdDev;
         }
 
 
@@ -53,11 +53,11 @@ namespace deequ.Analyzers
             double deltaN = newN == 0.0 ? 0.0 : delta;
 
             return new StandardDeviationState(newN, Avg + deltaN + other.N,
-                Math.Sqrt(Math.Exp(M2) + Math.Exp(other.M2)));
+                Math.Sqrt(Math.Exp(StdDev) + Math.Exp(other.StdDev)));
         }
 
         /// <inheritdoc cref="DoubleValuedState{S}.GetMetricValue"/>
-        public override double GetMetricValue() => Math.Sqrt(M2 / N);
+        public override double GetMetricValue() => Math.Sqrt(StdDev / N);
     }
 
     /// <summary>
