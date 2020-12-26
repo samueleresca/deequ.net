@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Spark.Sql;
 using Xunit;
+using Microsoft.Spark.Interop.Ipc;
 
 namespace xdeequ.tests
 {
@@ -41,14 +42,16 @@ namespace xdeequ.tests
 
         internal SparkSession Spark { get; }
 
+        public const string DefaultLogLevel = "INFO";
+
+        internal IJvmBridge Jvm { get; }
+
         public SparkFixture()
         {
             // The worker directory must be set for the Microsoft.Spark.Worker executable.
             if (string.IsNullOrEmpty(
                 Environment.GetEnvironmentVariable(EnvironmentVariableNames.WorkerDir)))
             {
-                throw new Exception(
-                    $"Environment variable '{EnvironmentVariableNames.WorkerDir}' must be set.");
             }
 
             BuildSparkCmd(out var filename, out var args);
@@ -56,6 +59,8 @@ namespace xdeequ.tests
             // Configure the process using the StartInfo properties.
             _process.StartInfo.FileName = filename;
             _process.StartInfo.Arguments = args;
+
+            Console.WriteLine($"Filename: {filename} | Args: {args}");
             // UseShellExecute defaults to true in .NET Framework,
             // but defaults to false in .NET Core. To support both, set it
             // to false which is required for stream redirection.
@@ -69,7 +74,7 @@ namespace xdeequ.tests
             {
                 // Scala-side driver for .NET emits the following message after it is
                 // launched and ready to accept connections.
-                if (!isSparkReady
+                if (!isSparkReady  && arguments.Data != null
                     && arguments.Data.Contains("Backend running debug mode"))
                 {
                     isSparkReady = true;
@@ -100,9 +105,12 @@ namespace xdeequ.tests
                 .Config("spark.sql.shuffle.partitions", "3")
                 .Config("spark.ui.enabled", false)
                 .Config("spark.ui.showConsoleProgress", false)
-                .AppName("deequ.NET")
+                .AppName("Microsoft.Spark.E2ETest")
                 .GetOrCreate();
 
+            Spark.SparkContext.SetLogLevel(DefaultLogLevel);
+
+            Jvm = ((IJvmObjectReferenceProvider)Spark).Reference.Jvm;
         }
 
         public void Dispose()
@@ -165,7 +173,11 @@ namespace xdeequ.tests
             string logOption = "--conf spark.driver.extraJavaOptions=-Dlog4j.configuration=" +
                 $"{resourceUri}/log4j.properties";
 
-            args = $"{logOption} {warehouseDir} {extraArgs} {classArg} --master local {jar} debug";
+            string deequOption =
+                $"--conf spark.driver.extraClassPath={resourceUri}/deequ-1.1.0_spark-2.4-scala-2.11.jar" +
+                $" --conf spark.worker.extraClassPath={resourceUri}/deequ-1.1.0_spark-2.4-scala-2.11.jar";
+
+            args = $"{logOption} {deequOption} {warehouseDir} {extraArgs} {classArg} --master local {jar} debug";
         }
 
         private string GetJarPrefix()

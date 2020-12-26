@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using deequ.Util;
+using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
 namespace deequ.Analyzers
@@ -86,6 +88,12 @@ namespace deequ.Analyzers
         public static Sum Sum(string column) => new Sum(column, Option<string>.None);
 
         public static Sum Sum(string column, Option<string> where) => new Sum(column, where);
+        public static Sum SumJvm(string column, Option<string> where)
+        {
+           return  new Sum(SparkEnvironment.JvmBridge.CallConstructor("com.amazon.deequ.analyzers.Sum", column, @where.Value));
+        }
+
+        public static SumJava SumJava(string column, Option<string> where) => new SumJava(column, where);
 
         public static StandardDeviation StandardDeviation(string column) =>
             new StandardDeviation(column, Option<string>.None);

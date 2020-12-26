@@ -6,6 +6,7 @@ using deequ.Analyzers.States;
 using deequ.Extensions;
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using static Microsoft.Spark.Sql.Functions;
@@ -231,6 +232,8 @@ namespace deequ.Analyzers
         /// </summary>
         private readonly MetricEntity _metricEntity;
 
+        protected JvmObjectReference _jvmObjectReference;
+
         /// <summary>
         /// The name of the analyzer.
         /// </summary>
@@ -252,6 +255,11 @@ namespace deequ.Analyzers
             Name = name;
             Instance = instance;
             _metricEntity = metricEntity;
+        }
+
+        protected StandardScanShareableAnalyzer(JvmObjectReference jvmObjectReference)
+        {
+            _jvmObjectReference = jvmObjectReference;
         }
         /// <summary>
         /// Initializes a new instance of type <see cref="StandardScanShareableAnalyzer{S}"/>.

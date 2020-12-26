@@ -2,6 +2,7 @@
 
     <PropertyGroup>
       <TargetFramework>netstandard2.1</TargetFramework>
+      <InternalsAssemblyNames>Microsoft.Spark</InternalsAssemblyNames>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <Copyright />
@@ -14,5 +15,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Spark" Version="1.0.0" />
         <PackageReference Include="System.Text.Json" Version="5.0.0" />
+        <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
     </ItemGroup>
 </Project>

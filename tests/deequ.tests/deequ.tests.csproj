@@ -2,20 +2,21 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <LangVersion>9</LangVersion>
+        <InternalsAssemblyNames>Microsoft.Spark</InternalsAssemblyNames>
         <IsPackable>false</IsPackable>
         <RootNamespace>xdeequ.tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="coverlet.msbuild" Version="2.9.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
         <PackageReference Include="Moq" Version="4.15.2" />
         <PackageReference Include="Shouldly" Version="4.0.3" />
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
         <PackageReference Include="coverlet.collector" Version="1.3.0" />
         <PackageReference Include="Microsoft.Spark" Version="1.0.0" />
+        <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
@@ -32,6 +33,9 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\log4j.properties">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\deequ-1.1.0_spark-2.4-scala-2.11.jar">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

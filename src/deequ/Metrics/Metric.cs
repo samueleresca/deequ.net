@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using deequ.Util;
+using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Metrics
 {
@@ -62,6 +63,8 @@ namespace deequ.Metrics
         /// </summary>
         public Try<T> Value;
 
+        private JvmObjectReference _jvmObjectReference;
+
         /// <summary>
         /// The metric entity.
         /// </summary>
@@ -94,6 +97,11 @@ namespace deequ.Metrics
             Value = value;
         }
 
+        protected Metric(JvmObjectReference jvmObjectReference)
+        {
+            _jvmObjectReference = jvmObjectReference;
+        }
+
         /// <summary>
         /// Return the metric as IEnumerable
         /// </summary>
@@ -115,6 +123,10 @@ namespace deequ.Metrics
         /// <param name="value">The value of the metric, wrapped in a Try monad <see cref="Try{T}"/></param>
         public DoubleMetric(MetricEntity metricEntity, string name, string instance, Try<double> value)
             : base(metricEntity, name, instance, value)
+        {
+        }
+
+        public DoubleMetric(JvmObjectReference jvmObjectReference) : base(jvmObjectReference)
         {
         }
 
