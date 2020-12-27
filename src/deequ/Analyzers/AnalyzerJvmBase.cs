@@ -59,7 +59,37 @@ namespace deequ.Analyzers
         }
     }
 
+    public class AnalysisRunBuilder
+    {
+        /// <summary>
+        ///
+        /// </summary>
+        public SparkSession _sparkSession;
+        public DataFrame _df;
+        public JvmObjectReference _AnalysisRunBuilder;
+        public JvmObjectReference _jvm;
 
+        public AnalysisRunBuilder(SparkSession sparkSession, DataFrame df, JvmObjectReference jvm)
+        {
+            _sparkSession = sparkSession;
+            _df = df;
+            _jvm = jvm;
+            _AnalysisRunBuilder = jvm.Jvm.CallConstructor("com.amazon.deequ.analyzers.runners.AnalysisRunBuilder", df);
+
+        }
+
+        public AnalysisRunBuilder AddAnalyzer(AnalyzerJvmBase analyzerJvmBase)
+        {
+            analyzerJvmBase.JvmObjectReference = _jvm;
+            _AnalysisRunBuilder.Invoke("addAnalyzer", analyzerJvmBase);
+            return this;
+        }
+
+        public JvmObjectReference Run()
+        {
+            return (JvmObjectReference)_AnalysisRunBuilder.Invoke("run");
+        }
+    }
 
     public class ApproxCountDistinctJvm : AnalyzerJvmBase
     {
