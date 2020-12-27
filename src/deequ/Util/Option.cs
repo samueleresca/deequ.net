@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Util
 {
@@ -42,6 +44,11 @@ namespace deequ.Util
             }
 
             return obj is Option<T> && Equals((Option<T>)obj);
+        }
+
+        public JvmObjectReference ToJvm()
+        {
+           return SparkEnvironment.JvmBridge.CallConstructor("scala.Option", HasValue ? Value : (object) null);
         }
 
         public override int GetHashCode()

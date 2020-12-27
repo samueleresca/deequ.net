@@ -39,7 +39,7 @@ namespace deequ.Analyzers
     public sealed class Sum : StandardScanShareableAnalyzer<SumState>
     {
         /// <summary>
-        ///  Initializes a new instance of type <see cref="Sum"/> class.
+        /// Initializes a new instance of type <see cref="Sum"/> class.
         /// </summary>
         /// <param name="column"></param>
         /// <param name="where"></param>
