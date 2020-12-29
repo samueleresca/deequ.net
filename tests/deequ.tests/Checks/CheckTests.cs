@@ -12,6 +12,7 @@ using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
+using AnalysisRunBuilder = deequ.Analyzers.Runners.AnalysisRunBuilder;
 
 namespace xdeequ.tests.Checks
 {

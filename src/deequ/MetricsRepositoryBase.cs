@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using deequ.Analyzers;
@@ -8,7 +9,7 @@ using Microsoft.Spark.Sql;
 
 namespace deequ.Metrics
 {
-    public class MetricsRepositoryBase
+    public class MetricsRepositoryBase : IJvmObjectReferenceProvider
     {
         protected readonly JvmObjectReference _repository;
 
@@ -67,6 +68,8 @@ namespace deequ.Metrics
             return (DataFrame) _repository.Invoke("getSuccessMetricsAsDataFrame",
                 new Seq<string>(_repository, withTags.ToArray()));
         }
+
+        public JvmObjectReference Reference => _repository;
     }
 
     public class InMemoryMetricsRepository : MetricsRepositoryBase
@@ -101,5 +104,28 @@ namespace deequ.Metrics
             string f_path = (string) file.Invoke("getAbsolutePath");
             return f_path;
         }
+    }
+
+    public class ResultKeyJvm : IJvmObjectReferenceProvider
+    {
+        private JvmObjectReference _jvmResultKey;
+
+        public ResultKeyJvm(Option<long> dataSetDate, Dictionary<string, string> tags = default)
+        {
+            if (!dataSetDate.HasValue)
+            {
+                dataSetDate = DateTime.Now.Ticks;
+            }
+
+            Map tagsMap = new Map(SparkEnvironment.JvmBridge);
+            tagsMap.PutAll(tags);
+
+            _jvmResultKey =
+                SparkEnvironment.JvmBridge.CallConstructor("com.amazon.deequ.repository.ResultKey",
+                    dataSetDate,
+                    tagsMap.Reference);
+        }
+
+        public JvmObjectReference Reference => _jvmResultKey;
     }
 }

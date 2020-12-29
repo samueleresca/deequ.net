@@ -38,10 +38,39 @@
         <None Update="Resources\deequ-1.1.0_spark-2.4-scala-2.11.jar">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Remove="AnomalyDetection\**" />
+        <None Remove="Checks\**" />
+        <None Remove="Constraints\**" />
+        <None Remove="Examples\**" />
+        <None Remove="Metrics\**" />
+        <None Remove="Repository\**" />
+        <None Remove="Analyzers\**" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\deequ\deequ.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="AnomalyDetection\**" />
+      <Compile Remove="Checks\**" />
+      <Compile Remove="Constraints\**" />
+      <Compile Remove="Examples\**" />
+      <Compile Remove="Metrics\**" />
+      <Compile Remove="Repository\**" />
+      <Compile Remove="VerificationResultTests.cs" />
+      <Compile Remove="VerificationSuiteTest.cs" />
+      <Compile Remove="Analyzers\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="AnomalyDetection\**" />
+      <EmbeddedResource Remove="Checks\**" />
+      <EmbeddedResource Remove="Constraints\**" />
+      <EmbeddedResource Remove="Examples\**" />
+      <EmbeddedResource Remove="Metrics\**" />
+      <EmbeddedResource Remove="Repository\**" />
+      <EmbeddedResource Remove="Analyzers\**" />
     </ItemGroup>
 
 </Project>

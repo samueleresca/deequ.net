@@ -17,4 +17,32 @@
         <PackageReference Include="System.Text.Json" Version="5.0.0" />
         <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Analyzers\Applicability" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Analyzers\**\*" />
+      <Compile Remove="AnomalyDetection\**" />
+      <Compile Remove="Checks\**" />
+      <Compile Remove="AnomalyDetection\**" />
+      <Compile Remove="Constraints\**" />
+      <Compile Remove="Extensions\**" />
+      <Compile Remove="Metrics\**" />
+      <Compile Remove="Repository\**" />
+      <Compile Remove="VerificationSuite.cs" />
+      <Compile Remove="VerificationResult.cs" />
+      <Compile Remove="VerificationRunBuilder.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Remove="Constraints\**" />
+      <EmbeddedResource Remove="Extensions\**" />
+      <EmbeddedResource Remove="Metrics\**" />
+      <EmbeddedResource Remove="Repository\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="Constraints\**" />
+      <None Remove="Extensions\**" />
+      <None Remove="Metrics\**" />
+      <None Remove="Repository\**" />
+    </ItemGroup>
 </Project>

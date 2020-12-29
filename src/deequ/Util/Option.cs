@@ -46,9 +46,24 @@ namespace deequ.Util
             return obj is Option<T> && Equals((Option<T>)obj);
         }
 
-        public JvmObjectReference ToJvm()
+        public object ToJvm(Option<(string className, string defaultName)> defaultReference = default)
         {
-           return SparkEnvironment.JvmBridge.CallConstructor("scala.Option", HasValue ? Value : (object) null);
+            if (!HasValue && !defaultReference.HasValue)
+            {
+                return null;
+            }
+
+            if (!HasValue)
+            {
+                return SparkEnvironment
+                    .JvmBridge
+                    .CallStaticJavaMethod(defaultReference.Value.className, defaultReference.Value.defaultName);
+            }
+
+
+            return SparkEnvironment
+               .JvmBridge
+               .CallStaticJavaMethod("scala.Option", "apply", Value );
         }
 
         public override int GetHashCode()

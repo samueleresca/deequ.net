@@ -1,13 +1,101 @@
 using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark;
 using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Types;
 
 namespace deequ.Analyzers
 {
+
+    public class AnalzyerContext
+    {
+        private JvmObjectReference _jvmObjectReference;
+
+        public AnalzyerContext(JvmObjectReference jvmObjectReference)
+        {
+            _jvmObjectReference = jvmObjectReference;
+        }
+
+
+        public DataFrame SuccessMetricsAsDataFrame(IEnumerable<AnalyzerJvmBase> forAnalyzers = default)
+        {
+            var forAnalyzersInstance = _jvmObjectReference.Jvm.CallStaticJavaMethod(
+                "com.amazon.deequ.analyzers.runners.AnalyzerContext", "successMetricsAsDataFrame$default$3");
+
+            var jvmReference = (IJvmObjectReferenceProvider)SparkSession.GetActiveSession();
+
+            var dataFrameReference = (JvmObjectReference)_jvmObjectReference.Jvm.CallStaticJavaMethod(
+                "com.amazon.deequ.analyzers.runners.AnalyzerContext",
+                "successMetricsAsDataFrame",
+                jvmReference.Reference, _jvmObjectReference, forAnalyzersInstance);
+            return new DataFrame(dataFrameReference);
+        }
+
+
+        public string SuccessMetricsAsJson(IEnumerable<AnalyzerJvmBase> forAnalyzers = default)
+        {
+            var forAnalyzersInstance = _jvmObjectReference.Jvm.CallStaticJavaMethod(
+                "com.amazon.deequ.analyzers.runners.AnalyzerContext", "successMetricsAsJson$default$2");
+
+
+            return (string) _jvmObjectReference.Jvm.CallStaticJavaMethod(
+                "com.amazon.deequ.analyzers.runners.AnalyzerContext", "successMetricsAsJson", _jvmObjectReference, forAnalyzersInstance);
+        }
+
+
+    }
+
+    public class AnalysisRunBuilder
+    {
+        /// <summary>
+        ///
+        /// </summary>
+        public JvmObjectReference _AnalysisRunBuilder;
+        public IJvmBridge _jvmBridge;
+
+        public AnalysisRunBuilder(DataFrame df, IJvmBridge bridge)
+        {
+            _AnalysisRunBuilder = bridge
+                .CallConstructor("com.amazon.deequ.analyzers.runners.AnalysisRunBuilder", df);
+
+        }
+
+        public AnalysisRunBuilder AddAnalyzer(AnalyzerJvmBase analyzerJvmBase)
+        {
+            analyzerJvmBase.JvmObjectReference = _AnalysisRunBuilder;
+            _AnalysisRunBuilder.Invoke("addAnalyzer", analyzerJvmBase.Reference);
+            return this;
+        }
+
+        public AnalzyerContext Run()
+        {
+            return new AnalzyerContext((JvmObjectReference)_AnalysisRunBuilder.Invoke("run"));
+        }
+
+        public AnalysisRunBuilder UseRepository(MetricsRepositoryBase repositoryBase)
+        {
+            _AnalysisRunBuilder = (JvmObjectReference) _AnalysisRunBuilder.Invoke("useRepository", repositoryBase.Reference);
+            return this;
+        }
+
+        public AnalysisRunBuilder SaveOrAppendResult(ResultKeyJvm resultKey)
+        {
+            _AnalysisRunBuilder.Invoke("saveOrAppendResult", resultKey.Reference);
+            return this;
+        }
+
+
+    }
+
     /// <summary>
     /// Analyzer base object to pass and accumulate the analyzers of the run with respect to the JVM
     /// </summary>
@@ -52,44 +140,20 @@ namespace deequ.Analyzers
         {
         }
 
-        public virtual JvmObjectReference Reference {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), Column.ToJvm(), Where.ToJvm());
+        public virtual JvmObjectReference Reference
+        {
+            get
+            {
+                return JvmObjectReference
+                    .Jvm.CallConstructor(
+                        AnalyzersNamespaces(AnalyzerName),
+                        Column.Value,
+                        Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
+            }
         }
     }
 
-    public class AnalysisRunBuilder
-    {
-        /// <summary>
-        ///
-        /// </summary>
-        public SparkSession _sparkSession;
-        public DataFrame _df;
-        public JvmObjectReference _AnalysisRunBuilder;
-        public JvmObjectReference _jvm;
 
-        public AnalysisRunBuilder(SparkSession sparkSession, DataFrame df, JvmObjectReference jvm)
-        {
-            _sparkSession = sparkSession;
-            _df = df;
-            _jvm = jvm;
-            _AnalysisRunBuilder = jvm.Jvm.CallConstructor("com.amazon.deequ.analyzers.runners.AnalysisRunBuilder", df);
-
-        }
-
-        public AnalysisRunBuilder AddAnalyzer(AnalyzerJvmBase analyzerJvmBase)
-        {
-            analyzerJvmBase.JvmObjectReference = _jvm;
-            _AnalysisRunBuilder.Invoke("addAnalyzer", analyzerJvmBase);
-            return this;
-        }
-
-        public JvmObjectReference Run()
-        {
-            return (JvmObjectReference)_AnalysisRunBuilder.Invoke("run");
-        }
-    }
 
     public class ApproxCountDistinctJvm : AnalyzerJvmBase
     {
@@ -150,7 +214,7 @@ namespace deequ.Analyzers
         /// Initializes a new instance of the <see cref="Completeness"/> class.
         /// </summary>
         /// <param name="column">The target column name.</param>
-        /// <param name="where">A string representing the where clause to include <see cref="Constraints.Functions.Expr"/>.</param>
+        /// <param name="where">A string representing the where clause to include <see cref="Functions.Expr"/>.</param>
         public CompletenessJvm(string column, Option<string> where = default) : base(column, where)
         {
         }
@@ -331,14 +395,14 @@ namespace deequ.Analyzers
     public class MaximumJvm : AnalyzerJvmBase
     {
 
-        protected override string AnalyzerName => "MaximumJvm";
+        protected override string AnalyzerName => "Maximum";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Maximum"/>.
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public MaximumJvm(string column, Option<string> where) : base(column, where)
+        public MaximumJvm(string column, Option<string> where = default) : base(column, where)
         {
         }
     }

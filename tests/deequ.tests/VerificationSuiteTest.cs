@@ -20,6 +20,7 @@ using Xunit;
 using Xunit.Abstractions;
 using static deequ.Constraints.Functions;
 using static Microsoft.Spark.Sql.Functions;
+using InMemoryMetricsRepository = deequ.Repository.InMemory.InMemoryMetricsRepository;
 
 namespace xdeequ.tests
 {
