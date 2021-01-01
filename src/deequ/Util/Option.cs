@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Util
 {
@@ -46,7 +45,7 @@ namespace deequ.Util
             return obj is Option<T> && Equals((Option<T>)obj);
         }
 
-        public object ToJvm(Option<(string className, string defaultName)> defaultReference = default)
+        public readonly object ToJvm(Option<(string className, string defaultName)> defaultReference = default)
         {
             if (!HasValue && !defaultReference.HasValue)
             {

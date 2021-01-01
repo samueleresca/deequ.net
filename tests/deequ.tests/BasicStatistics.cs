@@ -1,12 +1,10 @@
-using System.Collections.Generic;
+using System;
+using System.IO;
 using deequ.Analyzers;
-using deequ.Metrics;
-using deequ.Util;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
-using Shouldly;
+using Microsoft.Spark.Sql.Streaming;
 using Xunit;
 
 namespace xdeequ.tests.Analyzers
@@ -25,19 +23,39 @@ namespace xdeequ.tests.Analyzers
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
             AnalysisRunBuilder builder = new AnalysisRunBuilder(df, SparkEnvironment.JvmBridge);
 
-            MaximumJvm result = new MaximumJvm("att1");
+            Maximum result = new Maximum("att1");
 
-            AnalzyerContext context = builder
+            AnalyzerContext context = builder
                 .AddAnalyzer(result)
                 .Run();
 
             string resultJson = context
                 .SuccessMetricsAsJson();
 
+            var test2 = context.MetricMap();
+
             DataFrame resultFrame =  context
                 .SuccessMetricsAsDataFrame();
-                
+
         }
 
+    }
+
+    /// <summary>
+    /// <see cref="DataStreamWriter.ForeachBatch(Action{DataFrame, long})"/> callback handler.
+    /// </summary>
+    internal sealed class ForeachBatchCallbackHandler : ICallbackHandler
+    {
+        private readonly Func<long, bool> _func;
+
+        internal ForeachBatchCallbackHandler(Func<long, bool> func) =>
+            _func = func;
+
+
+        public void Run(Stream inputStream)
+        {
+            long test = SerDe.ReadInt64(inputStream);
+            _func(test);
+        }
     }
 }

@@ -1,10 +1,13 @@
 using System;
+using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Util
 {
     public class Try<T>
     {
         public Try(T success) => Success = success;
+
+        public Try(JvmObjectReference objectReference) => Success = (T)objectReference.Invoke("get");
 
         public Try(Exception failure) => Failure = failure;
 

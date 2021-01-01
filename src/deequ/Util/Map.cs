@@ -6,7 +6,7 @@ namespace deequ.Util
     /// <summary>
     /// Hashtable class represents a <c>java.util.Hashtable</c> object.
     /// </summary>
-    internal sealed class Map : IJvmObjectReferenceProvider
+    public sealed class Map : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
 

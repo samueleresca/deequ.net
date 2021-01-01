@@ -4,7 +4,6 @@ using deequ.Analyzers.Runners;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Sql;
-using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 namespace deequ.Analyzers
 {

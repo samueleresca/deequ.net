@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using deequ.Util;
 
 namespace deequ.AnomalyDetection

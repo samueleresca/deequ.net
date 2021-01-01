@@ -1,4 +1,5 @@
-using deequ.Analyzers.Runners;
+using deequ.Analyzers;
+using deequ.Metrics;
 
 namespace deequ.Repository
 {

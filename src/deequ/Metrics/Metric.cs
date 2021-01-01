@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
 
@@ -56,25 +54,29 @@ namespace deequ.Metrics
     /// <summary>
     /// A class that describes a generic metric
     /// </summary>
-    public abstract class Metric<T> : IMetric
+    public class Metric<T> : IMetric
     {
         /// <summary>
         /// The value of the metric wrapped in a Try monad <see cref="Try{T}"/>.
         /// </summary>
-        public Try<T> Value;
+        public Try<T> Value
+        {
+            get;
+            set;
+        }
 
         private JvmObjectReference _jvmObjectReference;
 
         /// <summary>
         /// The metric entity.
         /// </summary>
-        public MetricEntity MetricEntity { get; }
+        public object MetricEntity { get; set; }
 
         /// <inheritdoc cref="IMetric.Name"/>
-        public string Name { get; }
+        public string Name { get; set; }
 
         /// <inheritdoc cref="IMetric.Instance"/>
-        public string Instance { get; }
+        public string Instance { get; set; }
 
         /// <inheritdoc cref="IMetric.IsSuccess"/>
         public bool IsSuccess() => Value.IsSuccess;
@@ -89,24 +91,29 @@ namespace deequ.Metrics
         /// <param name="name">The name of the metric.</param>
         /// <param name="instance">The instance of the metric.</param>
         /// <param name="value">The value of the metric, wrapped in a Try monad <see cref="Try{T}"/></param>
-        protected Metric(MetricEntity metricEntity, string name, string instance, Try<T> value)
+
+
+        public Metric(JvmObjectReference jvmObjectReference)
         {
+            Value = new Try<T>((JvmObjectReference)jvmObjectReference.Invoke("value"));
+            MetricEntity = jvmObjectReference.Invoke("entity");
+            Name = (string) jvmObjectReference.Invoke("name");
+            Instance =  (string)jvmObjectReference.Invoke("instance");
+
+            _jvmObjectReference = jvmObjectReference;
+
+        }
+        public Metric(MetricEntity metricEntity, string name, string instance, Try<T> value)
+        {
+            Value = value;
             MetricEntity = metricEntity;
             Name = name;
             Instance = instance;
+        }
+        public Metric( Try<T> value)
+        {
             Value = value;
         }
-
-        protected Metric(JvmObjectReference jvmObjectReference)
-        {
-            _jvmObjectReference = jvmObjectReference;
-        }
-
-        /// <summary>
-        /// Return the metric as IEnumerable
-        /// </summary>
-        /// <returns>The IEnumerable representing the metric <see cref="DoubleMetric"/>. </returns>
-        public virtual IEnumerable<Metric<T>> Flatten() => new[] { this }.AsEnumerable();
     }
 
     /// <summary>
@@ -121,9 +128,10 @@ namespace deequ.Metrics
         /// <param name="name">The name of the metric.</param>
         /// <param name="instance">The instance of the metric.</param>
         /// <param name="value">The value of the metric, wrapped in a Try monad <see cref="Try{T}"/></param>
-        public DoubleMetric(MetricEntity metricEntity, string name, string instance, Try<double> value)
-            : base(metricEntity, name, instance, value)
+        public DoubleMetric(MetricEntity metricEntity, string name, string instance, Try<double> value) : base(
+            metricEntity, name, instance, value)
         {
+
         }
 
         public DoubleMetric(JvmObjectReference jvmObjectReference) : base(jvmObjectReference)
@@ -138,7 +146,7 @@ namespace deequ.Metrics
         public bool Equals(DoubleMetric other) =>
             other != null
             && Name == other.Name && Instance == other.Instance && MetricEntity == other.MetricEntity && Value.IsSuccess == other.Value.IsSuccess
-            && Value.GetOrElse(() => 0).Get() == other.Value.GetOrElse(() => 0).Get();
+            && Value.GetOrElse(() => 0) == other.Value.GetOrElse(() => 0);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DoubleMetric"/> class.

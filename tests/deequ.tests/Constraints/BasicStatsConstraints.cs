@@ -1,4 +1,3 @@
-using deequ.Analyzers;
 using deequ.Constraints;
 using deequ.Util;
 using Microsoft.Spark.Sql;
@@ -24,7 +23,7 @@ namespace xdeequ.tests.Constraints
         public void assert_on_maximum()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            ConstraintResult result = ConstraintUtils.Calculate<MaxState, double, double>(
+            ConstraintResult result = ConstraintUtils.Calculate<double, double>(
                 MaxConstraint("att1", val => val == 6.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
@@ -33,7 +32,7 @@ namespace xdeequ.tests.Constraints
         public void assert_on_mean()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            ConstraintResult result = ConstraintUtils.Calculate<MeanState, double, double>(
+            ConstraintResult result = ConstraintUtils.Calculate<double, double>(
                 MeanConstraint("att1", val => val == 3.5, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
@@ -42,7 +41,7 @@ namespace xdeequ.tests.Constraints
         public void assert_on_minimum()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            ConstraintResult result = ConstraintUtils.Calculate<MinState, double, double>(
+            ConstraintResult result = ConstraintUtils.Calculate<double, double>(
                 MinConstraint("att1", val => val == 1.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
@@ -51,7 +50,7 @@ namespace xdeequ.tests.Constraints
         public void assert_on_sum()
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
-            ConstraintResult result = ConstraintUtils.Calculate<SumState, double, double>(
+            ConstraintResult result = ConstraintUtils.Calculate<double, double>(
                 SumConstraint("att1", val => val == 21, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }

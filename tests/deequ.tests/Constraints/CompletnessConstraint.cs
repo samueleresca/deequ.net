@@ -1,4 +1,3 @@
-using deequ.Analyzers;
 using deequ.Constraints;
 using deequ.Util;
 using Microsoft.Spark.Sql;
@@ -20,19 +19,19 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDFMissing(_session);
 
-            ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att1",
+            ConstraintUtils.Calculate<double, double>(Functions.CompletenessConstraint("att1",
                 d => d == 0.5,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
 
-            ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att1",
+            ConstraintUtils.Calculate<double, double>(Functions.CompletenessConstraint("att1",
                 d => d != 0.5,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Failure);
 
-            ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att2",
+            ConstraintUtils.Calculate<double, double>(Functions.CompletenessConstraint("att2",
                 d => d == 0.75,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
 
-            ConstraintUtils.Calculate<NumMatchesAndCount, double, double>(Functions.CompletenessConstraint("att2",
+            ConstraintUtils.Calculate<double, double>(Functions.CompletenessConstraint("att2",
                 d => d != 0.75,
                 Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Failure);
         }

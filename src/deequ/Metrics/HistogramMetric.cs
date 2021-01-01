@@ -84,11 +84,9 @@ namespace deequ.Metrics
         /// </summary>
         /// <param name="column">The target column of the metric.</param>
         /// <param name="value">The value of the metric <see cref="Distribution"/>.</param>
-        public HistogramMetric(string column, Try<Distribution> value)
-            : base(MetricEntity.Column, "Histogram", column, value)
+        public HistogramMetric(string column, Try<Distribution> value) : base(value)
         {
             Column = column;
-            Value = value;
         }
 
         /// <inheritdoc cref="Metric{T}.Flatten"/>
@@ -96,12 +94,12 @@ namespace deequ.Metrics
         {
             if (!Value.IsSuccess)
             {
-                return new[] { new DoubleMetric(MetricEntity, $"{Name}.bins", Instance, new Try<double>(Value.Failure.Value)) };
+                return new[] { new DoubleMetric((MetricEntity)MetricEntity, $"{Name}.bins", Instance, new Try<double>(Value.Failure.Value)) };
             }
 
             DoubleMetric[] numberOfBins =
             {
-                new DoubleMetric(MetricEntity,
+                new DoubleMetric((MetricEntity)MetricEntity,
                     $"{Name}.bins", Instance, Value.Get().NumberOfBins)
             };
 
@@ -113,8 +111,8 @@ namespace deequ.Metrics
                     (string key, DistributionValue value) = element;
                     return new[]
                     {
-                        new DoubleMetric(MetricEntity, $"{Name}.abs.{key}", Instance, value.Absolute),
-                        new DoubleMetric(MetricEntity, $"{Name}.ratio.{key}", Instance, value.Ratio)
+                        new DoubleMetric((MetricEntity)MetricEntity, $"{Name}.abs.{key}", Instance, value.Absolute),
+                        new DoubleMetric((MetricEntity)MetricEntity, $"{Name}.ratio.{key}", Instance, value.Ratio)
                     };
                 });
 

@@ -1,19 +1,21 @@
 using System;
-using System.Collections.Generic;
 using deequ.Analyzers;
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
 namespace deequ.Constraints
 {
-    internal class AnalysisBasedConstraint<M, V> : IAnalysisBasedConstraint
+    public class AnalysisBasedConstraint<M, V> : IAnalysisBasedConstraint
     {
         public string AssertionException = "Can't execute the assertion";
         public string MissingAnalysis = "Missing Analysis, can't run the constraint!";
         public string ProblematicMetricPicker = "Can't retrieve the value to assert on";
 
-        private readonly Func<V, bool> _assertion;
+
+        private Func<V, bool> _assertion;
         private Option<Func<M, V>> _valuePicker;
         private Option<string> _hint;
 
@@ -35,14 +37,31 @@ namespace deequ.Constraints
             _hint = hint;
         }
 
+        public AnalysisBasedConstraint(IAnalyzer<IMetric> analyzer, Option<string> hint)
+        {
+            Analyzer = analyzer;
+            _hint = hint;
+        }
+
         public IAnalyzer<IMetric> Analyzer { get; }
 
-        public ConstraintResult Evaluate(Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
+        public ConstraintResult CalculateAndEvaluate(DataFrame data)
+        {
+            IJvmObjectReferenceProvider objectReferenceProvider = (IJvmObjectReferenceProvider)Analyzer;
+            JvmObjectReference metric = (JvmObjectReference) objectReferenceProvider.Reference.Invoke("calculate", data);
+
+            var map = new Map(SparkEnvironment.JvmBridge);
+            map.Put(Analyzer, metric);
+
+            return Evaluate(map);
+        }
+
+        public ConstraintResult Evaluate(IJvmObjectReferenceProvider analysisResult)
         {
             Option<Metric<M>> metric;
             try
             {
-                metric = analysisResult[Analyzer] as Metric<M>;
+                metric = new Metric<M>((JvmObjectReference)analysisResult.Reference.Invoke("get", Analyzer));
             }
             catch (Exception e)
             {
@@ -126,11 +145,7 @@ namespace deequ.Constraints
             }
         }
 
-        public ConstraintResult CalculateAndEvaluate(DataFrame df)
-        {
-            Metric<M> metric = Analyzer.Calculate(df) as Metric<M>;
-            return Evaluate(new Dictionary<IAnalyzer<IMetric>, IMetric> { { Analyzer, metric } });
-        }
+
     }
 
     internal class ValuePickerException : Exception

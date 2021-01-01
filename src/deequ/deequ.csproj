@@ -18,31 +18,51 @@
         <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Analyzers\Applicability" />
-    </ItemGroup>
-    <ItemGroup>
-      <Compile Remove="Analyzers\**\*" />
-      <Compile Remove="AnomalyDetection\**" />
-      <Compile Remove="Checks\**" />
-      <Compile Remove="AnomalyDetection\**" />
-      <Compile Remove="Constraints\**" />
-      <Compile Remove="Extensions\**" />
-      <Compile Remove="Metrics\**" />
-      <Compile Remove="Repository\**" />
+      <Compile Remove="Analyzers\Compliance.cs" />
+      <Compile Remove="Analyzers\FilterableAnalyzer.cs" />
+      <Compile Remove="Analyzers\GroupingAnalyzer.cs" />
+      <Compile Remove="Analyzers\Histogram.cs" />
+      <Compile Remove="Analyzers\ApproxQuantile.cs" />
+      <Compile Remove="Analyzers\Completness.cs" />
+      <Compile Remove="Analyzers\ApproxCountDistinct.cs" />
+      <Compile Remove="Analyzers\DataType.cs" />
+      <Compile Remove="Analyzers\Correlation.cs" />
+      <Compile Remove="Analyzers\IGroupingAnalyzer.cs" />
+      <Compile Remove="Analyzers\Distinctness.cs" />
+      <Compile Remove="Analyzers\Entropy.cs" />
+      <Compile Remove="Analyzers\IScanSharableAnalyzer.cs" />
+      <Compile Remove="Analyzers\Maximum.cs" />
+      <Compile Remove="Analyzers\Mean.cs" />
+      <Compile Remove="Analyzers\MaxLength.cs" />
+      <Compile Remove="Analyzers\Minimum.cs" />
+      <Compile Remove="Analyzers\MinLength.cs" />
+      <Compile Remove="Analyzers\MutualInformation.cs" />
+      <Compile Remove="Analyzers\PatternMatch.cs" />
+      <Compile Remove="Analyzers\Size.cs" />
+      <Compile Remove="Analyzers\StandardDeviation.cs" />
+      <Compile Remove="Analyzers\Sum.cs" />
+      <Compile Remove="Analyzers\Uniqueness.cs" />
+      <Compile Remove="Analyzers\UniqueValueRatio.cs" />
+      <Compile Remove="Analyzers\Runners\AnalyzerContext.cs" />
+      <Compile Remove="Analyzers\Runners\AnalysisRunner.cs" />
+      <Compile Remove="Analyzers\Runners\AnalysisRunBuilder.cs" />
+      <Compile Remove="Repository\InMemory\InMemoryMetricsRepository.cs" />
+      <Compile Remove="Analyzers\Applicability\ApplicabilityResult.cs" />
+      <Compile Remove="Repository\MetricsRepositoryMultipleResultsLoader.cs" />
       <Compile Remove="VerificationSuite.cs" />
       <Compile Remove="VerificationResult.cs" />
       <Compile Remove="VerificationRunBuilder.cs" />
+      <Compile Remove="Repository\Serde\AnalyzerSerializer.cs" />
+      <Compile Remove="Repository\Serde\AnalyzerContextSerlizer.cs" />
+      <Compile Remove="Repository\Serde\AnalysisResultSerializer.cs" />
+      <Compile Remove="Extensions\SerdeExt.cs" />
+      <Compile Remove="Extensions\VerificationResultExt.cs" />
+      <Compile Remove="Extensions\AnalysisResultExtensions.cs" />
+      <Compile Remove="Analyzers\Analysis.cs" />
+      <Compile Remove="Repository\Serde\MetricSerializer.cs" />
     </ItemGroup>
     <ItemGroup>
-      <EmbeddedResource Remove="Constraints\**" />
-      <EmbeddedResource Remove="Extensions\**" />
-      <EmbeddedResource Remove="Metrics\**" />
-      <EmbeddedResource Remove="Repository\**" />
-    </ItemGroup>
-    <ItemGroup>
-      <None Remove="Constraints\**" />
-      <None Remove="Extensions\**" />
-      <None Remove="Metrics\**" />
-      <None Remove="Repository\**" />
+      <Folder Include="Analyzers\Applicability" />
+      <Folder Include="Repository\InMemory" />
     </ItemGroup>
 </Project>

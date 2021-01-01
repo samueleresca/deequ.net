@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using deequ.Analyzers;
-using deequ.Analyzers.Runners;
 using deequ.Analyzers.States;
 using deequ.AnomalyDetection;
 using deequ.Constraints;
 using deequ.Metrics;
 using deequ.Repository;
 using deequ.Util;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Expressions;
 using static deequ.Constraints.Functions;
 using static Microsoft.Spark.Sql.Functions;
 
@@ -249,7 +250,7 @@ namespace deequ.Checks
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HasNumberOfDistinctValues(string column,
             Func<long, bool> assertion,
-            Option<Func<Column, Column>> binningFunc = default,
+            Option<UserDefinedFunction> binningFunc = default,
             int maxBins = 1000,
             Option<string> hint = default
         ) =>
@@ -268,8 +269,8 @@ namespace deequ.Checks
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HasHistogramValues(string column,
             Func<Distribution, bool> assertion,
-            Option<Func<Column, Column>> binningFunc = default,
-            int maxBins = 100,
+            Option<UserDefinedFunction> binningFunc = default,
+            int maxBins = 1000,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
@@ -922,7 +923,8 @@ namespace deequ.Checks
         /// <returns></returns>
         public CheckResult Evaluate(AnalyzerContext context)
         {
-            IEnumerable<ConstraintResult> constraintResults = Constraints.Select(constraint => constraint.Evaluate(context.MetricMap));
+            IEnumerable<ConstraintResult> constraintResults = Constraints.Select(constraint =>
+                constraint.Evaluate((IJvmObjectReferenceProvider)context.MetricMap()));
             bool anyFailure = constraintResults.Any(constraintResult => constraintResult.Status == ConstraintStatus.Failure);
 
             CheckStatus checkStatus = (anyFailure, Level) switch
@@ -997,12 +999,9 @@ namespace deequ.Checks
                         //TODO: Order by tags in case you have multiple data points .OrderBy(x => x.ResultKey.Tags.Values)
                         .Select(analysisResults =>
                         {
-                            Dictionary<IAnalyzer<IMetric>, IMetric> analyzerContextMetricMap =
-                                analysisResults.AnalyzerContext.MetricMap;
-                            KeyValuePair<IAnalyzer<IMetric>, IMetric> onlyAnalyzerMetricEntryInLoadedAnalyzerContext =
-                                analyzerContextMetricMap.FirstOrDefault();
-                            Metric<double> doubleMetric =
-                                (Metric<double>)onlyAnalyzerMetricEntryInLoadedAnalyzerContext.Value;
+                            JvmObjectReference analyzerContextMetricMap = analysisResults.AnalyzerContext.MetricMap();
+                            Metric<double> doubleMetric = (Metric<double>) analyzerContextMetricMap
+                                .Invoke("headOption.get._2");
 
                             Option<Metric<double>> doubleMetricOption = Option<Metric<double>>.None;
 

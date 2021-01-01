@@ -74,7 +74,7 @@ namespace deequ.Extensions
 
         public static DoubleMetric MetricFromValue(Try<double> value, string name, string instance,
             MetricEntity metricEntity = MetricEntity.Column) =>
-            DoubleMetric.Create(metricEntity, name, instance, value.Get());
+            DoubleMetric.Create(metricEntity, name, instance, value);
 
         public static Column ConditionalSelection(Column selection, Option<string> condition)
         {

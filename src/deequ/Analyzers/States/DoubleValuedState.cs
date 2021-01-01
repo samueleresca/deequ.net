@@ -1,5 +1,3 @@
-using System;
-
 namespace deequ.Analyzers.States
 {
     /// <summary>

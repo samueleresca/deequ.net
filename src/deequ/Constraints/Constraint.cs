@@ -6,7 +6,9 @@ using deequ.Analyzers;
 using deequ.Analyzers.States;
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Expressions;
 using static deequ.Analyzers.Initializers;
 
 namespace deequ.Constraints
@@ -21,8 +23,7 @@ namespace deequ.Constraints
         /// </summary>
         /// <param name="analysisResult">The analysis result to evaluate against the check</param>
         /// <returns></returns>
-        public ConstraintResult Evaluate(
-            Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult);
+        public ConstraintResult Evaluate(IJvmObjectReferenceProvider analysisResult);
     }
     internal interface IAnalysisBasedConstraint : IConstraint
     {
@@ -90,7 +91,7 @@ namespace deequ.Constraints
     }
 
 
-    internal class ConstraintDecorator : IConstraint
+    public class ConstraintDecorator : IConstraint
     {
         private readonly IConstraint _inner;
 
@@ -111,8 +112,7 @@ namespace deequ.Constraints
             }
         }
 
-        public ConstraintResult Evaluate(
-            Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
+        public ConstraintResult Evaluate(IJvmObjectReferenceProvider analysisResult)
         {
             ConstraintResult result = _inner.Evaluate(analysisResult);
             result.Constraint = this;
@@ -129,7 +129,7 @@ namespace deequ.Constraints
         public override string ToString() => _name;
     }
 
-    internal static class Functions
+    public static class Functions
     {
         public static IConstraint SizeConstraint(Func<double, bool> assertion,
             Option<string> where, Option<string> hint)
@@ -142,16 +142,16 @@ namespace deequ.Constraints
             return new NamedConstraint(constraint, $"SizeConstraint({size})");
         }
 
-        public static IConstraint HistogramConstraint(
+       public static IConstraint HistogramConstraint(
             string column,
             Func<Distribution, bool> assertion,
-            Option<Func<Column, Column>> binningFunc,
+            Option<UserDefinedFunction> binningFunc,
             Option<string> where,
             Option<string> hint,
             int maxBins = 1000
         )
         {
-            Histogram histogram = Histogram(column, binningFunc, where, maxBins);
+            Histogram histogram = Histogram(column, binningFunc, maxBins, where);
 
             AnalysisBasedConstraint<Distribution, Distribution> constraint =
                 new AnalysisBasedConstraint<Distribution, Distribution>(histogram, assertion,
@@ -165,13 +165,13 @@ namespace deequ.Constraints
         public static IConstraint HistogramBinConstraint(
             string column,
             Func<long, bool> assertion,
-            Option<Func<Column, Column>> binningFunc,
+            Option<UserDefinedFunction> binningFunc,
             Option<string> where,
             Option<string> hint,
             int maxBins = 1000
         )
         {
-            Histogram histogram = Histogram(column, binningFunc, where, maxBins);
+            Histogram histogram = Histogram(column, binningFunc, maxBins,  where);
 
             AnalysisBasedConstraint<Distribution, long> constraint =
                 new AnalysisBasedConstraint<Distribution, long>(histogram, assertion,
@@ -200,7 +200,7 @@ namespace deequ.Constraints
                 $"CompletenessConstraint({completeness})");
         }
 
-        public static IConstraint AnomalyConstraint<S>(
+       public static IConstraint AnomalyConstraint<S>(
             IAnalyzer<IMetric> analyzer,
             Func<double, bool> anomalyAssertion,
             Option<string> hint
@@ -335,7 +335,7 @@ namespace deequ.Constraints
                 $"EntropyConstraint({constraint})");
         }
 
-        public static IConstraint PatternMatchConstraint(
+   /*     public static IConstraint PatternMatchConstraint(
             string column,
             Regex pattern,
             Func<double, bool> assertion,
@@ -351,7 +351,7 @@ namespace deequ.Constraints
 
             string constraintName = name.HasValue ? name.Value : $"PatternMatchConstraint({constraint})";
             return new NamedConstraint(constraint, constraintName);
-        }
+        }*/
 
         public static IConstraint MaxLengthConstraint(
             string column,
@@ -470,6 +470,25 @@ namespace deequ.Constraints
 
             return new NamedConstraint(constraint,
                 $"StandardDeviationConstraint({constraint})");
+        }
+
+
+        public static IConstraint PatternMatchConstraint(
+            string column,
+            Regex pattern,
+            Func<double, bool> assertion,
+            Option<string> where = default,
+            Option<string> name = default,
+            Option<string> hint = default
+        )
+        {
+            PatternMatch patternMatch = PatternMatch(column, pattern, where);
+
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(patternMatch, assertion, Option<Func<double, double>>.None,  hint);
+
+            string constraintName = name.HasValue ? name.Value : $"PatternMatchConstraint({constraint})";
+            return new NamedConstraint(constraint, constraintName);
         }
 
         public static IConstraint ApproxCountDistinctConstraint(

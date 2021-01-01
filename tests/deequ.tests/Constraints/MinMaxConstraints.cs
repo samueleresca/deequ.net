@@ -1,4 +1,3 @@
-using deequ.Analyzers;
 using deequ.Constraints;
 using deequ.Util;
 using Microsoft.Spark.Sql;
@@ -19,7 +18,7 @@ namespace xdeequ.tests.Constraints
         public void assert_on_max_length()
         {
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            ConstraintResult result = ConstraintUtils.Calculate<MaxState, double, double>(
+            ConstraintResult result = ConstraintUtils.Calculate<double, double>(
                 MaxLengthConstraint("att1", val => val == 4.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }
@@ -28,7 +27,7 @@ namespace xdeequ.tests.Constraints
         public void assert_on_min_length()
         {
             DataFrame df = FixtureSupport.GetDfWithVariableStringLengthValues(_session);
-            ConstraintResult result = ConstraintUtils.Calculate<MinState, double, double>(
+            ConstraintResult result = ConstraintUtils.Calculate<double, double>(
                 MinLengthConstraint("att1", val => val == 0.0, Option<string>.None, Option<string>.None), df);
             result.Status.ShouldBe(ConstraintStatus.Success);
         }

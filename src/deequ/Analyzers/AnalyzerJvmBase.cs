@@ -1,105 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using deequ.Metrics;
 using deequ.Util;
-using Microsoft.Spark;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
-using Microsoft.Spark.Sql.Types;
+using Microsoft.Spark.Sql.Expressions;
 
 namespace deequ.Analyzers
 {
-
-    public class AnalzyerContext
-    {
-        private JvmObjectReference _jvmObjectReference;
-
-        public AnalzyerContext(JvmObjectReference jvmObjectReference)
-        {
-            _jvmObjectReference = jvmObjectReference;
-        }
-
-
-        public DataFrame SuccessMetricsAsDataFrame(IEnumerable<AnalyzerJvmBase> forAnalyzers = default)
-        {
-            var forAnalyzersInstance = _jvmObjectReference.Jvm.CallStaticJavaMethod(
-                "com.amazon.deequ.analyzers.runners.AnalyzerContext", "successMetricsAsDataFrame$default$3");
-
-            var jvmReference = (IJvmObjectReferenceProvider)SparkSession.GetActiveSession();
-
-            var dataFrameReference = (JvmObjectReference)_jvmObjectReference.Jvm.CallStaticJavaMethod(
-                "com.amazon.deequ.analyzers.runners.AnalyzerContext",
-                "successMetricsAsDataFrame",
-                jvmReference.Reference, _jvmObjectReference, forAnalyzersInstance);
-            return new DataFrame(dataFrameReference);
-        }
-
-
-        public string SuccessMetricsAsJson(IEnumerable<AnalyzerJvmBase> forAnalyzers = default)
-        {
-            var forAnalyzersInstance = _jvmObjectReference.Jvm.CallStaticJavaMethod(
-                "com.amazon.deequ.analyzers.runners.AnalyzerContext", "successMetricsAsJson$default$2");
-
-
-            return (string) _jvmObjectReference.Jvm.CallStaticJavaMethod(
-                "com.amazon.deequ.analyzers.runners.AnalyzerContext", "successMetricsAsJson", _jvmObjectReference, forAnalyzersInstance);
-        }
-
-
-    }
-
-    public class AnalysisRunBuilder
-    {
-        /// <summary>
-        ///
-        /// </summary>
-        public JvmObjectReference _AnalysisRunBuilder;
-        public IJvmBridge _jvmBridge;
-
-        public AnalysisRunBuilder(DataFrame df, IJvmBridge bridge)
-        {
-            _AnalysisRunBuilder = bridge
-                .CallConstructor("com.amazon.deequ.analyzers.runners.AnalysisRunBuilder", df);
-
-        }
-
-        public AnalysisRunBuilder AddAnalyzer(AnalyzerJvmBase analyzerJvmBase)
-        {
-            analyzerJvmBase.JvmObjectReference = _AnalysisRunBuilder;
-            _AnalysisRunBuilder.Invoke("addAnalyzer", analyzerJvmBase.Reference);
-            return this;
-        }
-
-        public AnalzyerContext Run()
-        {
-            return new AnalzyerContext((JvmObjectReference)_AnalysisRunBuilder.Invoke("run"));
-        }
-
-        public AnalysisRunBuilder UseRepository(MetricsRepositoryBase repositoryBase)
-        {
-            _AnalysisRunBuilder = (JvmObjectReference) _AnalysisRunBuilder.Invoke("useRepository", repositoryBase.Reference);
-            return this;
-        }
-
-        public AnalysisRunBuilder SaveOrAppendResult(ResultKeyJvm resultKey)
-        {
-            _AnalysisRunBuilder.Invoke("saveOrAppendResult", resultKey.Reference);
-            return this;
-        }
-
-
-    }
-
     /// <summary>
     /// Analyzer base object to pass and accumulate the analyzers of the run with respect to the JVM
     /// </summary>
-    public class AnalyzerJvmBase : IJvmObjectReferenceProvider
+    public class AnalyzerJvmBase : IJvmObjectReferenceProvider, IAnalyzer<IMetric>
     {
 
         public JvmObjectReference JvmObjectReference;
@@ -154,23 +69,22 @@ namespace deequ.Analyzers
     }
 
 
-
-    public class ApproxCountDistinctJvm : AnalyzerJvmBase
+    public class ApproxCountDistinct : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "ApproxCountDistinctJvm";
+        protected override string AnalyzerName => "ApproxCountDistinct";
 
-        public ApproxCountDistinctJvm(Option<string> column, Option<string> @where) : base(column, @where)
+        public ApproxCountDistinct(Option<string> column, Option<string> @where) : base(column, @where)
         {
         }
     }
 
 
-    public class ApproxQuantileJvm : AnalyzerJvmBase
+    public class ApproxQuantile : AnalyzerJvmBase
     {
         private float Quantile;
         private float RelativeError;
 
-        public ApproxQuantileJvm(Option<string> column, float quantile, float relativeError = 0.01f, Option<string> where = default)
+        public ApproxQuantile(Option<string> column, float quantile, float relativeError = 0.01f, Option<string> where = default)
             : base(column, where)
         {
             Quantile = quantile;
@@ -185,12 +99,12 @@ namespace deequ.Analyzers
         }
     }
 
-    public class ApproxQuantilesJvm : AnalyzerJvmBase
+    public class ApproxQuantiles : AnalyzerJvmBase
     {
         private float[] Quantiles;
         private float RelativeError;
 
-        public ApproxQuantilesJvm(string column, float[] quantiles, float relativeError = 0.01f, Option<string> where = default)
+        public ApproxQuantiles(string column, float[] quantiles, float relativeError = 0.01f, Option<string> where = default)
             : base(column, where)
         {
             Quantiles = quantiles;
@@ -207,7 +121,7 @@ namespace deequ.Analyzers
     /// <summary>
     /// Completeness computes the fraction of non-null values ina column of a <see cref="Microsoft.Spark.Sql.DataFrame"/>
     /// </summary>
-    public class CompletenessJvm : AnalyzerJvmBase
+    public class Completeness : AnalyzerJvmBase
     {
 
         /// <summary>
@@ -215,7 +129,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">A string representing the where clause to include <see cref="Functions.Expr"/>.</param>
-        public CompletenessJvm(string column, Option<string> where = default) : base(column, where)
+        public Completeness(string column, Option<string> where = default) : base(column, where)
         {
         }
     }
@@ -225,7 +139,7 @@ namespace deequ.Analyzers
     /// E.g if the constraint is "att1>3" and data frame has 5 rows with att1 column value greater than
     /// 3 and 10 rows under 3; a <see cref="DoubleMetric"/> would be returned with 0.33 value
     /// </summary>
-    public class ComplianceJvm : AnalyzerJvmBase
+    public class Compliance : AnalyzerJvmBase
     {
         /// <summary>
         /// Describe the compliance.
@@ -245,7 +159,7 @@ namespace deequ.Analyzers
         ///                      describing what the analysis being done for.</param>
         /// <param name="predicate">SQL-predicate to apply per row.</param>
         /// <param name="where">A string representing the where clause to include <see cref="Functions.Expr"/>.</param>
-        public ComplianceJvm(string instance, Column predicate,  Option<string> where = default) : base(where)
+        public Compliance(string instance, Column predicate,  Option<string> where = default) : base(where)
         {
             Predicate = predicate;
             Instance = instance;
@@ -263,7 +177,7 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the pearson correlation coefficient between the two given columns
     /// </summary>
-    public class CorrelationJvm : AnalyzerJvmBase
+    public class Correlation : AnalyzerJvmBase
     {
         /// <summary>
         /// First input column for computation.
@@ -280,7 +194,7 @@ namespace deequ.Analyzers
         /// <param name="columnA">First input column for computation</param>
         /// <param name="columnB">Second input column for computation.</param>
         /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
-        public CorrelationJvm(string columnA, string columnB, Option<string> where = default) : base(where)
+        public Correlation(string columnA, string columnB, Option<string> where = default) : base(where)
         {
             ColumnA = columnA;
             ColumnB = columnB;
@@ -290,7 +204,7 @@ namespace deequ.Analyzers
         {
             get => JvmObjectReference
                 .Jvm.CallConstructor(
-                    AnalyzersNamespaces("CorrelationJvm"), ColumnA, ColumnB, Where.ToJvm());
+                    AnalyzersNamespaces("Correlation"), ColumnA, ColumnB, Where.ToJvm());
         }
 
     }
@@ -299,18 +213,18 @@ namespace deequ.Analyzers
     /// <summary>
     /// Counts the distinct elements in the column(s).
     /// </summary>
-    public class CountDistinctJvm : AnalyzerJvmBase
+    public class CountDistinct : AnalyzerJvmBase
     {
         /// <summary>
         /// Columns to search on.
         /// </summary>
-        private readonly string[] Columns;
+        private readonly IEnumerable<string> Columns;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CountDistinctJvm"/> class.
+        /// Initializes a new instance of the <see cref="CountDistinct"/> class.
         /// </summary>
         /// <param name="columns">Columns to search on.</param>
-        public CountDistinctJvm(string[] columns)
+        public CountDistinct(IEnumerable<string> columns)
         {
             Columns = columns;
         }
@@ -319,7 +233,7 @@ namespace deequ.Analyzers
         {
             get => JvmObjectReference
                 .Jvm.CallConstructor(
-                    AnalyzersNamespaces("CountDistinctJvm"), Columns);
+                    AnalyzersNamespaces("CountDistinct"), Columns);
         }
     }
 
@@ -327,34 +241,42 @@ namespace deequ.Analyzers
     /// <summary>
     /// Data type analyzers, analyzes the data type of the target column.
     /// </summary>
-    public class DataTypeJvm : AnalyzerJvmBase
+    public class DataType : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "DataTypeJvm";
+        protected override string AnalyzerName => "DataType";
         /// <summary>
         /// Initializes a new instance of the <see cref="DataType"/> class.
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">A string representing the where clause to include <see cref="Functions.Expr"/>.</param>
-        public DataTypeJvm(string column, Option<string> where) : base(column, where)
+        public DataType(string column, Option<string> where) : base(column, where)
         {
         }
     }
 
+    internal enum DataTypeInstances
+    {
+        Unknown = 0,
+        Fractional = 1,
+        Integral = 2,
+        Boolean = 3,
+        String = 4
+    }
 
     /// <summary>
     /// Distinctness is the fraction of distinct values of a column(s).
     /// </summary>
-    public class DistinctnessJvm : AnalyzerJvmBase
+    public class Distinctness : AnalyzerJvmBase
     {
-        private string[] Columns;
-        protected override string AnalyzerName => "DistinctnessJvm";
+        private IEnumerable<string> Columns;
+        protected override string AnalyzerName => "Distinctness";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Distinctness"/> class.
         /// </summary>
         /// <param name="columns">The target column names subject to the grouping.</param>
         /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
-        public DistinctnessJvm(string[] columns, Option<string> where) : base(where)
+        public Distinctness(IEnumerable<string> columns, Option<string> where) : base(where)
         {
             Columns = columns;
         }
@@ -364,7 +286,7 @@ namespace deequ.Analyzers
         {
             get => JvmObjectReference
                 .Jvm.CallConstructor(
-                    AnalyzersNamespaces("DistinctnessJvm"), Columns, Where.ToJvm());
+                    AnalyzersNamespaces(AnalyzerName), Columns, Where.ToJvm());
         }
     }
 
@@ -373,17 +295,17 @@ namespace deequ.Analyzers
     /// Entropy is a measure of the level of information contained in a message. Given the probability
     /// distribution over values in a column, it describes how many bits are required to identify a value.
     /// </summary>
-    public class EntropyJvm : AnalyzerJvmBase
+    public class Entropy : AnalyzerJvmBase
     {
 
-        protected override string AnalyzerName => "EntropyJvm";
+        protected override string AnalyzerName => "Entropy";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Entropy"/> class.
         /// </summary>
         /// <param name="column">The target column names subject to the grouping.</param>
         /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
-        public EntropyJvm(string column, Option<string> where) : base(column, where)
+        public Entropy(string column, Option<string> where) : base(column, where)
         {
         }
     }
@@ -392,7 +314,7 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the max value for the target column.
     /// </summary>
-    public class MaximumJvm : AnalyzerJvmBase
+    public class Maximum : AnalyzerJvmBase
     {
 
         protected override string AnalyzerName => "Maximum";
@@ -402,7 +324,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public MaximumJvm(string column, Option<string> where = default) : base(column, where)
+        public Maximum(string column, Option<string> where = default) : base(column, where)
         {
         }
     }
@@ -411,17 +333,17 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the max value for the target column.
     /// </summary>
-    public class MaxLengthJvm : AnalyzerJvmBase
+    public class MaxLength : AnalyzerJvmBase
     {
 
-        protected override string AnalyzerName => "MaxLengthJvm";
+        protected override string AnalyzerName => "MaxLength";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="MaxLength"/>.
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">The where condition target of the invocation</param>
-        public MaxLengthJvm(string column, Option<string> where) : base(column, where)
+        public MaxLength(string column, Option<string> where) : base(column, where)
         {
         }
     }
@@ -430,16 +352,16 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the mean for the target column.
     /// </summary>
-    public class MeanJvm : AnalyzerJvmBase
+    public class Mean : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "MeanJvm";
+        protected override string AnalyzerName => "Mean";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Mean"/>.
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">The where condition target of the invocation</param>
-        public MeanJvm(string column, Option<string> where) : base(column, where)
+        public Mean(string column, Option<string> where) : base(column, where)
         {
         }
     }
@@ -447,16 +369,16 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the min value for the target column.
     /// </summary>
-    public class MinimumJvm : AnalyzerJvmBase
+    public class Minimum : AnalyzerJvmBase, IAnalyzer<IMetric>
     {
-        protected override string AnalyzerName => "MinimumJvm";
+        protected override string AnalyzerName => "Minimum";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Minimum"/>.
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public MinimumJvm(string column, Option<string> where) : base(column, where)
+        public Minimum(string column, Option<string> where) : base(column, where)
         {
         }
     }
@@ -464,16 +386,16 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the min value for the target column.
     /// </summary>
-    public class MinLengthJvm : AnalyzerJvmBase
+    public class MinLength : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "MinLengthJvm";
+        protected override string AnalyzerName => "MinLength";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="MinLength"/>.
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">The where condition target of the invocation</param>
-        public MinLengthJvm(string column, Option<string> where) : base(column, where)
+        public MinLength(string column, Option<string> where) : base(column, where)
         {
         }
     }
@@ -485,17 +407,17 @@ namespace deequ.Analyzers
     /// the other, and mutual information is zero. If there is a functional dependency of one column to
     /// another and vice versa, then all information of the two columns are shared, and mutual information is the entropy of each column.
     /// </summary>
-    public class MutualInformationJvm : AnalyzerJvmBase
+    public class MutualInformation : AnalyzerJvmBase
     {
-        private string[] Columns;
-        protected override string AnalyzerName => "MutualInformationJvm";
+        private IEnumerable<string> Columns;
+        protected override string AnalyzerName => "MutualInformation";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="MutualInformation"/> class.
         /// </summary>
         /// <param name="columns">The target column names.</param>
         /// <param name="where">The where condition target of the invocation</param>
-        public MutualInformationJvm(string[] columns, Option<string> where) : base(where)
+        public MutualInformation(IEnumerable<string> columns, Option<string> where = default) : base(where)
         {
             Columns = columns;
         }
@@ -516,9 +438,9 @@ namespace deequ.Analyzers
     /// according to the regex and and 10 rows that do not, a DoubleMetric would be
     /// returned with 0.33 as value
     /// </summary>
-    public class PatternMatchJvm : AnalyzerJvmBase
+    public class PatternMatch : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "PatternMatchJvm";
+        protected override string AnalyzerName => "PatternMatch";
         /// <summary>
         /// Column to do the pattern match analysis on.
         /// </summary>
@@ -530,7 +452,7 @@ namespace deequ.Analyzers
         /// <param name="column">Column to do the pattern match analysis on.</param>
         /// <param name="regex">The regular expression to check for.</param>
         /// <param name="where">Additional filter to apply before the analyzer is run.</param>
-        public PatternMatchJvm(string column, Regex regex, Option<string> where) : base(column, where)
+        public PatternMatch(string column, Regex regex, Option<string> where) : base(column, where)
         {
             Regex = regex;
         }
@@ -539,7 +461,7 @@ namespace deequ.Analyzers
         {
             get => JvmObjectReference
                 .Jvm.CallConstructor(
-                    AnalyzersNamespaces("PatternMatchJvm"),
+                    AnalyzersNamespaces(AnalyzerName),
                     Column.ToJvm(),
                     JvmObjectReference.Jvm.CallConstructor("scala.util.matching.Regex",Regex),
                     Where.ToJvm());
@@ -547,18 +469,37 @@ namespace deequ.Analyzers
     }
 
 
+    public static class Patterns
+    {
+        // scalastyle:off
+        // http://emailregex.com
+        public static Regex Email => new Regex(
+            @"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\\"")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])");
+
+        // https://mathiasbynens.be/demo/url-regex stephenhay
+        public static Regex Url => new Regex(@"(https?|ftp)://[^\s/$.?#].[^\s]*");
+
+        public static Regex SocialSecurityNumberUs => new Regex(
+            @"((?!219-09-9999|078-05-1120)(?!666|000|9\d{2})\d{3}-(?!00)\d{2}-(?!0{4})\d{4})|((?!219 09 9999|078 05 1120)(?!666|000|9\d{2})\d{3} (?!00)\d{2} (?!0{4})\d{4})|((?!219099999|078051120)(?!666|000|9\d{2})\d{3}(?!00)\d{2}(?!0{4})\d{4})");
+
+        public static Regex CreditCard =>
+            new Regex(
+                @"\b(?:3[47]\d{2}([\ \-]?)\d{6}\1\d|(?:(?:4\d|5[1-5]|65)\d{2}|6011)([\ \-]?)\d{4}\2\d{4}\2)\d{4}\b");
+    }
+
+
     /// <summary>
     /// Size computes the number of rows in a <see cref="DataFrame"/>.
     /// </summary>
-    public class SizeJvm : AnalyzerJvmBase
+    public class Size : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "SizeJvm";
+        protected override string AnalyzerName => "Size";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Size"/> class.
         /// </summary>
         /// <param name="where">Additional filter to apply before the analyzer is run.</param>
-        public SizeJvm(Option<string> where) : base(where)
+        public Size(Option<string> where) : base(where)
         {
         }
 
@@ -574,16 +515,16 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the standard deviation of a column.
     /// </summary>
-    public class StandardDeviationJvm : AnalyzerJvmBase
+    public class StandardDeviation : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "StandardDeviationJvm";
+        protected override string AnalyzerName => "StandardDeviation";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="StandardDeviation"/> class.
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public StandardDeviationJvm(string column, Option<string> where) : base(column, where)
+        public StandardDeviation(string column, Option<string> where) : base(column, where)
         {
         }
     }
@@ -591,16 +532,16 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the sum of data.
     /// </summary>
-    public class SumJvm : AnalyzerJvmBase
+    public class Sum : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "SumJvm";
+        protected override string AnalyzerName => "Sum";
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Sum"/> class.
         /// </summary>
         /// <param name="column">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public SumJvm(string column, Option<string> where) : base(column, where)
+        public Sum(string column, Option<string> where) : base(column, where)
         {
         }
     }
@@ -609,9 +550,9 @@ namespace deequ.Analyzers
     /// <summary>
     /// Uniqueness is the fraction of unique values of a column(s), i.e., values that occur exactly once.
     /// </summary>
-    public class UniquenessJvm : AnalyzerJvmBase
+    public class Uniqueness : AnalyzerJvmBase
     {
-        private string[] Columns;
+        private IEnumerable<string> Columns;
         protected override string AnalyzerName => "Uniqueness";
 
         /// <summary>
@@ -619,7 +560,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="columns">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public UniquenessJvm(string[] columns, Option<string> where) : base( where)
+        public Uniqueness(IEnumerable<string> columns, Option<string> where = default) : base( where)
         {
             Columns = columns;
         }
@@ -637,9 +578,9 @@ namespace deequ.Analyzers
     /// <summary>
     /// Computes the unique value ratio of a <see cref="DataFrame"/> column.
     /// </summary>
-    public class UniqueValueRatioJvm : AnalyzerJvmBase
+    public class UniqueValueRatio : AnalyzerJvmBase
     {
-        private string[] Columns;
+        private IEnumerable<string> Columns;
         protected override string AnalyzerName => "UniqueValueRatio";
 
         /// <summary>
@@ -647,7 +588,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="columns">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public UniqueValueRatioJvm(string[] columns, Option<string> where) : base( where)
+        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base( where)
         {
             Columns = columns;
         }
@@ -663,5 +604,91 @@ namespace deequ.Analyzers
     }
 
 
+    public class Histogram : AnalyzerJvmBase
+    {
+        private readonly Option<UserDefinedFunction> binningUdf;
+        private readonly Option<int> maxDetailsBin;
+        public static string NULL_FIELD_REPLACEMENT;
 
+        public Histogram(string column,
+            Option<UserDefinedFunction> binningUdf = default,
+            Option<int> maxDetailsBin = default,
+            Option<string> where = default)
+            : base(column, where)
+        {
+            this.binningUdf = binningUdf;
+            this.maxDetailsBin = maxDetailsBin;
+        }
+
+        public override JvmObjectReference Reference
+        {
+            get
+            {
+                return JvmObjectReference.Jvm.CallConstructor("com.amazon.deequ.analyzers.Histogram",
+                    Column.ToJvm(),
+                    binningUdf.ToJvm(("com.amazon.deequ.analyzers.Histogram", "apply$default$2")),
+                    maxDetailsBin.ToJvm(("com.amazon.deequ.analyzers.Histogram", "apply$default$3")),
+                    Where.ToJvm(("com.amazon.deequ.analyzers.Histogram", "apply$default$4"))
+                );
+            }
+        }
+    }
+
+    /// <summary>
+    ///  Parameter definition for KLL Sketches.
+    /// </summary>
+    public class KLLParameters
+    {
+        private readonly int _sketchSize;
+        private readonly float _shrinkingFactor;
+        private readonly int _numberOfBuckets;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sketchSize"></param>
+        /// <param name="shrinkingFactor"></param>
+        /// <param name="numberOfBuckets"></param>
+        public KLLParameters(int sketchSize, float shrinkingFactor, int numberOfBuckets)
+        {
+            _sketchSize = sketchSize;
+            _shrinkingFactor = shrinkingFactor;
+            _numberOfBuckets = numberOfBuckets;
+        }
+
+        /// <summary>
+        /// Return the JVM KLLParameter object
+        /// </summary>
+        /// <returns></returns>
+        public JvmObjectReference ToJvm()
+        {
+            return SparkEnvironment.JvmBridge.CallConstructor("com.amazon.deequ.analyzers.KLLParameters",
+                _sketchSize,
+                _shrinkingFactor,
+                _numberOfBuckets);
+        }
+    }
+
+    public class KLLSketch : AnalyzerJvmBase
+    {
+
+        private Option<KLLParameters> _kllParameters;
+        public KLLSketch(string column, Option<KLLParameters> kllParameters) : base(column)
+        {
+            _kllParameters = kllParameters;
+        }
+
+        public override JvmObjectReference Reference
+        {
+            get
+            {
+                return JvmObjectReference
+                    .Jvm
+                    .CallConstructor("com.amazon.deequ.analyzers.KLLSketch",
+                        Column.ToJvm(),
+                        _kllParameters.ToJvm(("com.amazon.deequ.analyzers.KLLSketch", "apply$default$2"))
+                    );
+            }
+        }
+    }
 }

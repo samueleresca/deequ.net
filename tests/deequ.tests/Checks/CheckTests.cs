@@ -2,17 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using deequ.Analyzers;
-using deequ.Analyzers.Runners;
 using deequ.Checks;
 using deequ.Constraints;
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
-using AnalysisRunBuilder = deequ.Analyzers.Runners.AnalysisRunBuilder;
 
 namespace xdeequ.tests.Checks
 {
@@ -35,9 +34,9 @@ namespace xdeequ.tests.Checks
             IEnumerable<IAnalyzer<IMetric>> analyzers = check.RequiredAnalyzers()
                 .Concat(checks.SelectMany(check => check.RequiredAnalyzers())).AsEnumerable();
 
-            return new AnalysisRunBuilder()
-                .OnData(data)
-                .AddAnalyzers(analyzers)
+            return new AnalysisRunBuilder(data, SparkEnvironment.JvmBridge)
+                .AddAnalyzer(analyzers.First())
+                //TODO: AddAnalyzers
                 .Run();
         }
 

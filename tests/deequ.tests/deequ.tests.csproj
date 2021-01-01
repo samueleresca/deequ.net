@@ -39,12 +39,8 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Remove="AnomalyDetection\**" />
-        <None Remove="Checks\**" />
-        <None Remove="Constraints\**" />
         <None Remove="Examples\**" />
-        <None Remove="Metrics\**" />
         <None Remove="Repository\**" />
-        <None Remove="Analyzers\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -53,24 +49,23 @@
 
     <ItemGroup>
       <Compile Remove="AnomalyDetection\**" />
-      <Compile Remove="Checks\**" />
-      <Compile Remove="Constraints\**" />
       <Compile Remove="Examples\**" />
-      <Compile Remove="Metrics\**" />
+      <Compile Remove="Analyzers\**" />
       <Compile Remove="Repository\**" />
       <Compile Remove="VerificationResultTests.cs" />
       <Compile Remove="VerificationSuiteTest.cs" />
-      <Compile Remove="Analyzers\**" />
+      <Compile Include="Checks\CheckTests.cs" />
+      <Compile Remove="Constraints\HistogramConstraints.cs" />
     </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Remove="AnomalyDetection\**" />
-      <EmbeddedResource Remove="Checks\**" />
-      <EmbeddedResource Remove="Constraints\**" />
       <EmbeddedResource Remove="Examples\**" />
-      <EmbeddedResource Remove="Metrics\**" />
       <EmbeddedResource Remove="Repository\**" />
-      <EmbeddedResource Remove="Analyzers\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Metrics" />
     </ItemGroup>
 
 </Project>
