@@ -11,14 +11,21 @@ namespace deequ.Util
 
         public Option(T value)
         {
+            Value = default;
             Value = value;
             HasValue = true;
         }
 
         public Option(JvmObjectReference jvmObjectReference)
         {
-            Value = (T) jvmObjectReference.Invoke("get");
+
             HasValue = (bool) jvmObjectReference.Invoke("isDefined");
+            Value = default;
+
+            if (HasValue)
+            {
+                Value = (T)jvmObjectReference.Invoke("get");
+            }
         }
 
         public bool HasValue { get; }

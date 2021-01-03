@@ -6,7 +6,7 @@ using Microsoft.Spark.Interop.Ipc;
 namespace deequ.Util
 {
 
-    internal sealed class Seq<T> : IJvmObjectReferenceProvider
+    internal sealed class Seq : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
 

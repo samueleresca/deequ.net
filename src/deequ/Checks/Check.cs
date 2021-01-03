@@ -880,8 +880,8 @@ namespace deequ.Checks
             string leftOperand = includeLowerBound ? ">=" : ">";
             string rightOperand = includeUpperBound ? "<=" : "<";
 
-            string predictate = $"{column} IS NULL OR" +
-                                $"(`{column}` {leftOperand} {lowerBound} AND {column} {rightOperand} {upperBound} )";
+            string predictate = $"`{column}` IS NULL OR " +
+                                $"(`{column}` {leftOperand} {lowerBound} AND `{column}` {rightOperand} {upperBound} )";
 
             return Satisfies(Expr(predictate), $"{column} between {lowerBound} and {upperBound}", hint);
         }
@@ -903,7 +903,7 @@ namespace deequ.Checks
         {
             string valueList = "'" + string.Join("', '", allowedValues) + "'";
 
-            string predictate = $"{column} IS NULL OR" +
+            string predictate = $"`{column}` IS NULL OR " +
                                 $"(`{column}` IN ({valueList}) )";
 
             if (assertion == null)

@@ -33,7 +33,7 @@ namespace deequ.Checks
         public Check Where(string filter)
         {
             IEnumerable<IConstraint> adjustedConstraints =
-                Constraints.Take(Constraints.Count() - 1).Append(CreateReplacement(new Option<string>(filter)));
+                Constraints.Take(Constraints.Count() - 1).Append(CreateReplacement(filter));
 
             return new Check(Level, Description, adjustedConstraints);
         }

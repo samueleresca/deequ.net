@@ -278,7 +278,7 @@ namespace deequ.Analyzers
         public override JvmObjectReference Reference
         {
             get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), Columns,
+                    AnalyzersNamespaces(AnalyzerName), new Util.Seq(Columns.ToArray()).Reference,
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }
@@ -401,7 +401,7 @@ namespace deequ.Analyzers
         public override JvmObjectReference Reference
         {
             get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), new Util.Seq<string>(Columns.ToArray()), Where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$2")));
+                    AnalyzersNamespaces(AnalyzerName), new Util.Seq(Columns.ToArray()).Reference, Where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$2")));
         }
     }
 
@@ -535,7 +535,7 @@ namespace deequ.Analyzers
         {
             get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName),
-                    new Util.Seq<string>( Columns),
+                    new Util.Seq( Columns.ToArray()).Reference,
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }
@@ -551,7 +551,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="columns">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base( where)
+        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base(where)
         {
             Columns = columns;
         }
@@ -560,7 +560,7 @@ namespace deequ.Analyzers
         {
             get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName),
-                    new Util.Seq<string>(Columns.ToArray()).Reference,
+                    new Util.Seq(Columns.ToArray()).Reference,
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }
@@ -589,7 +589,7 @@ namespace deequ.Analyzers
                 return jvmBridge.CallConstructor(AnalyzersNamespaces(AnalyzerName),
                     Column.Value,
                     binningUdf.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")),
-                    maxDetailsBin.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")),
+                    maxDetailsBin.GetOrElse(1000),
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4"))
                 );
             }

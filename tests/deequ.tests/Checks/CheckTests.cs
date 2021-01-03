@@ -922,7 +922,7 @@ namespace xdeequ.tests.Checks
                 .IsPrimaryKey("unique", new string[] { })
                 .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new[] { "onlyUniqueWithOtherNonUnique" })
                 .IsPrimaryKey("halfUniqueCombinedWithNonUnique", new string[] { }).Where("nonUnique > 0")
-                .IsPrimaryKey("nonUnique", new[] { "halfUniqueCombinedWithNonUnique" }, new Option<string>("hint"))
+                .IsPrimaryKey("nonUnique", new[] { "halfUniqueCombinedWithNonUnique" }, "hint")
                 .Where("nonUnique > 0 ")
                 .IsPrimaryKey("nonUnique", new string[] { })
                 .IsPrimaryKey("nonUnique", new[] { "nonUniqueWithNulls" });

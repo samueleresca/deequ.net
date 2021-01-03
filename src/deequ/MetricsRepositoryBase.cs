@@ -45,7 +45,7 @@ namespace deequ.Metrics
         {
 
             _repository.Invoke("forAnalyzers",
-                new Util.Seq<IEnumerable<JvmObjectReference>>(_repository, analyzers.Select(x => x.Reference)));
+                new Util.Seq(_repository, analyzers.Select(x => x.Reference)).Reference);
 
             return this;
         }
@@ -65,13 +65,13 @@ namespace deequ.Metrics
         public string GetSuccessMetricsAsJson(IEnumerable<string> withTags)
         {
            return (string) _repository.Invoke("getSuccessMetricsAsJson",
-                new Util.Seq<string>(_repository, withTags.ToArray()));
+                new Util.Seq(_repository, withTags.ToArray()));
         }
 
         public DataFrame GetSuccessMetricsAsDataFrame(IEnumerable<string> withTags)
         {
             return (DataFrame) _repository.Invoke("getSuccessMetricsAsDataFrame",
-                new Util.Seq<string>(_repository, withTags.ToArray()));
+                new Util.Seq(_repository, withTags.ToArray()));
         }
 
         public JvmObjectReference Reference => _repository;
