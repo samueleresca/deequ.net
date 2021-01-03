@@ -95,10 +95,10 @@ namespace deequ.Metrics
 
         public Metric(JvmObjectReference jvmObjectReference)
         {
-            Value = new Try<T>((JvmObjectReference)jvmObjectReference.Invoke("value"));
-            MetricEntity = jvmObjectReference.Invoke("entity");
-            Name = (string) jvmObjectReference.Invoke("name");
-            Instance =  (string)jvmObjectReference.Invoke("instance");
+              Value = new Try<T>((JvmObjectReference)jvmObjectReference.Invoke("value"));
+              MetricEntity = jvmObjectReference.Invoke("entity");
+              Name = (string) jvmObjectReference.Invoke("name");
+              Instance =  (string)jvmObjectReference.Invoke("instance");
 
             _jvmObjectReference = jvmObjectReference;
 

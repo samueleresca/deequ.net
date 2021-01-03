@@ -56,12 +56,13 @@ namespace deequ.Constraints
             return Evaluate(map);
         }
 
-        public ConstraintResult Evaluate(IJvmObjectReferenceProvider analysisResult)
+        public ConstraintResult Evaluate(Map analysisResult)
         {
             Option<Metric<M>> metric;
             try
             {
-                metric = new Metric<M>((JvmObjectReference)analysisResult.Reference.Invoke("get", Analyzer));
+                var option = analysisResult.Get(((IJvmObjectReferenceProvider)Analyzer).Reference);
+                metric = new Metric<M>((JvmObjectReference)option.Value);
             }
             catch (Exception e)
             {

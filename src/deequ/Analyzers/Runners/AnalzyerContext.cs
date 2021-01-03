@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
@@ -28,12 +29,12 @@ namespace deequ.Analyzers
             return new DataFrame(dataFrameReference);
         }
 
-        public JvmObjectReference MetricMap()
+        public Map MetricMap()
         {
             var metricMap = (JvmObjectReference)
                 _jvmObjectReference.Jvm.CallNonStaticJavaMethod(_jvmObjectReference, "metricMap");
 
-            return metricMap;
+            return new Map(metricMap);
         }
 
 

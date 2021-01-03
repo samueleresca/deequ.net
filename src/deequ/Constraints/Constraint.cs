@@ -23,7 +23,7 @@ namespace deequ.Constraints
         /// </summary>
         /// <param name="analysisResult">The analysis result to evaluate against the check</param>
         /// <returns></returns>
-        public ConstraintResult Evaluate(IJvmObjectReferenceProvider analysisResult);
+        public ConstraintResult Evaluate(Map analysisResult);
     }
     internal interface IAnalysisBasedConstraint : IConstraint
     {
@@ -112,7 +112,7 @@ namespace deequ.Constraints
             }
         }
 
-        public ConstraintResult Evaluate(IJvmObjectReferenceProvider analysisResult)
+        public ConstraintResult Evaluate(Map analysisResult)
         {
             ConstraintResult result = _inner.Evaluate(analysisResult);
             result.Constraint = this;

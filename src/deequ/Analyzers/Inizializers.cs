@@ -45,14 +45,8 @@ namespace deequ.Analyzers
         public static UniqueValueRatio UniqueValueRatio(IEnumerable<string> columns, Option<string> where) =>
             new UniqueValueRatio(columns, where);
 
-        public static Compliance Compliance(string instance, Column predicate, Option<string> where) =>
+        public static Compliance Compliance(string instance, Column predicate, Option<string> where ) =>
             new Compliance(instance, predicate, where);
-
-        public static Compliance Compliance(string instance, Column predicate) =>
-            new Compliance(instance, predicate, Option<string>.None);
-
-        public static MutualInformation MutualInformation(IEnumerable<string> columns) =>
-            new MutualInformation(columns);
 
         public static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where) =>
             new MutualInformation(columns, where);
@@ -102,10 +96,10 @@ namespace deequ.Analyzers
         public static Entropy Entropy(string column, Option<string> where) => new Entropy(column, where);
 
         public static PatternMatch PatternMatch(string column, Regex pattern) =>
-            new PatternMatch(column, pattern, new Option<string>());
+            new PatternMatch(column, pattern.ToString(), new Option<string>());
 
         public static PatternMatch PatternMatch(string column, Regex pattern, Option<string> where) =>
-            new PatternMatch(column, pattern, where);
+            new PatternMatch(column, pattern.ToString(), where);
 
         public static DataType DataType(string column) => new DataType(column, Option<string>.None);
 

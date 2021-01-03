@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
@@ -23,6 +26,14 @@ namespace deequ.Analyzers
             var analyzerBase = (AnalyzerJvmBase)analyzer;
             analyzerBase.JvmObjectReference = _AnalysisRunBuilder;
             _AnalysisRunBuilder.Invoke("addAnalyzer", analyzerBase.Reference);
+            return this;
+        }
+
+        public AnalysisRunBuilder AddAnalyzers(IEnumerable<IAnalyzer<IMetric>> analyzers)
+        {
+            foreach (IAnalyzer<IMetric> analyzer in analyzers)
+                AddAnalyzer(analyzer);
+
             return this;
         }
 

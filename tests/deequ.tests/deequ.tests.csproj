@@ -38,9 +38,7 @@
         <None Update="Resources\deequ-1.1.0_spark-2.4-scala-2.11.jar">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Remove="AnomalyDetection\**" />
-        <None Remove="Examples\**" />
-        <None Remove="Repository\**" />
+        <None Remove="Metrics\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -54,18 +52,13 @@
       <Compile Remove="Repository\**" />
       <Compile Remove="VerificationResultTests.cs" />
       <Compile Remove="VerificationSuiteTest.cs" />
-      <Compile Include="Checks\CheckTests.cs" />
       <Compile Remove="Constraints\HistogramConstraints.cs" />
+      <Compile Remove="Metrics\**" />
+      <Compile Remove="Constraints\AnalysisBasedConstraintTest.cs" />
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Remove="AnomalyDetection\**" />
-      <EmbeddedResource Remove="Examples\**" />
-      <EmbeddedResource Remove="Repository\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Metrics" />
+      <EmbeddedResource Remove="Metrics\**" />
     </ItemGroup>
 
 </Project>

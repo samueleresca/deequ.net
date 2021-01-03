@@ -924,7 +924,7 @@ namespace deequ.Checks
         public CheckResult Evaluate(AnalyzerContext context)
         {
             IEnumerable<ConstraintResult> constraintResults = Constraints.Select(constraint =>
-                constraint.Evaluate((IJvmObjectReferenceProvider)context.MetricMap()));
+                constraint.Evaluate(context.MetricMap()));
             bool anyFailure = constraintResults.Any(constraintResult => constraintResult.Status == ConstraintStatus.Failure);
 
             CheckStatus checkStatus = (anyFailure, Level) switch
@@ -999,8 +999,8 @@ namespace deequ.Checks
                         //TODO: Order by tags in case you have multiple data points .OrderBy(x => x.ResultKey.Tags.Values)
                         .Select(analysisResults =>
                         {
-                            JvmObjectReference analyzerContextMetricMap = analysisResults.AnalyzerContext.MetricMap();
-                            Metric<double> doubleMetric = (Metric<double>) analyzerContextMetricMap
+                            Map analyzerContextMetricMap = analysisResults.AnalyzerContext.MetricMap();
+                            Metric<double> doubleMetric = (Metric<double>) analyzerContextMetricMap.Reference
                                 .Invoke("headOption.get._2");
 
                             Option<Metric<double>> doubleMetricOption = Option<Metric<double>>.None;

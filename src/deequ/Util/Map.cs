@@ -17,6 +17,9 @@ namespace deequ.Util
         internal Map(IJvmBridge jvm) =>
             _jvmObject = jvm.CallConstructor("scala.collection.immutable.Map");
 
+        internal Map(JvmObjectReference jvm) =>
+            _jvmObject = jvm;
+
         public JvmObjectReference Reference => _jvmObject;
 
         /// <summary>
@@ -33,8 +36,7 @@ namespace deequ.Util
         /// contained a mapping for the key, the old value is replaced by the specified value.
         /// </summary>
         /// <param name="key">The key</param>
-        internal void Get(object key) =>
-            _jvmObject.Invoke("get", key);
+        internal Option<object> Get(object key) => new Option<object>((JvmObjectReference)_jvmObject.Invoke("get", key));
 
 
         internal void PutAll<K, V>(Dictionary<K, V> dict)

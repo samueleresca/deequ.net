@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Util
 {
@@ -12,6 +13,12 @@ namespace deequ.Util
         {
             Value = value;
             HasValue = true;
+        }
+
+        public Option(JvmObjectReference jvmObjectReference)
+        {
+            Value = (T) jvmObjectReference.Invoke("get");
+            HasValue = (bool) jvmObjectReference.Invoke("isDefined");
         }
 
         public bool HasValue { get; }

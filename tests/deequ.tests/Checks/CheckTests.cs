@@ -35,8 +35,7 @@ namespace xdeequ.tests.Checks
                 .Concat(checks.SelectMany(check => check.RequiredAnalyzers())).AsEnumerable();
 
             return new AnalysisRunBuilder(data, SparkEnvironment.JvmBridge)
-                .AddAnalyzer(analyzers.First())
-                //TODO: AddAnalyzers
+                .AddAnalyzers(analyzers)
                 .Run();
         }
 
