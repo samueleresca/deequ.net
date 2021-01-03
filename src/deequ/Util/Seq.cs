@@ -10,10 +10,10 @@ namespace deequ.Util
     {
         private readonly JvmObjectReference _jvmObject;
 
-        internal Seq(JvmObjectReference jvmObject, params object[] values)
+        internal Seq( params object[] values)
         {
 
-            var array = new ArrayList(jvmObject.Jvm);
+            var array = new ArrayList(SparkEnvironment.JvmBridge);
             array.AddAll(values);
             var iterator = (IJvmObjectReferenceProvider)SparkEnvironment.JvmBridge.CallStaticJavaMethod("scala.collection.JavaConversions",
                 "asScalaIterator", ((IJvmObjectReferenceProvider)array).Reference.Invoke("iterator"));

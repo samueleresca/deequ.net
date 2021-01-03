@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Internal.Scala;
@@ -19,7 +20,7 @@ namespace deequ.Analyzers
     public class AnalyzerJvmBase : IJvmObjectReferenceProvider, IAnalyzer<IMetric>
     {
 
-        public JvmObjectReference JvmObjectReference;
+        public IJvmBridge jvmBridge;
 
         protected virtual string AnalyzerName => GetType().Name;
 
@@ -46,6 +47,7 @@ namespace deequ.Analyzers
         public AnalyzerJvmBase(Option<string> where)
         {
             Where = where;
+            jvmBridge = SparkEnvironment.JvmBridge;
         }
 
         public AnalyzerJvmBase()
@@ -56,8 +58,7 @@ namespace deequ.Analyzers
         {
             get
             {
-                return JvmObjectReference
-                    .Jvm.CallConstructor(
+                return jvmBridge.CallConstructor(
                         AnalyzersNamespaces(AnalyzerName),
                         Column.Value,
                         Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
@@ -88,8 +89,7 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName), Column, Quantile, RelativeError,
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4")));
         }
@@ -108,8 +108,7 @@ namespace deequ.Analyzers
         }
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName),
                     Column.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$1")),
                     Quantiles,
@@ -167,8 +166,7 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName), Instance, Predicate.ToString(), Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")));
         }
     }
@@ -201,8 +199,7 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName), ColumnA, ColumnB, Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")));
         }
 
@@ -230,8 +227,7 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces("CountDistinct"), Columns);
         }
     }
@@ -281,8 +277,7 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName), Columns,
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
@@ -405,9 +400,8 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), new Util.Seq<string>(JvmObjectReference, Columns.ToArray()), Where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$2")));
+            get => jvmBridge.CallConstructor(
+                    AnalyzersNamespaces(AnalyzerName), new Util.Seq<string>(Columns.ToArray()), Where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$2")));
         }
     }
 
@@ -424,7 +418,7 @@ namespace deequ.Analyzers
         /// <summary>
         /// Column to do the pattern match analysis on.
         /// </summary>
-        public readonly string Regex;
+        public readonly JvmObjectReference Regex;
 
         /// <summary>
         /// Initializes a new instance of type <see cref="PatternMatch"/> class.
@@ -434,15 +428,14 @@ namespace deequ.Analyzers
         /// <param name="where">Additional filter to apply before the analyzer is run.</param>
         public PatternMatch(string column, string regex, Option<string> where) : base(column, where)
         {
-            Regex = regex;
+            Regex = jvmBridge.CallConstructor("scala.util.matching.Regex", regex, null);
         }
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName),
-                    Column.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$1")),
+                    Column.Value,
                     Regex,
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$3")));
         }
@@ -483,8 +476,7 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName),
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$1")));
         }
@@ -541,10 +533,9 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName),
-                    new Util.Seq<string>(JvmObjectReference, Columns),
+                    new Util.Seq<string>( Columns),
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }
@@ -567,10 +558,9 @@ namespace deequ.Analyzers
 
         public override JvmObjectReference Reference
         {
-            get => JvmObjectReference
-                .Jvm.CallConstructor(
+            get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName),
-                    Columns,
+                    new Util.Seq<string>(Columns.ToArray()).Reference,
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }
@@ -596,8 +586,8 @@ namespace deequ.Analyzers
         {
             get
             {
-                return JvmObjectReference.Jvm.CallConstructor(AnalyzersNamespaces(AnalyzerName),
-                    Column.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$1")),
+                return jvmBridge.CallConstructor(AnalyzersNamespaces(AnalyzerName),
+                    Column.Value,
                     binningUdf.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")),
                     maxDetailsBin.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")),
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4"))
@@ -654,8 +644,7 @@ namespace deequ.Analyzers
         {
             get
             {
-                return JvmObjectReference
-                    .Jvm
+                return jvmBridge
                     .CallConstructor(AnalyzersNamespaces(AnalyzerName),
                         Column.ToJvm(),
                         _kllParameters.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2"))

@@ -7,6 +7,7 @@ using deequ.Constraints;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
@@ -29,10 +30,12 @@ namespace xdeequ.tests.Checks
         private static ITestOutputHelper _helper;
 
 
-        public static AnalyzerContext RunChecks(DataFrame data, Check check, Check[] checks)
+        public static AnalyzerContext RunChecks(DataFrame data, params Check[] checks)
         {
-            IEnumerable<IAnalyzer<IMetric>> analyzers = check.RequiredAnalyzers()
-                .Concat(checks.SelectMany(check => check.RequiredAnalyzers())).AsEnumerable();
+            IEnumerable<IAnalyzer<IMetric>> analyzers = checks
+                .SelectMany(check => check.RequiredAnalyzers())
+                .GroupBy(analyzer => ((IJvmObjectReferenceProvider) analyzer).Reference.Invoke("toString"))
+                .Select(analyzerGroup => analyzerGroup.FirstOrDefault());
 
             return new AnalysisRunBuilder(data, SparkEnvironment.JvmBridge)
                 .AddAnalyzers(analyzers)
@@ -77,7 +80,7 @@ namespace xdeequ.tests.Checks
                 .ContainsCreditCardNumber(col, val => val == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] { checkWithFilter });
+                RunChecks(df, check, checkWithFilter );
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -109,7 +112,7 @@ namespace xdeequ.tests.Checks
                 .Where("type = 'integral'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] { checkWithFilter });
+                RunChecks(df, check, checkWithFilter);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -142,7 +145,7 @@ namespace xdeequ.tests.Checks
                 .ContainsEmail(col, val => val == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] { checkWithFilter });
+                RunChecks(df, check, checkWithFilter);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -174,7 +177,7 @@ namespace xdeequ.tests.Checks
                 .ContainsSSN(col, val => val == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] { checkWithFilter });
+                RunChecks(df, check, checkWithFilter);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -206,7 +209,7 @@ namespace xdeequ.tests.Checks
                 .ContainsURL(col, val => val == 1).Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, check, new[] { checkWithFilter });
+                RunChecks(df, check, checkWithFilter);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -234,11 +237,9 @@ namespace xdeequ.tests.Checks
 
             AnalyzerContext context =
                 RunChecks(df, greaterThanCheck,
-                    new[]
-                    {
-                        incorrectGreaterThanCheck, greaterThanCheckWithCustomAssertionFunction,
-                        incorrectGreaterThanCheckWithCustomAssertionFunction
-                    });
+                    incorrectGreaterThanCheck,
+                    greaterThanCheckWithCustomAssertionFunction,
+                        incorrectGreaterThanCheckWithCustomAssertionFunction);
 
             AssertEvaluatesTo(greaterThanCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(incorrectGreaterThanCheck, context, CheckStatus.Error);
@@ -267,11 +268,9 @@ namespace xdeequ.tests.Checks
 
             AnalyzerContext context =
                 RunChecks(df, greaterThanCheck,
-                    new[]
-                    {
+
                         incorrectGreatThanCheck, greaterThanCheckWithCustomAssertionFunction,
-                        incorrectGreatThanCheckWithCustomAssertionFunction
-                    });
+                        incorrectGreatThanCheckWithCustomAssertionFunction);
 
             AssertEvaluatesTo(greaterThanCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(incorrectGreatThanCheck, context, CheckStatus.Error);
@@ -306,11 +305,8 @@ namespace xdeequ.tests.Checks
 
             AnalyzerContext context =
                 RunChecks(df, lessThanCheck,
-                    new[]
-                    {
                         incorrectLessThanCheck, lessThanCheckWithCustomAssertionFunction,
-                        incorrectLessThanCheckWithCustomAssertionFunction
-                    });
+                        incorrectLessThanCheckWithCustomAssertionFunction);
 
             AssertEvaluatesTo(lessThanCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(incorrectLessThanCheck, context, CheckStatus.Error);
@@ -339,11 +335,8 @@ namespace xdeequ.tests.Checks
 
             AnalyzerContext context =
                 RunChecks(df, lessThanCheck,
-                    new[]
-                    {
-                        incorrectLessThanCheck, lessThanCheckWithCustomAssertionFunction,
-                        incorrectLessThanCheckWithCustomAssertionFunction
-                    });
+                     incorrectLessThanCheck, lessThanCheckWithCustomAssertionFunction,
+                        incorrectLessThanCheckWithCustomAssertionFunction);
 
             AssertEvaluatesTo(lessThanCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(incorrectLessThanCheck, context, CheckStatus.Error);
@@ -361,7 +354,7 @@ namespace xdeequ.tests.Checks
                 .HasMean("att1", val => val == 5.0, Option<string>.None).Where("att2 > 0");
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDfWithNumericValues(_session), meanCheck, new[] { meanCheckFiltered });
+                RunChecks(FixtureSupport.GetDfWithNumericValues(_session), meanCheck, meanCheckFiltered);
 
             AssertEvaluatesTo(meanCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(meanCheckFiltered, context, CheckStatus.Success);
@@ -380,7 +373,7 @@ namespace xdeequ.tests.Checks
                 .IsPositive("att3", Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, isNonNegative, new[] { isPositive });
+                RunChecks(df, isNonNegative, isPositive);
 
             AssertEvaluatesTo(isNonNegative, context, CheckStatus.Success);
             AssertEvaluatesTo(isPositive, context, CheckStatus.Success);
@@ -402,7 +395,8 @@ namespace xdeequ.tests.Checks
                     .IsContainedIn("att1", new[] { "a" }, val => val == 0.5);
 
             AnalyzerContext context =
-                RunChecks(df, rangeCheck, new[] { inCorrectRangeCheck, inCorrectRangeCheckWithCustomAssertionFunction });
+                RunChecks(df, rangeCheck, inCorrectRangeCheck,
+                    inCorrectRangeCheckWithCustomAssertionFunction);
 
             AssertEvaluatesTo(rangeCheck, context, CheckStatus.Success);
             AssertEvaluatesTo(inCorrectRangeCheck, context, CheckStatus.Error);
@@ -439,11 +433,8 @@ namespace xdeequ.tests.Checks
 
             AnalyzerContext numericRangeResults = RunChecks(FixtureSupport.GetDfWithNumericValues(_session),
                 numericRangeCheck1,
-                new[]
-                {
-                    numericRangeCheck2, numericRangeCheck3, numericRangeCheck4, numericRangeCheck5,
-                    numericRangeCheck6, numericRangeCheck7, numericRangeCheck8, numericRangeCheck9
-                });
+                numericRangeCheck2, numericRangeCheck3, numericRangeCheck4, numericRangeCheck5,
+                    numericRangeCheck6, numericRangeCheck7, numericRangeCheck8, numericRangeCheck9);
 
 
             AssertEvaluatesTo(numericRangeCheck1, numericRangeResults, CheckStatus.Success);
@@ -477,7 +468,7 @@ namespace xdeequ.tests.Checks
                 .HasEntropy("att1", val => val != expectedValue, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, check1, new[] { check2, check3 });
+                RunChecks(df, check1, check2, check3);
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Success);
@@ -494,7 +485,7 @@ namespace xdeequ.tests.Checks
                 .HasMutualInformation("att1", "att2", val => val == 0, Option<string>.None).Where("att2 = 'c'");
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFFull(_session), check, new[] { checkWithFilter });
+                RunChecks(FixtureSupport.GetDFFull(_session), check, checkWithFilter);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
             AssertEvaluatesTo(checkWithFilter, context, CheckStatus.Success);
@@ -523,8 +514,8 @@ namespace xdeequ.tests.Checks
                  Initializers.StandardDeviation("att1")
              });*/
 
-            AnalyzerContext context = RunChecks(dfNumeric, hasMinimum,
-                new Check[] { hasMaximum, hasMean, hasSum, hasStandardDeviation });
+            AnalyzerContext context = RunChecks(dfNumeric, hasMinimum,hasMaximum, hasMean,
+                hasSum, hasStandardDeviation);
 
             AssertEvaluatesTo(hasMinimum, context, CheckStatus.Success);
             AssertEvaluatesTo(hasMaximum, context, CheckStatus.Success);
@@ -534,7 +525,7 @@ namespace xdeequ.tests.Checks
 
             var hasCorrelation = check.HasCorrelation("att1", "att2", _ => Math.Abs(_ - 1.0) < 0.00001);
 
-            var contextInformative = RunChecks(dfInformative, hasCorrelation, Enumerable.Empty<Check>().ToArray());
+            var contextInformative = RunChecks(dfInformative, hasCorrelation);
 
             AssertEvaluatesTo(hasCorrelation, contextInformative, CheckStatus.Success);
         }
@@ -559,7 +550,7 @@ namespace xdeequ.tests.Checks
                 .HasPattern(col, Patterns.Email, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, hasPattern, new Check[] { });
+                RunChecks(df, hasPattern);
 
             AssertEvaluatesTo(hasPattern, context, CheckStatus.Error);
         }
@@ -583,7 +574,7 @@ namespace xdeequ.tests.Checks
                 .HasPattern(col, Patterns.Url, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, hasPattern, new Check[] { });
+                RunChecks(df, hasPattern);
 
             AssertEvaluatesTo(hasPattern, context, CheckStatus.Error);
         }
@@ -607,7 +598,7 @@ namespace xdeequ.tests.Checks
                 .ContainsCreditCardNumber(col, val => val == 1);
 
             AnalyzerContext context =
-                RunChecks(df, check, new Check[] { });
+                RunChecks(df, check);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
         }
@@ -631,7 +622,7 @@ namespace xdeequ.tests.Checks
                 .ContainsEmail(col, val => val == 1);
 
             AnalyzerContext context =
-                RunChecks(df, check, new Check[] { });
+                RunChecks(df, check);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
         }
@@ -655,7 +646,7 @@ namespace xdeequ.tests.Checks
                 .ContainsSSN(col, val => val == 1);
 
             AnalyzerContext context =
-                RunChecks(df, check, new Check[] { });
+                RunChecks(df, check);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
         }
@@ -682,7 +673,7 @@ namespace xdeequ.tests.Checks
                 .ContainsURL(col, val => val == 1);
 
             AnalyzerContext context =
-                RunChecks(df, check, new Check[] { });
+                RunChecks(df, check);
 
             AssertEvaluatesTo(check, context, CheckStatus.Success);
         }
@@ -702,7 +693,7 @@ namespace xdeequ.tests.Checks
 
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFMissing(_session), check1, new Check[] { check2, check3 });
+                RunChecks(FixtureSupport.GetDFMissing(_session), check1, check2, check3 );
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -724,8 +715,7 @@ namespace xdeequ.tests.Checks
 
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1,
-                    new Check[] { check2, check3 });
+                RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1, check2, check3);
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -747,8 +737,7 @@ namespace xdeequ.tests.Checks
 
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1,
-                    new Check[] { check2, check3 });
+                RunChecks(FixtureSupport.GetDfCompleteAndInCompleteColumns(_session), check1, check2, check3);
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -770,7 +759,7 @@ namespace xdeequ.tests.Checks
                 .Satisfies("att2 > 0", "rule3", val => val == .5, Option<string>.None).Where("att1 > 0");
 
             AnalyzerContext context =
-                RunChecks(df, check1, new[] { check2, check3 });
+                RunChecks(df, check1, check2, check3);
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -793,7 +782,7 @@ namespace xdeequ.tests.Checks
                 .Satisfies("att1 > 3", "rule3", val => val == .5, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, check1, new Check[] { check2, check3 });
+                RunChecks(df, check1, check2, check3);
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Error);
@@ -810,7 +799,7 @@ namespace xdeequ.tests.Checks
                 .HasDistinctness(new[] { "att2" }, val => val == 1.0, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDfWithDistinctValues(_session), check1, new Check[] { });
+                RunChecks(FixtureSupport.GetDfWithDistinctValues(_session), check1);
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Error);
@@ -841,7 +830,7 @@ namespace xdeequ.tests.Checks
                 .Where("nonUnique > 0");
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1, new Check[] { });
+                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session));
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Success);
@@ -878,7 +867,7 @@ namespace xdeequ.tests.Checks
                 .Where("nonUnique > 0");
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1, new Check[] { });
+                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1);
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Success);
@@ -919,7 +908,7 @@ namespace xdeequ.tests.Checks
                 .HasNumberOfDistinctValues("unknownColumn", val => val == 3);
 
             AnalyzerContext context =
-                RunChecks(df, check1, new Check[] { check2, check3 });
+                RunChecks(df, check1, check2, check3);
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Success);
@@ -939,7 +928,7 @@ namespace xdeequ.tests.Checks
                 .IsPrimaryKey("nonUnique", new[] { "nonUniqueWithNulls" });
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1, new Check[] { });
+                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1);
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Error);
@@ -971,7 +960,7 @@ namespace xdeequ.tests.Checks
                 .HasSize(size => size > 0 && size < numberOfRows + 1, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, check1, new Check[] { check2, check3, check4, check5 });
+                RunChecks(df, check1,  check2, check3, check4, check5);
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Success);
@@ -991,7 +980,7 @@ namespace xdeequ.tests.Checks
                 .IsUnique("nonUniqueWithNulls", Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1, new Check[] { });
+                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1);
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Error);
@@ -1020,7 +1009,7 @@ namespace xdeequ.tests.Checks
                 .HasPattern(col, Patterns.Email, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, hasPattern, new Check[] { });
+                RunChecks(df, hasPattern);
 
             AssertEvaluatesTo(hasPattern, context, CheckStatus.Success);
         }
@@ -1043,7 +1032,7 @@ namespace xdeequ.tests.Checks
                 .HasPattern(col, Patterns.Url, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(df, hasPattern, new Check[] { });
+                RunChecks(df, hasPattern);
 
             AssertEvaluatesTo(hasPattern, context, CheckStatus.Success);
         }
@@ -1077,7 +1066,7 @@ namespace xdeequ.tests.Checks
                     .Where("type = 'valid'");
 
             AnalyzerContext context =
-                RunChecks(df, hasPattern, new[] { hasPatternWithFilter });
+                RunChecks(df, hasPattern, hasPatternWithFilter);
 
             AssertEvaluatesTo(hasPattern, context, CheckStatus.Success);
             AssertEvaluatesTo(hasPatternWithFilter, context, CheckStatus.Success);
@@ -1093,7 +1082,7 @@ namespace xdeequ.tests.Checks
                 .HasMaxLength("att1", val => val == 4.0, Option<string>.None);
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDfWithVariableStringLengthValues(_session), hasMin, new[] { hasMax });
+                RunChecks(FixtureSupport.GetDfWithVariableStringLengthValues(_session), hasMin, hasMax);
 
             AssertEvaluatesTo(hasMin, context, CheckStatus.Success);
             AssertEvaluatesTo(hasMax, context, CheckStatus.Success);

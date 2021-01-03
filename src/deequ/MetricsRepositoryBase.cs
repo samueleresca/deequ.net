@@ -44,9 +44,6 @@ namespace deequ.Metrics
         public MetricsRepository ForAnalyzers(IEnumerable<AnalyzerJvmBase> analyzers)
         {
 
-            foreach (AnalyzerJvmBase analyzer in analyzers)
-                analyzer.JvmObjectReference = _repository;
-
             _repository.Invoke("forAnalyzers",
                 new Util.Seq<IEnumerable<JvmObjectReference>>(_repository, analyzers.Select(x => x.Reference)));
 

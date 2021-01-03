@@ -24,7 +24,6 @@ namespace deequ.Analyzers
         public AnalysisRunBuilder AddAnalyzer(IAnalyzer<IMetric> analyzer)
         {
             var analyzerBase = (AnalyzerJvmBase)analyzer;
-            analyzerBase.JvmObjectReference = _AnalysisRunBuilder;
             _AnalysisRunBuilder.Invoke("addAnalyzer", analyzerBase.Reference);
             return this;
         }
