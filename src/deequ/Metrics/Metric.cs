@@ -1,6 +1,5 @@
 using System;
 using deequ.Util;
-using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Metrics
 {
@@ -31,11 +30,12 @@ namespace deequ.Metrics
         /// <summary>
         /// The name of the metric.
         /// </summary>
-        public string Name { get; }
+        public string Name();
+
         /// <summary>
         /// The instance of the metric.
         /// </summary>
-        public string Instance { get; }
+        public string Instance();
 
         /// <summary>
         /// Check if a metric is successful/
@@ -54,35 +54,34 @@ namespace deequ.Metrics
     /// <summary>
     /// A class that describes a generic metric
     /// </summary>
-    public class Metric<T> : IMetric
+    public  class Metric<T> : IMetric
     {
+        private Try<T> value;
+        private object metricEntity;
+        private string name;
+        private string instance;
         /// <summary>
         /// The value of the metric wrapped in a Try monad <see cref="Try{T}"/>.
         /// </summary>
-        public Try<T> Value
-        {
-            get;
-            set;
-        }
-
-        private JvmObjectReference _jvmObjectReference;
+        public Try<T> Value() => value;
 
         /// <summary>
         /// The metric entity.
         /// </summary>
-        public object MetricEntity { get; set; }
+        public object MetricEntity() => metricEntity;
+
 
         /// <inheritdoc cref="IMetric.Name"/>
-        public string Name { get; set; }
+        public string Name() => name;
 
         /// <inheritdoc cref="IMetric.Instance"/>
-        public string Instance { get; set; }
+        public string Instance() => instance;
 
         /// <inheritdoc cref="IMetric.IsSuccess"/>
-        public bool IsSuccess() => Value.IsSuccess;
+        public bool IsSuccess() => value.IsSuccess;
 
         /// <inheritdoc cref="IMetric.Exception"/>
-        public Option<Exception> Exception() => Value.Failure;
+        public extern Option<Exception> Exception();
 
         /// <summary>
         /// Initializes a new metric <see cref="Metric{T}"/>.
@@ -92,29 +91,15 @@ namespace deequ.Metrics
         /// <param name="instance">The instance of the metric.</param>
         /// <param name="value">The value of the metric, wrapped in a Try monad <see cref="Try{T}"/></param>
 
-
-        public Metric(JvmObjectReference jvmObjectReference)
-        {
-              Value = new Try<T>((JvmObjectReference)jvmObjectReference.Invoke("value"));
-              MetricEntity = jvmObjectReference.Invoke("entity");
-              Name = (string) jvmObjectReference.Invoke("name");
-              Instance =  (string)jvmObjectReference.Invoke("instance");
-
-            _jvmObjectReference = jvmObjectReference;
-
-        }
         public Metric(MetricEntity metricEntity, string name, string instance, Try<T> value)
         {
-            Value = value;
-            MetricEntity = metricEntity;
-            Name = name;
-            Instance = instance;
-        }
-        public Metric( Try<T> value)
-        {
-            Value = value;
+            this.value = value;
+            this.metricEntity = metricEntity;
+            this.name = name;
+            this.instance = instance;
         }
     }
+
 
     /// <summary>
     /// Common class for all data quality metrics where the value is double
@@ -134,9 +119,6 @@ namespace deequ.Metrics
 
         }
 
-        public DoubleMetric(JvmObjectReference jvmObjectReference) : base(jvmObjectReference)
-        {
-        }
 
         /// <summary>
         /// Equality method of two <see cref="DoubleMetric"/> instances.
@@ -145,8 +127,10 @@ namespace deequ.Metrics
         /// <returns>true if the equality is satisfied, otherwise false.</returns>
         public bool Equals(DoubleMetric other) =>
             other != null
-            && Name == other.Name && Instance == other.Instance && MetricEntity == other.MetricEntity && Value.IsSuccess == other.Value.IsSuccess
-            && Value.GetOrElse(() => 0) == other.Value.GetOrElse(() => 0);
+            && Name() == other.Name() && Instance() == other.Instance()
+            && MetricEntity() == other.MetricEntity()
+            && Value().IsSuccess == other.Value().IsSuccess
+            && Value().GetOrElse(() => 0) == other.Value().GetOrElse(() => 0);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DoubleMetric"/> class.

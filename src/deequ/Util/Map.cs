@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using deequ.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Util
@@ -36,7 +37,11 @@ namespace deequ.Util
         /// contained a mapping for the key, the old value is replaced by the specified value.
         /// </summary>
         /// <param name="key">The key</param>
-        internal Option<object> Get(object key) => new Option<object>((JvmObjectReference)_jvmObject.Invoke("get", key));
+        internal OptionJvm Get(object key)
+        {
+            var valueReference=(JvmObjectReference)_jvmObject.Invoke("get", key);
+            return new OptionJvm(valueReference);
+        }
 
 
         internal void PutAll<K, V>(Dictionary<K, V> dict)

@@ -84,26 +84,30 @@ namespace deequ.Metrics
         /// </summary>
         /// <param name="column">The target column of the metric.</param>
         /// <param name="value">The value of the metric <see cref="Distribution"/>.</param>
-        public HistogramMetric(string column, Try<Distribution> value) : base(value)
+       // public HistogramMetric(string column, Try<Distribution> value)
+       // {
+//        }
+
+        public HistogramMetric(MetricEntity metricEntity, string name, string instance, Try<Distribution> value)
+            : base(metricEntity, name, instance, value)
         {
-            Column = column;
         }
 
         /// <inheritdoc cref="Metric{T}.Flatten"/>
         public new IEnumerable<DoubleMetric> Flatten()
         {
-            if (!Value.IsSuccess)
+            if (!Value().IsSuccess)
             {
-                return new[] { new DoubleMetric((MetricEntity)MetricEntity, $"{Name}.bins", Instance, new Try<double>(Value.Failure.Value)) };
+                return new[] { new DoubleMetric((MetricEntity)MetricEntity(), $"{Name()}.bins", Instance(), new Try<double>(Value().Failure.Value)) };
             }
 
             DoubleMetric[] numberOfBins =
             {
-                new DoubleMetric((MetricEntity)MetricEntity,
-                    $"{Name}.bins", Instance, Value.Get().NumberOfBins)
+                new DoubleMetric((MetricEntity)MetricEntity(),
+                    $"{Name()}.bins", Instance(), Value().Get().NumberOfBins)
             };
 
-            IEnumerable<DoubleMetric> details = Value
+            IEnumerable<DoubleMetric> details = Value()
                 .Get()
                 .Values
                 .SelectMany(element =>
@@ -111,12 +115,14 @@ namespace deequ.Metrics
                     (string key, DistributionValue value) = element;
                     return new[]
                     {
-                        new DoubleMetric((MetricEntity)MetricEntity, $"{Name}.abs.{key}", Instance, value.Absolute),
-                        new DoubleMetric((MetricEntity)MetricEntity, $"{Name}.ratio.{key}", Instance, value.Ratio)
+                        new DoubleMetric((MetricEntity)MetricEntity(), $"{Name()}.abs.{key}", Instance(), value.Absolute),
+                        new DoubleMetric((MetricEntity)MetricEntity(), $"{Name()}.ratio.{key}", Instance(), value.Ratio)
                     };
                 });
 
             return numberOfBins.Concat(details);
         }
+
+
     }
 }

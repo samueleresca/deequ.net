@@ -16,21 +16,30 @@ namespace deequ.Util
             HasValue = true;
         }
 
-        public Option(JvmObjectReference jvmObjectReference)
-        {
 
+        private  void InitializeFromJVMOption(JvmObjectReference jvmObjectReference)
+        {
             HasValue = (bool) jvmObjectReference.Invoke("isDefined");
-            Value = default;
 
             if (HasValue)
             {
-                Value = (T)jvmObjectReference.Invoke("get");
+                Value = (T) jvmObjectReference.Invoke("get");
             }
         }
 
-        public bool HasValue { get; }
+        private  void InitializeFromJvmInstance(JvmObjectReference jvmObjectReference)
+        {
+            HasValue = jvmObjectReference != null;
 
-        public T Value { get; }
+            if (HasValue)
+            {
+                Value =  (T) (object) jvmObjectReference;
+            }
+        }
+
+        public bool HasValue { get; set; }
+
+        public T Value { get; set; }
 
         public static implicit operator Option<T>(T value) => new Option<T>(value);
 

@@ -535,7 +535,7 @@ namespace deequ.Analyzers
         {
             get => jvmBridge.CallConstructor(
                     AnalyzersNamespaces(AnalyzerName),
-                    new Util.Seq( Columns.ToArray()).Reference,
+                    new Seq( Columns.ToArray()).Reference,
                     Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }

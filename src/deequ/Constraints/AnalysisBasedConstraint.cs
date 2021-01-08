@@ -1,5 +1,6 @@
 using System;
 using deequ.Analyzers;
+using deequ.Interop;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Interop;
@@ -58,32 +59,34 @@ namespace deequ.Constraints
 
         public ConstraintResult Evaluate(Map analysisResult)
         {
-            Option<Metric<M>> metric;
+            Option<MetricJvm<M>> metric;
             try
             {
-                var option = analysisResult.Get(((IJvmObjectReferenceProvider)Analyzer).Reference);
-                metric = new Metric<M>((JvmObjectReference)option.Value);
+                JvmObjectReference jvmAnalyzer = ((IJvmObjectReferenceProvider)Analyzer).Reference;
+                OptionJvm option = analysisResult.Get(jvmAnalyzer);
+
+                metric = new MetricJvm<M>((JvmObjectReference)option.Get());
             }
             catch (Exception e)
             {
-                metric = Option<Metric<M>>.None;
+                metric = Option<MetricJvm<M>>.None;
             }
 
             return metric.Select(PickValueAndAssert).GetOrElse(new ConstraintResult(this, ConstraintStatus.Failure,
                 MissingAnalysis, Option<IMetric>.None)).Value;
         }
 
-        private Option<ConstraintResult> PickValueAndAssert(Metric<M> metric)
+        private Option<ConstraintResult> PickValueAndAssert(MetricJvm<M> metric)
         {
             try
             {
-                if (!metric.Value.IsSuccess)
+                if (!metric.IsSuccess())
                 {
                     return new ConstraintResult(this, ConstraintStatus.Failure,
-                        metric.Value.Failure.Value.Message, metric);
+                        metric.Exception().Value.Message, metric);
                 }
 
-                V assertOn = RunPickerOnMetric(metric.Value.Get());
+                V assertOn = RunPickerOnMetric((M)metric.Value().Get());
                 bool assertionOk = RunAssertion(assertOn);
 
                 if (assertionOk)

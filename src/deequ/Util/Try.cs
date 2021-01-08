@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Util
@@ -7,7 +8,6 @@ namespace deequ.Util
     {
         public Try(T success) => Success = success;
 
-        public Try(JvmObjectReference objectReference) => Success = (T)objectReference.Invoke("get");
 
         public Try(Exception failure) => Failure = failure;
 

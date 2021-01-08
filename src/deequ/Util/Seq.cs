@@ -17,7 +17,7 @@ namespace deequ.Util
             array.AddAll(values);
             var iterator = (IJvmObjectReferenceProvider)SparkEnvironment.JvmBridge.CallStaticJavaMethod("scala.collection.JavaConversions",
                 "asScalaIterator", ((IJvmObjectReferenceProvider)array).Reference.Invoke("iterator"));
-            _jvmObject = (JvmObjectReference)iterator.Reference.Invoke("toSeq");
+            _jvmObject = (JvmObjectReference)iterator.Reference.Invoke("toList");
         }
 
         public JvmObjectReference Reference => _jvmObject;

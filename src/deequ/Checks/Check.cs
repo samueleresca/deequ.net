@@ -1032,7 +1032,7 @@ namespace deequ.Checks
 
                         if (pair.doubleMetricOption.HasValue && pair.doubleMetricOption.Value.IsSuccess())
                         {
-                            valueOption = new Option<double>(pair.doubleMetricOption.Value.Value.Get());
+                            valueOption = new Option<double>(pair.doubleMetricOption.Value.Value().Get());
                         }
 
                         return new DataPoint<double>(pair.dataSetDate, valueOption);
