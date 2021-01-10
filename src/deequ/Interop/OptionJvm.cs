@@ -44,5 +44,7 @@ namespace deequ.Interop
         /// </summary>
         /// <returns>object that this Option is referencing to</returns>
         internal object OrNull() => IsDefined() ? Get() : null;
+
+        public override string ToString() => (string) _jvmObject.Invoke("toString");
     }
 }

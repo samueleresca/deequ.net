@@ -1,10 +1,13 @@
-using System.Collections.Generic;
-using System.Linq;
+using System;
+using System.Runtime.CompilerServices;
+using System.Security;
+using deequ.Interop;
 using deequ.Util;
+using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Metrics
 {
-    /// <summary>
+ /*   /// <summary>
     /// Represents a distribution value.
     /// </summary>
     public class DistributionValue
@@ -31,7 +34,59 @@ namespace deequ.Metrics
             Ratio = ratio;
         }
     }
+*/
+    /// <summary>
+    /// Represents a distribution value.
+    /// </summary>
+    public class DistributionValue
+    {
+        private readonly JvmObjectReference _jvmObject;
+        /// <summary>
+        /// The absolute value of the distribution.
+        /// </summary>
+        public long Absolute
+        {
+            get
+            {
+               return (long) _jvmObject.Invoke("absolute");
+            }
+        }
 
+        /// <summary>
+        /// The ratio of the distribution value.
+        /// </summary>
+        public double Ratio
+        {
+            get
+            {
+                return (double) _jvmObject.Invoke("ratio");
+            }
+        }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributionValue"/> class.
+        /// </summary>
+        /// <param name="absolute">The absolute value of the distribution.</param>
+        /// <param name="ratio">The ratio of the distribution value.</param>
+        public DistributionValue(JvmObjectReference jvmObjectReference)
+        {
+            _jvmObject = jvmObjectReference;
+        }
+
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="jvmObjectReference"></param>
+        /// <returns></returns>
+        public static implicit operator DistributionValue(JvmObjectReference jvmObjectReference)
+        {
+             return new DistributionValue(jvmObjectReference);
+        }
+
+    }
+/*
     /// <summary>
     /// Represents a class Distribution.
     /// </summary>
@@ -67,6 +122,87 @@ namespace deequ.Metrics
             get => Values[key];
             set => Values[key] = value;
         }
+    }*/
+
+
+
+    /// <summary>
+    /// Represents a class Distribution.
+    /// </summary>
+    public class Distribution
+    {
+        private readonly JvmObjectReference _jvmObjectReference;
+
+        /// <summary>
+        /// The values of the distribution. Maps a string to a <see cref="DistributionValue"/>.
+        /// </summary>
+        public Map Values
+        {
+            get
+            {
+                return new Map((JvmObjectReference)_jvmObjectReference.Invoke("values"));
+            }
+        }
+
+        /// <summary>
+        /// Number of bins in the distribution instance.
+        /// </summary>
+        public long NumberOfBins
+        {
+            get
+            {
+                return (long) _jvmObjectReference.Invoke("numberOfBins");
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Distribution"/> class.
+        /// </summary>
+        /// <param name="values">The values of the distribution. Maps a string to a <see cref="DistributionValue"/>.</param>
+        /// <param name="numberOfBins">Number of bins in the distribution instance.</param>
+        public Distribution(JvmObjectReference jvmObjectReference)
+        {
+            _jvmObjectReference = jvmObjectReference;
+        }
+
+
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="jvmObjectReference"></param>
+        /// <returns></returns>
+        public static implicit operator Distribution(JvmObjectReference jvmObjectReference)
+        {
+            return new Distribution(jvmObjectReference);
+        }
+
+
+        /// <summary>
+        /// Retrieves a <see cref="DistributionValue"/> from the distribution.
+        /// </summary>
+        /// <param name="key">The key of the <see cref="DistributionValue"/> you want to retrieve.</param>
+        public DistributionValue this[string key]
+        {
+            get
+            {
+                OptionJvm optValue = Values.Get(key);
+
+                if (optValue.IsEmpty())
+                    return null;
+
+                return (JvmObjectReference)optValue.Get();
+            }
+        }
+
+        public string Name() => throw new NotImplementedException();
+
+        public string Instance() => throw new NotImplementedException();
+
+        public bool IsSuccess() => throw new NotImplementedException();
+
+        public TryJvm<ExceptionJvm> Exception() => throw new NotImplementedException();
+        public JvmObjectReference Reference => _jvmObjectReference;
     }
 
     /// <summary>
@@ -92,37 +228,5 @@ namespace deequ.Metrics
             : base(metricEntity, name, instance, value)
         {
         }
-
-        /// <inheritdoc cref="Metric{T}.Flatten"/>
-        public new IEnumerable<DoubleMetric> Flatten()
-        {
-            if (!Value().IsSuccess)
-            {
-                return new[] { new DoubleMetric((MetricEntity)MetricEntity(), $"{Name()}.bins", Instance(), new Try<double>(Value().Failure.Value)) };
-            }
-
-            DoubleMetric[] numberOfBins =
-            {
-                new DoubleMetric((MetricEntity)MetricEntity(),
-                    $"{Name()}.bins", Instance(), Value().Get().NumberOfBins)
-            };
-
-            IEnumerable<DoubleMetric> details = Value()
-                .Get()
-                .Values
-                .SelectMany(element =>
-                {
-                    (string key, DistributionValue value) = element;
-                    return new[]
-                    {
-                        new DoubleMetric((MetricEntity)MetricEntity(), $"{Name()}.abs.{key}", Instance(), value.Absolute),
-                        new DoubleMetric((MetricEntity)MetricEntity(), $"{Name()}.ratio.{key}", Instance(), value.Ratio)
-                    };
-                });
-
-            return numberOfBins.Concat(details);
-        }
-
-
     }
 }

@@ -47,7 +47,7 @@ namespace deequ.Metrics
         /// Wrap and returns the metric exceptions.
         /// </summary>
         /// <returns>If present, returns the exception of the metric. Otherwise None <see cref="Option{T}.None"/></returns>
-        public Option<Exception> Exception();
+        public TryJvm<ExceptionJvm> Exception();
     }
 
 
@@ -81,7 +81,7 @@ namespace deequ.Metrics
         public bool IsSuccess() => value.IsSuccess;
 
         /// <inheritdoc cref="IMetric.Exception"/>
-        public extern Option<Exception> Exception();
+        public extern TryJvm<ExceptionJvm> Exception();
 
         /// <summary>
         /// Initializes a new metric <see cref="Metric{T}"/>.

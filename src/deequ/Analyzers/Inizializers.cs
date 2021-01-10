@@ -45,7 +45,7 @@ namespace deequ.Analyzers
         public static UniqueValueRatio UniqueValueRatio(IEnumerable<string> columns, Option<string> where) =>
             new UniqueValueRatio(columns, where);
 
-        public static Compliance Compliance(string instance, Column predicate, Option<string> where) =>
+        public static Compliance Compliance(string instance, Option<string> predicate, Option<string> where) =>
             new Compliance(instance, predicate, where);
 
         public static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where) =>

@@ -18,7 +18,12 @@ namespace deequ.Util
 
         public object Get()
         {
-            return _jvmObject.Invoke("get");
+            if (typeof(T).IsValueType || typeof(T) == typeof(String))
+            {
+                return  _jvmObject.Invoke("get");
+            }
+
+            return (JvmObjectReference)_jvmObject.Invoke("get");
         }
     }
 }

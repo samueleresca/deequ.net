@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using deequ.Analyzers;
 using deequ.Interop;
 using deequ.Metrics;
@@ -17,7 +18,7 @@ namespace deequ.Constraints
 
 
         private Func<V, bool> _assertion;
-        private Option<Func<M, V>> _valuePicker;
+        public static Option<Func<M, V>> _valuePicker;
         private Option<string> _hint;
 
 
@@ -51,7 +52,7 @@ namespace deequ.Constraints
             IJvmObjectReferenceProvider objectReferenceProvider = (IJvmObjectReferenceProvider)Analyzer;
             JvmObjectReference metric = (JvmObjectReference) objectReferenceProvider.Reference.Invoke("calculate", data);
 
-            var map = new Map(SparkEnvironment.JvmBridge);
+            var map = new Map(objectReferenceProvider.Reference.Jvm);
             map.Put(Analyzer, metric);
 
             return Evaluate(map);
@@ -60,6 +61,7 @@ namespace deequ.Constraints
         public ConstraintResult Evaluate(Map analysisResult)
         {
             Option<MetricJvm<M>> metric;
+
             try
             {
                 JvmObjectReference jvmAnalyzer = ((IJvmObjectReferenceProvider)Analyzer).Reference;
@@ -72,8 +74,10 @@ namespace deequ.Constraints
                 metric = Option<MetricJvm<M>>.None;
             }
 
-            return metric.Select(PickValueAndAssert).GetOrElse(new ConstraintResult(this, ConstraintStatus.Failure,
-                MissingAnalysis, Option<IMetric>.None)).Value;
+            return metric
+                .Select(PickValueAndAssert)
+                .GetOrElse(new ConstraintResult(this, ConstraintStatus.Failure,
+                MissingAnalysis)).Value;
         }
 
         private Option<ConstraintResult> PickValueAndAssert(MetricJvm<M> metric)
@@ -82,22 +86,26 @@ namespace deequ.Constraints
             {
                 if (!metric.IsSuccess())
                 {
-                    return new ConstraintResult(this, ConstraintStatus.Failure,
-                        metric.Exception().Value.Message, metric);
+                    ExceptionJvm exceptionJvm = (JvmObjectReference) metric.Exception().Get();
+                    return new ConstraintResult(this, ConstraintStatus.Failure, exceptionJvm.ToString());
                 }
 
-                V assertOn = RunPickerOnMetric((M)metric.Value().Get());
+                V assertOn;
+
+                assertOn = RunPickerOnMetric(metric.Value().Get());
+
+
                 bool assertionOk = RunAssertion(assertOn);
 
                 if (assertionOk)
                 {
-                    return new ConstraintResult(this, ConstraintStatus.Success, Option<string>.None, metric);
+                    return new ConstraintResult(this, ConstraintStatus.Success, Option<string>.None);
                 }
 
                 string errorMessage = $"Value: {assertOn} does not meet the constraint requirement!";
                 errorMessage += _hint.GetOrElse(string.Empty);
 
-                return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage, metric);
+                return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage);
             }
             catch (Exception e)
             {
@@ -105,36 +113,53 @@ namespace deequ.Constraints
                 {
                     case ConstraintAssertionException ec:
                         return new ConstraintResult(this, ConstraintStatus.Failure,
-                            $"{AssertionException}: {ec.Message}", metric);
+                            $"{AssertionException}: {ec.Message}");
                     case ValuePickerException vpe:
                         return new ConstraintResult(this, ConstraintStatus.Failure,
-                            $"{ProblematicMetricPicker}: {vpe.Message}", metric);
+                            $"{ProblematicMetricPicker}: {vpe.Message}");
                 }
             }
 
             return Option<ConstraintResult>.None;
         }
 
-        private V RunPickerOnMetric(M metricValue)
+        private V RunPickerOnMetric(object metricValue)
         {
+            Option<V> result;
+
             try
             {
-                Option<V> result;
-                if (_valuePicker.HasValue)
+                if (!_valuePicker.HasValue)
                 {
-                    result = _valuePicker.Select(func => func(metricValue));
+                    if (typeof(M) == typeof(Distribution))
+                    {
+                        V value = (V) Activator.CreateInstance(typeof(V), (JvmObjectReference)metricValue);
+                        result = value;
+
+                        return result.Value;
+                    }
+
+                    result =  (V) metricValue;
+                    return result.Value;
+                }
+
+
+                if (typeof(M) == typeof(Distribution))
+                {
+                    M value = (M) Activator.CreateInstance(typeof(M), (JvmObjectReference)metricValue);
+                    result = _valuePicker.Value(value);
                 }
                 else
                 {
-                    result = (V)(object)metricValue;
+                    result = _valuePicker.Value((M)metricValue);
                 }
-
-                return result.Value;
             }
             catch (Exception e)
             {
                 throw new ValuePickerException(e.Message);
             }
+
+            return result.Value;
         }
 
         private bool RunAssertion(V assertOn)

@@ -37,7 +37,7 @@ namespace xdeequ.tests.Checks
                 .GroupBy(analyzer => ((IJvmObjectReferenceProvider) analyzer).Reference.Invoke("toString"))
                 .Select(analyzerGroup => analyzerGroup.FirstOrDefault());
 
-            return new AnalysisRunBuilder(data, SparkEnvironment.JvmBridge)
+            return new AnalysisRunBuilder(data, ((IJvmObjectReferenceProvider)data).Reference.Jvm)
                 .AddAnalyzers(analyzers)
                 .Run();
         }
@@ -830,7 +830,7 @@ namespace xdeequ.tests.Checks
                 .Where("nonUnique > 0");
 
             AnalyzerContext context =
-                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session));
+                RunChecks(FixtureSupport.GetDFWithUniqueColumns(_session), check1);
 
             CheckResult result = check1.Evaluate(context);
             result.Status.ShouldBe(CheckStatus.Success);
@@ -881,7 +881,6 @@ namespace xdeequ.tests.Checks
         public void should_return_the_correct_status_for_histogram_constraints()
         {
             DataFrame df = FixtureSupport.GetDfCompleteAndInCompleteColumns(_session);
-
             Check check1 = new Check(CheckLevel.Error, "group-1")
                 .HasNumberOfDistinctValues("att1", val => val < 10)
                 .HasHistogramValues("att1", val => val["a"].Absolute == 4)
@@ -893,22 +892,22 @@ namespace xdeequ.tests.Checks
                 .HasHistogramValues("att1", val => val["b"].Absolute == 1)
                 .Where("att2 is not null");
 
-            CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-1")
-                .HasNumberOfDistinctValues("att2", val => val == 3)
-                .HasNumberOfDistinctValues("att2", val => val == 2)
-                .Where("att1 = 'a'")
-                .HasHistogramValues("att2", val => val["f"].Absolute == 3)
-                .HasHistogramValues("att2", val => val["d"].Absolute == 1)
-                .HasHistogramValues("att2", val => val[Histogram.NULL_FIELD_REPLACEMENT].Absolute == 2)
-                .HasHistogramValues("att2", val => val["f"].Ratio == 3 / 6.0)
-                .HasHistogramValues("att2", val => val["d"].Ratio == 1 / 6.0)
-                .HasHistogramValues("att2", val => val[Histogram.NULL_FIELD_REPLACEMENT].Ratio == 2 / 6.0);
+           CheckWithLastConstraintFilterable check2 = new Check(CheckLevel.Error, "group-1")
+               .HasNumberOfDistinctValues("att2", val => val == 3)
+               .HasNumberOfDistinctValues("att2", val => val == 2)
+               .Where("att1 = 'a'")
+               .HasHistogramValues("att2", val => val["f"].Absolute == 3)
+               .HasHistogramValues("att2", val => val["d"].Absolute == 1)
+               .HasHistogramValues("att2", val => val[Histogram.NULL_FIELD_REPLACEMENT].Absolute == 2)
+               .HasHistogramValues("att2", val => val["f"].Ratio == 3 / 6.0)
+               .HasHistogramValues("att2", val => val["d"].Ratio == 1 / 6.0)
+               .HasHistogramValues("att2", val => val[Histogram.NULL_FIELD_REPLACEMENT].Ratio == 2 / 6.0);
 
             CheckWithLastConstraintFilterable check3 = new Check(CheckLevel.Error, "group-1")
                 .HasNumberOfDistinctValues("unknownColumn", val => val == 3);
 
             AnalyzerContext context =
-                RunChecks(df, check1, check2, check3);
+                RunChecks(df,check1, check2, check3);
 
             AssertEvaluatesTo(check1, context, CheckStatus.Success);
             AssertEvaluatesTo(check2, context, CheckStatus.Success);

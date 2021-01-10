@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using deequ.Interop;
+using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Util
@@ -39,8 +42,33 @@ namespace deequ.Util
         /// <param name="key">The key</param>
         internal OptionJvm Get(object key)
         {
-            var valueReference=(JvmObjectReference)_jvmObject.Invoke("get", key);
+            var valueReference= (JvmObjectReference) _jvmObject.Invoke("get", key);
             return new OptionJvm(valueReference);
+        }
+
+
+        internal List<V> GetValues<V>()
+        {
+            List<V> result = new List<V>();
+            Seq<object> sequence = new Seq<object>((JvmObjectReference)((JvmObjectReference)
+                _jvmObject.Invoke("values")).Invoke("toSeq"));
+
+
+            foreach (object value in sequence)
+            {
+                if (typeof(V).IsValueType || typeof(V) == typeof(String))
+                {
+                    result.Add((V) value);
+                }
+                else
+                {
+                    result.Add((V)Activator.CreateInstance(typeof(V), (JvmObjectReference)value));
+                }
+
+            }
+
+
+            return result;
         }
 
 

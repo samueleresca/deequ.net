@@ -4,6 +4,29 @@ using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Metrics
 {
+
+    public class ExceptionJvm : IJvmObjectReferenceProvider
+    {
+        public JvmObjectReference Reference { get; }
+
+        private JvmObjectReference _jvmObject;
+
+        public ExceptionJvm(JvmObjectReference reference)
+        {
+            _jvmObject = reference;
+        }
+        public override string ToString() => (string) _jvmObject.Invoke("toString");
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="jvmObjectReference"></param>
+        /// <returns></returns>
+        public static implicit operator ExceptionJvm(JvmObjectReference jvmObjectReference)
+        {
+            return new ExceptionJvm(jvmObjectReference);
+        }
+    }
+
     public class MetricJvm<T> : IMetric, IJvmObjectReferenceProvider
     {
 
@@ -27,7 +50,14 @@ namespace deequ.Metrics
         public bool IsSuccess() => Value().IsSuccess();
 
         /// <inheritdoc cref="IMetric.Exception"/>
-        public Option<Exception> Exception() => null;
+        public TryJvm<ExceptionJvm> Exception()
+        {
+            if (IsSuccess()) return null;
+
+            JvmObjectReference reference = (JvmObjectReference)_jvmObject.Invoke("value");
+            JvmObjectReference exception = (JvmObjectReference) reference.Invoke("failed");
+            return new TryJvm<ExceptionJvm>(exception);
+        }
 
         /// <summary>
         /// Initializes a new metric <see cref="Metric{T}"/>.

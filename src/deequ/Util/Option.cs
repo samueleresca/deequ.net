@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using deequ.Metrics;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 

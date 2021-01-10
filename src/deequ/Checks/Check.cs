@@ -128,7 +128,7 @@ namespace deequ.Checks
         /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
         /// <returns></returns>
         public CheckWithLastConstraintFilterable AreComplete(IEnumerable<string> columns, Option<string> hint = default) =>
-            Satisfies(ChecksExt.IsEachNotNull(columns), "Combined Completeness", IsOne, hint);
+            Satisfies(ChecksExt.IsEachNotNull(columns).ToString(), "Combined Completeness", IsOne, hint);
 
         /// <summary>
         /// Creates a constraint that assert on completion in combined set of columns.
@@ -139,7 +139,7 @@ namespace deequ.Checks
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HaveCompleteness(IEnumerable<string> columns,
             Func<double, bool> assertion, Option<string> hint = default) =>
-            Satisfies(ChecksExt.IsEachNotNull(columns), "Combined Completeness", assertion, hint);
+            Satisfies(ChecksExt.IsEachNotNull(columns).ToString(), "Combined Completeness", assertion, hint);
 
         /// <summary>
         /// Creates a constraint that asserts on completion in combined set of columns.
@@ -148,7 +148,7 @@ namespace deequ.Checks
         /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
         /// <returns></returns>
         public CheckWithLastConstraintFilterable AreAnyComplete(IEnumerable<string> columns, Option<string> hint = default) =>
-            Satisfies(ChecksExt.IsAnyNotNull(columns), "Any Completeness", IsOne, hint);
+            Satisfies(ChecksExt.IsAnyNotNull(columns).ToString(), "Any Completeness", IsOne, hint);
 
         /// <summary>
         /// Creates a constraint that assert on completion in combined set of columns.
@@ -159,7 +159,7 @@ namespace deequ.Checks
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HaveAnyCompleteness(IEnumerable<string> columns,
             Func<double, bool> assertion, Option<string> hint = default) =>
-            Satisfies(ChecksExt.IsAnyNotNull(columns), "Any Completeness", assertion, hint);
+            Satisfies(ChecksExt.IsAnyNotNull(columns).ToString(), "Any Completeness", assertion, hint);
 
         /// <summary>
         /// Creates a constraint that asserts on a column uniqueness.
@@ -269,12 +269,29 @@ namespace deequ.Checks
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HasHistogramValues(string column,
             Func<Distribution, bool> assertion,
-            Option<UserDefinedFunction> binningFunc = default,
+            Option<UserDefinedFunction> binningFunc,
             int maxBins = 1000,
             Option<string> hint = default
         ) =>
             AddFilterableConstraint(filter =>
                 HistogramConstraint(column, assertion, binningFunc, filter, hint, maxBins));
+
+        /// <summary>
+        /// Creates a constraint that asserts on column's value distribution.
+        /// </summary>
+        /// <param name="column">Column to run the assertion on.</param>
+        /// <param name="assertion">Function that receives a Distribution input parameter and returns a boolean. E.g <code>.hasHistogramValues("att2", _.absolutes("f") == 3 .hasHistogramValues("att2",_.ratios(Histogram.NullFieldReplacement) == 2/6.0)</code></param>
+        /// <param name="binningFunc">An optional binning function.</param>
+        /// <param name="maxBins">Histogram details is only provided for N column values with top counts. maxBins sets the N.</param>
+        /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
+        /// <returns></returns>
+        public CheckWithLastConstraintFilterable HasHistogramValues(string column,
+            Func<Distribution, bool> assertion,
+            int maxBins = 1000,
+            Option<string> hint = default
+        ) =>
+            AddFilterableConstraint(filter =>
+                HistogramConstraint(column, assertion, Option<UserDefinedFunction>.None, filter, hint, maxBins));
 
         public CheckWithLastConstraintFilterable KllSketchSatisfies(string column,
             Func<Distribution, bool> assertion,
@@ -492,12 +509,12 @@ namespace deequ.Checks
         /// <param name="assertion">Function that receives a double input parameter and returns a boolean.</param>
         /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
         /// <returns></returns>
-        public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
+       /* public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
             Func<double, bool> assertion, Option<string> hint = default) =>
-            Satisfies(Expr(columnCondition), constraintName, assertion, hint);
+            Satisfies(Expr(columnCondition), constraintName, assertion, hint);*/
 
 
-        /// <summary>
+    /*    /// <summary>
         /// Creates a constraint that runs the given condition on the data frame.
         /// </summary>
         /// <param name="columnCondition">Data frame column which is a combination of expression and the column name. It has to comply with Spark SQL syntax. Can be written in an exact same way with conditions inside the `WHERE` clause.</param>
@@ -507,7 +524,7 @@ namespace deequ.Checks
         public CheckWithLastConstraintFilterable Satisfies(
             string columnCondition,
             string constraintName,
-            Option<string> hint = default) => Satisfies(Expr(columnCondition), constraintName, hint);
+            Option<string> hint = default) => Satisfies(columnCondition, constraintName, hint);*/
 
 
         /// <summary>
@@ -518,7 +535,7 @@ namespace deequ.Checks
         /// <param name="assertion">Function that receives a double input parameter and returns a boolean</param>
         /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
         /// <returns></returns>
-        public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
+        public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,
             Func<double, bool> assertion, Option<string> hint = default) =>
             AddFilterableConstraint(filter =>
                 ComplianceConstraint(constraintName, columnCondition, assertion, filter, hint));
@@ -530,8 +547,7 @@ namespace deequ.Checks
         /// <param name="constraintName">A name that summarizes the check being made. This name is being used to name the metrics for the analysis being done.</param>
         /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
         /// <returns></returns>
-        public CheckWithLastConstraintFilterable Satisfies(Column columnCondition, string constraintName,
-            Option<string> hint = default) =>
+        public CheckWithLastConstraintFilterable Satisfies(string columnCondition, string constraintName,Option<string> hint = default) =>
             AddFilterableConstraint(filter =>
                 ComplianceConstraint(constraintName, columnCondition, IsOne, filter, hint));
 
@@ -658,7 +674,7 @@ namespace deequ.Checks
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", assertion, hint);
+            Satisfies($"COALESCE({column}, 0.0) >= 0", $"{column} is non-negative", assertion, hint);
 
 
         /// <summary>
@@ -671,7 +687,7 @@ namespace deequ.Checks
             string column,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"COALESCE({column}, 0.0) >= 0"), $"{column} is non-negative", hint);
+            Satisfies($"COALESCE({column}, 0.0) >= 0", $"{column} is non-negative", hint);
 
 
         /// <summary>
@@ -686,7 +702,7 @@ namespace deequ.Checks
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", assertion, hint);
+            Satisfies($"COALESCE({column}, 1.0) >= 0", $"{column} is positive", assertion, hint);
 
 
         /// <summary>
@@ -699,7 +715,7 @@ namespace deequ.Checks
             string column,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"COALESCE({column}, 1.0) >= 0"), $"{column} is positive", hint);
+            Satisfies($"COALESCE({column}, 1.0) >= 0", $"{column} is positive", hint);
 
 
 
@@ -717,7 +733,7 @@ namespace deequ.Checks
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", assertion, hint);
+            Satisfies($"{columnA} < {columnB}", $"{columnA} is less than {columnB}", assertion, hint);
 
         /// <summary>
         /// Asserts that, in each row, the value of columnA is less than the value of columnB
@@ -731,7 +747,7 @@ namespace deequ.Checks
             string columnB,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"{columnA} < {columnB}"), $"{columnA} is less than {columnB}", hint);
+            Satisfies($"{columnA} < {columnB}", $"{columnA} is less than {columnB}", hint);
 
         /// <summary>
         /// Asserts that, in each row, the value of columnA is less than or equal to the value of columnB.
@@ -747,7 +763,7 @@ namespace deequ.Checks
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"{columnA} <= {columnB}"), $"{columnA} is less than or equal to {columnB}",
+            Satisfies($"{columnA} <= {columnB}", $"{columnA} is less than or equal to {columnB}",
                 assertion,
                 hint);
 
@@ -764,7 +780,7 @@ namespace deequ.Checks
             string columnB,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"{columnA} <= {columnB}"), $"{columnA} is less than or equal to {columnB}",
+            Satisfies($"{columnA} <= {columnB}", $"{columnA} is less than or equal to {columnB}",
                 hint);
 
         /// <summary>
@@ -781,7 +797,7 @@ namespace deequ.Checks
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", assertion, hint);
+            Satisfies($"{columnA} > {columnB}", $"{columnA} is greater than {columnB}", assertion, hint);
 
         /// <summary>
         /// Asserts that, in each row, the value of columnA is greater than the value of columnB.
@@ -795,7 +811,7 @@ namespace deequ.Checks
             string columnB,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"{columnA} > {columnB}"), $"{columnA} is greater than {columnB}", hint);
+            Satisfies($"{columnA} > {columnB}", $"{columnA} is greater than {columnB}", hint);
 
         /// <summary>
         /// Asserts that, in each row, the value of columnA is greater than or equal to the value of columnB.
@@ -811,7 +827,7 @@ namespace deequ.Checks
             Func<double, bool> assertion,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"{columnA} >= {columnB}"), $"{columnA} is greater than or equal to {columnB}",
+            Satisfies($"{columnA} >= {columnB}", $"{columnA} is greater than or equal to {columnB}",
                 assertion,
                 hint);
 
@@ -827,7 +843,7 @@ namespace deequ.Checks
             string columnB,
             Option<string> hint = default
         ) =>
-            Satisfies(Expr($"{columnA} >= {columnB}"), $"{columnA} is greater than or equal to {columnB}",
+            Satisfies($"{columnA} >= {columnB}", $"{columnA} is greater than or equal to {columnB}",
                 hint);
 
         /// <summary>
@@ -883,7 +899,7 @@ namespace deequ.Checks
             string predictate = $"`{column}` IS NULL OR " +
                                 $"(`{column}` {leftOperand} {lowerBound} AND `{column}` {rightOperand} {upperBound} )";
 
-            return Satisfies(Expr(predictate), $"{column} between {lowerBound} and {upperBound}", hint);
+            return Satisfies(predictate, $"{column} between {lowerBound} and {upperBound}", hint);
         }
 
         /// <summary>
@@ -901,18 +917,19 @@ namespace deequ.Checks
             Option<string> hint = default
         )
         {
-            string valueList = "'" + string.Join("', '", allowedValues) + "'";
 
-            string predictate = $"`{column}` IS NULL OR " +
-                                $"(`{column}` IN ({valueList}) )";
+            allowedValues = allowedValues.Select(x => x.Replace("'", "''"));
+            string valueList = "'" + string.Join("','", allowedValues) + "'";
+
+            string predictate = $"`{column}` IS NULL OR `{column}` IN ({valueList})";
 
             if (assertion == null)
             {
-                return Satisfies(Expr(predictate),
+                return Satisfies(predictate,
                     $"{column} contained in {string.Join(",", allowedValues)}", hint);
             }
 
-            return Satisfies(Expr(predictate),
+            return Satisfies(predictate,
                 $"{column} contained in {string.Join(",", allowedValues)}", assertion, hint);
         }
 

@@ -147,7 +147,7 @@ namespace deequ.Analyzers
         /// <summary>
         /// SQL-Like predicate to apply per row <see cref="Functions.Expr"/>.
         /// </summary>
-        public readonly Column Predicate;
+        public readonly Option<string> Predicate;
         /// <summary>
         /// Initializes a new instance of the <see cref="Compliance"/> class.
         /// </summary>
@@ -158,7 +158,7 @@ namespace deequ.Analyzers
         ///                      describing what the analysis being done for.</param>
         /// <param name="predicate">SQL-predicate to apply per row.</param>
         /// <param name="where">A string representing the where clause to include <see cref="Functions.Expr"/>.</param>
-        public Compliance(string instance, Column predicate, Option<string> where = default) : base(where)
+        public Compliance(string instance, Option<string> predicate, Option<string> where = default) : base(where)
         {
             Predicate = predicate;
             Instance = instance;
@@ -167,7 +167,9 @@ namespace deequ.Analyzers
         public override JvmObjectReference Reference
         {
             get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), Instance, Predicate.ToString(), Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")));
+                    AnalyzersNamespaces(AnalyzerName), Instance,
+                    Predicate.Value,
+                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")));
         }
     }
 
@@ -526,7 +528,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="columns">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public Uniqueness(IEnumerable<string> columns, Option<string> where = default) : base( where)
+        public Uniqueness(IEnumerable<string> columns, Option<string> where = default) : base(where)
         {
             Columns = columns;
         }
@@ -570,10 +572,10 @@ namespace deequ.Analyzers
     {
         private readonly Option<UserDefinedFunction> binningUdf;
         private readonly Option<int> maxDetailsBin;
-        public static string NULL_FIELD_REPLACEMENT;
+        public static string NULL_FIELD_REPLACEMENT = "NullValue";
 
         public Histogram(string column,
-            Option<UserDefinedFunction> binningUdf = default,
+            Option<UserDefinedFunction> binningUdf,
             Option<int> maxDetailsBin = default,
             Option<string> where = default)
             : base(column, where)

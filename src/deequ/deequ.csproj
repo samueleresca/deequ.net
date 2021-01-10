@@ -60,6 +60,7 @@
       <Compile Remove="Extensions\AnalysisResultExtensions.cs" />
       <Compile Remove="Analyzers\Analysis.cs" />
       <Compile Remove="Repository\Serde\MetricSerializer.cs" />
+      <Compile Remove="Repository\Serde\DistributionSerializer.cs" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Analyzers\Applicability" />

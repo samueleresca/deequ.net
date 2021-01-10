@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using deequ.Analyzers;
 using deequ.Analyzers.States;
+using deequ.Interop;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
@@ -36,12 +37,6 @@ namespace deequ.Constraints
     public class ConstraintResult
     {
         /// <summary>
-        /// The metric used by the result
-        /// </summary>
-        public Option<IMetric> Metric;
-
-
-        /// <summary>
         /// The constraint related to the constraint result <see cref="IConstraint"/>
         /// </summary>
         public IConstraint Constraint { get; set; }
@@ -64,13 +59,11 @@ namespace deequ.Constraints
         /// <param name="status">The status of the constraint result</param>
         /// <param name="message">Optional message</param>
         /// <param name="metric"></param>
-        public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message,
-            Option<IMetric> metric)
+        public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message)
         {
             Constraint = constraint;
             Status = status;
             Message = message;
-            Metric = metric;
         }
 
     }
@@ -283,13 +276,13 @@ namespace deequ.Constraints
 
         public static IConstraint ComplianceConstraint(
             string name,
-            Option<Column> column,
+            Option<string> column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            Compliance compliance = Compliance(name, column.Value, where);
+            Compliance compliance = Compliance(name, column, where);
 
             AnalysisBasedConstraint<double, double> constraint =
                 new AnalysisBasedConstraint<double, double>(compliance, assertion,
@@ -550,30 +543,33 @@ namespace deequ.Constraints
 
         private static double RatioTypes(bool ignoreUnknown, DataTypeInstances keyType, Distribution distribution)
         {
+            OptionJvm optionJvm = distribution.Values.Get(keyType.ToString());
+
+            double ratio = 0.0;
+            long absolute = 0L;
+
+            if (!optionJvm.IsEmpty())
+            {
+                DistributionValue distValue = (JvmObjectReference)optionJvm.Get();
+                ratio = distValue.Ratio;
+                absolute = distValue.Absolute;
+            }
+
             if (!ignoreUnknown)
-            {
-                return distribution
-                    .Values[keyType.ToString()]?
-                    .Ratio ?? 0.0;
-            }
+                return ratio;
 
-
-            long absoluteCount = distribution
-                .Values[keyType.ToString()]?
-                .Absolute ?? 0L;
-
-            if (absoluteCount == 0L)
-            {
+            if (absolute == 0L)
                 return 0;
-            }
 
-            long numValues = distribution.Values.Sum(keyValuePair => keyValuePair.Value.Absolute);
-            long numUnknown = distribution
-                .Values[DataTypeInstances.Unknown.ToString()]?
-                .Absolute ?? 0L;
+            long numValues =  distribution
+                .Values.GetValues<DistributionValue>()
+                .AsEnumerable().Sum(keyValuePair => keyValuePair.Absolute);
+
+            long numUnknown =  ((DistributionValue)(JvmObjectReference)distribution.Values
+                .Get(DataTypeInstances.Unknown.ToString()).Get())?.Absolute ?? 0L;
 
             long sumOfNonNull = numValues - numUnknown;
-            return (double)absoluteCount / sumOfNonNull;
+            return absolute / (double) sumOfNonNull;
         }
     }
 }
