@@ -68,6 +68,7 @@ namespace deequ.Metrics
         /// </summary>
         /// <param name="absolute">The absolute value of the distribution.</param>
         /// <param name="ratio">The ratio of the distribution value.</param>
+        /// <param name="jvmObjectReference"></param>
         public DistributionValue(JvmObjectReference jvmObjectReference)
         {
             _jvmObject = jvmObjectReference;

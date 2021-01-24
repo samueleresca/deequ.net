@@ -1,3 +1,4 @@
+using System;
 using deequ.Interop.Utils;
 using deequ.Metrics;
 using deequ.Util;
@@ -17,7 +18,16 @@ namespace deequ.Interop
         /// <summary>
         /// The metric entity.
         /// </summary>
-        public object MetricEntity => _jvmObject.Invoke("entity");
+        public MetricEntity MetricEntity
+        {
+            get
+            {
+                var enumEntity = (JvmObjectReference) _jvmObject.Invoke("entity");
+                MetricEntity value = (MetricEntity)Enum.Parse(typeof(MetricEntity),
+                    (string)enumEntity.Invoke("toString"));
+                return value;
+            }
+        }
 
         /// <inheritdoc cref="IMetric.Name"/>
         public string Name =>  (string) _jvmObject.Invoke("name");

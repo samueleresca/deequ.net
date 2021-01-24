@@ -87,7 +87,7 @@ namespace xdeequ.tests.Analyzers
 
             DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Uniqueness", "nonExistingColumn",
                 new Try<double>(new Exception()));
-            DoubleMetric expected2 = DoubleMetric.Create(MetricEntity.Multicolumn, "Uniqueness", "nonExistingColumn,unique",
+            DoubleMetric expected2 = DoubleMetric.Create(MetricEntity.Mutlicolumn, "Uniqueness", "nonExistingColumn,unique",
                 new Try<double>(new Exception()));
 
             attr1.Instance.ShouldBe(expected1.Instance);

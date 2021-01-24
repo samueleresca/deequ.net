@@ -287,6 +287,6 @@ namespace deequ.Extensions
             }.AsEnumerable();
 
         public static MetricEntity EntityFrom(IEnumerable<string> enumerable) =>
-            enumerable.Count() == 1 ? MetricEntity.Column : MetricEntity.Multicolumn;
+            enumerable.Count() == 1 ? MetricEntity.Column : MetricEntity.Mutlicolumn;
     }
 }

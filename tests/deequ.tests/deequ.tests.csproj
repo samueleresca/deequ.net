@@ -53,7 +53,6 @@
       <Compile Remove="Metrics\**" />
       <Compile Remove="Analyzers\HistogramAnalyzer.cs" />
       <Compile Remove="Analyzers\DataTypeAnalyzer.cs" />
-      <Compile Remove="Analyzers\CorrelationAnalyzer.cs" />
       <Compile Remove="VerificationResultTests.cs" />
       <Compile Remove="VerificationSuiteTest.cs" />
     </ItemGroup>

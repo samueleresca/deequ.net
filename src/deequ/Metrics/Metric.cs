@@ -19,7 +19,9 @@ namespace deequ.Metrics
         /// <summary>
         /// A multiple column bind metric
         /// </summary>
-        Multicolumn = 2
+        Mutlicolumn = 2
+
+
     }
 
     /// <summary>
