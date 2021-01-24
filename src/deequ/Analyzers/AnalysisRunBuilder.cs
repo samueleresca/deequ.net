@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
+using deequ.Analyzers.Runners;
 using deequ.Metrics;
-using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 

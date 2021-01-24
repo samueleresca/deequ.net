@@ -1,8 +1,7 @@
 using System;
-using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace deequ.Util
+namespace deequ.Interop.Utils
 {
     public class TryJvm<T>
     {
@@ -24,6 +23,16 @@ namespace deequ.Util
             }
 
             return (JvmObjectReference)_jvmObject.Invoke("get");
+        }
+
+        public T Get<T>() where T: struct
+        {
+            if (typeof(T).IsValueType || typeof(T) == typeof(String))
+            {
+                return (T) _jvmObject.Invoke("get");
+            }
+
+            throw new Exception();
         }
     }
 }

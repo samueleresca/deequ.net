@@ -48,13 +48,15 @@
     <ItemGroup>
       <Compile Remove="AnomalyDetection\**" />
       <Compile Remove="Examples\**" />
-      <Compile Remove="Analyzers\**" />
       <Compile Remove="Repository\**" />
-      <Compile Remove="VerificationResultTests.cs" />
-      <Compile Remove="VerificationSuiteTest.cs" />
       <Compile Remove="Constraints\HistogramConstraints.cs" />
       <Compile Remove="Metrics\**" />
       <Compile Remove="Constraints\AnalysisBasedConstraintTest.cs" />
+      <Compile Remove="Analyzers\HistogramAnalyzer.cs" />
+      <Compile Remove="Analyzers\DataTypeAnalyzer.cs" />
+      <Compile Remove="Analyzers\CorrelationAnalyzer.cs" />
+      <Compile Remove="VerificationResultTests.cs" />
+      <Compile Remove="VerificationSuiteTest.cs" />
     </ItemGroup>
 
     <ItemGroup>

@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using deequ.Interop.Utils;
 using deequ.Metrics;
 using deequ.Util;
-using Microsoft.Spark;
 using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Internal.Java.Util;
-using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Expressions;
@@ -19,51 +17,60 @@ namespace deequ.Analyzers
     /// </summary>
     public class AnalyzerJvmBase : IJvmObjectReferenceProvider, IAnalyzer<IMetric>
     {
+        protected Option<JvmObjectReference> _jvmBridge = Option<JvmObjectReference>.None;
 
-        public IJvmBridge jvmBridge;
+        protected string AnalyzerName => GetType().Name;
 
-        protected virtual string AnalyzerName => GetType().Name;
-
-        protected Func<string, string> AnalyzersNamespaces =
+        protected readonly Func<string, string> AnalyzersNamespaces =
             analyzerName
             => $"com.amazon.deequ.analyzers.{analyzerName}";
 
-        /// <summary>
-        /// The target column name subject to the aggregation.
-        /// </summary>
-        public Option<string> Column;
-
-        /// <summary>
-        /// A where clause to filter only some values in a column <see cref="Expr"/>.
-        /// </summary>
-        public Option<string> Where;
-
-
-        public AnalyzerJvmBase(Option<string> column, Option<string> where) : this(where)
+        public AnalyzerJvmBase(Option<string> column = default, Option<string> where = default)
         {
-            Column = column;
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName),
+                column.Value,
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
 
-        public AnalyzerJvmBase(Option<string> where)
+        public AnalyzerJvmBase(Option<string> where): this(Option<string>.None, where)
         {
-            Where = where;
-            jvmBridge = SparkEnvironment.JvmBridge;
+        }
+
+        public AnalyzerJvmBase(JvmObjectReference jvmObjectReference)
+        {
+            _jvmBridge = jvmObjectReference;
         }
 
         public AnalyzerJvmBase()
         {
+
         }
 
-        public virtual JvmObjectReference Reference
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="jvmObjectReference"></param>
+        /// <returns></returns>
+        public static implicit operator AnalyzerJvmBase(JvmObjectReference jvmObjectReference)
+        {
+            return new AnalyzerJvmBase(jvmObjectReference);
+        }
+
+
+
+        /// <summary>
+        ///
+        /// </summary>
+        public JvmObjectReference Reference
         {
             get
             {
-                return jvmBridge.CallConstructor(
-                        AnalyzersNamespaces(AnalyzerName),
-                        Column.Value,
-                        Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
+                return _jvmBridge.GetOrElse(null);
             }
         }
+
+        public override string ToString() => (string) _jvmBridge.Value.Invoke("toString");
     }
 
 
@@ -77,43 +84,25 @@ namespace deequ.Analyzers
 
     public class ApproxQuantile : AnalyzerJvmBase
     {
-        private float Quantile;
-        private float RelativeError;
 
         public ApproxQuantile(Option<string> column, float quantile, float relativeError = 0.01f, Option<string> where = default)
-            : base(column, where)
         {
-            Quantile = quantile;
-            RelativeError = relativeError;
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), Column, Quantile, RelativeError,
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4")));
+            _jvmBridge =  SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName), column, quantile, relativeError,
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4")));
         }
     }
 
     public class ApproxQuantiles : AnalyzerJvmBase
     {
-        private float[] Quantiles;
-        private float RelativeError;
-
-        public ApproxQuantiles(string column, float[] quantiles, float relativeError = 0.01f, Option<string> where = default)
-            : base(column, where)
+        public ApproxQuantiles(Option<string> column, float[] quantiles, float relativeError = 0.01f, Option<string> where = default)
         {
-            Quantiles = quantiles;
-            RelativeError = relativeError;
-        }
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName),
-                    Column.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$1")),
-                    Quantiles,
-                    RelativeError,
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4")));
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName),
+                column.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$1")),
+                quantiles,
+                relativeError,
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4")));
         }
     }
 
@@ -143,11 +132,11 @@ namespace deequ.Analyzers
         /// <summary>
         /// Describe the compliance.
         /// </summary>
-        public string Instance;
+       // public string Instance;
         /// <summary>
         /// SQL-Like predicate to apply per row <see cref="Functions.Expr"/>.
         /// </summary>
-        public readonly Option<string> Predicate;
+     //   public readonly Option<string> Predicate;
         /// <summary>
         /// Initializes a new instance of the <see cref="Compliance"/> class.
         /// </summary>
@@ -158,18 +147,12 @@ namespace deequ.Analyzers
         ///                      describing what the analysis being done for.</param>
         /// <param name="predicate">SQL-predicate to apply per row.</param>
         /// <param name="where">A string representing the where clause to include <see cref="Functions.Expr"/>.</param>
-        public Compliance(string instance, Option<string> predicate, Option<string> where = default) : base(where)
+        public Compliance(string instance, Option<string> predicate, Option<string> where = default)
         {
-            Predicate = predicate;
-            Instance = instance;
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), Instance,
-                    Predicate.Value,
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")));
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName), instance,
+                predicate.Value,
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")));
         }
     }
 
@@ -181,11 +164,11 @@ namespace deequ.Analyzers
         /// <summary>
         /// First input column for computation.
         /// </summary>
-        public readonly string ColumnA;
+      //  public readonly string ColumnA;
         /// <summary>
         /// Second input column for computation.
         /// </summary>
-        public readonly string ColumnB;
+    //    public readonly string ColumnB;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Correlation"/> class.
@@ -193,18 +176,12 @@ namespace deequ.Analyzers
         /// <param name="columnA">First input column for computation</param>
         /// <param name="columnB">Second input column for computation.</param>
         /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
-        public Correlation(string columnA, string columnB, Option<string> where = default) : base(where)
+        public Correlation(string columnA, string columnB, Option<string> where = default)
         {
-            ColumnA = columnA;
-            ColumnB = columnB;
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName),
+                columnA, columnB, where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")));
         }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), ColumnA, ColumnB, Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$3")));
-        }
-
     }
 
 
@@ -216,7 +193,7 @@ namespace deequ.Analyzers
         /// <summary>
         /// Columns to search on.
         /// </summary>
-        private readonly IEnumerable<string> Columns;
+        //private readonly IEnumerable<string> Columns;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CountDistinct"/> class.
@@ -224,13 +201,7 @@ namespace deequ.Analyzers
         /// <param name="columns">Columns to search on.</param>
         public CountDistinct(IEnumerable<string> columns)
         {
-            Columns = columns;
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces("CountDistinct"), Columns);
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(AnalyzersNamespaces(AnalyzerName), columns);
         }
     }
 
@@ -250,7 +221,7 @@ namespace deequ.Analyzers
         }
     }
 
-    internal enum DataTypeInstances
+    public enum DataTypeInstances
     {
         Unknown = 0,
         Fractional = 1,
@@ -264,7 +235,7 @@ namespace deequ.Analyzers
     /// </summary>
     public class Distinctness : AnalyzerJvmBase
     {
-        private IEnumerable<string> Columns;
+        // private IEnumerable<string> Columns;
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Distinctness"/> class.
@@ -273,15 +244,9 @@ namespace deequ.Analyzers
         /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
         public Distinctness(IEnumerable<string> columns, Option<string> where) : base(where)
         {
-            Columns = columns;
-        }
-
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), new Util.Seq(Columns.ToArray()).Reference,
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName), new SeqJvm(columns.ToArray()).Reference,
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }
 
@@ -389,7 +354,7 @@ namespace deequ.Analyzers
     /// </summary>
     public class MutualInformation : AnalyzerJvmBase
     {
-        private IEnumerable<string> Columns;
+        // private IEnumerable<string> Columns;
         /// <summary>
         /// Initializes a new instance of type <see cref="MutualInformation"/> class.
         /// </summary>
@@ -397,13 +362,9 @@ namespace deequ.Analyzers
         /// <param name="where">The where condition target of the invocation</param>
         public MutualInformation(IEnumerable<string> columns, Option<string> where = default) : base(where)
         {
-            Columns = columns;
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName), new Util.Seq(Columns.ToArray()).Reference, Where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$2")));
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName),
+                new SeqJvm(columns.ToArray()).Reference, where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$2")));
         }
     }
 
@@ -420,7 +381,7 @@ namespace deequ.Analyzers
         /// <summary>
         /// Column to do the pattern match analysis on.
         /// </summary>
-        public readonly JvmObjectReference Regex;
+      //  public readonly JvmObjectReference Regex;
 
         /// <summary>
         /// Initializes a new instance of type <see cref="PatternMatch"/> class.
@@ -428,18 +389,13 @@ namespace deequ.Analyzers
         /// <param name="column">Column to do the pattern match analysis on.</param>
         /// <param name="regex">The regular expression to check for.</param>
         /// <param name="where">Additional filter to apply before the analyzer is run.</param>
-        public PatternMatch(string column, string regex, Option<string> where) : base(column, where)
+        public PatternMatch(string column, string regex, Option<string> where)
         {
-            Regex = jvmBridge.CallConstructor("scala.util.matching.Regex", regex, null);
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName),
-                    Column.Value,
-                    Regex,
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$3")));
+             _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                 AnalyzersNamespaces(AnalyzerName),
+                 column,
+                 SparkEnvironment.JvmBridge.CallConstructor("scala.util.matching.Regex", regex, null),
+                 where.ToJvm((AnalyzersNamespaces(AnalyzerName),"apply$default$3")));
         }
     }
 
@@ -472,15 +428,11 @@ namespace deequ.Analyzers
         /// Initializes a new instance of type <see cref="Size"/> class.
         /// </summary>
         /// <param name="where">Additional filter to apply before the analyzer is run.</param>
-        public Size(Option<string> where) : base(where)
+        public Size(Option<string> where)
         {
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName),
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$1")));
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName),
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$1")));
         }
     }
 
@@ -489,8 +441,6 @@ namespace deequ.Analyzers
     /// </summary>
     public class StandardDeviation : AnalyzerJvmBase
     {
-        protected override string AnalyzerName => "StandardDeviation";
-
         /// <summary>
         /// Initializes a new instance of type <see cref="StandardDeviation"/> class.
         /// </summary>
@@ -522,23 +472,18 @@ namespace deequ.Analyzers
     /// </summary>
     public class Uniqueness : AnalyzerJvmBase
     {
-        private IEnumerable<string> Columns;
+      //  private IEnumerable<string> Columns;
         /// <summary>
         /// Initializes a new instance of type <see cref="Uniqueness"/> class.
         /// </summary>
         /// <param name="columns">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public Uniqueness(IEnumerable<string> columns, Option<string> where = default) : base(where)
+        public Uniqueness(IEnumerable<string> columns, Option<string> where = default)
         {
-            Columns = columns;
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName),
-                    new Seq( Columns.ToArray()).Reference,
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
+           _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName),
+                new SeqJvm( columns.ToArray()).Reference,
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }
 
@@ -553,49 +498,34 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="columns">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where) : base(where)
+        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where)
         {
-            Columns = columns;
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get => jvmBridge.CallConstructor(
-                    AnalyzersNamespaces(AnalyzerName),
-                    new Util.Seq(Columns.ToArray()).Reference,
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
+                AnalyzersNamespaces(AnalyzerName),
+                new SeqJvm(columns.ToArray()).Reference,
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")));
         }
     }
 
 
     public class Histogram : AnalyzerJvmBase
     {
-        private readonly Option<UserDefinedFunction> binningUdf;
-        private readonly Option<int> maxDetailsBin;
         public static string NULL_FIELD_REPLACEMENT = "NullValue";
 
         public Histogram(string column,
             Option<UserDefinedFunction> binningUdf,
             Option<int> maxDetailsBin = default,
             Option<string> where = default)
-            : base(column, where)
+
         {
-            this.binningUdf = binningUdf;
-            this.maxDetailsBin = maxDetailsBin;
+            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(AnalyzersNamespaces(AnalyzerName),
+                column,
+                binningUdf.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")),
+                maxDetailsBin.GetOrElse(1000),
+                where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4"))
+            );
         }
 
-        public override JvmObjectReference Reference
-        {
-            get
-            {
-                return jvmBridge.CallConstructor(AnalyzersNamespaces(AnalyzerName),
-                    Column.Value,
-                    binningUdf.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2")),
-                    maxDetailsBin.GetOrElse(1000),
-                    Where.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$4"))
-                );
-            }
-        }
     }
 
     /// <summary>
@@ -636,22 +566,13 @@ namespace deequ.Analyzers
     public class KLLSketch : AnalyzerJvmBase
     {
 
-        private Option<KLLParameters> _kllParameters;
         public KLLSketch(string column, Option<KLLParameters> kllParameters) : base(column)
         {
-            _kllParameters = kllParameters;
-        }
-
-        public override JvmObjectReference Reference
-        {
-            get
-            {
-                return jvmBridge
-                    .CallConstructor(AnalyzersNamespaces(AnalyzerName),
-                        Column.ToJvm(),
-                        _kllParameters.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2"))
-                    );
-            }
+            _jvmBridge = SparkEnvironment.JvmBridge
+                .CallConstructor(AnalyzersNamespaces(AnalyzerName),
+                    column,
+                    kllParameters.ToJvm((AnalyzersNamespaces(AnalyzerName), "apply$default$2"))
+                );
         }
     }
 }

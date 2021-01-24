@@ -1,7 +1,6 @@
 using System;
-using System.Runtime.CompilerServices;
-using System.Security;
 using deequ.Interop;
+using deequ.Interop.Utils;
 using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
 

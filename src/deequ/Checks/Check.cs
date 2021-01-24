@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using deequ.Analyzers;
+using deequ.Analyzers.Runners;
 using deequ.Analyzers.States;
 using deequ.AnomalyDetection;
 using deequ.Constraints;
+using deequ.Interop.Utils;
 using deequ.Metrics;
 using deequ.Repository;
 using deequ.Util;
-using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Expressions;
 using static deequ.Constraints.Functions;
-using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Checks
 {
@@ -1047,9 +1047,9 @@ namespace deequ.Checks
                     {
                         Option<double> valueOption = Option<double>.None;
 
-                        if (pair.doubleMetricOption.HasValue && pair.doubleMetricOption.Value.IsSuccess())
+                        if (pair.doubleMetricOption.HasValue && pair.doubleMetricOption.Value.IsSuccess)
                         {
-                            valueOption = new Option<double>(pair.doubleMetricOption.Value.Value().Get());
+                            valueOption = new Option<double>(pair.doubleMetricOption.Value.Value.Get());
                         }
 
                         return new DataPoint<double>(pair.dataSetDate, valueOption);

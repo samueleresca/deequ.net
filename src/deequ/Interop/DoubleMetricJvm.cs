@@ -1,6 +1,7 @@
+using deequ.Metrics;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace deequ.Metrics
+namespace deequ.Interop
 {
     /// <summary>
     /// Common class for all data quality metrics where the value is double
@@ -28,15 +29,12 @@ namespace deequ.Metrics
         public bool Equals(DoubleMetricJvm other) => (bool) Reference.Invoke("equals", other.Reference);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DoubleMetric"/> class.
+        ///
         /// </summary>
-        /// <param name="metricEntity">The entity type of the metric <see cref="MetricEntity"/></param>
-        /// <param name="name">The name of the metric.</param>
-        /// <param name="instance">The instance of the metric.</param>
-        /// <param name="value">The value of the metric, wrapped in a Try monad <see cref="Try{T}"/></param>
-        /// <returns>The initialized instance.</returns>
-        public static DoubleMetricJvm Create(JvmObjectReference jvmObjectReference) =>
-            new DoubleMetricJvm(jvmObjectReference);
+        /// <param name="objectReference"></param>
+        /// <returns></returns>
+        public static implicit operator DoubleMetricJvm(JvmObjectReference objectReference) =>
+            new DoubleMetricJvm(objectReference);
 
 
         /// <summary>
@@ -61,7 +59,7 @@ namespace deequ.Metrics
                 return false;
             }
 
-            return Equals((DoubleMetric)obj);
+            return Equals((DoubleMetricJvm)obj);
         }
     }
 }

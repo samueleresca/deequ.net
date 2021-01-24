@@ -27,34 +27,14 @@ namespace deequ.Metrics
     /// </summary>
     public interface IMetric
     {
-        /// <summary>
-        /// The name of the metric.
-        /// </summary>
-        public string Name();
 
-        /// <summary>
-        /// The instance of the metric.
-        /// </summary>
-        public string Instance();
-
-        /// <summary>
-        /// Check if a metric is successful/
-        /// </summary>
-        /// <returns>Returns true if the metric is successful, otherwise false.</returns>
-        public bool IsSuccess();
-
-        /// <summary>
-        /// Wrap and returns the metric exceptions.
-        /// </summary>
-        /// <returns>If present, returns the exception of the metric. Otherwise None <see cref="Option{T}.None"/></returns>
-        public TryJvm<ExceptionJvm> Exception();
     }
 
 
     /// <summary>
     /// A class that describes a generic metric
     /// </summary>
-    public  class Metric<T> : IMetric
+    public abstract class Metric<T>
     {
         private Try<T> value;
         private object metricEntity;
@@ -63,25 +43,29 @@ namespace deequ.Metrics
         /// <summary>
         /// The value of the metric wrapped in a Try monad <see cref="Try{T}"/>.
         /// </summary>
-        public Try<T> Value() => value;
+        public Try<T> Value => value;
 
         /// <summary>
         /// The metric entity.
         /// </summary>
-        public object MetricEntity() => metricEntity;
+        public object MetricEntity
+        {
+            get
+            {
+                return metricEntity;
+            }
+        }
 
 
         /// <inheritdoc cref="IMetric.Name"/>
-        public string Name() => name;
+        public string Name => name;
 
         /// <inheritdoc cref="IMetric.Instance"/>
-        public string Instance() => instance;
+        public string Instance => instance;
 
         /// <inheritdoc cref="IMetric.IsSuccess"/>
-        public bool IsSuccess() => value.IsSuccess;
+        public bool IsSuccess => value.IsSuccess;
 
-        /// <inheritdoc cref="IMetric.Exception"/>
-        public extern TryJvm<ExceptionJvm> Exception();
 
         /// <summary>
         /// Initializes a new metric <see cref="Metric{T}"/>.
@@ -127,10 +111,10 @@ namespace deequ.Metrics
         /// <returns>true if the equality is satisfied, otherwise false.</returns>
         public bool Equals(DoubleMetric other) =>
             other != null
-            && Name() == other.Name() && Instance() == other.Instance()
-            && MetricEntity() == other.MetricEntity()
-            && Value().IsSuccess == other.Value().IsSuccess
-            && Value().GetOrElse(() => 0) == other.Value().GetOrElse(() => 0);
+            && Name == other.Name && Instance == other.Instance
+            && MetricEntity == other.MetricEntity
+            && Value.IsSuccess == other.Value.IsSuccess
+            && Value.GetOrElse(() => 0) == other.Value.GetOrElse(() => 0);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DoubleMetric"/> class.

@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using deequ.Analyzers;
+using deequ.Analyzers.Runners;
+using deequ.Interop.Utils;
 using deequ.Repository;
 using deequ.Util;
 using Microsoft.Spark.Interop;
-using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
-namespace deequ.Metrics
+namespace deequ
 {
     public class MetricsRepository : IJvmObjectReferenceProvider, IMetricsRepository
     {
@@ -45,7 +46,7 @@ namespace deequ.Metrics
         {
 
             _repository.Invoke("forAnalyzers",
-                new Util.Seq(_repository, analyzers.Select(x => x.Reference)).Reference);
+                new SeqJvm(_repository, analyzers.Select(x => x.Reference)).Reference);
 
             return this;
         }
@@ -65,13 +66,13 @@ namespace deequ.Metrics
         public string GetSuccessMetricsAsJson(IEnumerable<string> withTags)
         {
            return (string) _repository.Invoke("getSuccessMetricsAsJson",
-                new Util.Seq(_repository, withTags.ToArray()));
+                new SeqJvm(_repository, withTags.ToArray()));
         }
 
         public DataFrame GetSuccessMetricsAsDataFrame(IEnumerable<string> withTags)
         {
             return (DataFrame) _repository.Invoke("getSuccessMetricsAsDataFrame",
-                new Util.Seq(_repository, withTags.ToArray()));
+                new SeqJvm(_repository, withTags.ToArray()));
         }
 
         public JvmObjectReference Reference => _repository;
@@ -114,7 +115,6 @@ namespace deequ.Metrics
     public class ResultKey : IJvmObjectReferenceProvider
     {
         public readonly long DataSetDate;
-        public readonly Map Tags;
         private JvmObjectReference _jvmResultKey;
 
 
@@ -129,8 +129,6 @@ namespace deequ.Metrics
 
             Map tagsMap = new Map(SparkEnvironment.JvmBridge);
             tagsMap.PutAll(tags);
-
-            Tags = tagsMap;
 
             _jvmResultKey =
                 SparkEnvironment.JvmBridge.CallConstructor("com.amazon.deequ.repository.ResultKey",

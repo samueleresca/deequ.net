@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using deequ.Analyzers;
 using deequ.Metrics;
+using deequ.tests.Analyzers;
 using Microsoft.Spark.Sql;
 using Shouldly;
 using Xunit;
@@ -142,7 +143,7 @@ namespace xdeequ.tests.Analyzers
         public void fail_for_non_atomic_columns()
         {
             DataFrame df = FixtureSupport.GetDfWithNestedColumn(_session);
-            DataType("source").Calculate(df).Value.IsSuccess.ShouldBeFalse();
+            DataType("source").Calculate(df).Value.IsSuccess().ShouldBeFalse();
         }
 
         [Fact]

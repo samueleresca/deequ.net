@@ -1,10 +1,10 @@
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 using deequ.Analyzers;
 using deequ.Interop;
+using deequ.Interop.Utils;
 using deequ.Metrics;
 using deequ.Util;
-using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
@@ -50,12 +50,13 @@ namespace deequ.Constraints
         public ConstraintResult CalculateAndEvaluate(DataFrame data)
         {
             IJvmObjectReferenceProvider objectReferenceProvider = (IJvmObjectReferenceProvider)Analyzer;
-            JvmObjectReference metric = (JvmObjectReference) objectReferenceProvider.Reference.Invoke("calculate", data);
+            JvmObjectReference metric = (JvmObjectReference) objectReferenceProvider
+                .Reference
+                .Invoke("calculate",  ((IJvmObjectReferenceProvider)data).Reference,
+                    objectReferenceProvider.Reference.Invoke("calculate$default$2"),
+                    objectReferenceProvider.Reference.Invoke("calculate$default$2"));
 
-            var map = new Map(objectReferenceProvider.Reference.Jvm);
-            map.Put(Analyzer, metric);
-
-            return Evaluate(map);
+            return Evaluate(new Dictionary<string, JvmObjectReference>{ {Analyzer.ToString(), metric}});
         }
 
         public ConstraintResult Evaluate(Map analysisResult)
@@ -80,11 +81,32 @@ namespace deequ.Constraints
                 MissingAnalysis)).Value;
         }
 
+        public ConstraintResult Evaluate(Dictionary<string, JvmObjectReference> analysisResult) {
+
+            Option<MetricJvm<M>> metric;
+
+            try
+            {
+                AnalyzerJvmBase jvmAnalyzer = ((IJvmObjectReferenceProvider)Analyzer).Reference;
+                metric = new MetricJvm<M>(analysisResult[jvmAnalyzer.ToString()]);
+            }
+            catch (Exception e)
+            {
+                metric = Option<MetricJvm<M>>.None;
+            }
+
+            return metric
+                .Select(PickValueAndAssert)
+                .GetOrElse(new ConstraintResult(this, ConstraintStatus.Failure,
+                    MissingAnalysis)).Value;
+
+        }
+
         private Option<ConstraintResult> PickValueAndAssert(MetricJvm<M> metric)
         {
             try
             {
-                if (!metric.IsSuccess())
+                if (!metric.IsSuccess)
                 {
                     ExceptionJvm exceptionJvm = (JvmObjectReference) metric.Exception().Get();
                     return new ConstraintResult(this, ConstraintStatus.Failure, exceptionJvm.ToString());
@@ -92,7 +114,7 @@ namespace deequ.Constraints
 
                 V assertOn;
 
-                assertOn = RunPickerOnMetric(metric.Value().Get());
+                assertOn = RunPickerOnMetric(metric.Value.Get());
 
 
                 bool assertionOk = RunAssertion(assertOn);

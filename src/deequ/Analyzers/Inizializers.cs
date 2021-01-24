@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using deequ.Util;
-using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Expressions;
 
 namespace deequ.Analyzers
@@ -31,27 +29,25 @@ namespace deequ.Analyzers
         public static Completeness Completeness(string column, Option<string> where) =>
             new Completeness(column, where);
 
-        public static Uniqueness Uniqueness(IEnumerable<string> columns) => new Uniqueness(columns);
-
-        public static Uniqueness Uniqueness(IEnumerable<string> columns, Option<string> where) =>
+        public static Uniqueness Uniqueness(IEnumerable<string> columns, Option<string> where = default) =>
             new Uniqueness(columns, where);
 
         public static Uniqueness Uniqueness(Option<string> column, Option<string> where) =>
             new Uniqueness(new[] { column.Value }, where);
 
-        public static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where) =>
+        public static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where = default) =>
             new Distinctness(columns, where);
 
         public static UniqueValueRatio UniqueValueRatio(IEnumerable<string> columns, Option<string> where) =>
             new UniqueValueRatio(columns, where);
 
-        public static Compliance Compliance(string instance, Option<string> predicate, Option<string> where) =>
+        public static Compliance Compliance(string instance, Option<string> predicate, Option<string> where = default) =>
             new Compliance(instance, predicate, where);
 
-        public static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where) =>
+        public static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where = default) =>
             new MutualInformation(columns, where);
 
-        public static MutualInformation MutualInformation(Option<string> column, Option<string> where) =>
+        public static MutualInformation MutualInformation(Option<string> column, Option<string> where = default) =>
             new MutualInformation(new[] { column.Value }, where);
 
         public static MaxLength MaxLength(string column) => new MaxLength(column, new Option<string>());
@@ -95,10 +91,7 @@ namespace deequ.Analyzers
 
         public static Entropy Entropy(string column, Option<string> where) => new Entropy(column, where);
 
-        public static PatternMatch PatternMatch(string column, Regex pattern) =>
-            new PatternMatch(column, pattern.ToString(), new Option<string>());
-
-        public static PatternMatch PatternMatch(string column, Regex pattern, Option<string> where) =>
+        public static PatternMatch PatternMatch(string column, Regex pattern, Option<string> where = default) =>
             new PatternMatch(column, pattern.ToString(), where);
 
         public static DataType DataType(string column) => new DataType(column, Option<string>.None);

@@ -1,16 +1,15 @@
-using deequ.Analyzers;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace deequ.Util
+namespace deequ.Interop.Utils
 {
 
-    internal sealed class Seq : IJvmObjectReferenceProvider
+    internal sealed class SeqJvm : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
 
-        internal Seq( params object[] values)
+        internal SeqJvm( params object[] values)
         {
 
             var array = new ArrayList(SparkEnvironment.JvmBridge);

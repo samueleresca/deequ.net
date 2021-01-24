@@ -1,6 +1,4 @@
 using System;
-using Microsoft.Spark.Interop.Internal.Scala;
-using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Util
 {

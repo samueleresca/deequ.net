@@ -7,10 +7,10 @@ namespace deequ.Analyzers.Runners
     {
         public SimpleMetricOutput(DoubleMetric doubleMetric)
         {
-            Entity = Enum.GetName(typeof(MetricEntity), doubleMetric.MetricEntity());
-            Instance = doubleMetric.Instance();
-            Name = doubleMetric.Name();
-            Value = doubleMetric.Value().Get();
+            Entity = Enum.GetName(typeof(MetricEntity), doubleMetric.MetricEntity);
+            Instance = doubleMetric.Instance;
+            Name = doubleMetric.Name;
+            Value = doubleMetric.Value.Get();
         }
 
         public SimpleMetricOutput()

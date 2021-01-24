@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using deequ.Util;
+using deequ.Interop.Utils;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 
-namespace deequ.Analyzers
+namespace deequ.Analyzers.Runners
 {
     public class AnalyzerContext
     {

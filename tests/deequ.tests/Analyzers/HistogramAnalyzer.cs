@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using deequ.Metrics;
+using deequ.tests.Analyzers;
 using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;

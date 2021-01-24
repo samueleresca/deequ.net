@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using deequ.Analyzers;
 using deequ.Analyzers.States;
-using deequ.Interop;
+using deequ.Interop.Utils;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
-using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Expressions;
 using static deequ.Analyzers.Initializers;
 
@@ -25,6 +24,7 @@ namespace deequ.Constraints
         /// <param name="analysisResult">The analysis result to evaluate against the check</param>
         /// <returns></returns>
         public ConstraintResult Evaluate(Map analysisResult);
+        public ConstraintResult Evaluate(Dictionary<string, JvmObjectReference> analysisResult);
     }
     internal interface IAnalysisBasedConstraint : IConstraint
     {
@@ -111,6 +111,14 @@ namespace deequ.Constraints
             result.Constraint = this;
             return result;
         }
+
+        public ConstraintResult Evaluate(Dictionary<string, JvmObjectReference> analysisResult)
+        {
+
+            ConstraintResult result  = _inner.Evaluate(analysisResult);
+            result.Constraint = this;
+            return result;
+        }
     }
 
     internal class NamedConstraint : ConstraintDecorator
@@ -125,7 +133,7 @@ namespace deequ.Constraints
     public static class Functions
     {
         public static IConstraint SizeConstraint(Func<double, bool> assertion,
-            Option<string> where, Option<string> hint)
+            Option<string> where = default, Option<string> hint = default)
         {
             Size size = Size(where);
             AnalysisBasedConstraint<double, double> constraint =

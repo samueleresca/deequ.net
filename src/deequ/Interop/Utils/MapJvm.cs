@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using deequ.Interop;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace deequ.Util
+namespace deequ.Interop.Utils
 {
     /// <summary>
     /// Hashtable class represents a <c>java.util.Hashtable</c> object.
@@ -47,6 +45,12 @@ namespace deequ.Util
         }
 
 
+        public JvmObjectReference First()
+        {
+            JvmObjectReference valueReference = (JvmObjectReference) _jvmObject.Invoke("head");
+            return valueReference;
+        }
+
         internal List<V> GetValues<V>()
         {
             List<V> result = new List<V>();
@@ -66,7 +70,6 @@ namespace deequ.Util
                 }
 
             }
-
 
             return result;
         }

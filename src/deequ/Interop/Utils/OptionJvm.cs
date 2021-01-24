@@ -4,7 +4,7 @@
 
 using Microsoft.Spark.Interop.Ipc;
 
-namespace deequ.Interop
+namespace deequ.Interop.Utils
 {
     /// <summary>
     /// Exposes subset of scala.Option[T] APIs.

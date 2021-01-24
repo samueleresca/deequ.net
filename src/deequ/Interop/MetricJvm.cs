@@ -1,8 +1,9 @@
-using System;
+using deequ.Interop.Utils;
+using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
 
-namespace deequ.Metrics
+namespace deequ.Interop
 {
 
     public class ExceptionJvm : IJvmObjectReferenceProvider
@@ -34,25 +35,25 @@ namespace deequ.Metrics
         /// <summary>
         /// The value of the metric wrapped in a Try monad <see cref="Try{T}"/>.
         /// </summary>
-        public TryJvm<T> Value () => new TryJvm<T>((JvmObjectReference)_jvmObject.Invoke("value"));
+        public TryJvm<T> Value  => new TryJvm<T>((JvmObjectReference)_jvmObject.Invoke("value"));
 
         /// <summary>
         /// The metric entity.
         /// </summary>
-        public object MetricEntity() => _jvmObject.Invoke("entity");
+        public object MetricEntity => _jvmObject.Invoke("entity");
 
         /// <inheritdoc cref="IMetric.Name"/>
-        public string Name() =>  (string) _jvmObject.Invoke("name");
+        public string Name =>  (string) _jvmObject.Invoke("name");
 
-        public string Instance() => (string) _jvmObject.Invoke("instance");
+        public string Instance => (string) _jvmObject.Invoke("instance");
 
         /// <inheritdoc cref="IMetric.IsSuccess"/>
-        public bool IsSuccess() => Value().IsSuccess();
+        public bool IsSuccess => Value.IsSuccess();
 
         /// <inheritdoc cref="IMetric.Exception"/>
         public TryJvm<ExceptionJvm> Exception()
         {
-            if (IsSuccess()) return null;
+            if (IsSuccess) return null;
 
             JvmObjectReference reference = (JvmObjectReference)_jvmObject.Invoke("value");
             JvmObjectReference exception = (JvmObjectReference) reference.Invoke("failed");
@@ -72,5 +73,8 @@ namespace deequ.Metrics
         }
 
         public JvmObjectReference Reference => _jvmObject;
+
+
+        public override string ToString() => (string) _jvmObject.Invoke("toString");
     }
 }

@@ -1,13 +1,14 @@
 using System;
 using System.IO;
 using deequ.Analyzers;
+using deequ.Analyzers.Runners;
 using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Streaming;
 using Xunit;
 
-namespace xdeequ.tests.Analyzers
+namespace xdeequ.tests
 {
     [Collection("Spark instance")]
     public class BasicStatistics
