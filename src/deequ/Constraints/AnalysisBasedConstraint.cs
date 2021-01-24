@@ -109,7 +109,7 @@ namespace deequ.Constraints
                 if (!metric.IsSuccess)
                 {
                     ExceptionJvm exceptionJvm = (JvmObjectReference) metric.Exception().Get();
-                    return new ConstraintResult(this, ConstraintStatus.Failure, exceptionJvm.ToString());
+                    return new ConstraintResult(this, ConstraintStatus.Failure, exceptionJvm.GetMessage(), metric);
                 }
 
                 V assertOn;
@@ -121,13 +121,13 @@ namespace deequ.Constraints
 
                 if (assertionOk)
                 {
-                    return new ConstraintResult(this, ConstraintStatus.Success, Option<string>.None);
+                    return new ConstraintResult (this, ConstraintStatus.Success, Option<string>.None,  metric);
                 }
 
                 string errorMessage = $"Value: {assertOn} does not meet the constraint requirement!";
                 errorMessage += _hint.GetOrElse(string.Empty);
 
-                return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage);
+                return new ConstraintResult(this, ConstraintStatus.Failure, errorMessage, metric);
             }
             catch (Exception e)
             {
@@ -135,10 +135,10 @@ namespace deequ.Constraints
                 {
                     case ConstraintAssertionException ec:
                         return new ConstraintResult(this, ConstraintStatus.Failure,
-                            $"{AssertionException}: {ec.Message}");
+                            $"{AssertionException}: {ec.Message}", metric);
                     case ValuePickerException vpe:
                         return new ConstraintResult(this, ConstraintStatus.Failure,
-                            $"{ProblematicMetricPicker}: {vpe.Message}");
+                            $"{ProblematicMetricPicker}: {vpe.Message}", metric);
                 }
             }
 

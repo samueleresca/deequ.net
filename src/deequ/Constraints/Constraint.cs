@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using deequ.Analyzers;
 using deequ.Analyzers.States;
+using deequ.Interop;
 using deequ.Interop.Utils;
 using deequ.Metrics;
 using deequ.Util;
@@ -51,6 +52,8 @@ namespace deequ.Constraints
         /// </summary>
         public Option<string> Message { get; }
 
+        public Option<IMetric> Metric { get; set; }
+
 
         /// <summary>
         /// ctor of class <see cref="ConstraintResult"/>>
@@ -64,6 +67,15 @@ namespace deequ.Constraints
             Constraint = constraint;
             Status = status;
             Message = message;
+            Metric = Option<IMetric>.None;
+        }
+
+        public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message, IMetric metric)
+        {
+            Constraint = constraint;
+            Status = status;
+            Message = message;
+            Metric = new Option<IMetric>(metric);
         }
 
     }

@@ -51,7 +51,6 @@
       <Compile Remove="Repository\**" />
       <Compile Remove="Constraints\HistogramConstraints.cs" />
       <Compile Remove="Metrics\**" />
-      <Compile Remove="Constraints\AnalysisBasedConstraintTest.cs" />
       <Compile Remove="Analyzers\HistogramAnalyzer.cs" />
       <Compile Remove="Analyzers\DataTypeAnalyzer.cs" />
       <Compile Remove="Analyzers\CorrelationAnalyzer.cs" />

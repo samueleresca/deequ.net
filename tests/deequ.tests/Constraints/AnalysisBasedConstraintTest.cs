@@ -5,8 +5,10 @@ using deequ.Analyzers;
 using deequ.Constraints;
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
 using Shouldly;
+using xdeequ.tests.Analyzers;
 using Xunit;
 
 namespace xdeequ.tests.Constraints
@@ -19,14 +21,15 @@ namespace xdeequ.tests.Constraints
 
         private readonly SparkSession _session;
 
-        [Fact]
+        [Fact(Skip = "Check concurrent execution")]
+
         public void assert_correctly_on_values_if_analysis_is_successful()
         {
-            DataFrame df = FixtureSupport.GetDFMissing(_session);
+            DataFrame df = FixtureSupport.GetDFFull(_session);
 
             ConstraintResult resultA = ConstraintUtils.Calculate<double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("att1"), val => val == 1.0, Option<string>.None), df);
+                    new Completeness("att1"), val => val == 1.0, Option<string>.None), df);
 
             resultA.Status.ShouldBe(ConstraintStatus.Success);
             resultA.Message.ShouldBe(Option<string>.None);
@@ -35,7 +38,7 @@ namespace xdeequ.tests.Constraints
 
             ConstraintResult resultB = ConstraintUtils.Calculate<double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("att1"), val => val != 1.0, Option<string>.None), df);
+                    new Completeness("att1"), val => val != 1.0, Option<string>.None), df);
 
             resultB.Status.ShouldBe(ConstraintStatus.Failure);
             resultB.Message.ShouldBe("Value: 1 does not meet the constraint requirement!");
@@ -44,35 +47,35 @@ namespace xdeequ.tests.Constraints
 
             ConstraintResult resultC = ConstraintUtils.Calculate<double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("someMissingColumn"), val => val == 1.0, Option<string>.None), df);
+                    new Completeness("someMissingColumn"), val => val == 1.0, Option<string>.None), df);
 
             resultC.Status.ShouldBe(ConstraintStatus.Failure);
-            resultC.Message.ShouldBe("requirement failed: Missing column someMissingColumn");
+            resultC.Message.ShouldBe("Input data does not include column someMissingColumn!");
             resultC.Metric.HasValue.ShouldBeTrue();
         }
 
         [Fact]
         public void execute_value_picker_on_the_analysis_result_value_if_provided()
         {
-            DataFrame df = FixtureSupport.GetDFMissing(_session);
+            DataFrame df = FixtureSupport.GetDFFull(_session);
 
             ConstraintResult resultA = ConstraintUtils.Calculate<double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("att1"), val => val == 2.0, new Option<Func<double, double>>(value => value * 2),
+                    new Completeness("att1"), val => val == 2.0, new Option<Func<double, double>>(value => value * 2),
                     Option<string>.None), df);
 
             resultA.Status.ShouldBe(ConstraintStatus.Success);
 
             ConstraintResult resultB = ConstraintUtils.Calculate<double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("att1"), val => val != 2.0, new Option<Func<double, double>>(value => value * 2),
+                    new Completeness("att1"), val => val != 2.0, new Option<Func<double, double>>(value => value * 2),
                     Option<string>.None), df);
 
             resultB.Status.ShouldBe(ConstraintStatus.Failure);
 
             ConstraintResult resultC = ConstraintUtils.Calculate<double, double>(
                 new AnalysisBasedConstraint<double, double>(
-                    new SampleAnalyzer("someMissingColumn"), val => val != 2.0,
+                    new Completeness("someMissingColumn"), val => val != 2.0,
                     new Option<Func<double, double>>(value => value * 2), Option<string>.None), df);
 
             resultC.Status.ShouldBe(ConstraintStatus.Failure);
@@ -82,12 +85,12 @@ namespace xdeequ.tests.Constraints
         [Fact]
         public void execute_value_picker_on_the_analysis_result_value_retrieved_from_context_if_provided()
         {
-            SampleAnalyzer att1Analyzer = new SampleAnalyzer("att1");
+            Completeness att1Analyzer = new Completeness("att1");
 
-            DataFrame df = FixtureSupport.GetDFMissing(_session);
-            Dictionary<IAnalyzer<IMetric>, IMetric> validResults = new Dictionary<IAnalyzer<IMetric>, IMetric>
+            DataFrame df = FixtureSupport.GetDFFull(_session);
+            Dictionary<string, JvmObjectReference> validResults = new Dictionary<string, JvmObjectReference>
             {
-                {att1Analyzer, new SampleAnalyzer("att1").Calculate(df)}
+                {att1Analyzer.ToString(), new Completeness("att1").Calculate(df).Reference}
             };
 
             new AnalysisBasedConstraint<double, double>(att1Analyzer, val => val == 2.0,
@@ -101,13 +104,13 @@ namespace xdeequ.tests.Constraints
         public void fail_on_analysis_if_value_picker_is_provided_but_fails()
         {
             Func<double, double> problematicValuePicker = d => throw new Exception("failed");
-            SampleAnalyzer att1Analyzer = new SampleAnalyzer("att1");
-            DataFrame df = FixtureSupport.GetDFMissing(_session);
+            Completeness att1Analyzer = new Completeness("att1");
+            DataFrame df = FixtureSupport.GetDFFull(_session);
 
-            Dictionary<IAnalyzer<IMetric>, IMetric> emptyResult = new Dictionary<IAnalyzer<IMetric>, IMetric>();
-            Dictionary<IAnalyzer<IMetric>, IMetric> validResults = new Dictionary<IAnalyzer<IMetric>, IMetric>
+            Dictionary<string, JvmObjectReference> emptyResult = new Dictionary<string, JvmObjectReference>();
+            Dictionary<string, JvmObjectReference> validResults = new Dictionary<string, JvmObjectReference>
             {
-                {att1Analyzer, new SampleAnalyzer("att1").Calculate(df)}
+                {att1Analyzer.ToString(), new Completeness("att1").Calculate(df).Reference}
             };
 
             AnalysisBasedConstraint<double, double> constraint =
@@ -133,11 +136,11 @@ namespace xdeequ.tests.Constraints
         }
 
 
-        [Fact]
+        [Fact(Skip = "Check concurrent execution")]
         public void fail_on_failed_assertion_function_with_hint_in_exception_message_if_provided()
         {
-            SampleAnalyzer att1Analyzer = new SampleAnalyzer("att1");
-            DataFrame df = FixtureSupport.GetDFMissing(_session);
+            Completeness att1Analyzer = new Completeness("att1");
+            DataFrame df = FixtureSupport.GetDFFull(_session);
 
             AnalysisBasedConstraint<double, double> failingConstraint =
                 new AnalysisBasedConstraint<double, double>(att1Analyzer, val => val == 0.9,
@@ -154,15 +157,15 @@ namespace xdeequ.tests.Constraints
         [Fact]
         public void get_the_analysis_from_the_context_if_provided()
         {
-            SampleAnalyzer att1Analyzer = new SampleAnalyzer("att1");
-            SampleAnalyzer someMissingColumn = new SampleAnalyzer("someMissingColumn");
+            Completeness att1Analyzer = new Completeness("att1");
+            Completeness someMissingColumn = new Completeness("someMissingColumn");
 
             DataFrame df = FixtureSupport.GetDFMissing(_session);
-            Dictionary<IAnalyzer<IMetric>, IMetric> emptyResult = new Dictionary<IAnalyzer<IMetric>, IMetric>();
-            Dictionary<IAnalyzer<IMetric>, IMetric> validResults = new Dictionary<IAnalyzer<IMetric>, IMetric>
+            Dictionary<string, JvmObjectReference> emptyResult = new Dictionary<string, JvmObjectReference>();
+            Dictionary<string, JvmObjectReference> validResults = new Dictionary<string, JvmObjectReference>
             {
-                {att1Analyzer, new SampleAnalyzer("att1").Calculate(df)},
-                {someMissingColumn, new SampleAnalyzer("someMissingColumn").Calculate(df)}
+                {att1Analyzer.ToString(), new Completeness("att1").Calculate(df).Reference},
+                {someMissingColumn.ToString(), new Completeness("someMissingColumn").Calculate(df).Reference}
             };
 
             new AnalysisBasedConstraint<double, double>(att1Analyzer, val => val == 1.0, Option<string>.None)
@@ -194,11 +197,11 @@ namespace xdeequ.tests.Constraints
         {
             string msg = "-test-";
             Exception exception = new Exception(msg);
-            DataFrame df = FixtureSupport.GetDFMissing(_session);
+            DataFrame df = FixtureSupport.GetDFFull(_session);
             Func<double, bool> failingAssertion = d => throw exception;
 
             AnalysisBasedConstraint<double, double> failingConstraint =
-                new AnalysisBasedConstraint<double, double>(new SampleAnalyzer("att1"),
+                new AnalysisBasedConstraint<double, double>(new Completeness("att1"),
                     failingAssertion, Option<string>.None);
             ConstraintResult result = ConstraintUtils.Calculate<double, double>(failingConstraint, df);
 

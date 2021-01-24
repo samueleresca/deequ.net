@@ -1,4 +1,5 @@
 using deequ.Metrics;
+using deequ.Util;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Interop

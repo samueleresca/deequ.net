@@ -42,7 +42,7 @@ namespace xdeequ.tests.Checks
                 .Run();
         }
 
-        public static void AssertEvaluatesTo(Check check, AnalyzerContext analyzerContext, CheckStatus checkStatus)
+        private static void AssertEvaluatesTo(Check check, AnalyzerContext analyzerContext, CheckStatus checkStatus)
         {
             CheckResult checkResult = check.Evaluate(analyzerContext);
             if (checkResult.Status == CheckStatus.Error)
@@ -89,8 +89,6 @@ namespace xdeequ.tests.Checks
         [Fact]
         public void should_check_DataType()
         {
-            string col = "some";
-
             List<GenericRow> elements = new List<GenericRow>
             {
                 new GenericRow(new object[] {"2", "integral"}), new GenericRow(new object[] {"1.0", "fractional"})
