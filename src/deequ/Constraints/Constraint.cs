@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using deequ.Analyzers;
 using deequ.Analyzers.States;
+using deequ.Interop;
+using deequ.Interop.Utils;
 using deequ.Metrics;
 using deequ.Util;
-using Microsoft.Spark.Sql;
+using Microsoft.Spark.Interop.Ipc;
+using Microsoft.Spark.Sql.Expressions;
 using static deequ.Analyzers.Initializers;
 
 namespace deequ.Constraints
@@ -21,8 +24,8 @@ namespace deequ.Constraints
         /// </summary>
         /// <param name="analysisResult">The analysis result to evaluate against the check</param>
         /// <returns></returns>
-        public ConstraintResult Evaluate(
-            Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult);
+        public ConstraintResult Evaluate(MapJvm analysisResult);
+        public ConstraintResult Evaluate(Dictionary<string, JvmObjectReference> analysisResult);
     }
     internal interface IAnalysisBasedConstraint : IConstraint
     {
@@ -34,12 +37,6 @@ namespace deequ.Constraints
     /// </summary>
     public class ConstraintResult
     {
-        /// <summary>
-        /// The metric used by the result
-        /// </summary>
-        public Option<IMetric> Metric;
-
-
         /// <summary>
         /// The constraint related to the constraint result <see cref="IConstraint"/>
         /// </summary>
@@ -55,6 +52,8 @@ namespace deequ.Constraints
         /// </summary>
         public Option<string> Message { get; }
 
+        public Option<IMetric> Metric { get; set; }
+
 
         /// <summary>
         /// ctor of class <see cref="ConstraintResult"/>>
@@ -63,13 +62,20 @@ namespace deequ.Constraints
         /// <param name="status">The status of the constraint result</param>
         /// <param name="message">Optional message</param>
         /// <param name="metric"></param>
-        public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message,
-            Option<IMetric> metric)
+        public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message)
         {
             Constraint = constraint;
             Status = status;
             Message = message;
-            Metric = metric;
+            Metric = Option<IMetric>.None;
+        }
+
+        public ConstraintResult(IConstraint constraint, ConstraintStatus status, Option<string> message, IMetric metric)
+        {
+            Constraint = constraint;
+            Status = status;
+            Message = message;
+            Metric = new Option<IMetric>(metric);
         }
 
     }
@@ -90,7 +96,7 @@ namespace deequ.Constraints
     }
 
 
-    internal class ConstraintDecorator : IConstraint
+    public class ConstraintDecorator : IConstraint
     {
         private readonly IConstraint _inner;
 
@@ -111,10 +117,17 @@ namespace deequ.Constraints
             }
         }
 
-        public ConstraintResult Evaluate(
-            Dictionary<IAnalyzer<IMetric>, IMetric> analysisResult)
+        public ConstraintResult Evaluate(MapJvm analysisResult)
         {
             ConstraintResult result = _inner.Evaluate(analysisResult);
+            result.Constraint = this;
+            return result;
+        }
+
+        public ConstraintResult Evaluate(Dictionary<string, JvmObjectReference> analysisResult)
+        {
+
+            ConstraintResult result  = _inner.Evaluate(analysisResult);
             result.Constraint = this;
             return result;
         }
@@ -129,10 +142,10 @@ namespace deequ.Constraints
         public override string ToString() => _name;
     }
 
-    internal static class Functions
+    public static class Functions
     {
         public static IConstraint SizeConstraint(Func<double, bool> assertion,
-            Option<string> where, Option<string> hint)
+            Option<string> where = default, Option<string> hint = default)
         {
             Size size = Size(where);
             AnalysisBasedConstraint<double, double> constraint =
@@ -142,20 +155,20 @@ namespace deequ.Constraints
             return new NamedConstraint(constraint, $"SizeConstraint({size})");
         }
 
-        public static IConstraint HistogramConstraint(
+       public static IConstraint HistogramConstraint(
             string column,
-            Func<Distribution, bool> assertion,
-            Option<Func<Column, Column>> binningFunc,
+            Func<DistributionJvm, bool> assertion,
+            Option<UserDefinedFunction> binningFunc,
             Option<string> where,
             Option<string> hint,
             int maxBins = 1000
         )
         {
-            Histogram histogram = Histogram(column, binningFunc, where, maxBins);
+            Histogram histogram = Histogram(column, binningFunc, maxBins, where);
 
-            AnalysisBasedConstraint<Distribution, Distribution> constraint =
-                new AnalysisBasedConstraint<Distribution, Distribution>(histogram, assertion,
-                    Option<Func<Distribution, Distribution>>.None, hint);
+            AnalysisBasedConstraint<DistributionJvm, DistributionJvm> constraint =
+                new AnalysisBasedConstraint<DistributionJvm, DistributionJvm>(histogram, assertion,
+                    Option<Func<DistributionJvm, DistributionJvm>>.None, hint);
 
 
             return new NamedConstraint(constraint,
@@ -165,17 +178,17 @@ namespace deequ.Constraints
         public static IConstraint HistogramBinConstraint(
             string column,
             Func<long, bool> assertion,
-            Option<Func<Column, Column>> binningFunc,
+            Option<UserDefinedFunction> binningFunc,
             Option<string> where,
             Option<string> hint,
             int maxBins = 1000
         )
         {
-            Histogram histogram = Histogram(column, binningFunc, where, maxBins);
+            Histogram histogram = Histogram(column, binningFunc, maxBins,  where);
 
-            AnalysisBasedConstraint<Distribution, long> constraint =
-                new AnalysisBasedConstraint<Distribution, long>(histogram, assertion,
-                    new Func<Distribution, long>(target => target.NumberOfBins),
+            AnalysisBasedConstraint<DistributionJvm, long> constraint =
+                new AnalysisBasedConstraint<DistributionJvm, long>(histogram, assertion,
+                    new Func<DistributionJvm, long>(target => target.NumberOfBins),
                     hint);
 
 
@@ -200,7 +213,7 @@ namespace deequ.Constraints
                 $"CompletenessConstraint({completeness})");
         }
 
-        public static IConstraint AnomalyConstraint<S>(
+       public static IConstraint AnomalyConstraint<S>(
             IAnalyzer<IMetric> analyzer,
             Func<double, bool> anomalyAssertion,
             Option<string> hint
@@ -283,13 +296,13 @@ namespace deequ.Constraints
 
         public static IConstraint ComplianceConstraint(
             string name,
-            Option<Column> column,
+            Option<string> column,
             Func<double, bool> assertion,
             Option<string> where,
             Option<string> hint
         )
         {
-            Compliance compliance = Compliance(name, column.Value, where);
+            Compliance compliance = Compliance(name, column, where);
 
             AnalysisBasedConstraint<double, double> constraint =
                 new AnalysisBasedConstraint<double, double>(compliance, assertion,
@@ -335,7 +348,7 @@ namespace deequ.Constraints
                 $"EntropyConstraint({constraint})");
         }
 
-        public static IConstraint PatternMatchConstraint(
+   /*     public static IConstraint PatternMatchConstraint(
             string column,
             Regex pattern,
             Func<double, bool> assertion,
@@ -351,7 +364,7 @@ namespace deequ.Constraints
 
             string constraintName = name.HasValue ? name.Value : $"PatternMatchConstraint({constraint})";
             return new NamedConstraint(constraint, constraintName);
-        }
+        }*/
 
         public static IConstraint MaxLengthConstraint(
             string column,
@@ -472,6 +485,25 @@ namespace deequ.Constraints
                 $"StandardDeviationConstraint({constraint})");
         }
 
+
+        public static IConstraint PatternMatchConstraint(
+            string column,
+            Regex pattern,
+            Func<double, bool> assertion,
+            Option<string> where = default,
+            Option<string> name = default,
+            Option<string> hint = default
+        )
+        {
+            PatternMatch patternMatch = PatternMatch(column, pattern, where);
+
+            AnalysisBasedConstraint<double, double> constraint =
+                new AnalysisBasedConstraint<double, double>(patternMatch, assertion, Option<Func<double, double>>.None,  hint);
+
+            string constraintName = name.HasValue ? name.Value : $"PatternMatchConstraint({constraint})";
+            return new NamedConstraint(constraint, constraintName);
+        }
+
         public static IConstraint ApproxCountDistinctConstraint(
             string column,
             Func<double, bool> assertion,
@@ -505,10 +537,10 @@ namespace deequ.Constraints
             Option<string> hint
         )
         {
-            Func<Distribution, double> valuePicker = dataType == ConstrainableDataTypes.Numeric
+            Func<DistributionJvm, double> valuePicker = dataType == ConstrainableDataTypes.Numeric
                 ? d => RatioTypes(true, DataTypeInstances.Fractional, d) +
                        RatioTypes(true, DataTypeInstances.Integral, d)
-                : new Func<Distribution, double>(distribution =>
+                : new Func<DistributionJvm, double>(distribution =>
                 {
                     Func<DataTypeInstances, double> pure =
                         keyType => RatioTypes(true, keyType, distribution);
@@ -524,37 +556,40 @@ namespace deequ.Constraints
 
             DataType dataTypeResult = DataType(column, where);
 
-            return new AnalysisBasedConstraint<Distribution, double>(dataTypeResult, assertion,
+            return new AnalysisBasedConstraint<DistributionJvm, double>(dataTypeResult, assertion,
                 valuePicker, hint);
         }
 
 
-        private static double RatioTypes(bool ignoreUnknown, DataTypeInstances keyType, Distribution distribution)
+        private static double RatioTypes(bool ignoreUnknown, DataTypeInstances keyType, DistributionJvm distributionJvm)
         {
+            OptionJvm optionJvm = distributionJvm.Values.Get(keyType.ToString());
+
+            double ratio = 0.0;
+            long absolute = 0L;
+
+            if (!optionJvm.IsEmpty())
+            {
+                DistributionValueJvm distValueJvm = (JvmObjectReference)optionJvm.Get();
+                ratio = distValueJvm.Ratio;
+                absolute = distValueJvm.Absolute;
+            }
+
             if (!ignoreUnknown)
-            {
-                return distribution
-                    .Values[keyType.ToString()]?
-                    .Ratio ?? 0.0;
-            }
+                return ratio;
 
-
-            long absoluteCount = distribution
-                .Values[keyType.ToString()]?
-                .Absolute ?? 0L;
-
-            if (absoluteCount == 0L)
-            {
+            if (absolute == 0L)
                 return 0;
-            }
 
-            long numValues = distribution.Values.Sum(keyValuePair => keyValuePair.Value.Absolute);
-            long numUnknown = distribution
-                .Values[DataTypeInstances.Unknown.ToString()]?
-                .Absolute ?? 0L;
+            long numValues =  distributionJvm
+                .Values.GetValues<DistributionValueJvm>()
+                .AsEnumerable().Sum(keyValuePair => keyValuePair.Absolute);
+
+            long numUnknown =  ((DistributionValueJvm)(JvmObjectReference)distributionJvm.Values
+                .Get(DataTypeInstances.Unknown.ToString()).Get())?.Absolute ?? 0L;
 
             long sumOfNonNull = numValues - numUnknown;
-            return (double)absoluteCount / sumOfNonNull;
+            return absolute / (double) sumOfNonNull;
         }
     }
 }

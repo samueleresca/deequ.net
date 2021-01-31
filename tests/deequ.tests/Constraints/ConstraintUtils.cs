@@ -1,4 +1,3 @@
-using deequ.Analyzers.States;
 using deequ.Constraints;
 using Microsoft.Spark.Sql;
 
@@ -6,8 +5,7 @@ namespace xdeequ.tests.Constraints
 {
     public static class ConstraintUtils
     {
-        public static ConstraintResult Calculate<S, M, V>(IConstraint constraint, DataFrame dataFrame)
-            where S : IState
+        public static ConstraintResult Calculate<M, V>(IConstraint constraint, DataFrame dataFrame)
         {
             IConstraint analysisBasedConstraint = constraint;
             if (analysisBasedConstraint is ConstraintDecorator)

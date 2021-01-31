@@ -2,6 +2,7 @@
 
     <PropertyGroup>
       <TargetFramework>netstandard2.1</TargetFramework>
+      <InternalsAssemblyNames>Microsoft.Spark</InternalsAssemblyNames>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <Copyright />
@@ -14,5 +15,45 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Spark" Version="1.0.0" />
         <PackageReference Include="System.Text.Json" Version="5.0.1" />
+        <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Analyzers\Compliance.cs" />
+      <Compile Remove="Analyzers\FilterableAnalyzer.cs" />
+      <Compile Remove="Analyzers\GroupingAnalyzer.cs" />
+      <Compile Remove="Analyzers\Histogram.cs" />
+      <Compile Remove="Analyzers\ApproxQuantile.cs" />
+      <Compile Remove="Analyzers\Completness.cs" />
+      <Compile Remove="Analyzers\ApproxCountDistinct.cs" />
+      <Compile Remove="Analyzers\DataType.cs" />
+      <Compile Remove="Analyzers\Correlation.cs" />
+      <Compile Remove="Analyzers\IGroupingAnalyzer.cs" />
+      <Compile Remove="Analyzers\Distinctness.cs" />
+      <Compile Remove="Analyzers\Entropy.cs" />
+      <Compile Remove="Analyzers\IScanSharableAnalyzer.cs" />
+      <Compile Remove="Analyzers\Maximum.cs" />
+      <Compile Remove="Analyzers\Mean.cs" />
+      <Compile Remove="Analyzers\MaxLength.cs" />
+      <Compile Remove="Analyzers\Minimum.cs" />
+      <Compile Remove="Analyzers\MinLength.cs" />
+      <Compile Remove="Analyzers\MutualInformation.cs" />
+      <Compile Remove="Analyzers\PatternMatch.cs" />
+      <Compile Remove="Analyzers\Size.cs" />
+      <Compile Remove="Analyzers\StandardDeviation.cs" />
+      <Compile Remove="Analyzers\Sum.cs" />
+      <Compile Remove="Analyzers\Uniqueness.cs" />
+      <Compile Remove="Analyzers\UniqueValueRatio.cs" />
+      <Compile Remove="Analyzers\Runners\AnalyzerContext.cs" />
+      <Compile Remove="Analyzers\Runners\AnalysisRunBuilder.cs" />
+      <Compile Remove="Analyzers\Applicability\ApplicabilityResult.cs" />
+      <Compile Remove="Repository\Serde\**.cs" />
+      <Compile Remove="VerificationSuite.cs" />
+      <Compile Remove="VerificationRunBuilder.cs" />
+      <Compile Remove="Extensions\VerificationResultExt.cs" />
+      <Compile Remove="Analyzers\Runners\AnalysisRunner.cs" />
+      
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Analyzers\Applicability" />
     </ItemGroup>
 </Project>

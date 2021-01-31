@@ -13,6 +13,8 @@ namespace deequ.Analyzers
     /// </summary>
     public sealed class Uniqueness : ScanShareableFrequencyBasedAnalyzer
     {
+
+
         /// <summary>
         /// Initializes a new instance of type <see cref="Uniqueness"/> class.
         /// </summary>

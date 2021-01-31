@@ -1,4 +1,5 @@
 using System;
+using deequ.Interop;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Sql;
@@ -20,21 +21,18 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame complete = FixtureSupport.GetDFFull(_session);
 
-            DoubleMetric attr1 = Entropy("att1").Calculate(complete);
-            DoubleMetric attr2 = Entropy("att2").Calculate(complete);
+            DoubleMetricJvm attr1 = Entropy("att1").Calculate(complete);
+            DoubleMetricJvm attr2 = Entropy("att2").Calculate(complete);
 
 
             DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Entropy", "att1", new Try<double>(0));
             DoubleMetric expected2 = DoubleMetric.Create(MetricEntity.Column, "Entropy", "att2",
                 -(0.75 * Math.Log(0.75) + 0.25 * Math.Log(0.25)));
 
-
-            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
-            attr1.Value.IsSuccess.ShouldBeTrue();
+            attr1.Value.IsSuccess().ShouldBeTrue();
 
-            attr2.MetricEntity.ShouldBe(expected2.MetricEntity);
             attr2.Instance.ShouldBe(expected2.Instance);
             attr2.Name.ShouldBe(expected2.Name);
             attr2.Value.Get().ShouldBe(expected2.Value.Get());

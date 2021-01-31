@@ -35,8 +35,7 @@ namespace deequ.Repository
             }
 
             return analysisResults
-                .Select(analysisResult => analysisResult.GetSuccessMetricsAsDataFrame(session,
-                    Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
+                .Select(analysisResult => analysisResult.GetSuccessMetricsAsDataFrame(session, Enumerable.Empty<IAnalyzer<IMetric>>(), withTags))
                 .Aggregate((dataFrameOne, dataFrameTwo) => { return DataFrameUnion(dataFrameOne, dataFrameTwo); });
         }
 

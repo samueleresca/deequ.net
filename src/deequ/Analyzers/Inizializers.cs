@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using deequ.Util;
-using Microsoft.Spark.Sql;
+using Microsoft.Spark.Sql.Expressions;
 
 namespace deequ.Analyzers
 {
@@ -10,56 +9,45 @@ namespace deequ.Analyzers
     {
         public static Size Size(Option<string> where = default) => new Size(where);
 
-        public static Histogram Histogram(string column) =>
-            new Histogram(column, Option<string>.None,
-                Option<Func<Column, Column>>.None, 1000);
+       public static Histogram Histogram(string column) =>
+            new Histogram(column, Option<UserDefinedFunction>.None,1000);
 
         public static Histogram Histogram(string column, Option<string> where) =>
-            new Histogram(column, where, Option<Func<Column, Column>>.None, 1000);
+            new Histogram(column,  Option<UserDefinedFunction>.None, 1000, where);
 
-        public static Histogram Histogram(string column, Option<Func<Column, Column>> binningFunc) =>
-            new Histogram(column, Option<string>.None, binningFunc, 1000);
+        public static Histogram Histogram(string column, Option<UserDefinedFunction> binningFunc) =>
+            new Histogram(column, binningFunc, 1000);
 
-        public static Histogram Histogram(string column, Option<Func<Column, Column>> binningFunc,
-            Option<string> where,
-            int maxDetailBins) =>
-            new Histogram(column, where, binningFunc, maxDetailBins);
+        public static Histogram Histogram(string column,
+            Option<UserDefinedFunction> binningFunc,
+            int maxDetailBins,
+            Option<string> where
+            ) =>
+            new Histogram(column,binningFunc, maxDetailBins,  where);
+        public static Completeness Completeness(string column) => new Completeness(column);
 
-        public static Histogram Histogram(string column, Option<string> where, int maxDetailBins) =>
-            new Histogram(column, where, Option<Func<Column, Column>>.None, maxDetailBins);
-
-        public static Completeness Completeness(Option<string> column) => new Completeness(column);
-
-        public static Completeness Completeness(Option<string> column, Option<string> where) =>
+        public static Completeness Completeness(string column, Option<string> where) =>
             new Completeness(column, where);
 
-        public static Uniqueness Uniqueness(IEnumerable<string> columns) => new Uniqueness(columns);
-
-        public static Uniqueness Uniqueness(IEnumerable<string> columns, Option<string> where) =>
+        public static Uniqueness Uniqueness(IEnumerable<string> columns, Option<string> where = default) =>
             new Uniqueness(columns, where);
 
         public static Uniqueness Uniqueness(Option<string> column, Option<string> where) =>
             new Uniqueness(new[] { column.Value }, where);
 
-        public static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where) =>
+        public static Distinctness Distinctness(IEnumerable<string> columns, Option<string> where = default) =>
             new Distinctness(columns, where);
 
         public static UniqueValueRatio UniqueValueRatio(IEnumerable<string> columns, Option<string> where) =>
             new UniqueValueRatio(columns, where);
 
-        public static Compliance Compliance(string instance, Column predicate, Option<string> where) =>
+        public static Compliance Compliance(string instance, Option<string> predicate, Option<string> where = default) =>
             new Compliance(instance, predicate, where);
 
-        public static Compliance Compliance(string instance, Column predicate) =>
-            new Compliance(instance, predicate, Option<string>.None);
-
-        public static MutualInformation MutualInformation(IEnumerable<string> columns) =>
-            new MutualInformation(columns);
-
-        public static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where) =>
+        public static MutualInformation MutualInformation(IEnumerable<string> columns, Option<string> where = default) =>
             new MutualInformation(columns, where);
 
-        public static MutualInformation MutualInformation(Option<string> column, Option<string> where) =>
+        public static MutualInformation MutualInformation(Option<string> column, Option<string> where = default) =>
             new MutualInformation(new[] { column.Value }, where);
 
         public static MaxLength MaxLength(string column) => new MaxLength(column, new Option<string>());
@@ -99,15 +87,12 @@ namespace deequ.Analyzers
         public static Correlation Correlation(string columnA, string columnB, Option<string> where) =>
             new Correlation(columnA, columnB, where);
 
-        public static Entropy Entropy(Option<string> column) => new Entropy(column);
+        public static Entropy Entropy(string column) => new Entropy(column, Option<string>.None);
 
-        public static Entropy Entropy(Option<string> column, Option<string> where) => new Entropy(column, where);
+        public static Entropy Entropy(string column, Option<string> where) => new Entropy(column, where);
 
-        public static PatternMatch PatternMatch(string column, Regex pattern) =>
-            new PatternMatch(column, pattern, new Option<string>());
-
-        public static PatternMatch PatternMatch(string column, Regex pattern, Option<string> where) =>
-            new PatternMatch(column, pattern, where);
+        public static PatternMatch PatternMatch(string column, Regex pattern, Option<string> where = default) =>
+            new PatternMatch(column, pattern.ToString(), where);
 
         public static DataType DataType(string column) => new DataType(column, Option<string>.None);
 

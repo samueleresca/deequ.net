@@ -16,6 +16,7 @@ using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
+using InMemoryMetricsRepository = deequ.Repository.InMemory.InMemoryMetricsRepository;
 
 namespace xdeequ.tests.Repository
 {

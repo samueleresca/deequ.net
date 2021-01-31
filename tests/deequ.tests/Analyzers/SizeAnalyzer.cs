@@ -1,3 +1,4 @@
+using deequ.Interop;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Sql;
@@ -19,10 +20,9 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame full = FixtureSupport.GetDFFull(_session);
 
-            DoubleMetric actualFull = Size(Option<string>.None).Calculate(full);
+            DoubleMetricJvm actualFull = Size(Option<string>.None).Calculate(full);
             DoubleMetric expectedFull = DoubleMetric.Create(MetricEntity.Dataset, "Size", "*", full.Count());
 
-            actualFull.MetricEntity.ShouldBe(expectedFull.MetricEntity);
             actualFull.Name.ShouldBe(expectedFull.Name);
             actualFull.Instance.ShouldBe(expectedFull.Instance);
             actualFull.Value.Get().ShouldBe(expectedFull.Value.Get());
@@ -33,10 +33,9 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame missing = FixtureSupport.GetDFMissing(_session);
 
-            DoubleMetric actualMissing = Size(Option<string>.None).Calculate(missing);
+            DoubleMetricJvm actualMissing = Size(Option<string>.None).Calculate(missing);
             DoubleMetric expectedMissing = DoubleMetric.Create(MetricEntity.Dataset, "Size", "*", missing.Count());
 
-            actualMissing.MetricEntity.ShouldBe(expectedMissing.MetricEntity);
             actualMissing.Name.ShouldBe(expectedMissing.Name);
             actualMissing.Instance.ShouldBe(expectedMissing.Instance);
             actualMissing.Value.Get().ShouldBe(expectedMissing.Value.Get());

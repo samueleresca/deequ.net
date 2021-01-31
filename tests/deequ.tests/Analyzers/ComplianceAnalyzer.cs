@@ -1,10 +1,10 @@
+using deequ.Interop;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
 using Xunit;
 using static deequ.Analyzers.Initializers;
-using static Microsoft.Spark.Sql.Functions;
 
 
 namespace xdeequ.tests.Analyzers
@@ -21,18 +21,16 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
-            DoubleMetric attr1 = Compliance("rule1", Expr("att1 > 3")).Calculate(df);
-            DoubleMetric attr2 = Compliance("rule2", Expr("att1 > 2")).Calculate(df);
+            DoubleMetricJvm attr1 = Compliance("rule1", "att1 > 3").Calculate(df);
+            DoubleMetricJvm attr2 = Compliance("rule2", "att1 > 2").Calculate(df);
 
             DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Compliance", "rule1", 3.0 / 6);
             DoubleMetric expected2 = DoubleMetric.Create(MetricEntity.Column, "Compliance", "rule2", 4.0 / 6);
 
-            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
             attr1.Value.Get().ShouldBe(expected1.Value.Get());
 
-            attr2.MetricEntity.ShouldBe(expected2.MetricEntity);
             attr2.Instance.ShouldBe(expected2.Instance);
             attr2.Name.ShouldBe(expected2.Name);
             attr2.Value.Get().ShouldBe(expected2.Value.Get());
@@ -41,7 +39,7 @@ namespace xdeequ.tests.Analyzers
         [Fact]
         public void completeness_correctly_tostring_instances()
         {
-            Compliance("rule1", Expr("att1 > 3")).ToString().ShouldBe("Compliance(rule1,(att1 > 3),None)");
+            Compliance("rule1", "att1 > 3").ToString().ShouldBe("Compliance(rule1,att1 > 3,None)");
         }
 
         [Fact]
@@ -49,12 +47,11 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
-            DoubleMetric attr1 = Compliance("rule1", Expr("att2 = 0"),
+            DoubleMetricJvm attr1 = Compliance("rule1", "att2 = 0",
                 new Option<string>("att1 < 4")).Calculate(df);
 
             DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Compliance", "rule1", 1.0);
 
-            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
             attr1.Value.Get().ShouldBe(expected1.Value.Get());
@@ -65,14 +62,13 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame df = FixtureSupport.GetDfWithNumericValues(_session);
 
-            DoubleMetric attr1 = Compliance("rule1", Expr("attNoSuchColumn > 3")).Calculate(df);
+            DoubleMetricJvm attr1 = Compliance("rule1", "attNoSuchColumn > 3").Calculate(df);
 
             DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Column, "Compliance", "rule1", 1.0);
 
-            attr1.MetricEntity.ShouldBe(expected1.MetricEntity);
             attr1.Instance.ShouldBe(expected1.Instance);
             attr1.Name.ShouldBe(expected1.Name);
-            attr1.Value.IsSuccess.ShouldBeFalse();
+            attr1.Value.IsSuccess().ShouldBeFalse();
         }
     }
 }

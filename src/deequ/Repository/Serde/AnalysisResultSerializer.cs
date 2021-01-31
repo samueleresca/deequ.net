@@ -1,8 +1,10 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using deequ.Analyzers;
 using deequ.Analyzers.Runners;
 using deequ.Extensions;
+using deequ.Metrics;
 
 namespace deequ.Repository.Serde
 {

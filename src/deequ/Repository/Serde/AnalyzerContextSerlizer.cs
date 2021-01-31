@@ -39,7 +39,7 @@ namespace deequ.Repository.Serde
             writer.WriteStartObject();
             writer.WriteStartArray(SerdeExt.METRIC_MAP_FIELD);
 
-            foreach (KeyValuePair<IAnalyzer<IMetric>, IMetric> keyValuePair in value.MetricMap)
+            foreach (KeyValuePair<IAnalyzer<IMetric>, IMetric> keyValuePair in value.MetricMap().ToDictionary<IAnalyzer<IMetric>, IMetric>())
             {
                 writer.WriteStartObject();
 

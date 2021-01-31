@@ -1,6 +1,5 @@
-using System.Linq;
-using deequ.Analyzers;
-using deequ.Analyzers.States;
+using System;
+using deequ.Interop;
 using deequ.Metrics;
 using Microsoft.Spark.Sql;
 using Shouldly;
@@ -22,15 +21,14 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame numericValues = FixtureSupport.GetDfWithStrongPositiveCorrelation(_session);
 
-            Correlation("att1", "att2").Preconditions().Count().ShouldBe(4);
 
-            DoubleMetric attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
-            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Multicolumn, "Correlation", "att1,att2", 1);
+            DoubleMetricJvm attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Mutlicolumn, "Correlation", "att1,att2", 1);
 
             attCorrelation.MetricEntity.ShouldBe(expected1.MetricEntity);
             attCorrelation.Instance.ShouldBe(expected1.Instance);
             attCorrelation.Name.ShouldBe(expected1.Name);
-            attCorrelation.Value.Get().ShouldBe(expected1.Value.Get(), 0.00001);
+            attCorrelation.Value.Get<double>().ShouldBe(expected1.Value.Get(), 0.00001);
         }
 
         [Fact]
@@ -38,15 +36,14 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame numericValues = FixtureSupport.GetDfWithStrongNegativeCorrelation(_session);
 
-            Correlation("att1", "att2").Preconditions().Count().ShouldBe(4);
 
-            DoubleMetric attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
-            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Multicolumn, "Correlation", "att1,att2", -1);
+            DoubleMetricJvm attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Mutlicolumn, "Correlation", "att1,att2", -1);
 
             attCorrelation.MetricEntity.ShouldBe(expected1.MetricEntity);
             attCorrelation.Instance.ShouldBe(expected1.Instance);
             attCorrelation.Name.ShouldBe(expected1.Name);
-            attCorrelation.Value.Get().ShouldBe(expected1.Value.Get(), 0.1);
+            attCorrelation.Value.Get<double>().ShouldBe(expected1.Value.Get(), 0.1);
 
         }
 
@@ -56,15 +53,14 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame numericValues = FixtureSupport.GetDfWithLowCorrelation(_session);
 
-            Correlation("att1", "att2").Preconditions().Count().ShouldBe(4);
 
-            DoubleMetric attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
-            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Multicolumn, "Correlation", "att1,att2", 0.0);
+            DoubleMetricJvm attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Mutlicolumn, "Correlation", "att1,att2", 0.0);
 
             attCorrelation.MetricEntity.ShouldBe(expected1.MetricEntity);
             attCorrelation.Instance.ShouldBe(expected1.Instance);
             attCorrelation.Name.ShouldBe(expected1.Name);
-            attCorrelation.Value.Get().ShouldBe(expected1.Value.Get(), 0.1);
+            attCorrelation.Value.Get<double>().ShouldBe(expected1.Value.Get(), 0.1);
         }
 
         [Fact]
@@ -72,36 +68,37 @@ namespace xdeequ.tests.Analyzers
         {
             DataFrame numericValues = FixtureSupport.GetDfWithLowCorrelation(_session);
 
-            DoubleMetric attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
-            DoubleMetric attCorrelationComm = Correlation("att2", "att1").Calculate(numericValues);
+            DoubleMetricJvm attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
+            DoubleMetricJvm attCorrelationComm = Correlation("att2", "att1").Calculate(numericValues);
 
-            attCorrelation.Value.Get().ShouldBe(attCorrelationComm.Value.Get());
+            (Math.Abs(attCorrelation.Value.Get<double>() - attCorrelationComm.Value.Get<double>()) < 0.0000001)
+                .ShouldBeTrue();
         }
 
         [Fact]
         public void compute_correlation_coefficient_with_filtering()
         {
             DataFrame numericValues = FixtureSupport.GetDfWithStrongPositiveCorrelationFilter(_session);
-            DoubleMetric attCorrelation = Correlation("att1", "att2", "att1 <= 20").Calculate(numericValues);
-            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Multicolumn, "Correlation", "att1,att2", 1.0);
+            DoubleMetricJvm attCorrelation = Correlation("att1", "att2", "att1 <= 20").Calculate(numericValues);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Mutlicolumn, "Correlation", "att1,att2", 1.0);
 
             attCorrelation.MetricEntity.ShouldBe(expected1.MetricEntity);
             attCorrelation.Instance.ShouldBe(expected1.Instance);
             attCorrelation.Name.ShouldBe(expected1.Name);
-            attCorrelation.Value.Get().ShouldBe(expected1.Value.Get(), 0.00001);
+            attCorrelation.Value.Get<double>().ShouldBe(expected1.Value.Get(), 0.00001);
         }
 
         [Fact]
         public void fails_with_non_numeric_fields()
         {
             DataFrame numericValues = FixtureSupport.GetDFFull(_session);
-            DoubleMetric attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
-            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Multicolumn, "Correlation", "att1,att2", 0.0);
+            DoubleMetricJvm attCorrelation = Correlation("att1", "att2").Calculate(numericValues);
+            DoubleMetric expected1 = DoubleMetric.Create(MetricEntity.Mutlicolumn, "Correlation", "att1,att2", 0.0);
 
             attCorrelation.MetricEntity.ShouldBe(expected1.MetricEntity);
             attCorrelation.Instance.ShouldBe(expected1.Instance);
             attCorrelation.Name.ShouldBe(expected1.Name);
-            attCorrelation.Value.Failure.HasValue.ShouldBeTrue();
+            attCorrelation.Value.IsSuccess().ShouldBeFalse();
 
         }
 
@@ -110,14 +107,14 @@ namespace xdeequ.tests.Analyzers
         {
             (DataFrame dfA, DataFrame dfB) = FixtureSupport.GetDfWithStrongPositiveCorrelationPartitioned(_session);
 
-            var corrA = Correlation("att1", "att2").ComputeStateFrom(dfA);
-            var corrB = Correlation("att1", "att2").ComputeStateFrom(dfB);
+            var corrA = Correlation("att1", "att2").Calculate(dfA);
+            var corrB = Correlation("att1", "att2").Calculate(dfB);
 
-            var corrAB = corrA.Value.Sum(corrB.Value);
+            var corrAB = Math.Max((double)corrA.Value.Get(), (double)corrB.Value.Get());
 
-            var totalCorr = Correlation("att1", "att2").ComputeStateFrom(dfA.Union(dfB));
+            var totalCorr = Correlation("att1", "att2").Calculate(dfA.Union(dfB));
 
-            corrAB.Equals(totalCorr.Value).ShouldBeTrue();
+            corrAB.Equals(totalCorr.Value.Get<double>()).ShouldBeTrue();
         }
     }
 }

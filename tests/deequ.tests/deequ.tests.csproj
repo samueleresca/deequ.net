@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <LangVersion>9</LangVersion>
+        <InternalsAssemblyNames>Microsoft.Spark</InternalsAssemblyNames>
         <IsPackable>false</IsPackable>
         <RootNamespace>xdeequ.tests</RootNamespace>
     </PropertyGroup>
@@ -16,6 +16,7 @@
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
         <PackageReference Include="coverlet.collector" Version="3.0.2" />
         <PackageReference Include="Microsoft.Spark" Version="1.0.0" />
+        <PackageReference Include="IgnoresAccessChecksToGenerator" Version="0.4.0" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
@@ -34,10 +35,36 @@
         <None Update="Resources\log4j.properties">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\deequ-1.1.0_spark-2.4-scala-2.11.jar">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Remove="Metrics\**" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\deequ\deequ.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Examples\**" />
+      <Compile Remove="Constraints\HistogramConstraints.cs" />
+      <Compile Remove="Metrics\**" />
+      <Compile Remove="Analyzers\HistogramAnalyzer.cs" />
+      <Compile Remove="Analyzers\DataTypeAnalyzer.cs" />
+      <Compile Remove="VerificationResultTests.cs" />
+      <Compile Remove="VerificationSuiteTest.cs" />
+      <Compile Remove="Repository\Memory\InMemoryMetricsRepositoryTests.cs" />
+      <Compile Remove="Repository\MetricsRepositoryAnomalyDetectionIntegrationTest.cs" />
+      <Compile Remove="Repository\MetricsRepositoryMultipleResultsLoaderTest.cs" />
+      
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Metrics\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Repository\Memory" />
     </ItemGroup>
 
 </Project>

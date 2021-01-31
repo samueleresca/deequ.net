@@ -42,7 +42,7 @@ namespace deequ.Analyzers
         /// Initializes a new instance of type <see cref="Maximum"/>.
         /// </summary>
         /// <param name="column">The target column name.</param>
-        /// <param name="where">The where condition target of the invocation</param>
+        /// <param name="where">The where condition target of the invocation.</param>
         public Maximum(string column, Option<string> where) : base("Maximum", column, MetricEntity.Column,
             column, where)
         {

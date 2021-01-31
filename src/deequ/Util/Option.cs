@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Spark.Interop;
 
 namespace deequ.Util
 {
@@ -9,13 +10,15 @@ namespace deequ.Util
 
         public Option(T value)
         {
+            Value = default;
             Value = value;
             HasValue = true;
         }
 
-        public bool HasValue { get; }
 
-        public T Value { get; }
+        public bool HasValue { get; set; }
+
+        public T Value { get; set; }
 
         public static implicit operator Option<T>(T value) => new Option<T>(value);
 
@@ -42,6 +45,26 @@ namespace deequ.Util
             }
 
             return obj is Option<T> && Equals((Option<T>)obj);
+        }
+
+        public readonly object ToJvm(Option<(string className, string defaultName)> defaultReference = default)
+        {
+            if (!HasValue && !defaultReference.HasValue)
+            {
+                return null;
+            }
+
+            if (!HasValue)
+            {
+                return SparkEnvironment
+                    .JvmBridge
+                    .CallStaticJavaMethod(defaultReference.Value.className, defaultReference.Value.defaultName);
+            }
+
+
+            return SparkEnvironment
+               .JvmBridge
+               .CallStaticJavaMethod("scala.Option", "apply", Value );
         }
 
         public override int GetHashCode()

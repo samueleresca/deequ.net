@@ -589,32 +589,6 @@ namespace deequ.Analyzers.Runners
         }
     }
 
-    public class ResultKey
-    {
-        public ResultKey(long dataSetDate, Dictionary<string, string> tags)
-        {
-            DataSetDate = dataSetDate;
-            Tags = tags;
-        }
-
-        public ResultKey(long dataSetDate)
-        {
-            DataSetDate = dataSetDate;
-            Tags = new Dictionary<string, string>();
-        }
-
-        public ResultKey()
-        {
-        }
-
-        public long DataSetDate { get; set; }
-        public Dictionary<string, string> Tags { get; set; }
-    }
 
 
-    //TODO: Missing API from dotnet/spark, see: https://github.com/dotnet/spark/issues/617
-    public enum StorageLevel
-    {
-        MEMORY_AND_DISK = 0
-    }
 }

@@ -65,10 +65,10 @@ namespace xdeequ.tests
                 }
             }
 
-            int i = 0;
             foreach (Row rowA in dfASeq)
             {
-                dfBSeq.Select(row => row.Values.ToString()).ShouldContain(rowA.Values.ToString());
+                IEnumerable<Row> bSeq = dfBSeq as Row[] ?? dfBSeq.ToArray();
+                bSeq.Select(row => row.Values.ToString()).ShouldContain(rowA.Values.ToString());
             }
         }
 

@@ -19,4 +19,10 @@
       <ProjectReference Include="..\..\src\deequ\deequ.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="AnomalyDetection.cs" />
+      <Compile Remove="BasicExample.cs" />
+      <Compile Remove="IncrementalMetrics.cs" />
+    </ItemGroup>
+
 </Project>

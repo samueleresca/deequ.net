@@ -24,14 +24,14 @@ namespace deequ.Repository.Serde
                 document.RootElement.GetProperty("numberOfBins").GetInt64());
         }
 
-        public override void Write(Utf8JsonWriter writer, Distribution distribution, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, Distribution distributionJvm, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
 
-            writer.WriteNumber("numberOfBins", distribution.NumberOfBins);
+            writer.WriteNumber("numberOfBins", distributionJvm.NumberOfBins);
 
             writer.WriteStartArray("values");
-            foreach (KeyValuePair<string, DistributionValue> distributionValue in distribution.Values)
+            foreach (KeyValuePair<string, DistributionValue> distributionValue in distributionJvm.Values)
             {
                 writer.WriteStartObject();
                 writer.WriteString("key", distributionValue.Key);

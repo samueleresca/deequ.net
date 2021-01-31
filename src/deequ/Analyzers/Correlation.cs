@@ -12,7 +12,7 @@ using static Microsoft.Spark.Sql.Functions;
 namespace deequ.Analyzers
 {
     /// <summary>
-    ///  Computes the pearson correlation coefficient between the two given columns
+    /// Computes the pearson correlation coefficient between the two given columns
     /// </summary>
     public class Correlation : StandardScanShareableAnalyzer<CorrelationState>, IFilterableAnalyzer
     {

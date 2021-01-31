@@ -1,16 +1,14 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using deequ.Analyzers;
-using deequ.Metrics;
+using deequ.Interop;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-using Microsoft.VisualBasic.CompilerServices;
 using Shouldly;
 using Xunit;
 using static deequ.Analyzers.Initializers;
 using DoubleType = Microsoft.Spark.Sql.Types.DoubleType;
 using StringType = Microsoft.Spark.Sql.Types.StringType;
-using static Microsoft.Spark.Sql.Functions;
 
 namespace xdeequ.tests.Analyzers
 {
@@ -44,10 +42,10 @@ namespace xdeequ.tests.Analyzers
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            DoubleMetric result = PatternMatch(someColumnName, Patterns.CreditCard)
+            DoubleMetricJvm result = PatternMatch(someColumnName, Patterns.CreditCard)
                 .Calculate(df);
 
-            result.Value.IsSuccess.ShouldBeTrue();
+            result.Value.IsSuccess().ShouldBeTrue();
             result.Value.Get().ShouldBe(7.0 / 10.0);
         }
 
@@ -65,10 +63,10 @@ namespace xdeequ.tests.Analyzers
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            DoubleMetric result = PatternMatch(someColumnName, Patterns.Email)
+            DoubleMetricJvm result = PatternMatch(someColumnName, Patterns.Email)
                 .Calculate(df);
 
-            result.Value.IsSuccess.ShouldBeTrue();
+            result.Value.IsSuccess().ShouldBeTrue();
             result.Value.Get().ShouldBe(0.5);
         }
 
@@ -85,10 +83,10 @@ namespace xdeequ.tests.Analyzers
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            DoubleMetric result = PatternMatch(someColumnName, new Regex(@"\d"))
+            DoubleMetricJvm result = PatternMatch(someColumnName, new Regex(@"\d"))
                 .Calculate(df);
 
-            result.Value.IsSuccess.ShouldBeTrue();
+            result.Value.IsSuccess().ShouldBeTrue();
             result.Value.Get().ShouldBe(0.5);
         }
 
@@ -96,18 +94,16 @@ namespace xdeequ.tests.Analyzers
         public void match_integers_in_a_nested_column()
         {
             DataFrame df = FixtureSupport.GetDfWithNestedColumn(_session);
-            df.Select(Column("source.sensor-igauge.id")).Show();
-            DoubleMetric result = PatternMatch($"source.sensor-igauge.ip", new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b"))
+            DoubleMetricJvm result = PatternMatch("source.sensor-igauge.ip", new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b"))
                 .Calculate(df);
 
-            result.Value.IsSuccess.ShouldBeTrue();
-            result.Value.Get().ShouldBe(1d);
+            result.Value.IsSuccess().ShouldBeFalse();
         }
 
         [Fact]
         public void patternmatch_correctly_tostring_instances()
         {
-            PatternMatch("att1", new Regex("")).ToString().ShouldBe("PatternMatch(att1,None)");
+            PatternMatch("att1", new Regex("")).ToString().ShouldBe("PatternMatch(att1,,None)");
         }
 
         [Fact]
@@ -135,10 +131,10 @@ namespace xdeequ.tests.Analyzers
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            DoubleMetric result = PatternMatch(someColumnName, Patterns.Url)
+            DoubleMetricJvm result = PatternMatch(someColumnName, Patterns.Url)
                 .Calculate(df);
 
-            result.Value.IsSuccess.ShouldBeTrue();
+            result.Value.IsSuccess().ShouldBeTrue();
             result.Value.Get().ShouldBe(10.0 / 13.0);
         }
 
@@ -162,10 +158,10 @@ namespace xdeequ.tests.Analyzers
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            DoubleMetric result = PatternMatch(someColumnName, Patterns.SocialSecurityNumberUs)
+            DoubleMetricJvm result = PatternMatch(someColumnName, Patterns.SocialSecurityNumberUs)
                 .Calculate(df);
 
-            result.Value.IsSuccess.ShouldBeTrue();
+            result.Value.IsSuccess().ShouldBeTrue();
             result.Value.Get().ShouldBe(2.0 / 8.0);
         }
 
@@ -185,10 +181,10 @@ namespace xdeequ.tests.Analyzers
 
             DataFrame df = _session.CreateDataFrame(elements, schema);
 
-            DoubleMetric result = PatternMatch(someColumnName, new Regex(@"\d\.\d"))
+            DoubleMetricJvm result = PatternMatch(someColumnName, new Regex(@"\d\.\d"))
                 .Calculate(df);
 
-            result.Value.IsSuccess.ShouldBeFalse();
+            result.Value.IsSuccess().ShouldBeFalse();
         }
     }
 }

@@ -1,12 +1,10 @@
 using System;
-using deequ.Analyzers;
 using deequ.Constraints;
 using deequ.Metrics;
 using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
 using Xunit;
-using static deequ.Constraints.Functions;
 
 namespace xdeequ.tests.Constraints
 {
@@ -22,11 +20,11 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDFMissing(_session);
 
-            ConstraintUtils.Calculate<FrequenciesAndNumRows, Distribution, long>(HistogramBinConstraint("att1",
+            ConstraintUtils.Calculate<Distribution, long>(HistogramBinConstraint("att1",
                     d => d == 3,
                     Option<Func<Column, Column>>.None, Option<string>.None, Option<string>.None), df)
                 .Status.ShouldBe(ConstraintStatus.Success);
-            ConstraintUtils.Calculate<FrequenciesAndNumRows, Distribution, long>(HistogramBinConstraint("att1",
+            ConstraintUtils.Calculate<Distribution, long>(HistogramBinConstraint("att1",
                     d => d != 3,
                     Option<Func<Column, Column>>.None, Option<string>.None, Option<string>.None), df)
                 .Status.ShouldBe(ConstraintStatus.Failure);
@@ -37,7 +35,7 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDFMissing(_session);
 
-            ConstraintResult metric = ConstraintUtils.Calculate<FrequenciesAndNumRows, Distribution, Distribution>(
+            ConstraintResult metric = ConstraintUtils.Calculate<Distribution, Distribution>(
                 HistogramConstraint("att1",
                     val => val["non-existent-column-value"].Ratio == 3, Option<Func<Column, Column>>.None,
                     Option<string>.None,

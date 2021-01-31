@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 namespace deequ.Analyzers
 {
     /// <summary>
-    ///  Distinctness is the fraction of distinct values of a column(s).
+    /// Distinctness is the fraction of distinct values of a column(s).
     /// </summary>
     public sealed class Distinctness : ScanShareableFrequencyBasedAnalyzer
     {

@@ -1,4 +1,3 @@
-using deequ.Analyzers;
 using deequ.Constraints;
 using deequ.Metrics;
 using deequ.Util;
@@ -23,7 +22,7 @@ namespace xdeequ.tests.Constraints
             DataFrame df = FixtureSupport.DataFrameWithColumn("column", new DoubleType(), _session,
                 new[] { new GenericRow(new object[] { 1.0 }), new GenericRow(new object[] { 2.0 }) });
 
-            ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
+            ConstraintUtils.Calculate<DistributionJvm, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, val => val == 1.0,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
         }
@@ -34,7 +33,7 @@ namespace xdeequ.tests.Constraints
             DataFrame df = FixtureSupport.DataFrameWithColumn("column", new StringType(), _session,
                 new[] { new GenericRow(new object[] { "1" }), new GenericRow(new object[] { "2.0" }) });
 
-            ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
+            ConstraintUtils.Calculate<DistributionJvm, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Fractional, val => val == 0.5,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
         }
@@ -45,7 +44,7 @@ namespace xdeequ.tests.Constraints
             DataFrame df = FixtureSupport.DataFrameWithColumn("column", new StringType(), _session,
                 new[] { new GenericRow(new object[] { "1" }), new GenericRow(new object[] { "2.0" }) });
 
-            ConstraintUtils.Calculate<DataTypeHistogram, Distribution, double>(
+            ConstraintUtils.Calculate<DistributionJvm, double>(
                 Functions.DataTypeConstraint("column", ConstrainableDataTypes.Numeric, val => val == 1.0,
                     Option<string>.None, Option<string>.None), df).Status.ShouldBe(ConstraintStatus.Success);
         }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using deequ;
 using deequ.Analyzers;
 using deequ.Analyzers.Runners;
 using deequ.Extensions;
@@ -13,7 +14,6 @@ using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
-using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 namespace xdeequ.tests.Repository
 {
@@ -57,8 +57,8 @@ namespace xdeequ.tests.Repository
             func(results);
         }
 
-        private static Analysis CreateAnalysis() =>
-            new Analysis()
+        private static AnalysisJvm CreateAnalysis() =>
+            new AnalysisJvm()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
                 .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))
@@ -127,12 +127,12 @@ namespace xdeequ.tests.Repository
                 ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
 
                 string analysisResultsAsDataFrame = new AnalysisResult(resultKey, context)
-                    .GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(),
+                    .GetSuccessMetricsAsJson( Enumerable.Empty<IAnalyzer<IMetric>>(),
                         Enumerable.Empty<string>());
 
 
                 string expected =
-                    "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+                    "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Mutlicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
                 expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
 
                 AssertSameRows(analysisResultsAsDataFrame, expected);
@@ -143,7 +143,7 @@ namespace xdeequ.tests.Repository
             Evaluate(_session, context =>
             {
                 ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
-                IAnalyzer<DoubleMetric>[] metricsForAnalyzers =
+                IAnalyzer<IMetric>[] metricsForAnalyzers =
                 {
                     Initializers.Completeness("att1"), Initializers.Uniqueness(new[] {"att1", "att2"})
                 };
@@ -180,7 +180,7 @@ namespace xdeequ.tests.Repository
             Evaluate(_session, context =>
             {
                 ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU));
-                IAnalyzer<DoubleMetric>[] metricsForAnalyzers =
+                IAnalyzer<IMetric>[] metricsForAnalyzers =
                 {
                     Initializers.Completeness("att1"), Initializers.Uniqueness(new[] {"att1", "att2"})
                 };
@@ -205,7 +205,7 @@ namespace xdeequ.tests.Repository
             DataFrame data = FixtureSupport.GetDFFull(_session);
             ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
 
-            AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
+            AnalyzerContext results = new AnalysisJvm().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
             DataFrame analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
                 .GetSuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>(),
                     Enumerable.Empty<string>());
@@ -234,7 +234,7 @@ namespace xdeequ.tests.Repository
             DataFrame data = FixtureSupport.GetDFFull(_session);
             ResultKey resultKey = new ResultKey(DATE_ONE, new Dictionary<string, string>(REGION_EU_INVALID));
 
-            AnalyzerContext results = new Analysis().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
+            AnalyzerContext results = new AnalysisJvm().Run(data, Option<IStateLoader>.None, Option<IStatePersister>.None);
             string analysisResultsAsDataFrame = new AnalysisResult(resultKey, results)
                 .GetSuccessMetricsAsJson(Enumerable.Empty<IAnalyzer<IMetric>>(),
                     Enumerable.Empty<string>());
@@ -290,7 +290,7 @@ namespace xdeequ.tests.Repository
                         Enumerable.Empty<string>());
 
                 string expected =
-                    "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Multicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
+                    "[{\"entity\":\"Dataset\",\"instance\":\"*\",\"name\":\"Size\",\"value\":4.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"att1\",\"name\":\"Completeness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Column\",\"instance\":\"item\",\"name\":\"Distinctness\",\"value\":1.0, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}, {\"entity\":\"Mutlicolumn\",\"instance\":\"att1,att2\", \"name\":\"Uniqueness\",\"value\":0.25, \"region\":\"EU\", \"dataset_date\":$DATE_ONE}]";
 
                 expected = expected.Replace("$DATE_ONE", DATE_ONE.ToString());
 

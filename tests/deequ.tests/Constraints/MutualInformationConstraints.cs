@@ -1,4 +1,3 @@
-using deequ.Analyzers;
 using deequ.Constraints;
 using deequ.Util;
 using Microsoft.Spark.Sql;
@@ -20,7 +19,7 @@ namespace xdeequ.tests.Constraints
         {
             DataFrame df = FixtureSupport.GetDfWithConditionallyUninformativeColumns(_session);
 
-            ConstraintUtils.Calculate<FrequenciesAndNumRows, double, double>(MutualInformationConstraint("att1", "att2",
+            ConstraintUtils.Calculate<double, double>(MutualInformationConstraint("att1", "att2",
                     val => val == 0,
                     Option<string>.None, Option<string>.None), df)
                 .Status.ShouldBe(ConstraintStatus.Success);

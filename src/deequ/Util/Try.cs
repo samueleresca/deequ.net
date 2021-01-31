@@ -6,6 +6,7 @@ namespace deequ.Util
     {
         public Try(T success) => Success = success;
 
+
         public Try(Exception failure) => Failure = failure;
 
         public bool IsSuccess => Success.HasValue;

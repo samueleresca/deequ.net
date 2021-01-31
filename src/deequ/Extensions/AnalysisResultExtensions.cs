@@ -10,7 +10,7 @@ using static Microsoft.Spark.Sql.Functions;
 
 namespace deequ.Extensions
 {
-    internal static class AnalysisResultExt
+    public static class AnalysisResultExt
     {
         public static DataFrame GetSuccessMetricsAsDataFrame(this AnalysisResult analysisResult,
             SparkSession sparkSession,
@@ -19,7 +19,7 @@ namespace deequ.Extensions
         )
         {
             DataFrame analyzerContextDF =
-                analysisResult.AnalyzerContext.SuccessMetricsAsDataFrame(sparkSession, forAnalyzer)
+                analysisResult.AnalyzerContext.SuccessMetricsAsDataFrame( forAnalyzer)
                     .WithColumn("dataset_date", Lit(analysisResult.ResultKey.DataSetDate));
 
             IEnumerable<KeyValuePair<string, string>> analyzerTags = analysisResult.ResultKey.Tags

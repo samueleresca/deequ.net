@@ -6,14 +6,13 @@ using deequ.Analyzers.Runners;
 using deequ.AnomalyDetection;
 using deequ.Checks;
 using deequ.Extensions;
+using deequ.Metrics;
 using deequ.Repository;
-using deequ.Repository.InMemory;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
-
 using static deequ.Analyzers.Initializers;
 
-namespace examples
+namespace example
 {
     public static class AnomalyDetection
     {
