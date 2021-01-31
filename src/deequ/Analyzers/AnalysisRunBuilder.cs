@@ -46,7 +46,7 @@ namespace deequ.Analyzers
             return this;
         }
 
-        public AnalysisRunBuilder SaveOrAppendResult(ResultKey resultKey)
+        public AnalysisRunBuilder SaveOrAppendResult(ResultKeyJvm resultKey)
         {
             _AnalysisRunBuilder.Invoke("saveOrAppendResult", resultKey.Reference);
             return this;

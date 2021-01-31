@@ -11,9 +11,10 @@ namespace deequ.Interop.Utils
 
         internal SeqJvm( params object[] values)
         {
-
             var array = new ArrayList(SparkEnvironment.JvmBridge);
+
             array.AddAll(values);
+
             var iterator = (IJvmObjectReferenceProvider)SparkEnvironment.JvmBridge.CallStaticJavaMethod("scala.collection.JavaConversions",
                 "asScalaIterator", ((IJvmObjectReferenceProvider)array).Reference.Invoke("iterator"));
             _jvmObject = (JvmObjectReference)iterator.Reference.Invoke("toList");

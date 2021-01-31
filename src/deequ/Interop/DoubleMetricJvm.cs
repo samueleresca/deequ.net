@@ -1,5 +1,6 @@
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark.Interop;
 using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Interop
@@ -20,7 +21,6 @@ namespace deequ.Interop
         {
 
         }
-
 
         /// <summary>
         /// Equality method of two <see cref="DoubleMetric"/> instances.

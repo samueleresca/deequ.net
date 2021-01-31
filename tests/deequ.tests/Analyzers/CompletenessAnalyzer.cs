@@ -93,8 +93,8 @@ namespace xdeequ.tests.Analyzers
                 .AddAnalyzer(baseAnalyzer)
                 .Run();
 
-            Map metricMap = context.MetricMap();
-            JvmObjectReference  option  = metricMap.First();
+            MapJvm metricMapJvm = context.MetricMap();
+            JvmObjectReference  option  = metricMapJvm.First();
 
             JvmObjectReference keyValue = (JvmObjectReference)option.Invoke("_2");
 

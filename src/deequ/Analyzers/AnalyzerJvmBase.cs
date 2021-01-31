@@ -25,6 +25,17 @@ namespace deequ.Analyzers
             analyzerName
             => $"com.amazon.deequ.analyzers.{analyzerName}";
 
+
+        /// <summary>
+        ///
+        /// </summary>
+        public string Column => (string)_jvmBridge.Value.Invoke("column");
+
+        /// <summary>
+        ///
+        /// </summary>
+        public string Where => (string)_jvmBridge.Value.Invoke("where");
+
         public AnalyzerJvmBase(Option<string> column = default, Option<string> where = default)
         {
             _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
@@ -132,11 +143,11 @@ namespace deequ.Analyzers
         /// <summary>
         /// Describe the compliance.
         /// </summary>
-       // public string Instance;
+        public string Instance => (string)_jvmBridge.Value.Invoke("instance");
         /// <summary>
         /// SQL-Like predicate to apply per row <see cref="Functions.Expr"/>.
         /// </summary>
-     //   public readonly Option<string> Predicate;
+        public Option<string> Predicate => (string)_jvmBridge.Value.Invoke("predicate");
         /// <summary>
         /// Initializes a new instance of the <see cref="Compliance"/> class.
         /// </summary>
@@ -164,11 +175,11 @@ namespace deequ.Analyzers
         /// <summary>
         /// First input column for computation.
         /// </summary>
-      //  public readonly string ColumnA;
+        public string ColumnA => (string) _jvmBridge.Value.Invoke("columnA");
         /// <summary>
         /// Second input column for computation.
         /// </summary>
-    //    public readonly string ColumnB;
+       public string ColumnB => (string) _jvmBridge.Value.Invoke("columnB");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Correlation"/> class.
@@ -193,7 +204,7 @@ namespace deequ.Analyzers
         /// <summary>
         /// Columns to search on.
         /// </summary>
-        //private readonly IEnumerable<string> Columns;
+        public IEnumerable<string> Columns;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CountDistinct"/> class.
@@ -201,6 +212,7 @@ namespace deequ.Analyzers
         /// <param name="columns">Columns to search on.</param>
         public CountDistinct(IEnumerable<string> columns)
         {
+            Columns = columns;
             _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(AnalyzersNamespaces(AnalyzerName), columns);
         }
     }
@@ -235,14 +247,14 @@ namespace deequ.Analyzers
     /// </summary>
     public class Distinctness : AnalyzerJvmBase
     {
-        // private IEnumerable<string> Columns;
+         public IEnumerable<string> Columns;
 
         /// <summary>
         /// Initializes a new instance of type <see cref="Distinctness"/> class.
         /// </summary>
         /// <param name="columns">The target column names subject to the grouping.</param>
         /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
-        public Distinctness(IEnumerable<string> columns, Option<string> where) : base(where)
+        public Distinctness(IEnumerable<string> columns, Option<string> where = default) : base(where)
         {
             _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
                 AnalyzersNamespaces(AnalyzerName), new SeqJvm(columns.ToArray()).Reference,
@@ -262,7 +274,7 @@ namespace deequ.Analyzers
         /// </summary>
         /// <param name="column">The target column names subject to the grouping.</param>
         /// <param name="where">A where clause to filter only some values in a column <see cref="Expr"/>.</param>
-        public Entropy(string column, Option<string> where) : base(column, where)
+        public Entropy(string column, Option<string> where = default) : base(column, where)
         {
         }
     }
@@ -354,7 +366,7 @@ namespace deequ.Analyzers
     /// </summary>
     public class MutualInformation : AnalyzerJvmBase
     {
-        // private IEnumerable<string> Columns;
+        public IEnumerable<string> Columns;
         /// <summary>
         /// Initializes a new instance of type <see cref="MutualInformation"/> class.
         /// </summary>
@@ -381,7 +393,7 @@ namespace deequ.Analyzers
         /// <summary>
         /// Column to do the pattern match analysis on.
         /// </summary>
-      //  public readonly JvmObjectReference Regex;
+        public readonly string Regex;
 
         /// <summary>
         /// Initializes a new instance of type <see cref="PatternMatch"/> class.
@@ -472,7 +484,7 @@ namespace deequ.Analyzers
     /// </summary>
     public class Uniqueness : AnalyzerJvmBase
     {
-      //  private IEnumerable<string> Columns;
+        public IEnumerable<string> Columns;
         /// <summary>
         /// Initializes a new instance of type <see cref="Uniqueness"/> class.
         /// </summary>
@@ -480,6 +492,8 @@ namespace deequ.Analyzers
         /// <param name="where">The where condition target of the invocation.</param>
         public Uniqueness(IEnumerable<string> columns, Option<string> where = default)
         {
+
+            Columns = columns;
            _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
                 AnalyzersNamespaces(AnalyzerName),
                 new SeqJvm( columns.ToArray()).Reference,
@@ -492,14 +506,15 @@ namespace deequ.Analyzers
     /// </summary>
     public class UniqueValueRatio : AnalyzerJvmBase
     {
-        private IEnumerable<string> Columns;
+        public IEnumerable<string> Columns;
         /// <summary>
         /// Initializes a new instance of type <see cref="Uniqueness"/> class.
         /// </summary>
         /// <param name="columns">The target column name.</param>
         /// <param name="where">The where condition target of the invocation.</param>
-        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where)
+        public UniqueValueRatio(IEnumerable<string> columns, Option<string> where = default)
         {
+            Columns = columns;
             _jvmBridge = SparkEnvironment.JvmBridge.CallConstructor(
                 AnalyzersNamespaces(AnalyzerName),
                 new SeqJvm(columns.ToArray()).Reference,
@@ -526,6 +541,8 @@ namespace deequ.Analyzers
             );
         }
 
+        public Option<UserDefinedFunction> BinningUdf { get; set; }
+        public int MaxDetailBins { get; set; }
     }
 
     /// <summary>

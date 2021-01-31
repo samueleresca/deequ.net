@@ -135,12 +135,12 @@ namespace deequ
                             currentValueForKey.GetOrElse(AnalyzerContext.Empty()); // TODO missing override
 
                     Dictionary<string, IAnalyzer<IMetric>> alreadySavedDict =
-                        alreadySavedResult.MetricMap.ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
+                        alreadySavedResult.MetricMap().ToDictionary(pair => pair.Key.ToString(), pair => pair.Key);
 
-                    resultingAnalyzerContext.MetricMap.ToList().ForEach(keyValuePair =>
+                    resultingAnalyzerContext.MetricMap().ToList().ForEach(keyValuePair =>
                     {
                         if (alreadySavedDict.ContainsKey(keyValuePair.Key.ToString()) &&
-                            alreadySavedResult.MetricMap.ContainsKey(alreadySavedDict[keyValuePair.Key.ToString()]))
+                            alreadySavedResult.MetricMap().ContainsKey(alreadySavedDict[keyValuePair.Key.ToString()]))
                         {
                             alreadySavedResult.MetricMap[alreadySavedDict[keyValuePair.Key.ToString()]] = keyValuePair.Value;
                         }

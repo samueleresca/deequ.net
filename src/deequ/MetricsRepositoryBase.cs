@@ -35,10 +35,10 @@ namespace deequ
 
         public MetricsRepository WithTagValues(Dictionary<string, string> tagValues)
         {
-            Map map = new Map(_repository.Jvm);
-            map.PutAll(tagValues);
+            MapJvm mapJvm = new MapJvm(_repository.Jvm);
+            mapJvm.PutAll(tagValues);
 
-            _repository.Invoke("withTagValues", map.Reference);
+            _repository.Invoke("withTagValues", mapJvm.Reference);
             return this;
         }
 
@@ -112,13 +112,13 @@ namespace deequ
         }
     }
 
-    public class ResultKey : IJvmObjectReferenceProvider
+    public class ResultKeyJvm : IJvmObjectReferenceProvider
     {
         public readonly long DataSetDate;
-        private JvmObjectReference _jvmResultKey;
+        private readonly JvmObjectReference _jvmResultKey;
 
 
-        public ResultKey(Option<long> dataSetDate, Dictionary<string, string> tags = default)
+        public ResultKeyJvm(Option<long> dataSetDate, Dictionary<string, string> tags = default)
         {
             if (!dataSetDate.HasValue)
             {
@@ -127,15 +127,39 @@ namespace deequ
 
             DataSetDate = dataSetDate.Value;
 
-            Map tagsMap = new Map(SparkEnvironment.JvmBridge);
-            tagsMap.PutAll(tags);
+            MapJvm tagsMapJvm = new MapJvm(SparkEnvironment.JvmBridge);
+            tagsMapJvm.PutAll(tags);
 
             _jvmResultKey =
                 SparkEnvironment.JvmBridge.CallConstructor("com.amazon.deequ.repository.ResultKey",
                     dataSetDate,
-                    tagsMap.Reference);
+                    tagsMapJvm.Reference);
         }
 
         public JvmObjectReference Reference => _jvmResultKey;
     }
+
+
+    public class ResultKey
+    {
+        public ResultKey(long dataSetDate, Dictionary<string, string> tags)
+        {
+            DataSetDate = dataSetDate;
+            Tags = tags;
+        }
+
+        public ResultKey(long dataSetDate)
+        {
+            DataSetDate = dataSetDate;
+            Tags = new Dictionary<string, string>();
+        }
+
+        public ResultKey()
+        {
+        }
+
+        public long DataSetDate { get; set; }
+        public Dictionary<string, string> Tags { get; set; }
+    }
+
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using deequ.Interop;
 using deequ.Interop.Utils;
 using deequ.Util;
@@ -6,7 +7,7 @@ using Microsoft.Spark.Interop.Ipc;
 
 namespace deequ.Metrics
 {
- /*   /// <summary>
+    /// <summary>
     /// Represents a distribution value.
     /// </summary>
     public class DistributionValue
@@ -33,11 +34,11 @@ namespace deequ.Metrics
             Ratio = ratio;
         }
     }
-*/
+
     /// <summary>
     /// Represents a distribution value.
     /// </summary>
-    public class DistributionValue
+    public class DistributionValueJvm
     {
         private readonly JvmObjectReference _jvmObject;
         /// <summary>
@@ -64,12 +65,12 @@ namespace deequ.Metrics
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DistributionValue"/> class.
+        /// Initializes a new instance of the <see cref="DistributionValueJvm"/> class.
         /// </summary>
         /// <param name="absolute">The absolute value of the distribution.</param>
         /// <param name="ratio">The ratio of the distribution value.</param>
         /// <param name="jvmObjectReference"></param>
-        public DistributionValue(JvmObjectReference jvmObjectReference)
+        public DistributionValueJvm(JvmObjectReference jvmObjectReference)
         {
             _jvmObject = jvmObjectReference;
         }
@@ -80,20 +81,20 @@ namespace deequ.Metrics
         /// </summary>
         /// <param name="jvmObjectReference"></param>
         /// <returns></returns>
-        public static implicit operator DistributionValue(JvmObjectReference jvmObjectReference)
+        public static implicit operator DistributionValueJvm(JvmObjectReference jvmObjectReference)
         {
-             return new DistributionValue(jvmObjectReference);
+             return new DistributionValueJvm(jvmObjectReference);
         }
 
     }
-/*
+
     /// <summary>
     /// Represents a class Distribution.
     /// </summary>
     public class Distribution
     {
         /// <summary>
-        /// The values of the distribution. Maps a string to a <see cref="DistributionValue"/>.
+        /// The values of the distribution. Maps a string to a <see cref="DistributionValueJvm"/>.
         /// </summary>
         public readonly Dictionary<string, DistributionValue> Values;
 
@@ -105,7 +106,7 @@ namespace deequ.Metrics
         /// <summary>
         /// Initializes a new instance of the <see cref="Distribution"/> class.
         /// </summary>
-        /// <param name="values">The values of the distribution. Maps a string to a <see cref="DistributionValue"/>.</param>
+        /// <param name="values">The values of the distribution. Maps a string to a <see cref="DistributionValueJvm"/>.</param>
         /// <param name="numberOfBins">Number of bins in the distribution instance.</param>
         public Distribution(Dictionary<string, DistributionValue> values, long numberOfBins)
         {
@@ -114,33 +115,33 @@ namespace deequ.Metrics
         }
 
         /// <summary>
-        /// Retrieves a <see cref="DistributionValue"/> from the distribution.
+        /// Retrieves a <see cref="DistributionValueJvm"/> from the distribution.
         /// </summary>
-        /// <param name="key">The key of the <see cref="DistributionValue"/> you want to retrieve.</param>
+        /// <param name="key">The key of the <see cref="DistributionValueJvm"/> you want to retrieve.</param>
         public DistributionValue this[string key]
         {
             get => Values[key];
             set => Values[key] = value;
         }
-    }*/
+    }
 
 
 
     /// <summary>
     /// Represents a class Distribution.
     /// </summary>
-    public class Distribution
+    public class DistributionJvm
     {
         private readonly JvmObjectReference _jvmObjectReference;
 
         /// <summary>
-        /// The values of the distribution. Maps a string to a <see cref="DistributionValue"/>.
+        /// The values of the distribution. Maps a string to a <see cref="DistributionValueJvm"/>.
         /// </summary>
-        public Map Values
+        public MapJvm Values
         {
             get
             {
-                return new Map((JvmObjectReference)_jvmObjectReference.Invoke("values"));
+                return new MapJvm((JvmObjectReference)_jvmObjectReference.Invoke("values"));
             }
         }
 
@@ -156,11 +157,11 @@ namespace deequ.Metrics
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Distribution"/> class.
+        /// Initializes a new instance of the <see cref="DistributionJvm"/> class.
         /// </summary>
-        /// <param name="values">The values of the distribution. Maps a string to a <see cref="DistributionValue"/>.</param>
+        /// <param name="values">The values of the distribution. Maps a string to a <see cref="DistributionValueJvm"/>.</param>
         /// <param name="numberOfBins">Number of bins in the distribution instance.</param>
-        public Distribution(JvmObjectReference jvmObjectReference)
+        public DistributionJvm(JvmObjectReference jvmObjectReference)
         {
             _jvmObjectReference = jvmObjectReference;
         }
@@ -172,17 +173,17 @@ namespace deequ.Metrics
         /// </summary>
         /// <param name="jvmObjectReference"></param>
         /// <returns></returns>
-        public static implicit operator Distribution(JvmObjectReference jvmObjectReference)
+        public static implicit operator DistributionJvm(JvmObjectReference jvmObjectReference)
         {
-            return new Distribution(jvmObjectReference);
+            return new DistributionJvm(jvmObjectReference);
         }
 
 
         /// <summary>
-        /// Retrieves a <see cref="DistributionValue"/> from the distribution.
+        /// Retrieves a <see cref="DistributionValueJvm"/> from the distribution.
         /// </summary>
-        /// <param name="key">The key of the <see cref="DistributionValue"/> you want to retrieve.</param>
-        public DistributionValue this[string key]
+        /// <param name="key">The key of the <see cref="DistributionValueJvm"/> you want to retrieve.</param>
+        public DistributionValueJvm this[string key]
         {
             get
             {
@@ -208,7 +209,7 @@ namespace deequ.Metrics
     /// <summary>
     /// Describes a histogram metric.
     /// </summary>
-    public class HistogramMetric : Metric<Distribution>
+    public class HistogramMetric : Metric<Distribution>, IMetric
     {
         /// <summary>
         /// The target column of the metric.
@@ -219,14 +220,16 @@ namespace deequ.Metrics
         /// Initializes a new instance of the <see cref="HistogramMetric"/> class.
         /// </summary>
         /// <param name="column">The target column of the metric.</param>
-        /// <param name="value">The value of the metric <see cref="Distribution"/>.</param>
-       // public HistogramMetric(string column, Try<Distribution> value)
-       // {
-//        }
+        /// <param name="value">The value of the metric <see cref="DistributionJvm"/>.</param>
+        public HistogramMetric(string column, Try<Distribution> value) : base(Metrics.MetricEntity.Column, "Histogram", column, value)
+        {
+        }
 
         public HistogramMetric(MetricEntity metricEntity, string name, string instance, Try<Distribution> value)
             : base(metricEntity, name, instance, value)
         {
         }
+
+        public bool IsSuccess() => throw new NotImplementedException();
     }
 }

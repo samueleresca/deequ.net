@@ -24,7 +24,7 @@ namespace deequ.Constraints
         /// </summary>
         /// <param name="analysisResult">The analysis result to evaluate against the check</param>
         /// <returns></returns>
-        public ConstraintResult Evaluate(Map analysisResult);
+        public ConstraintResult Evaluate(MapJvm analysisResult);
         public ConstraintResult Evaluate(Dictionary<string, JvmObjectReference> analysisResult);
     }
     internal interface IAnalysisBasedConstraint : IConstraint
@@ -117,7 +117,7 @@ namespace deequ.Constraints
             }
         }
 
-        public ConstraintResult Evaluate(Map analysisResult)
+        public ConstraintResult Evaluate(MapJvm analysisResult)
         {
             ConstraintResult result = _inner.Evaluate(analysisResult);
             result.Constraint = this;
@@ -157,7 +157,7 @@ namespace deequ.Constraints
 
        public static IConstraint HistogramConstraint(
             string column,
-            Func<Distribution, bool> assertion,
+            Func<DistributionJvm, bool> assertion,
             Option<UserDefinedFunction> binningFunc,
             Option<string> where,
             Option<string> hint,
@@ -166,9 +166,9 @@ namespace deequ.Constraints
         {
             Histogram histogram = Histogram(column, binningFunc, maxBins, where);
 
-            AnalysisBasedConstraint<Distribution, Distribution> constraint =
-                new AnalysisBasedConstraint<Distribution, Distribution>(histogram, assertion,
-                    Option<Func<Distribution, Distribution>>.None, hint);
+            AnalysisBasedConstraint<DistributionJvm, DistributionJvm> constraint =
+                new AnalysisBasedConstraint<DistributionJvm, DistributionJvm>(histogram, assertion,
+                    Option<Func<DistributionJvm, DistributionJvm>>.None, hint);
 
 
             return new NamedConstraint(constraint,
@@ -186,9 +186,9 @@ namespace deequ.Constraints
         {
             Histogram histogram = Histogram(column, binningFunc, maxBins,  where);
 
-            AnalysisBasedConstraint<Distribution, long> constraint =
-                new AnalysisBasedConstraint<Distribution, long>(histogram, assertion,
-                    new Func<Distribution, long>(target => target.NumberOfBins),
+            AnalysisBasedConstraint<DistributionJvm, long> constraint =
+                new AnalysisBasedConstraint<DistributionJvm, long>(histogram, assertion,
+                    new Func<DistributionJvm, long>(target => target.NumberOfBins),
                     hint);
 
 
@@ -537,10 +537,10 @@ namespace deequ.Constraints
             Option<string> hint
         )
         {
-            Func<Distribution, double> valuePicker = dataType == ConstrainableDataTypes.Numeric
+            Func<DistributionJvm, double> valuePicker = dataType == ConstrainableDataTypes.Numeric
                 ? d => RatioTypes(true, DataTypeInstances.Fractional, d) +
                        RatioTypes(true, DataTypeInstances.Integral, d)
-                : new Func<Distribution, double>(distribution =>
+                : new Func<DistributionJvm, double>(distribution =>
                 {
                     Func<DataTypeInstances, double> pure =
                         keyType => RatioTypes(true, keyType, distribution);
@@ -556,23 +556,23 @@ namespace deequ.Constraints
 
             DataType dataTypeResult = DataType(column, where);
 
-            return new AnalysisBasedConstraint<Distribution, double>(dataTypeResult, assertion,
+            return new AnalysisBasedConstraint<DistributionJvm, double>(dataTypeResult, assertion,
                 valuePicker, hint);
         }
 
 
-        private static double RatioTypes(bool ignoreUnknown, DataTypeInstances keyType, Distribution distribution)
+        private static double RatioTypes(bool ignoreUnknown, DataTypeInstances keyType, DistributionJvm distributionJvm)
         {
-            OptionJvm optionJvm = distribution.Values.Get(keyType.ToString());
+            OptionJvm optionJvm = distributionJvm.Values.Get(keyType.ToString());
 
             double ratio = 0.0;
             long absolute = 0L;
 
             if (!optionJvm.IsEmpty())
             {
-                DistributionValue distValue = (JvmObjectReference)optionJvm.Get();
-                ratio = distValue.Ratio;
-                absolute = distValue.Absolute;
+                DistributionValueJvm distValueJvm = (JvmObjectReference)optionJvm.Get();
+                ratio = distValueJvm.Ratio;
+                absolute = distValueJvm.Absolute;
             }
 
             if (!ignoreUnknown)
@@ -581,11 +581,11 @@ namespace deequ.Constraints
             if (absolute == 0L)
                 return 0;
 
-            long numValues =  distribution
-                .Values.GetValues<DistributionValue>()
+            long numValues =  distributionJvm
+                .Values.GetValues<DistributionValueJvm>()
                 .AsEnumerable().Sum(keyValuePair => keyValuePair.Absolute);
 
-            long numUnknown =  ((DistributionValue)(JvmObjectReference)distribution.Values
+            long numUnknown =  ((DistributionValueJvm)(JvmObjectReference)distributionJvm.Values
                 .Get(DataTypeInstances.Unknown.ToString()).Get())?.Absolute ?? 0L;
 
             long sumOfNonNull = numValues - numUnknown;

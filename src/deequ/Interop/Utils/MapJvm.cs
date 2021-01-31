@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Internal.Java.Util;
 using Microsoft.Spark.Interop.Internal.Scala;
 using Microsoft.Spark.Interop.Ipc;
 
@@ -8,7 +10,7 @@ namespace deequ.Interop.Utils
     /// <summary>
     /// Hashtable class represents a <c>java.util.Hashtable</c> object.
     /// </summary>
-    public sealed class Map : IJvmObjectReferenceProvider
+    public sealed class MapJvm : IJvmObjectReferenceProvider
     {
         private readonly JvmObjectReference _jvmObject;
 
@@ -16,11 +18,25 @@ namespace deequ.Interop.Utils
         /// Create a <c>java.util.Hashtable</c> JVM object
         /// </summary>
         /// <param name="jvm">JVM bridge to use</param>
-        internal Map(IJvmBridge jvm) =>
+        internal MapJvm(IJvmBridge jvm) =>
             _jvmObject = jvm.CallConstructor("scala.collection.immutable.Map");
 
-        internal Map(JvmObjectReference jvm) =>
+        internal MapJvm(JvmObjectReference jvm) =>
             _jvmObject = jvm;
+
+
+        internal MapJvm(Dictionary<JvmObjectReference, JvmObjectReference> dictionary)
+        {
+            var hashtable = new Hashtable(SparkEnvironment.JvmBridge);
+
+            foreach (var keyValue in dictionary)
+                hashtable.Put(keyValue.Key, keyValue.Value);
+
+
+            var reference = ((IJvmObjectReferenceProvider)hashtable).Reference;
+            var result = SparkEnvironment.JvmBridge.CallNonStaticJavaMethod(reference, "asScala");
+
+        }
 
         public JvmObjectReference Reference => _jvmObject;
 
@@ -79,6 +95,11 @@ namespace deequ.Interop.Utils
         {
             foreach (KeyValuePair<K, V> pair in dict)
                 Put(pair.Key, pair.Value);
+        }
+
+        public Dictionary<K, V> ToDictionary<K, V>()
+        {
+            return new Dictionary<K, V>();
         }
     }
 }

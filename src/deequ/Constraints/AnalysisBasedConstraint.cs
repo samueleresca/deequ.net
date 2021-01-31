@@ -59,7 +59,7 @@ namespace deequ.Constraints
             return Evaluate(new Dictionary<string, JvmObjectReference>{ {Analyzer.ToString(), metric}});
         }
 
-        public ConstraintResult Evaluate(Map analysisResult)
+        public ConstraintResult Evaluate(MapJvm analysisResult)
         {
             Option<MetricJvm<M>> metric;
 
@@ -153,7 +153,7 @@ namespace deequ.Constraints
             {
                 if (!_valuePicker.HasValue)
                 {
-                    if (typeof(M) == typeof(Distribution))
+                    if (typeof(M) == typeof(DistributionJvm))
                     {
                         V value = (V) Activator.CreateInstance(typeof(V), (JvmObjectReference)metricValue);
                         result = value;
@@ -166,7 +166,7 @@ namespace deequ.Constraints
                 }
 
 
-                if (typeof(M) == typeof(Distribution))
+                if (typeof(M) == typeof(DistributionJvm))
                 {
                     M value = (M) Activator.CreateInstance(typeof(M), (JvmObjectReference)metricValue);
                     result = _valuePicker.Value(value);

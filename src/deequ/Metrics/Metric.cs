@@ -30,6 +30,8 @@ namespace deequ.Metrics
     public interface IMetric
     {
 
+        public bool IsSuccess();
+
     }
 
 
@@ -90,7 +92,7 @@ namespace deequ.Metrics
     /// <summary>
     /// Common class for all data quality metrics where the value is double
     /// </summary>
-    public class DoubleMetric : Metric<double>, IEquatable<DoubleMetric>
+    public class DoubleMetric : Metric<double>, IEquatable<DoubleMetric>, IMetric
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DoubleMetric"/> class.
@@ -154,5 +156,7 @@ namespace deequ.Metrics
 
             return Equals((DoubleMetric)obj);
         }
+
+        public bool IsSuccess() => true;
     }
 }

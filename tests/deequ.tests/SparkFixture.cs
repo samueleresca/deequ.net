@@ -146,7 +146,7 @@ namespace xdeequ.tests
             string classArg = "--class org.apache.spark.deploy.dotnet.DotnetRunner";
             string curDir = AppDomain.CurrentDomain.BaseDirectory;
             string jarPrefix = GetJarPrefix();
-            string scalaDir = Path.Combine(curDir, "..", "..", "..");
+            string scalaDir = Path.Combine(curDir, "..", "..", "..", "Resources");
             string jarDir = Path.Combine(scalaDir, jarPrefix);
             string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
             string jar = Path.Combine(jarDir, $"{jarPrefix}-{assemblyVersion}.jar");

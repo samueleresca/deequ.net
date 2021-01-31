@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using deequ;
 using deequ.Analyzers;
 using deequ.Analyzers.Runners;
 using deequ.Metrics;
 using deequ.Repository;
-using deequ.Repository.InMemory;
 using deequ.Util;
 using Microsoft.Spark.Sql;
 using Microsoft.Spark.Sql.Types;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
+using InMemoryMetricsRepository = deequ.Repository.InMemory.InMemoryMetricsRepository;
 using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 namespace xdeequ.tests.Repository.Memory
@@ -255,10 +256,10 @@ namespace xdeequ.tests.Repository.Memory
                 AnalyzerContext loadResults = repository.LoadByKey(resultKey).Value;
 
                 DataFrame loadedResultsAsDataFrame =
-                    loadResults.SuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>());
+                    loadResults.SuccessMetricsAsDataFrame( Enumerable.Empty<IAnalyzer<IMetric>>());
 
                 DataFrame resultAsDataFrame =
-                    context.SuccessMetricsAsDataFrame(_session, Enumerable.Empty<IAnalyzer<IMetric>>());
+                    context.SuccessMetricsAsDataFrame(Enumerable.Empty<IAnalyzer<IMetric>>());
 
                 AssertSameRows(loadedResultsAsDataFrame, resultAsDataFrame);
 
@@ -324,7 +325,7 @@ namespace xdeequ.tests.Repository.Memory
 
             AnalyzerContext resultsWithMixedValues = new AnalyzerContext(metrics);
             IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> successMetrics =
-                resultsWithMixedValues.MetricMap.Where(
+                resultsWithMixedValues.MetricMap().ToDictionary<IAnalyzer<IMetric>, IMetric>().Where(
                     keyValuePair =>
                     {
                         DoubleMetric dm = keyValuePair.Value as DoubleMetric;

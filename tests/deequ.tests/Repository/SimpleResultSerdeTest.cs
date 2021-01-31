@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using deequ;
 using deequ.Analyzers;
 using deequ.Analyzers.Runners;
 using deequ.Extensions;
@@ -11,7 +12,6 @@ using deequ.Util;
 using Microsoft.Spark.Sql;
 using Shouldly;
 using Xunit;
-using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 namespace xdeequ.tests.Repository
 {
@@ -28,7 +28,7 @@ namespace xdeequ.tests.Repository
         {
             DataFrame df = FixtureSupport.GetDFFull(_session);
 
-            Analysis analysis = new Analysis()
+            AnalysisJvm analysis = new AnalysisJvm()
                 .AddAnalyzer(Initializers.Size(Option<string>.None))
                 .AddAnalyzer(Initializers.Distinctness(new[] { "item" }, Option<string>.None))
                 .AddAnalyzer(Initializers.Completeness("att1"))

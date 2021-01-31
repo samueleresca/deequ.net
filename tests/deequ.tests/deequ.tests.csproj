@@ -46,19 +46,25 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="AnomalyDetection\**" />
       <Compile Remove="Examples\**" />
-      <Compile Remove="Repository\**" />
       <Compile Remove="Constraints\HistogramConstraints.cs" />
       <Compile Remove="Metrics\**" />
       <Compile Remove="Analyzers\HistogramAnalyzer.cs" />
       <Compile Remove="Analyzers\DataTypeAnalyzer.cs" />
       <Compile Remove="VerificationResultTests.cs" />
       <Compile Remove="VerificationSuiteTest.cs" />
+      <Compile Remove="Repository\Memory\InMemoryMetricsRepositoryTests.cs" />
+      <Compile Remove="Repository\MetricsRepositoryAnomalyDetectionIntegrationTest.cs" />
+      <Compile Remove="Repository\MetricsRepositoryMultipleResultsLoaderTest.cs" />
+      
     </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Remove="Metrics\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Repository\Memory" />
     </ItemGroup>
 
 </Project>

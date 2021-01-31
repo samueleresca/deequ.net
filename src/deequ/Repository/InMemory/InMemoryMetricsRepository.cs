@@ -18,7 +18,7 @@ namespace deequ.Repository.InMemory
         public void Save(ResultKey resultKey, AnalyzerContext analyzerContext)
         {
             IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> successfulMetrics =
-                analyzerContext.MetricMap.Where(keyValuePair => keyValuePair.Value.IsSuccess());
+                analyzerContext.MetricMap().ToDictionary<IAnalyzer<IMetric>, IMetric>().Where(keyValuePair => keyValuePair.Value.IsSuccess());
 
             AnalyzerContext analyzerContextWithSuccessfulValues =
                 new AnalyzerContext(new Dictionary<IAnalyzer<IMetric>, IMetric>(successfulMetrics));
@@ -81,8 +81,8 @@ namespace deequ.Repository.InMemory
                 {
                     IEnumerable<KeyValuePair<IAnalyzer<IMetric>, IMetric>> requestedMetrics = keyValuePair.Value
                         .AnalyzerContext
-                        .MetricMap
-                        //TODO:Fix equality
+                        .MetricMap().ToDictionary<IAnalyzer<IMetric>, IMetric>()
+                        //TODO:Fix equalityx
                         .Where(analyzer => !forAnalyzers.HasValue || forAnalyzers.Value
                             .Select(value => value.ToString())
                             .Contains(analyzer.Key.ToString()));

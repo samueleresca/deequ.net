@@ -59,9 +59,12 @@ namespace deequ.Interop
             _jvmObject = jvmObjectReference;
         }
 
+
+
         public JvmObjectReference Reference => _jvmObject;
 
 
         public override string ToString() => (string) _jvmObject.Invoke("toString");
+        bool IMetric.IsSuccess() => throw new NotImplementedException();
     }
 }

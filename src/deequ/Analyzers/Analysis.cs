@@ -3,7 +3,10 @@ using System.Linq;
 using deequ.Analyzers.Runners;
 using deequ.Metrics;
 using deequ.Util;
+using Microsoft.Spark.Interop;
+using Microsoft.Spark.Interop.Ipc;
 using Microsoft.Spark.Sql;
+using StorageLevel = deequ.Analyzers.Runners.StorageLevel;
 
 namespace deequ.Analyzers
 {
@@ -54,9 +57,10 @@ namespace deequ.Analyzers
         public AnalyzerContext Run(DataFrame data,
             Option<IStateLoader> aggregateWith = default,
             Option<IStatePersister> saveStateWith = default,
-            StorageLevel storageLevelOfGroupedDataForMultiplePasses = StorageLevel.MEMORY_AND_DISK) =>
-            AnalysisRunner.DoAnalysisRun(
-                data,
-                Analyzers, aggregateWith, saveStateWith, storageLevelOfGroupedDataForMultiplePasses);
+            StorageLevel storageLevelOfGroupedDataForMultiplePasses = StorageLevel.MEMORY_AND_DISK)
+        {
+            return AnalysisRunnerJvm.Run(data, null, aggregateWith, saveStateWith,
+                storageLevelOfGroupedDataForMultiplePasses);
+        }
     }
 }

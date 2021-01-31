@@ -268,7 +268,7 @@ namespace deequ.Checks
         /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HasHistogramValues(string column,
-            Func<Distribution, bool> assertion,
+            Func<DistributionJvm, bool> assertion,
             Option<UserDefinedFunction> binningFunc,
             int maxBins = 1000,
             Option<string> hint = default
@@ -286,7 +286,7 @@ namespace deequ.Checks
         /// <param name="hint">A hint to provide additional context why a constraint could have failed.</param>
         /// <returns></returns>
         public CheckWithLastConstraintFilterable HasHistogramValues(string column,
-            Func<Distribution, bool> assertion,
+            Func<DistributionJvm, bool> assertion,
             int maxBins = 1000,
             Option<string> hint = default
         ) =>
@@ -294,7 +294,7 @@ namespace deequ.Checks
                 HistogramConstraint(column, assertion, Option<UserDefinedFunction>.None, filter, hint, maxBins));
 
         public CheckWithLastConstraintFilterable KllSketchSatisfies(string column,
-            Func<Distribution, bool> assertion,
+            Func<DistributionJvm, bool> assertion,
             Option<Func<Column, Column>> binningFunc = default,
             Option<string> hint = default,
             int maxBins = 100
@@ -1016,8 +1016,8 @@ namespace deequ.Checks
                         //TODO: Order by tags in case you have multiple data points .OrderBy(x => x.ResultKey.Tags.Values)
                         .Select(analysisResults =>
                         {
-                            Map analyzerContextMetricMap = analysisResults.AnalyzerContext.MetricMap();
-                            Metric<double> doubleMetric = (Metric<double>) analyzerContextMetricMap.Reference
+                            MapJvm analyzerContextMetricMapJvm = analysisResults.AnalyzerContext.MetricMap();
+                            Metric<double> doubleMetric = (Metric<double>) analyzerContextMetricMapJvm.Reference
                                 .Invoke("headOption.get._2");
 
                             Option<Metric<double>> doubleMetricOption = Option<Metric<double>>.None;

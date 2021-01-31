@@ -48,7 +48,7 @@ namespace deequ
         public DataFrame SuccessMetricsAsDataFrame(SparkSession session, IEnumerable<IAnalyzer<IMetric>> forAnalyzers)
         {
             AnalyzerContext metricsAsAnalyzerContext = new AnalyzerContext(Metrics);
-            return metricsAsAnalyzerContext.SuccessMetricsAsDataFrame(session, forAnalyzers);
+            return metricsAsAnalyzerContext.SuccessMetricsAsDataFrame(forAnalyzers);
         }
 
         public string SuccessMetricsAsJson(IEnumerable<IAnalyzer<IMetric>> forAnalyzers)
@@ -106,7 +106,7 @@ namespace deequ
         }
     }
 
-    internal class SimpleCheckResultOutput
+    public class SimpleCheckResultOutput
     {
         public readonly string CheckDescription;
         public readonly string CheckLevel;

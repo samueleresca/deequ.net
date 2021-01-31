@@ -44,28 +44,16 @@
       <Compile Remove="Analyzers\Uniqueness.cs" />
       <Compile Remove="Analyzers\UniqueValueRatio.cs" />
       <Compile Remove="Analyzers\Runners\AnalyzerContext.cs" />
-      <Compile Remove="Analyzers\Runners\AnalysisRunner.cs" />
       <Compile Remove="Analyzers\Runners\AnalysisRunBuilder.cs" />
-      <Compile Remove="Repository\InMemory\InMemoryMetricsRepository.cs" />
       <Compile Remove="Analyzers\Applicability\ApplicabilityResult.cs" />
-      <Compile Remove="Repository\MetricsRepositoryMultipleResultsLoader.cs" />
       <Compile Remove="Repository\Serde\**.cs" />
-      <Compile Remove="Extensions\SerdeExt.cs" />
-      <Compile Remove="Extensions\VerificationResultExt.cs" />
-      <Compile Remove="Extensions\AnalysisResultExtensions.cs" />
-      <Compile Remove="Analyzers\Analysis.cs" />
-      <Compile Remove="Repository\Serde\AnalysisResultSerializer.cs" />
-      <Compile Remove="Repository\Serde\AnalyzerContextSerlizer.cs" />
-      <Compile Remove="Repository\Serde\AnalyzerSerializer.cs" />
-      <Compile Remove="Repository\Serde\DistributionSerializer.cs" />
-      <Compile Remove="Repository\Serde\MetricSerializer.cs" />
-      <Compile Remove="VerificationResult.cs" />
       <Compile Remove="VerificationSuite.cs" />
       <Compile Remove="VerificationRunBuilder.cs" />
+      <Compile Remove="Extensions\VerificationResultExt.cs" />
+      <Compile Remove="Analyzers\Runners\AnalysisRunner.cs" />
       
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Analyzers\Applicability" />
-      <Folder Include="Repository\InMemory" />
     </ItemGroup>
 </Project>
