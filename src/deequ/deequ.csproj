@@ -12,7 +12,7 @@
       <PackageTags>Spark Spark.NET awslabs/deequ data-quality bigdata</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Spark" Version="1.0.0" />
+        <PackageReference Include="Microsoft.Spark" Version="1.1.1" />
         <PackageReference Include="System.Text.Json" Version="5.0.1" />
     </ItemGroup>
 </Project>
